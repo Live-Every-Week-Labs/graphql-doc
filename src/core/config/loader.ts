@@ -1,5 +1,6 @@
 import { cosmiconfig } from 'cosmiconfig';
 import { loadConfig } from 'graphql-config';
+import path from 'path';
 import { Config, ConfigSchema } from './schema.js';
 
 const MODULE_NAME = 'graphql-docs';
@@ -12,11 +13,12 @@ export async function loadGeneratorConfig(rootPath: string = process.cwd()): Pro
       const extensionConfig = gqlConfig.getDefault().extension(MODULE_NAME);
 
       if (extensionConfig) {
-        return ConfigSchema.parse(extensionConfig);
+        return processConfigDefaults(ConfigSchema.parse(extensionConfig));
       }
     }
   } catch (error) {
-    // Ignore error if .graphqlrc is not found or invalid, fall back to cosmiconfig
+    console.warn(`Warning: Failed to load .graphqlrc: ${(error as Error).message}`);
+    // Fall back to cosmiconfig
   }
 
   // 2. Try to load from cosmiconfig (graphql-docs.config.js, etc.)
@@ -24,9 +26,25 @@ export async function loadGeneratorConfig(rootPath: string = process.cwd()): Pro
   const result = await explorer.search(rootPath);
 
   if (result && result.config) {
-    return ConfigSchema.parse(result.config);
+    return processConfigDefaults(ConfigSchema.parse(result.config));
   }
 
   // 3. Return default config
-  return ConfigSchema.parse({});
+  return processConfigDefaults(ConfigSchema.parse({}));
+}
+
+function processConfigDefaults(config: Config): Config {
+  // Smart defaults: If examples/errors dirs are not explicitly set,
+  // assume they are subdirectories of the metadataDir.
+  // This allows users to just set `metadataDir` and get a standard structure.
+
+  if (!config.examplesDir) {
+    config.examplesDir = path.join(config.metadataDir, 'examples');
+  }
+
+  if (!config.errorsDir) {
+    config.errorsDir = path.join(config.metadataDir, 'errors');
+  }
+
+  return config;
 }

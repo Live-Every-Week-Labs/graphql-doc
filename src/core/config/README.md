@@ -15,6 +15,8 @@ The `src/core/config` module handles configuration loading and validation for th
   - `framework`: Output format (default: `docusaurus`).
   - `singlePage`: Toggle single-page vs multi-page (default: `false`).
   - `metadataDir`: Path to external metadata (default: `./docs-metadata`).
+  - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).
+  - `errorsDir`: Path to error definitions (default: `${metadataDir}/errors`).
   - `typeExpansion`: Settings for type depth and circular references.
 
 ### 2. Config Loader
@@ -24,8 +26,13 @@ The `src/core/config` module handles configuration loading and validation for th
 - Responsible for finding and parsing the configuration.
 - **Loading Priority:**
   1.  **GraphQL Config (`.graphqlrc`):** Checks for a `graphql-docs` extension block.
+      - _Note:_ Logs a warning if loading fails (e.g., file not found) and proceeds to next method.
   2.  **Cosmiconfig:** Searches for `graphql-docs.config.js`, `.json`, etc.
   3.  **Defaults:** Falls back to default values defined in the Zod schema.
+
+- **Smart Defaults:**
+  - If `examplesDir` or `errorsDir` are not explicitly provided, they automatically default to subdirectories within the configured `metadataDir`.
+  - Example: If `metadataDir` is `./api-data`, examples will be looked for in `./api-data/examples`.
 
 ## Usage
 

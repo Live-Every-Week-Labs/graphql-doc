@@ -1,7 +1,11 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/cli/index.ts', 'src/adapters/docusaurus/index.ts'],
+  entry: {
+    index: 'src/index.ts',
+    cli: 'src/cli/index.ts',
+    docusaurus: 'src/adapters/docusaurus/index.ts',
+  },
   format: ['cjs', 'esm'],
   dts: true,
   splitting: false,
