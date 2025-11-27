@@ -1,0 +1,35 @@
+{{#if examples.length}}
+### Examples
+
+<Tabs>
+    {{#each examples}}
+    <TabItem value="{{slugify name}}" label="{{name}}">
+
+        {{#if description}}
+        {{description}}
+        {{/if}}
+
+        #### Query
+
+        ```graphql
+        {{query}}
+        ```
+
+        {{#if variables}}
+        #### Variables
+
+        ```json
+        {{json variables}}
+        ```
+        {{/if}}
+
+        #### Response
+
+        ```json
+        {{json response.body}}
+        ```
+
+    </TabItem>
+    {{/each}}
+</Tabs>
+{{/if}}

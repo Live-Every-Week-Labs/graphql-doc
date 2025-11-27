@@ -1,0 +1,9 @@
+{{#if arguments.length}}
+### Arguments
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+{{#each arguments}}
+| `{{name}}` | {{> type type}} | {{#if description}}{{description}}{{else}}-{{/if}} |
+{{/each}}
+{{/if}}

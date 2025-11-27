@@ -10,7 +10,8 @@ The `DocusaurusAdapter` converts the internal model into a file structure and co
 
 1.  **File Structure**: Maps the `Section` and `Subsection` hierarchy to a nested directory structure.
 2.  **Front Matter**: Generates Docusaurus-compatible YAML front matter for MDX files (id, title, sidebar_label, tags).
-3.  **Navigation**: Generates `_category_.json` files to control the Docusaurus sidebar structure and ordering.
+3.  **Content Generation**: Uses `MdxRenderer` to generate the body content of the MDX files.
+4.  **Navigation**: Generates `_category_.json` files to control the Docusaurus sidebar structure and ordering.
 
 ### Usage
 

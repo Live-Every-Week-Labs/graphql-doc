@@ -1,0 +1,9 @@
+{{~#if (eq kind "SCALAR")~}}
+  `{{name}}`
+{{~else if (eq kind "NON_NULL")~}}
+  {{> type ofType}}!
+{{~else if (eq kind "LIST")~}}
+  [{{> type ofType}}]
+{{~else~}}
+  [`{{name}}`](#{{slugify name}})
+{{~/if~}}

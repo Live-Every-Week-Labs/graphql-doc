@@ -1,9 +1,46 @@
 import { DocModel, Operation, Section, Subsection } from '../transformer/types';
 import { GeneratedFile } from './types';
+import { MdxRenderer } from '../renderer/mdx-renderer';
+
+export interface DocusaurusAdapterConfig {
+  singlePage?: boolean;
+}
 
 export class DocusaurusAdapter {
+  private renderer: MdxRenderer;
+  private config: DocusaurusAdapterConfig;
+
+  constructor(config: DocusaurusAdapterConfig = {}) {
+    this.renderer = new MdxRenderer();
+    this.config = config;
+  }
+
   adapt(model: DocModel): GeneratedFile[] {
     const files: GeneratedFile[] = [];
+
+    if (this.config.singlePage) {
+      // Single page mode implementation
+      // For now, we'll just concatenate all operations into one file
+      // This is a basic implementation of single-page mode
+      const content = model.sections
+        .map((section: Section) => {
+          return section.subsections
+            .map((subsection: Subsection) => {
+              return subsection.operations
+                .map((op: Operation) => this.generateMdx(op))
+                .join('\n\n---\n\n');
+            })
+            .join('\n\n');
+        })
+        .join('\n\n');
+
+      files.push({
+        path: 'index.mdx',
+        content: content,
+        type: 'mdx',
+      });
+      return files;
+    }
 
     for (const section of model.sections) {
       const sectionPath = this.slugify(section.name);
@@ -46,28 +83,8 @@ export class DocusaurusAdapter {
 
   private generateMdx(op: Operation): string {
     const frontMatter = this.generateFrontMatter(op);
-    // Content generation is handled by the renderer (Phase 5),
-    // but the adapter prepares the file structure and front matter.
-    // For now, we'll put a placeholder or just the front matter.
-    // The PRD implies the adapter generates the files, but Phase 5 is "MDX Generation".
-    // Phase 4 tasks are "Generate Docusaurus front matter", "Determine file paths", "Create _category_.json".
-    // So this adapter is likely responsible for the *structure* and *metadata*,
-    // while the actual markdown content comes from templates in Phase 5.
-    // However, to satisfy "Generate MDX files", we need some content.
-    // We will assume this adapter produces the final file *object* which will contain
-    // the rendered content later.
-    // BUT, looking at the architecture: Adapter -> MDX Generator -> File Writer.
-    // Or is it Adapter (Model -> Files) -> Writer?
-    // The PRD says:
-    // Phase 4: Docusaurus Adapter (Goals: Adapt internal model to Docusaurus conventions)
-    // Phase 5: MDX Generation (Goals: Generate MDX files from internal templates)
-
-    // It seems Phase 5 is about the *content* (templates).
-    // Phase 4 is about the *structure* (paths, frontmatter, sidebars).
-    // So for now, I will just output the front matter as the content,
-    // knowing that Phase 5 will inject the template rendering logic here.
-
-    return `${frontMatter}\n\n# ${op.name}`;
+    const content = this.renderer.renderOperation(op);
+    return `${frontMatter}\n\n${content}`;
   }
 
   private generateFrontMatter(op: Operation): string {
@@ -78,7 +95,7 @@ export class DocusaurusAdapter {
     const lines = ['---', `id: ${id}`, `title: ${title}`, `sidebar_label: ${sidebarLabel}`];
 
     if (op.directives.docTags?.tags?.length) {
-      const tags = op.directives.docTags.tags.map((t) => `"${t}"`).join(', ');
+      const tags = op.directives.docTags.tags.map((t: string) => `"${t}"`).join(', ');
       lines.push(`tags: [${tags}]`);
     }
 
