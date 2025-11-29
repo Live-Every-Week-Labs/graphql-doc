@@ -1,0 +1,214 @@
+directive @docGroup(name: String!, order: Int, subsection: String) on OBJECT | FIELD_DEFINITION
+directive @docPriority(level: Int!) on FIELD_DEFINITION
+directive @docTags(tags: [String!]!) on FIELD_DEFINITION
+
+scalar Date
+scalar JSON
+
+"Role of a user in the system"
+enum UserRole {
+  "System administrator with full access"
+  ADMIN
+  "Regular registered user"
+  USER
+  "Unregistered visitor"
+  GUEST
+}
+
+"Base interface for all persistent objects"
+interface Node {
+  "Unique identifier for the object"
+  id: ID!
+  "Timestamp when the object was created"
+  createdAt: Date!
+}
+
+"Represents a registered user in the system"
+type User implements Node @docGroup(name: "User Management", order: 1) {
+  "Unique identifier for the user"
+  id: ID!
+  "Timestamp when the user account was created"
+  createdAt: Date!
+  "Unique username chosen by the user"
+  username: String!
+  "Verified email address of the user"
+  email: String!
+  "Current role and permissions level"
+  role: UserRole!
+  "Optional profile information"
+  profile: UserProfile
+  "List of posts created by this user"
+  posts: [Post!]!
+}
+
+"Detailed profile information for a user"
+type UserProfile {
+  "Short biography or introduction"
+  bio: String
+  "URL to the user's avatar image"
+  avatarUrl: String
+  "List of social media profile URLs"
+  socialLinks: [String!]
+  "Arbitrary metadata associated with the profile"
+  metadata: JSON
+}
+
+"A blog post or article created by a user"
+type Post implements Node @docGroup(name: "Content", order: 2) {
+  "Unique identifier for the post"
+  id: ID!
+  "Timestamp when the post was created"
+  createdAt: Date!
+  "Title of the post"
+  title: String!
+  "Main content body of the post"
+  content: String!
+  "The user who created this post"
+  author: User!
+  "List of comments on this post"
+  comments: [Comment!]!
+  "List of tags associated with this post"
+  tags: [String!]!
+  "Current publication status of the post"
+  status: PostStatus
+}
+
+"Union representing the possible states of a post"
+union PostStatus = PublishedStatus | DraftStatus
+
+"Status details for a published post"
+type PublishedStatus {
+  "Date when the post was published"
+  publishedAt: Date!
+  "Number of views the post has received"
+  views: Int!
+}
+
+"Status details for a draft post"
+type DraftStatus {
+  "Indicates if the post is currently a draft"
+  isDraft: Boolean!
+  "Timestamp of the last save"
+  lastSaved: Date!
+}
+
+"A comment left by a user on a post"
+type Comment implements Node {
+  "Unique identifier for the comment"
+  id: ID!
+  "Timestamp when the comment was created"
+  createdAt: Date!
+  "The text content of the comment"
+  text: String!
+  "The user who wrote the comment"
+  author: User!
+  "The post this comment belongs to"
+  post: Post!
+}
+
+"Input data for creating a new user"
+input CreateUserInput {
+  "Desired username"
+  username: String!
+  "Email address"
+  email: String!
+  "Initial role assignment (defaults to USER)"
+  role: UserRole = USER
+  "Optional initial profile data"
+  profile: CreateUserProfileInput
+}
+
+"Input data for creating a user profile"
+input CreateUserProfileInput {
+  "Short biography"
+  bio: String
+  "Avatar image URL"
+  avatarUrl: String
+}
+
+"Filter criteria for searching posts"
+input PostFilter {
+  "Filter by author ID"
+  authorId: ID
+  "Filter by tags (any match)"
+  tags: [String!]
+  "Filter by status"
+  status: String
+}
+
+type Query {
+  "Get a user by their unique ID"
+  getUser(
+    "The ID of the user to retrieve"
+    id: ID!
+  ): User @docGroup(name: "User Management", subsection: "Profiles") @docPriority(level: 1)
+
+  "List all users with optional role filtering"
+  listUsers(
+    "Filter users by their role"
+    role: UserRole
+  ): [User!]! @docGroup(name: "User Management", subsection: "Profiles") @docPriority(level: 2)
+
+  "Get a post by its unique ID"
+  getPost(
+    "The ID of the post to retrieve"
+    id: ID!
+  ): Post @docGroup(name: "Content", subsection: "Posts")
+
+  "Search for posts using various filters"
+  searchPosts(
+    "Filter criteria"
+    filter: PostFilter!
+  ): [Post!]! @docGroup(name: "Content", subsection: "Posts") @docTags(tags: ["search", "filter"])
+
+  "Get a comment by its unique ID"
+  getComment(
+    "The ID of the comment to retrieve"
+    id: ID!
+  ): Comment @docGroup(name: "Content", subsection: "Comments")
+
+  "Get the current system status (Deprecated)"
+  getSystemStatus: String @deprecated(reason: "Use getHealth instead") @docGroup(name: "System", subsection: "Health")
+}
+
+type Mutation {
+  "Create a new user account"
+  createUser(
+    "Data for the new user"
+    input: CreateUserInput!
+  ): User @docGroup(name: "User Management", subsection: "Account")
+
+  "Update an existing user's information"
+  updateUser(
+    "ID of the user to update"
+    id: ID!, 
+    "New data for the user"
+    input: CreateUserInput!
+  ): User @docGroup(name: "User Management", subsection: "Profiles")
+
+  "Delete a user account (Deprecated)"
+  deleteUser(
+    "ID of the user to delete"
+    id: ID!
+  ): Boolean @deprecated(reason: "Users cannot be deleted, only deactivated") @docGroup(name: "User Management", subsection: "Account")
+
+  "Create a new blog post"
+  createPost(
+    "Title of the post"
+    title: String!, 
+    "Body content of the post"
+    content: String!, 
+    "ID of the author"
+    authorId: ID!
+  ): Post @docGroup(name: "Content", subsection: "Posts")
+
+  "Add a comment to an existing post"
+  addComment(
+    "ID of the post to comment on"
+    postId: ID!, 
+    "Text content of the comment"
+    text: String!, 
+    "ID of the author"
+    authorId: ID!
+  ): Comment @docGroup(name: "Content", subsection: "Comments")
+}

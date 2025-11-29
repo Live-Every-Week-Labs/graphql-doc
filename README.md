@@ -2,9 +2,15 @@
 
 A documentation generator for GraphQL APIs that organizes content by **operation** (queries and mutations) rather than types. Designed to produce beautiful, task-oriented documentation for Docusaurus.
 
+## Documentation
+
+- [Usage Guide](./docs/usage-guide.md)
+- [Configuration Guide](./docs/configuration.md)
+- [Contributing Guide](./CONTRIBUTING.md)
+
 ## Features
 
-- 🚀 **Operation-First**: Group documentation by business domain and use case.
+- **Operation-First**: Documentation is organized by operations (queries, mutations) rather than types.
 - 🧩 **Docusaurus Integration**: Generates MDX files compatible with Docusaurus sidebars.
 - 🔍 **Custom Directives**: Use `@docGroup`, `@docPriority`, and `@docTags` to organize your schema.
 - 📄 **External Metadata**: Keep your schema clean by loading examples and error definitions from external JSON files.

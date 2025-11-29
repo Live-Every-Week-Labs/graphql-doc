@@ -15,4 +15,18 @@
 
 {{> type returnType}}
 
+{{returnType.description}}
+
+{{#with (unwrap returnType)}}
+{{#if fields}}
+#### Fields
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+{{#each fields}}
+| `{{name}}` | {{> type type}} | {{description}} |
+{{/each}}
+{{/if}}
+{{/with}}
+
 {{> examples}}

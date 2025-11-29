@@ -47,6 +47,14 @@ export class MdxRenderer {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
     });
+
+    Handlebars.registerHelper('unwrap', (type) => {
+      let current = type;
+      while (current && (current.kind === 'NON_NULL' || current.kind === 'LIST')) {
+        current = current.ofType;
+      }
+      return current;
+    });
   }
 
   private registerPartials() {
