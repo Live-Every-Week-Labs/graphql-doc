@@ -103,7 +103,7 @@ export class Transformer {
 
     for (const op of operations) {
       const groupName = op.directives.docGroup?.name || 'Uncategorized';
-      const groupOrder = op.directives.docGroup?.order ?? 999;
+      const groupOrder = op.directives.docGroup?.order; // undefined if not specified
       const subsectionName = op.directives.docGroup?.subsection;
 
       let section = sectionsMap.get(groupName);
@@ -127,8 +127,24 @@ export class Transformer {
       subsection.operations.push(op);
     }
 
-    // Sort sections
-    const sections = Array.from(sectionsMap.values()).sort((a, b) => a.order - b.order);
+    // Sort sections: ordered first (by number), then unordered (alphabetically)
+    const sections = Array.from(sectionsMap.values()).sort((a, b) => {
+      const aHasOrder = a.order !== undefined;
+      const bHasOrder = b.order !== undefined;
+
+      // Both have explicit order: sort numerically
+      if (aHasOrder && bHasOrder) {
+        // @ts-expect-error order is a number because of our check above
+        return a.order - b.order;
+      }
+
+      // Only one has order: ordered items come first
+      if (aHasOrder && !bHasOrder) return -1;
+      if (!aHasOrder && bHasOrder) return 1;
+
+      // Neither has order: sort alphabetically by name
+      return a.name.localeCompare(b.name);
+    });
 
     // Sort subsections and operations
     for (const section of sections) {

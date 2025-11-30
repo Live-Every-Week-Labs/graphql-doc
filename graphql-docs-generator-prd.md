@@ -2,9 +2,9 @@
 
 ## Product Requirements Document
 
-**Version:** 1.2  
-**Last Updated:** November 16, 2024  
-**Status:** Planning Phase  
+**Version:** 1.3
+**Last Updated:** November 29, 2024
+**Status:** MVP Implementation
 **Target Release:** MVP - Q1 2025
 
 ---
@@ -327,7 +327,8 @@ As an API documentation engineer, I want to annotate my GraphQL schema with busi
 **Requirements:**
 
 - Parse standard GraphQL SDL files
-- Extract custom directive metadata (@docGroup, @docPriority, @docTags, @docDeprecated)
+- Extract custom directive metadata (@docGroup, @docPriority, @docTags)
+- Extract native GraphQL @deprecated directive for deprecation handling
 - Support introspection JSON as alternative input
 - Handle schema stitching and federation (multiple schema sources)
 - Validate directive usage and provide helpful errors
@@ -643,7 +644,7 @@ interface Operation {
   operationType: 'query' | 'mutation' | 'subscription';
   description: string;
   priority: number;
-  deprecated: DeprecationInfo | null;
+  deprecationReason: string | null; // From native GraphQL @deprecated directive
   tags: string[];
   arguments: Argument[];
   returnType: TypeReference;
@@ -994,6 +995,21 @@ my-graphql-api/
 
 ## Annotation System
 
+### Deprecation Handling
+
+Deprecation is handled using the **native GraphQL `@deprecated` directive**, not a custom directive. This leverages the standard GraphQL specification:
+
+```graphql
+type Query {
+  """
+  Retrieve a user by ID.
+  """
+  user(id: ID!): User @deprecated(reason: "Use getUser instead")
+}
+```
+
+The generator extracts `deprecationReason` from the schema and displays it in the documentation with appropriate warnings.
+
 ### Custom Directive Definitions
 
 These directives should be added to the user's GraphQL schema:
@@ -1009,35 +1025,17 @@ directive @docGroup(
   name: String!
 
   """
-  Display order within documentation (lower numbers first)
+  Display order within documentation (lower numbers first).
+  Optional: sections WITH an order are sorted numerically first,
+  sections WITHOUT an order are sorted alphabetically after ordered sections.
   """
-  order: Int!
+  order: Int
 
   """
   Optional subsection within the main section
   """
   subsection: String
 ) on FIELD_DEFINITION
-
-"""
-Marks fields or types as deprecated with migration guidance.
-"""
-directive @docDeprecated(
-  """
-  Reason for deprecation
-  """
-  reason: String!
-
-  """
-  Suggested alternative
-  """
-  alternative: String
-
-  """
-  Version when deprecated
-  """
-  since: String
-) on FIELD_DEFINITION | OBJECT | INTERFACE | ENUM_VALUE
 
 """
 Sets the display priority for ordering operations within a section.
@@ -1967,7 +1965,7 @@ interface OperationTemplateData {
   returnType: TypeReference;
   examples: Example[];
   errors: ErrorReference | null;
-  deprecated: DeprecationInfo | null;
+  deprecationReason: string | null; // From native GraphQL @deprecated directive
   tags: string[];
   graphql: GraphQLMetadata;
 }
@@ -2198,10 +2196,9 @@ tags: [{{#each tags}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}]
 
 # {{name}}
 
-{{#if deprecated}}
+{{#if deprecationReason}}
 :::warning Deprecated
-{{deprecated.reason}}
-{{#if deprecated.alternative}}Use `{{deprecated.alternative}}` instead.{{/if}}
+{{deprecationReason}}
 :::
 {{/if}}
 
@@ -2271,6 +2268,23 @@ tags: [{{#each tags}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}]
 ---
 
 ## Version History
+
+**Version 1.3 - Simplified Deprecation Handling**
+
+**Changes from Version 1.2:**
+
+1. **Removed @docDeprecated custom directive** - Deprecation now uses native GraphQL `@deprecated` directive
+   - Simpler implementation using standard GraphQL specification
+   - No need for custom directive parsing for deprecation
+   - `deprecationReason` field replaces `DeprecationInfo` object
+
+2. **Updated sections:**
+   - Added "Deprecation Handling" section explaining native @deprecated usage
+   - Updated Operation interface to use `deprecationReason: string | null`
+   - Updated template examples to use simplified deprecation
+   - Removed `alternative` and `since` fields (use deprecation reason text instead)
+
+---
 
 **Version 1.2 - Updated with Detailed Post-MVP Roadmap**
 

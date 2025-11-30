@@ -153,4 +153,110 @@ describe('Transformer', () => {
     expect(section.subsections[1].name).toBe('Sub A');
     expect(section.subsections[2].name).toBe('Sub B');
   });
+
+  it('sorts sections with order first, then alphabetically for unordered', () => {
+    const opsWithMixedOrder: BaseOperation[] = [
+      {
+        name: 'op1',
+        operationType: 'query',
+        arguments: [],
+        returnType: 'String',
+        directives: {
+          docGroup: { name: 'Zebra' }, // No order - should be last alphabetically
+        },
+        referencedTypes: [],
+        isDeprecated: false,
+      },
+      {
+        name: 'op2',
+        operationType: 'query',
+        arguments: [],
+        returnType: 'String',
+        directives: {
+          docGroup: { name: 'Users', order: 2 },
+        },
+        referencedTypes: [],
+        isDeprecated: false,
+      },
+      {
+        name: 'op3',
+        operationType: 'query',
+        arguments: [],
+        returnType: 'String',
+        directives: {
+          docGroup: { name: 'Alpha' }, // No order - should be first alphabetically among unordered
+        },
+        referencedTypes: [],
+        isDeprecated: false,
+      },
+      {
+        name: 'op4',
+        operationType: 'query',
+        arguments: [],
+        returnType: 'String',
+        directives: {
+          docGroup: { name: 'Payments', order: 1 },
+        },
+        referencedTypes: [],
+        isDeprecated: false,
+      },
+    ];
+
+    const transformer = new Transformer(mockTypes);
+    const result = transformer.transform(opsWithMixedOrder, [], []);
+
+    expect(result.sections).toHaveLength(4);
+    // Ordered sections first (by order number)
+    expect(result.sections[0].name).toBe('Payments'); // order: 1
+    expect(result.sections[1].name).toBe('Users'); // order: 2
+    // Unordered sections last (alphabetically)
+    expect(result.sections[2].name).toBe('Alpha'); // no order, alphabetically first
+    expect(result.sections[3].name).toBe('Zebra'); // no order, alphabetically last
+  });
+
+  it('sorts all sections alphabetically when none have order', () => {
+    const opsWithNoOrder: BaseOperation[] = [
+      {
+        name: 'op1',
+        operationType: 'query',
+        arguments: [],
+        returnType: 'String',
+        directives: {
+          docGroup: { name: 'Zebra' },
+        },
+        referencedTypes: [],
+        isDeprecated: false,
+      },
+      {
+        name: 'op2',
+        operationType: 'query',
+        arguments: [],
+        returnType: 'String',
+        directives: {
+          docGroup: { name: 'Alpha' },
+        },
+        referencedTypes: [],
+        isDeprecated: false,
+      },
+      {
+        name: 'op3',
+        operationType: 'query',
+        arguments: [],
+        returnType: 'String',
+        directives: {
+          docGroup: { name: 'Middle' },
+        },
+        referencedTypes: [],
+        isDeprecated: false,
+      },
+    ];
+
+    const transformer = new Transformer(mockTypes);
+    const result = transformer.transform(opsWithNoOrder, [], []);
+
+    expect(result.sections).toHaveLength(3);
+    expect(result.sections[0].name).toBe('Alpha');
+    expect(result.sections[1].name).toBe('Middle');
+    expect(result.sections[2].name).toBe('Zebra');
+  });
 });

@@ -39,3 +39,9 @@ package-lock.json.bak
 # Local config overrides
 *.local
 
+# MCP config (local)
+.mcp.json
+
+# Claude Code local config
+.claude
+

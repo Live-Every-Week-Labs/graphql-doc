@@ -96,7 +96,7 @@ export interface Subsection {
 
 export interface Section {
   name: string;
-  order: number;
+  order: number | undefined; // undefined means no explicit order; items without order are sorted alphabetically after ordered items
   subsections: Subsection[];
 }
 
