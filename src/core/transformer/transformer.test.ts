@@ -80,13 +80,21 @@ describe('Transformer', () => {
             },
           },
         ],
+        operationType: 'query',
       },
     ];
 
     const errorFiles: ErrorFile[] = [
       {
         operations: ['*'],
-        errors: [{ code: 'INTERNAL_ERROR', message: 'Something went wrong' }],
+        errors: [
+          {
+            code: 'INTERNAL_ERROR',
+            message: 'Something went wrong',
+            description: '',
+          },
+        ],
+        category: 'General',
       },
     ];
 
@@ -162,7 +170,7 @@ describe('Transformer', () => {
         arguments: [],
         returnType: 'String',
         directives: {
-          docGroup: { name: 'Zebra' }, // No order - should be last alphabetically
+          docGroup: { name: 'Zebra', order: undefined }, // No order - should be last alphabetically
         },
         referencedTypes: [],
         isDeprecated: false,
