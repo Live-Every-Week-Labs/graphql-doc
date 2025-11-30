@@ -175,14 +175,30 @@ Generates documentation from a GraphQL schema.
 
 **Options:**
 
-- `-s, --schema <path>`: Path to the GraphQL schema file or URL. Defaults to `schema.graphql`.
-- `-o, --output <path>`: Directory where the generated documentation will be written. Defaults to `docs/api`.
+- `-s, --schema <path>`: Path to the GraphQL schema file or URL.
+- `-o, --output <path>`: Directory where the generated documentation will be written.
 - `-c, --config <path>`: Path to a configuration file (e.g., `.graphqlrc`, `graphql-docs.config.js`).
 - `-h, --help`: Display help for the command.
 
+**Schema Resolution:**
+
+The schema path is resolved in the following order:
+
+1. `-s, --schema` CLI option (highest priority)
+2. `schema` field in `.graphqlrc` (graphql-config)
+3. Default: `schema.graphql`
+
+This means if you have a `.graphqlrc` file with a `schema` field, you can run `graphql-docs generate` without any arguments.
+
 **Examples:**
 
-Generate from a local file:
+Generate using schema from `.graphqlrc`:
+
+```bash
+graphql-docs generate
+```
+
+Generate from a specific file:
 
 ```bash
 graphql-docs generate -s ./schema.graphql -o ./docs

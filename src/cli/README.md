@@ -6,6 +6,7 @@ This module contains the Command Line Interface (CLI) implementation for the `gr
 
 - `index.ts`: The entry point for the CLI. Uses `commander` to define commands and options.
 - `commands/`: Individual command implementations.
+  - `generate.ts`: Documentation generation command.
   - `init.ts`: Project initialization command.
   - `validate.ts`: Schema and metadata validation command.
 
@@ -16,8 +17,15 @@ This module contains the Command Line Interface (CLI) implementation for the `gr
 The `generate` command is the main entry point for generating documentation. It:
 
 1. Loads configuration using `src/core/config/loader.ts`.
-2. Instantiates the `Generator` class from `src/core/generator.ts`.
-3. Calls `generator.generate()` with the schema pointer.
+2. Resolves the schema path from CLI option, `.graphqlrc`, or defaults to `schema.graphql`.
+3. Instantiates the `Generator` class from `src/core/generator.ts`.
+4. Calls `generator.generate()` with the resolved schema path.
+
+**Schema Resolution Priority:**
+
+1. `-s, --schema` CLI option (highest priority)
+2. `schema` field in `.graphqlrc` (graphql-config)
+3. Default: `schema.graphql`
 
 ### `init`
 

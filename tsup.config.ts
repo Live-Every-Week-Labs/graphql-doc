@@ -4,7 +4,6 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     cli: 'src/cli/index.ts',
-    docusaurus: 'src/adapters/docusaurus/index.ts',
   },
   format: ['cjs', 'esm'],
   dts: true,
