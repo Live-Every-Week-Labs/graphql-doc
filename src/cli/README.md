@@ -4,7 +4,10 @@ This module contains the Command Line Interface (CLI) implementation for the `gr
 
 ## Structure
 
-- `index.ts`: The entry point for the CLI. It uses `commander` to define commands and options.
+- `index.ts`: The entry point for the CLI. Uses `commander` to define commands and options.
+- `commands/`: Individual command implementations.
+  - `init.ts`: Project initialization command.
+  - `validate.ts`: Schema and metadata validation command.
 
 ## Commands
 
@@ -12,9 +15,30 @@ This module contains the Command Line Interface (CLI) implementation for the `gr
 
 The `generate` command is the main entry point for generating documentation. It:
 
-1.  Loads configuration using `src/core/config/loader.ts`.
-2.  Instantiates the `Generator` class from `src/core/generator.ts`.
-3.  Calls `generator.generate()` with the schema pointer.
+1. Loads configuration using `src/core/config/loader.ts`.
+2. Instantiates the `Generator` class from `src/core/generator.ts`.
+3. Calls `generator.generate()` with the schema pointer.
+
+### `init`
+
+The `init` command scaffolds a new graphql-docs project. It:
+
+1. Creates a `.graphqlrc` configuration file.
+2. Creates the `docs-metadata/` directory structure.
+3. Adds sample example and error JSON files.
+
+Supports interactive prompts or `--yes` for defaults.
+
+### `validate`
+
+The `validate` command checks schema and metadata without generating docs. It:
+
+1. Validates GraphQL schema syntax and custom directives.
+2. Validates example JSON files against their schema.
+3. Validates error JSON files against their schema.
+4. Cross-validates that referenced operations exist in the schema.
+
+Uses validators from `src/core/validation/`. Useful for CI/CD pipelines.
 
 ## Development
 
@@ -23,6 +47,8 @@ To test the CLI locally:
 ```bash
 # Run using tsx
 npx tsx src/cli/index.ts generate --help
+npx tsx src/cli/index.ts init --help
+npx tsx src/cli/index.ts validate --help
 
 # Link the package globally
 npm link

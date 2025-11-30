@@ -64,4 +64,20 @@ program
     }
   });
 
+program
+  .command('validate')
+  .description('Validate GraphQL schema and metadata files')
+  .option('-s, --schema <path>', 'Path to GraphQL schema')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('--strict', 'Treat warnings as errors')
+  .action(async (options) => {
+    try {
+      const { runValidate } = await import('./commands/validate.js');
+      await runValidate(options);
+    } catch (error) {
+      console.error('Error validating:', error);
+      process.exit(1);
+    }
+  });
+
 program.parse();

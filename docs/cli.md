@@ -87,6 +87,88 @@ When run without `--yes`, the command prompts for:
 
 ---
 
+### `validate`
+
+Validate your GraphQL schema and metadata files without generating documentation. This is useful for CI/CD pipelines to catch errors early.
+
+**Options:**
+
+- `-s, --schema <path>`: Path to the GraphQL schema file. Defaults to `schema.graphql`.
+- `-c, --config <path>`: Path to a configuration file.
+- `--strict`: Treat warnings as errors (exit with code 1 if any warnings are found).
+- `-h, --help`: Display help for the command.
+
+**Exit Codes:**
+
+- `0`: Validation successful (no errors; warnings are allowed unless `--strict` is used)
+- `1`: Validation failed (errors found, or warnings with `--strict`)
+
+**Examples:**
+
+Validate with defaults:
+
+```bash
+graphql-docs validate
+```
+
+Validate a specific schema:
+
+```bash
+graphql-docs validate -s ./graphql/schema.graphql
+```
+
+Validate with strict mode (fail on warnings):
+
+```bash
+graphql-docs validate --strict
+```
+
+**Validation Checks:**
+
+The `validate` command performs the following checks:
+
+1. **Schema Validation**
+   - GraphQL SDL syntax is valid
+   - Custom directives (`@docGroup`, `@docPriority`, `@docTags`) have required arguments
+   - Directive argument types are correct
+
+2. **Example Files Validation**
+   - JSON files are valid
+   - Required fields (`operation`, `operationType`, `examples`) are present
+   - Each example has required fields (`name`, `query`, `response`)
+   - `operationType` is one of: `query`, `mutation`, `subscription`
+   - Response `type` is one of: `success`, `failure`, `error`
+
+3. **Error Files Validation**
+   - JSON files are valid
+   - Required fields (`category`, `operations`, `errors`) are present
+   - Each error has required fields (`code`, `message`, `description`)
+
+4. **Cross-Validation**
+   - Operations referenced in example files exist in the schema (warning)
+   - Operations referenced in error files exist in the schema (warning)
+   - Wildcard (`*`) in error operations is always valid
+
+**Sample Output:**
+
+```
+GraphQL Docs Validator
+
+✔ Schema syntax valid (5 operations found)
+✔ Example files valid (3 operations documented)
+✔ Error files valid
+✔ Cross-validation passed
+
+Summary:
+  Schema:   ✓ Valid
+  Examples: ✓ Valid
+  Errors:   ✓ Valid
+
+Validation successful!
+```
+
+---
+
 ### `generate`
 
 Generates documentation from a GraphQL schema.
