@@ -45,3 +45,6 @@ package-lock.json.bak
 # Claude Code local config
 .claude
 
+# Planning documents
+.plans
+

@@ -49,4 +49,19 @@ program
     }
   });
 
+program
+  .command('init')
+  .description('Initialize a new graphql-docs project')
+  .option('-f, --force', 'Overwrite existing files')
+  .option('-y, --yes', 'Skip prompts and use defaults')
+  .action(async (options) => {
+    try {
+      const { runInit } = await import('./commands/init.js');
+      await runInit(options);
+    } catch (error) {
+      console.error('Error initializing project:', error);
+      process.exit(1);
+    }
+  });
+
 program.parse();

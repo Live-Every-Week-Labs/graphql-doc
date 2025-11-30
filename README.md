@@ -7,6 +7,7 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - [Usage Guide](./docs/usage-guide.md)
 - [CLI Reference](./docs/cli.md)
 - [Configuration Guide](./docs/configuration.md)
+- [Custom Directives](./docs/directives.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 
 ## Features
@@ -23,12 +24,23 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 npm install @graphql-docs/generator
 ```
 
-## Usage
+## Quick Start
 
-### CLI
+### 1. Initialize a Project
 
 ```bash
-# Generate documentation
+# Interactive setup
+npx graphql-docs init
+
+# Or use defaults
+npx graphql-docs init --yes
+```
+
+This creates a `.graphqlrc` config file and a `docs-metadata/` directory with sample files.
+
+### 2. Generate Documentation
+
+```bash
 npx graphql-docs generate -s schema.graphql -o docs/api
 ```
 

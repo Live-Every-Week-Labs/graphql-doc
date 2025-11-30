@@ -30,6 +30,63 @@ npx graphql-docs generate [options]
 
 ## Commands
 
+### `init`
+
+Initialize a new graphql-docs project by creating the configuration file and metadata directory structure.
+
+**Options:**
+
+- `-f, --force`: Overwrite existing files if they exist.
+- `-y, --yes`: Skip interactive prompts and use default values.
+- `-h, --help`: Display help for the command.
+
+**Examples:**
+
+Initialize with interactive prompts:
+
+```bash
+graphql-docs init
+```
+
+Initialize with defaults (non-interactive):
+
+```bash
+graphql-docs init --yes
+```
+
+Force overwrite existing files:
+
+```bash
+graphql-docs init --force
+```
+
+**Generated Structure:**
+
+The init command creates the following files and directories:
+
+```
+.graphqlrc                                    # GraphQL configuration file
+docs-metadata/
+├── examples/
+│   ├── queries/
+│   │   └── example-query.json               # Sample query example
+│   └── mutations/
+│       └── example-mutation.json            # Sample mutation example
+└── errors/
+    └── common-errors.json                   # Sample error definitions
+```
+
+**Interactive Prompts:**
+
+When run without `--yes`, the command prompts for:
+
+1. **Schema path** - Path to your GraphQL schema file (default: `schema.graphql`)
+2. **Output directory** - Where generated docs will be written (default: `./docs/api`)
+3. **Metadata directory** - Directory for examples and errors (default: `./docs-metadata`)
+4. **Framework** - Documentation framework to use (default: `docusaurus`)
+
+---
+
 ### `generate`
 
 Generates documentation from a GraphQL schema.
