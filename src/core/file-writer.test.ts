@@ -27,6 +27,7 @@ describe('FileWriter', () => {
         {
           path: 'test.mdx',
           content: '# Test Content',
+          type: 'mdx',
         },
       ];
 
@@ -41,9 +42,21 @@ describe('FileWriter', () => {
 
     it('writes multiple files', async () => {
       const files: GeneratedFile[] = [
-        { path: 'file1.mdx', content: 'Content 1' },
-        { path: 'file2.mdx', content: 'Content 2' },
-        { path: 'file3.mdx', content: 'Content 3' },
+        {
+          path: 'file1.mdx',
+          content: 'Content 1',
+          type: 'mdx',
+        },
+        {
+          path: 'file2.mdx',
+          content: 'Content 2',
+          type: 'mdx',
+        },
+        {
+          path: 'file3.mdx',
+          content: 'Content 3',
+          type: 'mdx',
+        },
       ];
 
       await fileWriter.write(files);
@@ -59,7 +72,11 @@ describe('FileWriter', () => {
 
     it('creates nested directories', async () => {
       const files: GeneratedFile[] = [
-        { path: 'dir1/dir2/dir3/test.mdx', content: 'Nested content' },
+        {
+          path: 'dir1/dir2/dir3/test.mdx',
+          content: 'Nested content',
+          type: 'mdx',
+        },
       ];
 
       await fileWriter.write(files);
@@ -73,10 +90,26 @@ describe('FileWriter', () => {
 
     it('creates multiple files in nested directories', async () => {
       const files: GeneratedFile[] = [
-        { path: 'queries/users/get-user.mdx', content: 'Get User' },
-        { path: 'queries/users/list-users.mdx', content: 'List Users' },
-        { path: 'mutations/users/create-user.mdx', content: 'Create User' },
-        { path: '_category_.json', content: '{"label": "API"}' },
+        {
+          path: 'queries/users/get-user.mdx',
+          content: 'Get User',
+          type: 'mdx',
+        },
+        {
+          path: 'queries/users/list-users.mdx',
+          content: 'List Users',
+          type: 'mdx',
+        },
+        {
+          path: 'mutations/users/create-user.mdx',
+          content: 'Create User',
+          type: 'mdx',
+        },
+        {
+          path: '_category_.json',
+          content: '{"label": "API"}',
+          type: 'mdx',
+        },
       ];
 
       await fileWriter.write(files);
@@ -95,7 +128,13 @@ describe('FileWriter', () => {
       const filePath = path.join(testDir, 'existing.mdx');
       await fs.writeFile(filePath, 'Old content');
 
-      const files: GeneratedFile[] = [{ path: 'existing.mdx', content: 'New content' }];
+      const files: GeneratedFile[] = [
+        {
+          path: 'existing.mdx',
+          content: 'New content',
+          type: 'mdx',
+        },
+      ];
 
       await fileWriter.write(files);
 
@@ -118,6 +157,7 @@ describe('FileWriter', () => {
           path: 'special.mdx',
           content:
             '# Special\n\n```graphql\nquery GetUser($id: ID!) {\n  user(id: $id) {\n    name\n  }\n}\n```\n',
+          type: 'mdx',
         },
       ];
 
@@ -133,7 +173,13 @@ describe('FileWriter', () => {
       // Remove the test directory
       await fs.remove(testDir);
 
-      const files: GeneratedFile[] = [{ path: 'test.mdx', content: 'Content' }];
+      const files: GeneratedFile[] = [
+        {
+          path: 'test.mdx',
+          content: 'Content',
+          type: 'mdx',
+        },
+      ];
 
       await fileWriter.write(files);
 
@@ -147,7 +193,13 @@ describe('FileWriter', () => {
       const customDir = path.join(testDir, 'custom-output');
       const customWriter = new FileWriter(customDir);
 
-      const files: GeneratedFile[] = [{ path: 'test.mdx', content: 'Custom dir content' }];
+      const files: GeneratedFile[] = [
+        {
+          path: 'test.mdx',
+          content: 'Custom dir content',
+          type: 'mdx',
+        },
+      ];
 
       await customWriter.write(files);
 
@@ -162,12 +214,136 @@ describe('FileWriter', () => {
       const deepDir = path.join(testDir, 'a/b/c/d/e');
       const deepWriter = new FileWriter(deepDir);
 
-      const files: GeneratedFile[] = [{ path: 'deep.mdx', content: 'Deep content' }];
+      const files: GeneratedFile[] = [
+        {
+          path: 'deep.mdx',
+          content: 'Deep content',
+          type: 'mdx',
+        },
+      ];
 
       await deepWriter.write(files);
 
       const filePath = path.join(deepDir, 'deep.mdx');
       expect(await fs.pathExists(filePath)).toBe(true);
+    });
+  });
+
+  describe('path traversal prevention', () => {
+    it('throws error for simple ../ traversal', async () => {
+      const files: GeneratedFile[] = [
+        {
+          path: '../outside.mdx',
+          content: 'Malicious content',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow('Path traversal attempt detected');
+    });
+
+    it('throws error for nested ../ traversal', async () => {
+      const files: GeneratedFile[] = [
+        {
+          path: 'subdir/../../outside.mdx',
+          content: 'Malicious content',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow('Path traversal attempt detected');
+    });
+
+    it('throws error for deep ../ traversal', async () => {
+      const files: GeneratedFile[] = [
+        {
+          path: '../../../etc/passwd',
+          content: 'Malicious content',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow('Path traversal attempt detected');
+    });
+
+    it('throws error for traversal hidden in nested path', async () => {
+      const files: GeneratedFile[] = [
+        {
+          path: 'dir/../../../outside.mdx',
+          content: 'Malicious content',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow('Path traversal attempt detected');
+    });
+
+    it('allows legitimate nested paths', async () => {
+      const files: GeneratedFile[] = [
+        {
+          path: 'api/users/get-user.mdx',
+          content: 'Legitimate content',
+          type: 'mdx',
+        },
+      ];
+
+      await fileWriter.write(files);
+
+      const filePath = path.join(testDir, 'api/users/get-user.mdx');
+      expect(await fs.pathExists(filePath)).toBe(true);
+    });
+
+    it('allows paths with ./ prefix', async () => {
+      const files: GeneratedFile[] = [
+        {
+          path: './valid-file.mdx',
+          content: 'Valid content',
+          type: 'mdx',
+        },
+      ];
+
+      await fileWriter.write(files);
+
+      const filePath = path.join(testDir, 'valid-file.mdx');
+      expect(await fs.pathExists(filePath)).toBe(true);
+    });
+
+    it('includes the malicious path in error message', async () => {
+      const maliciousPath = '../evil.mdx';
+      const files: GeneratedFile[] = [
+        {
+          path: maliciousPath,
+          content: 'Malicious content',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow(maliciousPath);
+    });
+
+    it('does not write any files when path traversal is detected', async () => {
+      const files: GeneratedFile[] = [
+        {
+          path: 'valid.mdx',
+          content: 'Valid content',
+          type: 'mdx',
+        },
+        {
+          path: '../outside.mdx',
+          content: 'Malicious content',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow('Path traversal attempt detected');
+
+      // The first file should have been written before the error
+      const validPath = path.join(testDir, 'valid.mdx');
+      expect(await fs.pathExists(validPath)).toBe(true);
+
+      // The malicious file should not exist outside the directory
+      const outsidePath = path.join(testDir, '..', 'outside.mdx');
+      expect(await fs.pathExists(outsidePath)).toBe(false);
     });
   });
 });
