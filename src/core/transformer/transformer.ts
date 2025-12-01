@@ -13,7 +13,12 @@ export class Transformer {
   private expander: TypeExpander;
 
   constructor(types: TypeDefinition[], config: TransformerConfig = {}) {
-    this.expander = new TypeExpander(types, config.maxDepth || 5);
+    this.expander = new TypeExpander(
+      types,
+      config.maxDepth ?? 5,
+      config.defaultLevels ?? 2,
+      config.showCircularReferences ?? true
+    );
   }
 
   transform(

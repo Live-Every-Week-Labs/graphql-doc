@@ -4,6 +4,10 @@
   {{> type ofType}}!
 {{~else if (eq kind "LIST")~}}
   [{{> type ofType}}]
+{{~else if (eq kind "CIRCULAR_REF")~}}
+  [`{{ref}}`]({{link}}) *(circular)*
+{{~else if (eq kind "TYPE_REF")~}}
+  [`{{name}}`]({{link}})
 {{~else~}}
   [`{{name}}`](#{{slugify name}})
 {{~/if~}}

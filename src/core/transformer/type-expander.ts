@@ -7,15 +7,25 @@ import {
   ExpandedUnion,
   ExpandedList,
   CircularRef,
+  TypeRef,
 } from './types';
 
 export class TypeExpander {
   private typeMap: Map<string, TypeDefinition>;
   private maxDepth: number;
+  private defaultLevels: number;
+  private showCircularReferences: boolean;
 
-  constructor(types: TypeDefinition[], maxDepth: number = 2) {
+  constructor(
+    types: TypeDefinition[],
+    maxDepth: number = 5,
+    defaultLevels: number = 2,
+    showCircularReferences: boolean = true
+  ) {
     this.typeMap = new Map(types.map((t) => [t.name, t]));
     this.maxDepth = maxDepth;
+    this.defaultLevels = defaultLevels;
+    this.showCircularReferences = showCircularReferences;
   }
 
   expand(
@@ -49,11 +59,19 @@ export class TypeExpander {
   private expandNamedType(typeName: string, depth: number, visited: Set<string>): ExpandedType {
     // Check for circular reference
     if (visited.has(typeName)) {
-      return {
-        kind: 'CIRCULAR_REF',
-        ref: typeName,
-        link: `#${typeName.toLowerCase()}`,
-      };
+      if (this.showCircularReferences) {
+        return {
+          kind: 'CIRCULAR_REF',
+          ref: typeName,
+          link: `#${typeName.toLowerCase()}`,
+        };
+      } else {
+        return {
+          kind: 'TYPE_REF',
+          name: typeName,
+          link: `#${typeName.toLowerCase()}`,
+        };
+      }
     }
 
     const typeDef = this.typeMap.get(typeName);
@@ -135,7 +153,7 @@ export class TypeExpander {
         description: typeDef.description,
         fields,
         interfaces: typeDef.interfaces,
-        isCollapsible: false,
+        isCollapsible: depth >= this.defaultLevels,
       };
     }
 

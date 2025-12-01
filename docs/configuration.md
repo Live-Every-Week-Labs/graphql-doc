@@ -48,11 +48,11 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 
 Control how nested types are expanded in the documentation:
 
-| Option                                 | Type      | Default | Description                                |
-| :------------------------------------- | :-------- | :------ | :----------------------------------------- |
-| `typeExpansion.maxDepth`               | `number`  | `5`     | Maximum depth for type expansion           |
-| `typeExpansion.defaultLevels`          | `number`  | `2`     | Default number of levels to expand inline  |
-| `typeExpansion.showCircularReferences` | `boolean` | `true`  | Show warnings for circular type references |
+| Option                                 | Type      | Default | Description                                                                                    |
+| :------------------------------------- | :-------- | :------ | :--------------------------------------------------------------------------------------------- |
+| `typeExpansion.maxDepth`               | `number`  | `5`     | Hard limit on recursion depth. Types at this depth have empty fields                           |
+| `typeExpansion.defaultLevels`          | `number`  | `2`     | Soft limit for UI expansion. Types beyond this depth are marked as collapsible                 |
+| `typeExpansion.showCircularReferences` | `boolean` | `true`  | When true, circular references show a "(circular)" indicator. When false, shown as plain links |
 
 ## Example Configurations
 

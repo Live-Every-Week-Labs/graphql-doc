@@ -12,12 +12,19 @@ export type ExpandedTypeKind =
   | 'UNION'
   | 'ENUM'
   | 'LIST'
-  | 'CIRCULAR_REF';
+  | 'CIRCULAR_REF'
+  | 'TYPE_REF';
 
 export interface CircularRef {
   kind: 'CIRCULAR_REF';
   ref: string; // Name of the referenced type
   link: string; // Anchor link to the first occurrence
+}
+
+export interface TypeRef {
+  kind: 'TYPE_REF';
+  name: string;
+  link: string;
 }
 
 export interface ExpandedScalar {
@@ -65,7 +72,8 @@ export type ExpandedType =
   | ExpandedEnum
   | ExpandedUnion
   | ExpandedList
-  | CircularRef;
+  | CircularRef
+  | TypeRef;
 
 export interface ExpandedField {
   name: string;
