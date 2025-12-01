@@ -15,7 +15,11 @@ The Transformer module is responsible for converting the parsed GraphQL schema a
 The main class that orchestrates the transformation process.
 
 ```typescript
-const transformer = new Transformer(types, { defaultDepth: 2 });
+const transformer = new Transformer(types, {
+  maxDepth: 5,
+  defaultLevels: 2,
+  showCircularReferences: true,
+});
 const docModel = transformer.transform(operations, exampleFiles, errorFiles);
 ```
 
@@ -23,9 +27,13 @@ const docModel = transformer.transform(operations, exampleFiles, errorFiles);
 
 Handles the intelligent expansion of GraphQL types.
 
-- **Recursion Control**: Limits expansion depth (default: 2) to prevent massive payloads.
-- **Circular Reference Detection**: Detects cycles and marks them as `CIRCULAR_REF`.
-- **Collapsible Support**: Marks types beyond the depth limit as `isCollapsible`, allowing UI to render them as on-demand details.
+- **Recursion Control**:
+  - `maxDepth` (default: 5): Hard limit on recursion. Types at this depth have empty fields.
+  - `defaultLevels` (default: 2): Soft limit for UI. Types at depth >= defaultLevels are marked `isCollapsible` but still include field data.
+- **Circular Reference Detection**: Detects cycles and marks them based on `showCircularReferences` config:
+  - `true`: Returns `CIRCULAR_REF` kind with "(circular)" indicator in output.
+  - `false`: Returns `TYPE_REF` kind as a plain link (no indicator).
+- **Collapsible Support**: Marks types beyond `defaultLevels` as `isCollapsible`, allowing UI to render them as expandable sections.
 
 ### `DocModel`
 
