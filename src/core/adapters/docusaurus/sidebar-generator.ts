@@ -26,6 +26,88 @@ export class SidebarGenerator {
     return sidebarItems;
   }
 
+  /**
+   * Generate a sidebar for single-page mode with hash links for in-page navigation.
+   * @param model - The documentation model
+   * @param docId - The document ID (e.g., 'api-reference')
+   * @returns Array of sidebar items with hash links
+   */
+  generateSinglePageSidebar(model: DocModel, docId: string): SidebarItem[] {
+    const sidebarItems: SidebarItem[] = [];
+
+    for (const section of model.sections) {
+      sidebarItems.push(this.generateSinglePageSectionItem(section, docId));
+    }
+
+    return sidebarItems;
+  }
+
+  private generateSinglePageSectionItem(section: Section, docId: string): SidebarItem {
+    const sectionSlug = slugify(section.name);
+    const items: SidebarItem[] = [];
+
+    for (const subsection of section.subsections) {
+      if (subsection.name === '') {
+        // Root subsection operations go directly into the section items
+        for (const op of subsection.operations) {
+          items.push(this.generateSinglePageOperationItem(op, docId));
+        }
+      } else {
+        // Named subsections become nested categories
+        items.push(this.generateSinglePageSubsectionItem(subsection, sectionSlug, docId));
+      }
+    }
+
+    return {
+      type: 'category',
+      label: section.name,
+      link: {
+        type: 'doc',
+        id: docId,
+      },
+      items: items,
+      collapsible: true,
+      collapsed: true,
+    };
+  }
+
+  private generateSinglePageSubsectionItem(
+    subsection: Subsection,
+    sectionSlug: string,
+    docId: string
+  ): SidebarItem {
+    const subsectionSlug = slugify(subsection.name);
+    const anchorId = `${sectionSlug}-${subsectionSlug}`;
+
+    const items: SidebarItem[] = subsection.operations.map((op) =>
+      this.generateSinglePageOperationItem(op, docId)
+    );
+
+    return {
+      type: 'category',
+      label: subsection.name,
+      link: {
+        type: 'doc',
+        id: docId,
+      },
+      items: items,
+      collapsible: true,
+      collapsed: true,
+      customProps: {
+        anchor: anchorId,
+      },
+    };
+  }
+
+  private generateSinglePageOperationItem(operation: Operation, docId: string): SidebarItem {
+    const opSlug = slugify(operation.name);
+    return {
+      type: 'link',
+      label: operation.name,
+      href: `${docId}#${opSlug}`,
+    };
+  }
+
   private generateSectionItem(section: Section): SidebarItem {
     const sectionPath = slugify(section.name);
     const items: SidebarItem[] = [];

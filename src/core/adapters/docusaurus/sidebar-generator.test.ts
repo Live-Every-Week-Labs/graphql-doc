@@ -71,4 +71,51 @@ describe('SidebarGenerator', () => {
     expect(deleteUserOp?.type).toBe('doc');
     expect(deleteUserOp?.id).toBe('users/admin/delete-user');
   });
+
+  describe('generateSinglePageSidebar', () => {
+    it('generates sidebar with hash links for operations', () => {
+      const generator = new SidebarGenerator();
+      const items = generator.generateSinglePageSidebar(mockModel, 'api-reference');
+
+      expect(items).toBeDefined();
+      expect(items).toHaveLength(1);
+
+      const usersCategory = items[0];
+      expect(usersCategory.type).toBe('category');
+      expect(usersCategory.label).toBe('Users');
+      expect(usersCategory.link).toEqual({ type: 'doc', id: 'api-reference' });
+
+      // Check root operation uses link type with href
+      const getUserOp = usersCategory.items?.find((item) => item.label === 'getUser');
+      expect(getUserOp).toBeDefined();
+      expect(getUserOp?.type).toBe('link');
+      expect(getUserOp?.href).toBe('api-reference#get-user');
+    });
+
+    it('generates nested categories with hash links', () => {
+      const generator = new SidebarGenerator();
+      const items = generator.generateSinglePageSidebar(mockModel, 'api-reference');
+
+      const usersCategory = items[0];
+      const adminCategory = usersCategory.items?.find((item) => item.label === 'Admin');
+
+      expect(adminCategory).toBeDefined();
+      expect(adminCategory?.type).toBe('category');
+      expect(adminCategory?.link).toEqual({ type: 'doc', id: 'api-reference' });
+
+      const deleteUserOp = adminCategory?.items?.[0];
+      expect(deleteUserOp?.type).toBe('link');
+      expect(deleteUserOp?.href).toBe('api-reference#delete-user');
+    });
+
+    it('uses custom docId in hash links', () => {
+      const generator = new SidebarGenerator();
+      const items = generator.generateSinglePageSidebar(mockModel, 'custom-doc-id');
+
+      const usersCategory = items[0];
+      const getUserOp = usersCategory.items?.find((item) => item.label === 'getUser');
+
+      expect(getUserOp?.href).toBe('custom-doc-id#get-user');
+    });
+  });
 });

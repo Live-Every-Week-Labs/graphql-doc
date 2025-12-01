@@ -24,31 +24,11 @@ export class DocusaurusAdapter {
   }
 
   adapt(model: DocModel): GeneratedFile[] {
-    const files: GeneratedFile[] = [];
-
     if (this.config.singlePage) {
-      // Single page mode implementation
-      // For now, we'll just concatenate all operations into one file
-      // This is a basic implementation of single-page mode
-      const content = model.sections
-        .map((section: Section) => {
-          return section.subsections
-            .map((subsection: Subsection) => {
-              return subsection.operations
-                .map((op: Operation) => this.generateMdx(op))
-                .join('\n\n---\n\n');
-            })
-            .join('\n\n');
-        })
-        .join('\n\n');
-
-      files.push({
-        path: 'index.mdx',
-        content: content,
-        type: 'mdx',
-      });
-      return files;
+      return this.generateSinglePageOutput(model);
     }
+
+    const files: GeneratedFile[] = [];
 
     for (const section of model.sections) {
       const sectionPath = slugify(section.name);
@@ -106,6 +86,156 @@ export class DocusaurusAdapter {
 
     return files;
   }
+
+  // ==================== Single-Page Mode Methods ====================
+
+  private generateSinglePageOutput(model: DocModel): GeneratedFile[] {
+    const files: GeneratedFile[] = [];
+    const docId = 'api-reference';
+
+    // Build content sections
+    const frontMatter = this.generateSinglePageFrontMatter();
+    const toc = this.generateTableOfContents(model);
+    const sectionsContent = model.sections
+      .map((section) => this.generateSectionContent(section))
+      .join('\n\n');
+
+    // Combine all parts
+    const content = [frontMatter, '# API Reference', '', toc, '---', '', sectionsContent].join(
+      '\n'
+    );
+
+    files.push({
+      path: `${docId}.mdx`,
+      content: content,
+      type: 'mdx',
+    });
+
+    // Generate sidebar with hash links
+    const sidebarItems = this.sidebarGenerator.generateSinglePageSidebar(model, docId);
+    const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
+
+    if (fs.existsSync(sidebarsPath)) {
+      files.push({
+        path: 'sidebars.api.js',
+        content: `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`,
+        type: 'js',
+      });
+    } else {
+      files.push({
+        path: 'sidebars.js',
+        content: `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`,
+        type: 'js',
+      });
+    }
+
+    return files;
+  }
+
+  private generateSinglePageFrontMatter(): string {
+    return [
+      '---',
+      'id: api-reference',
+      'title: API Reference',
+      'sidebar_label: API Reference',
+      '---',
+    ].join('\n');
+  }
+
+  private generateTableOfContents(model: DocModel): string {
+    const lines: string[] = ['## Table of Contents', ''];
+
+    for (const section of model.sections) {
+      const sectionSlug = slugify(section.name);
+      lines.push(`- [${section.name}](#${sectionSlug})`);
+
+      for (const subsection of section.subsections) {
+        if (subsection.name === '') {
+          // Root subsection - operations go directly under section
+          for (const op of subsection.operations) {
+            const opSlug = slugify(op.name);
+            lines.push(`  - [${op.name}](#${opSlug})`);
+          }
+        } else {
+          // Named subsection
+          const subsectionSlug = `${sectionSlug}-${slugify(subsection.name)}`;
+          lines.push(`  - [${subsection.name}](#${subsectionSlug})`);
+
+          for (const op of subsection.operations) {
+            const opSlug = slugify(op.name);
+            lines.push(`    - [${op.name}](#${opSlug})`);
+          }
+        }
+      }
+    }
+
+    return lines.join('\n');
+  }
+
+  private generateSectionContent(section: Section): string {
+    const sectionSlug = slugify(section.name);
+    const lines: string[] = [];
+
+    // Section header with anchor
+    lines.push(`## ${section.name} {#${sectionSlug}}`);
+    lines.push('');
+
+    // Generate subsection content
+    for (const subsection of section.subsections) {
+      lines.push(this.generateSubsectionContent(subsection, sectionSlug));
+    }
+
+    return lines.join('\n');
+  }
+
+  private generateSubsectionContent(subsection: Subsection, sectionSlug: string): string {
+    const lines: string[] = [];
+
+    if (subsection.name !== '') {
+      // Named subsection - add header with anchor
+      const subsectionSlug = `${sectionSlug}-${slugify(subsection.name)}`;
+      lines.push(`### ${subsection.name} {#${subsectionSlug}}`);
+      lines.push('');
+    }
+
+    // Generate operation content
+    for (let i = 0; i < subsection.operations.length; i++) {
+      const op = subsection.operations[i];
+      lines.push(this.generateOperationContentWithAnchor(op));
+
+      // Add divider between operations (but not after the last one)
+      if (i < subsection.operations.length - 1) {
+        lines.push('');
+        lines.push('---');
+        lines.push('');
+      }
+    }
+
+    return lines.join('\n');
+  }
+
+  private generateOperationContentWithAnchor(op: Operation): string {
+    const opSlug = slugify(op.name);
+    const lines: string[] = [];
+
+    // Operation header with anchor
+    lines.push(`#### ${op.name} {#${opSlug}}`);
+    lines.push('');
+
+    // Get rendered content and strip the first line (which is the h1 header)
+    const renderedContent = this.renderer.renderOperation(op);
+    const contentLines = renderedContent.split('\n');
+
+    // Skip the first line if it's the h1 header (starts with "# ")
+    const startIndex = contentLines[0]?.startsWith('# ') ? 1 : 0;
+    const contentWithoutHeader = contentLines.slice(startIndex).join('\n').trim();
+
+    lines.push(contentWithoutHeader);
+
+    return lines.join('\n');
+  }
+
+  // ==================== Multi-Page Mode Methods ====================
 
   private generateMdx(op: Operation): string {
     const frontMatter = this.generateFrontMatter(op);

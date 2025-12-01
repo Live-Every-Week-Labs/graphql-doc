@@ -44,6 +44,66 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 | `generateSidebar` | `boolean` | `true`  | Generate Docusaurus sidebar configuration                                    |
 | `sidebarFile`     | `string`  | auto    | Custom filename for sidebar (defaults to `sidebars.js` or `sidebars.api.js`) |
 
+### Single-Page Mode
+
+When `singlePage: true` is set, the generator produces a single `api-reference.mdx` file instead of multiple files per operation. This mode includes:
+
+- **Front matter** with `id: api-reference`, `title: API Reference`, `sidebar_label: API Reference`
+- **Table of Contents** with nested anchor links to all sections, subsections, and operations
+- **Section headers** with Docusaurus anchor syntax (e.g., `## User Management {#user-management}`)
+- **Subsection headers** with composite anchors (e.g., `### Admin {#user-management-admin}`)
+- **Operation headers** with anchors (e.g., `#### getUser {#get-user}`)
+- **Sidebar with hash links** for in-page navigation (e.g., `api-reference#get-user`)
+
+This mode is ideal for smaller APIs or when you want all documentation on a single scrollable page with full navigation support.
+
+**Example output structure:**
+
+```markdown
+---
+id: api-reference
+title: API Reference
+sidebar_label: API Reference
+---
+
+# API Reference
+
+## Table of Contents
+
+- [User Management](#user-management)
+  - [getUser](#get-user)
+  - [Admin](#user-management-admin)
+    - [deleteUser](#delete-user)
+
+---
+
+## User Management {#user-management}
+
+#### getUser {#get-user}
+
+[operation content]
+
+---
+
+### Admin {#user-management-admin}
+
+#### deleteUser {#delete-user}
+
+[operation content]
+```
+
+**Enable single-page mode:**
+
+```yaml
+# .graphqlrc
+schema: schema.graphql
+
+extensions:
+  graphql-docs:
+    outputDir: ./docs/api
+    singlePage: true
+```
+
 ### Type Expansion Options
 
 Control how nested types are expanded in the documentation:

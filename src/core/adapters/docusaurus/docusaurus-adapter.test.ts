@@ -108,4 +108,123 @@ describe('DocusaurusAdapter', () => {
     expect(content.position).toBe(1);
     expect(content.link.type).toBe('generated-index');
   });
+
+  describe('Single-Page Mode', () => {
+    beforeEach(() => {
+      vi.resetAllMocks();
+    });
+
+    it('generates api-reference.mdx file', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      expect(mdxFile).toBeDefined();
+      expect(mdxFile?.type).toBe('mdx');
+    });
+
+    it('generates correct front matter for single-page', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      expect(mdxFile?.content).toContain('---');
+      expect(mdxFile?.content).toContain('id: api-reference');
+      expect(mdxFile?.content).toContain('title: API Reference');
+      expect(mdxFile?.content).toContain('sidebar_label: API Reference');
+    });
+
+    it('generates Table of Contents with anchor links', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      expect(mdxFile?.content).toContain('## Table of Contents');
+      expect(mdxFile?.content).toContain('- [Users](#users)');
+      expect(mdxFile?.content).toContain('- [getUser](#get-user)');
+      expect(mdxFile?.content).toContain('- [Admin](#users-admin)');
+      expect(mdxFile?.content).toContain('- [deleteUser](#delete-user)');
+    });
+
+    it('generates section headers with anchor IDs', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      expect(mdxFile?.content).toContain('## Users {#users}');
+    });
+
+    it('generates subsection headers with composite anchor IDs', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      expect(mdxFile?.content).toContain('### Admin {#users-admin}');
+    });
+
+    it('generates operation headers with anchor IDs', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      expect(mdxFile?.content).toContain('#### getUser {#get-user}');
+      expect(mdxFile?.content).toContain('#### deleteUser {#delete-user}');
+    });
+
+    it('generates sidebar with hash links', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const sidebarFile = files.find((f) => f.path === 'sidebars.js');
+      expect(sidebarFile).toBeDefined();
+      expect(sidebarFile?.content).toContain('api-reference#get-user');
+      expect(sidebarFile?.content).toContain('"type": "link"');
+    });
+
+    it('does not generate category files in single-page mode', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const categoryFiles = files.filter((f) => f.path.includes('_category_.json'));
+      expect(categoryFiles).toHaveLength(0);
+    });
+
+    it('does not generate individual operation mdx files in single-page mode', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const operationFiles = files.filter(
+        (f) => f.path.endsWith('.mdx') && f.path !== 'api-reference.mdx'
+      );
+      expect(operationFiles).toHaveLength(0);
+    });
+
+    it('includes API Reference main heading', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      expect(mdxFile?.content).toContain('# API Reference');
+    });
+
+    it('skips subsection header for root subsection (empty name)', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false);
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(mockModel);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      // Should NOT have a subsection header for empty name
+      expect(mdxFile?.content).not.toContain('### {#users-}');
+    });
+  });
 });
