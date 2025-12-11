@@ -20,18 +20,8 @@
      ========================================================================== */
 
     /* Panels & Backgrounds */
-    --gql-code-panel-bg: #1e1e1e;
-    /* VS Code dark like for code blocks even in light mode usually, can vary */
-    /* Actually, ticket says #1e1e1e for light mode root? Let's follow ticket strictly first but that seems dark for light mode? */
-    /* Re-reading ticket: 
-     :root { 
-       --gql-code-panel-bg: #1e1e1e; 
-       --gql-code-panel-fg: #d4d4d4; 
-     }
-     This suggests code blocks are dark by default even in light theme, which is common.
-  */
-    --gql-code-panel-bg: #1e1e1e;
-    --gql-code-panel-fg: #d4d4d4;
+    --gql-code-panel-bg: #ffffff;
+    --gql-code-panel-fg: #24292f;
     --gql-border-color: #e5e7eb;
 
     /* Typography Colors */
@@ -254,4 +244,133 @@ a.gql-type:hover {
 .gql-badge-warning {
     background-color: var(--gql-warning-bg);
     color: var(--gql-warning-text);
+}
+
+/* ==========================================================================
+   Field Table
+   ========================================================================== */
+
+.gql-field-table {
+    width: 100%;
+    border: 1px solid var(--gql-border-color);
+    border-radius: var(--gql-border-radius);
+    overflow: hidden;
+    margin-bottom: var(--gql-spacing-base);
+    background-color: var(--gql-code-panel-bg);
+}
+
+.gql-field-table-header {
+    display: flex;
+    background-color: var(--gql-active-bg);
+    border-bottom: 1px solid var(--gql-border-color);
+    font-weight: 600;
+    color: var(--gql-field-color);
+}
+
+.gql-field-table-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.gql-table-row {
+    display: flex;
+    border-bottom: 1px solid var(--gql-border-color);
+}
+
+.gql-table-row:last-child {
+    border-bottom: none;
+}
+
+.gql-table-row:hover {
+    background-color: var(--gql-hover-bg);
+}
+
+.gql-table-cell {
+    padding: 12px;
+    flex: 1;
+}
+
+.gql-cell-name {
+    flex: 0 0 25%;
+    min-width: 150px;
+    word-break: break-word;
+}
+
+.gql-cell-type {
+    flex: 0 0 25%;
+    min-width: 150px;
+    word-break: break-word;
+}
+
+.gql-cell-desc {
+    flex: 1;
+    min-width: 200px;
+}
+
+.gql-field-name {
+    font-weight: 600;
+    color: var(--gql-field-color);
+}
+
+.gql-deprecated-name {
+    text-decoration: line-through;
+    color: var(--gql-description-color);
+}
+
+.gql-no-desc {
+    color: var(--gql-description-color);
+    font-style: italic;
+    opacity: 0.5;
+}
+
+/* Arguments */
+.gql-field-args {
+    margin-top: 8px;
+    font-size: 0.9em;
+}
+
+.gql-args-label {
+    font-weight: 600;
+    color: var(--gql-description-color);
+    margin-bottom: 4px;
+}
+
+.gql-args-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    padding-left: 8px;
+    border-left: 2px solid var(--gql-border-color);
+}
+
+.gql-args-list li {
+    margin-bottom: 2px;
+}
+
+.gql-arg-name {
+    color: var(--gql-field-color);
+    font-family: monospace;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .gql-field-table-header {
+        display: none;
+        /* Hide header on mobile */
+    }
+
+    .gql-table-row {
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .gql-table-cell {
+        padding: 4px 0;
+        border: none;
+    }
+
+    .gql-cell-name {
+        margin-bottom: 4px;
+        font-size: 1.1em;
+    }
 }

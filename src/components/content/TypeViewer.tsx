@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { ExpandedType, ExpandedField, ExpandedTypeKind } from '../../core/transformer/types';
 import { useExpansion } from '../context/ExpansionProvider';
+import { FieldTable } from './FieldTable';
 
 interface TypeViewerProps {
   type: ExpandedType;
@@ -159,27 +160,12 @@ export const TypeViewer = React.memo(function TypeViewer({
 
         {hasFields && expanded && (
           <div className="gql-nested-content">
-            {type.fields.map((field) => (
-              <div key={field.name} className="gql-field-row">
-                <div className="gql-field-signature">
-                  <span className="gql-field">{field.name}</span>
-                  <span className="gql-punctuation">:</span>
-                  <TypeViewer
-                    type={field.type}
-                    depth={depth + 1}
-                    defaultExpandedLevels={defaultExpandedLevels}
-                    maxDepth={maxDepth}
-                    path={`${path}.${field.name}`}
-                  />
-                  {field.isRequired && (
-                    <span className="gql-required" title="Required">
-                      *
-                    </span>
-                  )}
-                </div>
-                {field.description && <div className="gql-description">{field.description}</div>}
-              </div>
-            ))}
+            <FieldTable
+              fields={type.fields}
+              depth={depth + 1}
+              maxDepth={maxDepth}
+              defaultExpandedLevels={defaultExpandedLevels}
+            />
           </div>
         )}
       </div>

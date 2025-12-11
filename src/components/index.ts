@@ -7,3 +7,4 @@ export * from './context/ExpansionProvider';
 
 // Content
 export * from './content/TypeViewer';
+export * from './content/FieldTable';
