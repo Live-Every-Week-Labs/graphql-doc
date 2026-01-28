@@ -21,6 +21,7 @@ Users can override any variable in their own CSS to customize the look and feel.
 
 - `--gql-type-color`: Color for GraphQL types/links.
 - `--gql-field-color`: Color for field names.
+- `--gql-examples-top`: Sticky offset for the examples panel.
 - `--gql-primary-color` (conceptually, though we use specific tokens).
 
 ### Utility Classes
@@ -34,8 +35,14 @@ We provide utility classes to apply these standard styles to generated content:
 - `.gql-badge`: Base class for status badges.
   - `.gql-badge-success`
   - `.gql-badge-warning`
-  - `.gql-badge-success`
-  - `.gql-badge-warning`
+  - `.gql-badge-error`
+  - `.gql-badge-neutral`
+
+### Layout & Examples
+
+- `.gql-docs-content`, `.gql-docs-main`, `.gql-docs-examples`: Two-column layout wrappers.
+- `.gql-examples-panel`: Sticky examples panel with tabs.
+- `.gql-tabs`, `.gql-tab`, `.gql-tab-panel`: Base tab styling.
   - `.gql-badge-error`
 
 ### Component Specific Classes

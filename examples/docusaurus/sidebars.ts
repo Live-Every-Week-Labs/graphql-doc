@@ -3,6 +3,19 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 // Import the generated API sidebar
 const apiSidebar = require('./docs/api/sidebars.js');
 
+const prefixApiDocIds = (items: any[]): any[] =>
+  items.map((item) => {
+    if (item?.type === 'doc' && typeof item.id === 'string' && !item.id.startsWith('api/')) {
+      return { ...item, id: `api/${item.id}` };
+    }
+
+    if (item?.type === 'category' && Array.isArray(item.items)) {
+      return { ...item, items: prefixApiDocIds(item.items) };
+    }
+
+    return item;
+  });
+
 const sidebars: SidebarsConfig = {
   // Tutorial sidebar - auto-generated from docs folder
   tutorialSidebar: [
@@ -20,7 +33,7 @@ const sidebars: SidebarsConfig = {
   ],
 
   // API sidebar - imported from generated file
-  apiSidebar: apiSidebar.apiSidebar,
+  apiSidebar: prefixApiDocIds(apiSidebar.apiSidebar),
 };
 
 export default sidebars;

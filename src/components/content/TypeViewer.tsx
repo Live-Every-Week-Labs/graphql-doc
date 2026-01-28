@@ -30,8 +30,12 @@ export const TypeViewer = React.memo(function TypeViewer({
   // Helper to handle toggles
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleExpand(path, expanded); // Pass current state so provider knows
+    toggleExpand(path, expanded);
   };
+
+  if (!type) {
+    return <span className="gql-type-error">Unknown Type</span>;
+  }
 
   // 1. SCALAR
   if (type.kind === 'SCALAR') {
@@ -46,19 +50,22 @@ export const TypeViewer = React.memo(function TypeViewer({
 
   // 2. LIST
   if (type.kind === 'LIST') {
-    // Instead of wrapping in a span with brackets that enclose the whole block,
-    // we pass the brackets down to the inner type so they appear as part of the label.
-    // This allows the inner type (e.g. Object) to handle expansion without the brackets moving weirdly around the content block.
     return (
-      <TypeViewer
-        type={type.ofType}
-        depth={depth}
-        defaultExpandedLevels={defaultExpandedLevels}
-        maxDepth={maxDepth}
-        path={`${path}.list`}
-        labelPrefix={`[${labelPrefix}`}
-        labelSuffix={`${labelSuffix}]`}
-      />
+      <span className="gql-type-list">
+        [
+        {/* Pass prefix/suffix if needed, or handle wrapping here. 
+            For simplicitly, wrapping here as per previous logic, 
+            but could delegate if "bracket attachment" logic is preferred. 
+            Keeping it simple as per working version. */}
+        <TypeViewer
+          type={type.ofType}
+          depth={depth}
+          defaultExpandedLevels={defaultExpandedLevels}
+          maxDepth={maxDepth}
+          path={`${path}.list`}
+        />
+        ]
+      </span>
     );
   }
 
@@ -67,8 +74,12 @@ export const TypeViewer = React.memo(function TypeViewer({
     return (
       <span className="gql-type">
         {labelPrefix}
-        <a href={`#${type.link}`} className="gql-type" title={`Go to ${type.ref}`}>
-          ↻ {type.ref}
+        <a
+          href={type.link}
+          className="gql-type-link gql-circular-ref"
+          title={`Circular reference to ${type.ref}`}
+        >
+          {type.ref} ↩
         </a>
         {labelSuffix}
       </span>
@@ -80,7 +91,7 @@ export const TypeViewer = React.memo(function TypeViewer({
     return (
       <span className="gql-type">
         {labelPrefix}
-        <a href={`#${type.link}`} className="gql-type">
+        <a href={type.link} className="gql-type-link">
           {type.name}
         </a>
         {labelSuffix}
@@ -90,75 +101,38 @@ export const TypeViewer = React.memo(function TypeViewer({
 
   // 5. ENUM
   if (type.kind === 'ENUM') {
-    // ENUMs are usually leaf nodes but can have values shown on expansion?
-    // Issue says: "Name + expandable values list"
-    const hasValues = type.values && type.values.length > 0;
-
     return (
-      <div className="gql-tree-node">
-        <div
-          className={`gql-expand-toggle ${hasValues ? '' : 'cursor-default'}`}
-          onClick={hasValues ? handleToggle : undefined}
-        >
-          <span className="gql-type">
-            {labelPrefix}
-            {type.name}
-            {labelSuffix}
-          </span>
-          {hasValues && (
-            <span className={`gql-toggle-icon ${expanded ? 'is-expanded' : ''}`}>▶</span>
-          )}
-        </div>
-
-        {hasValues && expanded && (
-          <div className="gql-nested-content">
-            {type.values.map((val) => (
-              <div key={val.name} className="gql-enum-value">
-                <span className="gql-field">{val.name}</span>
-                {val.description && (
-                  <span className="gql-description ml-2">- {val.description}</span>
-                )}
-                {val.isDeprecated && <span className="gql-deprecated">Deprecated</span>}
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="gql-enum-viewer">
+        <span className="gql-type">{type.name}</span>
+        <span className="gql-enum-badge">ENUM</span>
       </div>
     );
   }
 
   // 6. OBJECT / INTERFACE / INPUT_OBJECT
   if (type.kind === 'OBJECT' || type.kind === 'INTERFACE' || type.kind === 'INPUT_OBJECT') {
-    // Check max depth to stop recursion
-    if (depth >= maxDepth) {
-      return (
-        <span className="gql-type opacity-50" title="Max depth reached">
-          {labelPrefix}
-          {type.name}
-          {labelSuffix}...
-        </span>
-      );
-    }
+    const isExpandable = type.fields && type.fields.length > 0;
 
-    const hasFields = type.fields && type.fields.length > 0;
+    // If max depth reached, just show name
+    if (depth >= maxDepth) {
+      return <span className="gql-type">{type.name}</span>;
+    }
 
     return (
       <div className="gql-tree-node">
         <div
-          className={`gql-expand-toggle ${hasFields ? '' : 'cursor-default'}`}
-          onClick={hasFields ? handleToggle : undefined}
+          className={`gql-expand-toggle ${isExpandable ? '' : 'cursor-default'}`}
+          onClick={isExpandable ? handleToggle : undefined}
         >
-          <span className="gql-type">
-            {labelPrefix}
-            {type.name}
-            {labelSuffix}
-          </span>
-          {hasFields && (
-            <span className={`gql-toggle-icon ${expanded ? 'is-expanded' : ''}`}>▶</span>
+          {isExpandable && (
+            <span className={`gql-arrow ${expanded ? 'gql-arrow-down' : 'gql-arrow-right'}`}>
+              ▶
+            </span>
           )}
+          <span className="gql-type">{type.name}</span>
         </div>
 
-        {hasFields && expanded && (
+        {expanded && isExpandable && (
           <div className="gql-nested-content">
             <FieldTable
               fields={type.fields}
@@ -174,45 +148,23 @@ export const TypeViewer = React.memo(function TypeViewer({
 
   // 7. UNION
   if (type.kind === 'UNION') {
-    const hasTypes = type.possibleTypes && type.possibleTypes.length > 0;
-
     return (
-      <div className="gql-tree-node">
-        <div
-          className={`gql-expand-toggle ${hasTypes ? '' : 'cursor-default'}`}
-          onClick={hasTypes ? handleToggle : undefined}
-        >
-          <span className="gql-type">
-            {labelPrefix}
-            {type.name}
-            {labelSuffix}
-          </span>
-          {hasTypes && (
-            <span className={`gql-toggle-icon ${expanded ? 'is-expanded' : ''}`}>▶</span>
-          )}
-        </div>
-
-        {hasTypes && expanded && (
-          <div className="gql-nested-content">
-            <div className="gql-description" style={{ marginBottom: '4px' }}>
-              Possible Types:
-            </div>
-            {type.possibleTypes.map((pt) => (
-              <div
-                key={(pt as any).name || (pt as any).ref || 'list'}
-                style={{ marginBottom: '4px' }}
-              >
-                <TypeViewer
-                  type={pt}
-                  depth={depth + 1}
-                  defaultExpandedLevels={defaultExpandedLevels}
-                  maxDepth={maxDepth}
-                  path={`${path}.${(pt as any).name || (pt as any).ref || 'type'}`}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="gql-union-viewer">
+        <span className="gql-type-keyword">union</span>
+        <span className="gql-type">{type.name}</span>
+        <span className="gql-operator">=</span>
+        {type.possibleTypes.map((t, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span className="gql-operator">|</span>}
+            <TypeViewer
+              type={t}
+              depth={depth}
+              maxDepth={maxDepth}
+              defaultExpandedLevels={defaultExpandedLevels}
+              path={`${path}.union.${i}`}
+            />
+          </React.Fragment>
+        ))}
       </div>
     );
   }

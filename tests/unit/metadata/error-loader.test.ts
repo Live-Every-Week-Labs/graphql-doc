@@ -1,10 +1,19 @@
+// @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { loadErrors } from '../../../src/core/metadata/error-loader';
-import fs from 'fs-extra';
+import * as fs from 'fs-extra';
 import { glob } from 'glob';
 
-vi.mock('fs-extra');
-vi.mock('glob');
+vi.mock('fs-extra', () => {
+  const readJson = vi.fn();
+  return {
+    readJson,
+    default: { readJson },
+  };
+});
+vi.mock('glob', () => ({
+  glob: vi.fn(),
+}));
 
 describe('loadErrors', () => {
   beforeEach(() => {

@@ -13,10 +13,9 @@ export async function loadErrors(pattern: string): Promise<ErrorFile[]> {
       const validated = ErrorFileSchema.parse(content);
       results.push(validated);
     } catch (error) {
-      console.error(`Failed to load error file: ${file}`, error);
-      throw new Error(
-        `Invalid error file ${file}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Failed to load error file: ${file}: ${message}`);
+      throw new Error(`Invalid error file ${file}: ${message}`);
     }
   }
 

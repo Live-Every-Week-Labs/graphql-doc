@@ -12,11 +12,13 @@ export const ExampleSchema = z.object({
   }),
 });
 
-export const ExampleFileSchema = z.object({
+const ExampleFileEntrySchema = z.object({
   operation: z.string(),
   operationType: z.enum(['query', 'mutation', 'subscription']),
   examples: z.array(ExampleSchema),
 });
+
+export const ExampleFileSchema = z.union([ExampleFileEntrySchema, z.array(ExampleFileEntrySchema)]);
 
 export const ErrorDefinitionSchema = z.object({
   code: z.string(),

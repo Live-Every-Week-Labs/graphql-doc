@@ -11,16 +11,19 @@ export async function loadExamples(pattern: string): Promise<ExampleFile[]> {
     try {
       const content = await fs.readJson(file);
       const validated = ExampleFileSchema.parse(content);
-      results.push(validated);
+      if (Array.isArray(validated)) {
+        results.push(...validated);
+      } else {
+        results.push(validated);
+      }
     } catch (error) {
-      console.error(`Failed to load example file: ${file}`, error);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Failed to load example file: ${file}: ${message}`);
       // We might want to rethrow or collect errors depending on desired behavior.
       // For now, logging and skipping is a safe default for a loader.
       // Alternatively, we could throw to fail the build.
       // Let's throw to ensure data integrity.
-      throw new Error(
-        `Invalid example file ${file}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      throw new Error(`Invalid example file ${file}: ${message}`);
     }
   }
 

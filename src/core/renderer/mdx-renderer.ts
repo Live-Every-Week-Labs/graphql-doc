@@ -50,12 +50,18 @@ function getTemplatesDir(): string {
 
 const templatesDir = getTemplatesDir();
 
+interface RenderOptions {
+  exportName?: string;
+  exportConst?: boolean;
+  headingLevel?: number;
+  includeDescription?: boolean;
+}
+
 export class MdxRenderer {
   private template: Handlebars.TemplateDelegate;
 
   constructor() {
     this.registerHelpers();
-    this.registerPartials();
 
     // Load main template from the templates directory
     // This works both in development (src/) and when installed as npm package (dist/)
@@ -64,8 +70,17 @@ export class MdxRenderer {
     this.template = Handlebars.compile(templateContent);
   }
 
-  public renderOperation(op: Operation): string {
-    return this.template(op);
+  public renderOperation(op: Operation, options: RenderOptions = {}): string {
+    const exportName = options.exportName ?? 'operation';
+    const exportKeyword = options.exportConst === false ? 'const' : 'export const';
+
+    return this.template({
+      operation: op,
+      exportName,
+      exportKeyword,
+      headingLevel: options.headingLevel,
+      includeDescription: options.includeDescription !== false,
+    });
   }
 
   private registerHelpers() {
@@ -73,29 +88,8 @@ export class MdxRenderer {
       return JSON.stringify(context, null, 2);
     });
 
-    Handlebars.registerHelper('eq', (a, b) => {
-      return a === b;
-    });
-
     Handlebars.registerHelper('slugify', (text) => {
       return slugify(text?.toString() ?? '');
-    });
-
-    Handlebars.registerHelper('unwrap', (type) => {
-      let current = type;
-      while (current && (current.kind === 'NON_NULL' || current.kind === 'LIST')) {
-        current = current.ofType;
-      }
-      return current;
-    });
-  }
-
-  private registerPartials() {
-    const partials = ['arguments', 'type', 'examples'];
-    partials.forEach((name) => {
-      const partialPath = path.join(templatesDir, `${name}.hbs`);
-      const content = fs.readFileSync(partialPath, 'utf-8');
-      Handlebars.registerPartial(name, content);
     });
   }
 }

@@ -14,6 +14,8 @@
     --gql-content-max-width: 1400px;
     --gql-spacing-base: 1rem;
     --gql-border-radius: 6px;
+    --gql-content-gap: 2rem;
+    --gql-examples-top: 96px;
 
     /* ==========================================================================
      Color Tokens - Light Theme (Default)
@@ -43,6 +45,9 @@
     /* Error */
     --gql-error-bg: #fee2e2;
     --gql-error-text: #991b1b;
+    /* Neutral */
+    --gql-neutral-bg: #e5e7eb;
+    --gql-neutral-text: #374151;
 
     /* Interactive Elements */
     --gql-hover-bg: #f3f4f6;
@@ -74,6 +79,8 @@
     --gql-warning-text: #ffffff;
     --gql-error-bg: #da3633;
     --gql-error-text: #ffffff;
+    --gql-neutral-bg: #30363d;
+    --gql-neutral-text: #e6edf3;
 
     /* Interactive */
     --gql-hover-bg: #161b22;
@@ -110,6 +117,11 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 0.9em;
     font-style: italic;
+}
+
+.gql-description-text {
+    color: var(--gql-description-color);
+    font-size: 0.9em;
 }
 
 .gql-required {
@@ -246,6 +258,21 @@ a.gql-type:hover {
     color: var(--gql-warning-text);
 }
 
+.gql-badge-success {
+    background-color: var(--gql-success-bg);
+    color: var(--gql-success-text);
+}
+
+.gql-badge-error {
+    background-color: var(--gql-error-bg);
+    color: var(--gql-error-text);
+}
+
+.gql-badge-neutral {
+    background-color: var(--gql-neutral-bg);
+    color: var(--gql-neutral-text);
+}
+
 /* ==========================================================================
    Field Table
    ========================================================================== */
@@ -302,6 +329,15 @@ a.gql-type:hover {
     word-break: break-word;
 }
 
+.gql-cell-default {
+    flex: 0 0 15%;
+    min-width: 120px;
+    word-break: break-word;
+    color: var(--gql-description-color);
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    font-size: 0.85em;
+}
+
 .gql-cell-desc {
     flex: 1;
     min-width: 200px;
@@ -321,6 +357,10 @@ a.gql-type:hover {
     color: var(--gql-description-color);
     font-style: italic;
     opacity: 0.5;
+}
+
+.gql-default-code {
+    color: var(--gql-description-color);
 }
 
 /* Arguments */
@@ -352,6 +392,297 @@ a.gql-type:hover {
     font-family: monospace;
 }
 
+/* ==========================================================================
+   Operation View
+   ========================================================================== */
+
+.gql-operation {
+    padding: 8px 0 32px;
+    border-bottom: 1px solid var(--gql-border-color);
+}
+
+.gql-operation:last-child {
+    border-bottom: none;
+}
+
+.gql-operation-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.gql-operation-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.gql-operation-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gql-field-color);
+}
+
+.gql-op-type {
+    font-size: 0.7rem;
+}
+
+.gql-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.45rem;
+    font-size: 0.7rem;
+    border-radius: 999px;
+    background: var(--gql-neutral-bg);
+    color: var(--gql-neutral-text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.gql-deprecation-warning {
+    padding: 8px 12px;
+    border-radius: var(--gql-border-radius);
+    background: var(--gql-warning-bg);
+    color: var(--gql-warning-text);
+    font-size: 0.9rem;
+}
+
+.gql-deprecation-label {
+    font-weight: 700;
+}
+
+.gql-operation-description {
+    margin-bottom: 16px;
+    color: var(--gql-description-color);
+}
+
+.gql-operation-section {
+    margin-top: 20px;
+}
+
+.gql-section-title {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: var(--gql-field-color);
+}
+
+.gql-inline-example {
+    display: none;
+    margin-top: 16px;
+}
+
+.gql-inline-example .gql-examples-panel {
+    position: static;
+}
+
+/* ==========================================================================
+   Two Column Layout
+   ========================================================================== */
+
+.gql-docs-content {
+    display: grid;
+    grid-template-columns: minmax(420px, 1fr) minmax(320px, 40%);
+    gap: var(--gql-content-gap);
+    align-items: start;
+    width: 100%;
+}
+
+.gql-docs-main {
+    min-width: 0;
+}
+
+.gql-docs-examples {
+    min-width: 0;
+}
+
+/* ==========================================================================
+   Examples Panel + Tabs
+   ========================================================================== */
+
+.gql-examples-panel {
+    position: sticky;
+    top: var(--gql-examples-top);
+    border: 1px solid var(--gql-border-color);
+    border-radius: var(--gql-border-radius);
+    background: var(--gql-code-panel-bg);
+    color: var(--gql-code-panel-fg);
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+}
+
+.gql-examples-header {
+    padding: 12px 16px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--gql-border-color);
+    background: var(--gql-active-bg);
+}
+
+.gql-examples-empty {
+    padding: 16px;
+    color: var(--gql-description-color);
+}
+
+.gql-tabs {
+    display: flex;
+    flex-direction: column;
+}
+
+.gql-tab-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gql-border-color);
+    background: var(--gql-code-panel-bg);
+}
+
+.gql-tab {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--gql-description-color);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color var(--gql-transition-speed), color var(--gql-transition-speed);
+}
+
+.gql-tab:hover {
+    background: var(--gql-hover-bg);
+    color: var(--gql-field-color);
+}
+
+.gql-tab:focus-visible {
+    outline: none;
+    box-shadow: var(--gql-focus-ring);
+}
+
+.gql-tab.is-active {
+    background: var(--gql-active-bg);
+    color: var(--gql-field-color);
+    border-color: var(--gql-border-color);
+}
+
+.gql-tab-panel {
+    padding: 12px;
+}
+
+.gql-tab-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gql-tab-label-text {
+    font-weight: 500;
+}
+
+.gql-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    display: inline-block;
+    background: var(--gql-neutral-bg);
+}
+
+.gql-status-success {
+    background: var(--gql-success-bg);
+}
+
+.gql-status-failure {
+    background: var(--gql-warning-bg);
+}
+
+.gql-status-error {
+    background: var(--gql-error-bg);
+}
+
+.gql-code-example {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.gql-code-example-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.gql-code-example-title {
+    font-weight: 600;
+    color: var(--gql-field-color);
+}
+
+.gql-code-example-description {
+    font-size: 0.9rem;
+    color: var(--gql-description-color);
+}
+
+.gql-code-panel {
+    border: 1px solid var(--gql-border-color);
+    border-radius: var(--gql-border-radius);
+    overflow: hidden;
+    background: var(--gql-code-panel-bg);
+}
+
+.gql-code-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--gql-active-bg);
+    border-bottom: 1px solid var(--gql-border-color);
+}
+
+.gql-code-panel-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gql-description-color);
+}
+
+.gql-copy-button {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--gql-border-color);
+    background: transparent;
+    color: var(--gql-description-color);
+    padding: 4px 8px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.gql-copy-button:hover {
+    color: var(--gql-field-color);
+    background: var(--gql-hover-bg);
+}
+
+.gql-copy-button:focus-visible {
+    outline: none;
+    box-shadow: var(--gql-focus-ring);
+}
+
+.gql-code-block {
+    margin: 0;
+    padding: 12px;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    background: transparent;
+}
+
+.gql-response-badge {
+    white-space: nowrap;
+}
+
 /* Responsiveness */
 @media (max-width: 768px) {
     .gql-field-table-header {
@@ -372,5 +703,23 @@ a.gql-type:hover {
     .gql-cell-name {
         margin-bottom: 4px;
         font-size: 1.1em;
+    }
+
+    .gql-cell-default {
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 1100px) {
+    .gql-docs-content {
+        display: block;
+    }
+
+    .gql-docs-examples {
+        display: none;
+    }
+
+    .gql-inline-example {
+        display: block;
     }
 }

@@ -6,5 +6,20 @@ import './styles/graphql-docs.css';
 export * from './context/ExpansionProvider';
 
 // Content
-export * from './content/TypeViewer';
-export * from './content/FieldTable';
+export { FieldTable } from './content/FieldTable';
+export { ArgumentsTable } from './content/ArgumentsTable';
+export { OperationView } from './content/OperationView';
+export { TypeViewer } from './content/TypeViewer';
+
+// Examples
+export { ExamplesPanel } from './examples/ExamplesPanel';
+export { CodeExample } from './examples/CodeExample';
+export { StatusIndicator } from './examples/StatusIndicator';
+export { ResponseBadge } from './examples/ResponseBadge';
+
+// Layout
+export { TwoColumnContent } from './layout/TwoColumnContent';
+
+// Hooks & UI
+export { useScrollSync } from './hooks/useScrollSync';
+export { Tabs } from './ui/Tabs';

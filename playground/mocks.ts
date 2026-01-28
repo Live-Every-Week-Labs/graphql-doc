@@ -1,4 +1,4 @@
-import { ExpandedType } from '../src/core/transformer/types';
+import { ExpandedType, ExpandedArgument } from '../src/core/transformer/types';
 
 export const mockScalar: ExpandedType = {
   kind: 'SCALAR',
@@ -103,4 +103,43 @@ export const mocks: Record<string, ExpandedType> = {
       },
     ],
   },
+  CircularRef: {
+    kind: 'CIRCULAR_REF',
+    ref: 'SomeType',
+    link: '#sometype',
+  } as ExpandedType,
 };
+
+export const mockArgs: ExpandedArgument[] = [
+  {
+    name: 'id',
+    description: 'The ID of the item',
+    type: {
+      kind: 'SCALAR',
+      name: 'ID',
+    } as ExpandedType,
+    isRequired: true,
+    defaultValue: undefined,
+  },
+  {
+    name: 'input',
+    description: 'The input object',
+    type: {
+      kind: 'OBJECT',
+      name: 'CreateItemInput',
+      fields: [],
+    } as ExpandedType,
+    isRequired: false,
+    defaultValue: undefined,
+  },
+  {
+    name: 'status',
+    type: {
+      kind: 'ENUM',
+      name: 'Status',
+      values: [],
+    } as ExpandedType,
+    isRequired: false,
+    defaultValue: 'ACTIVE',
+  },
+];

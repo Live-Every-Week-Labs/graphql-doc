@@ -4,7 +4,7 @@ This module is responsible for rendering the internal documentation model into s
 
 ## MdxRenderer
 
-The `MdxRenderer` class uses Handlebars to transform `Operation` objects into MDX strings.
+The `MdxRenderer` class uses Handlebars to transform `Operation` objects into MDX strings that render the React component library.
 
 ### Features
 
@@ -12,8 +12,7 @@ The `MdxRenderer` class uses Handlebars to transform `Operation` objects into MD
 - **Custom Helpers**:
   - `json`: Stringifies objects to JSON.
   - `slugify`: Converts strings to URL-friendly slugs.
-  - `eq`: Equality check for templates.
-- **Partials**: Registers `arguments`, `type`, and `examples` partials for reuse.
+- **Component Output**: Emits `<OperationView />` with static props export.
 
 ### Usage
 
@@ -21,5 +20,8 @@ The `MdxRenderer` class uses Handlebars to transform `Operation` objects into MD
 import { MdxRenderer } from './mdx-renderer';
 
 const renderer = new MdxRenderer();
-const mdxContent = renderer.renderOperation(operation);
+const mdxContent = renderer.renderOperation(operation, {
+  exportName: 'operation',
+  headingLevel: 2,
+});
 ```

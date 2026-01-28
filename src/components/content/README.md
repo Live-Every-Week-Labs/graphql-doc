@@ -41,7 +41,7 @@ const myType: ExpandedType = { ... };
 
 ### `FieldTable`
 
-The `FieldTable` component renders a list of fields for an object type in a structured, readable table format. It improves observability of complex types.
+The `FieldTable` component renders a list of fields for an object type in a structured, readable table format.
 
 **Features:**
 
@@ -73,3 +73,38 @@ const fields: ExpandedField[] = [ ... ];
 - `depth` (`number`): Current recursion depth.
 - `maxDepth` (`number`): Max recursion depth (passed to child `TypeViewer`s).
 - `defaultExpandedLevels` (`number`): Expansion level control (passed to child `TypeViewer`s).
+
+### `ArgumentsTable`
+
+The `ArgumentsTable` component renders operation arguments with required indicators, types, defaults, and descriptions.
+
+**Usage:**
+
+```tsx
+import { ArgumentsTable } from './ArgumentsTable';
+import { ExpandedArgument } from '../../core/transformer/types';
+
+const args: ExpandedArgument[] = [ ... ];
+
+<ArgumentsTable
+  arguments={args}
+  depth={0}
+  maxDepth={5}
+  defaultExpandedLevels={2}
+/>
+```
+
+### `OperationView`
+
+`OperationView` renders a complete GraphQL operation with its description, arguments, return type, and inline examples (mobile). It also emits `data-operation` for scroll sync and anchors via `slugify()`.
+
+**Usage:**
+
+```tsx
+import { OperationView } from './OperationView';
+import { Operation } from '../../core/transformer/types';
+
+const operation: Operation = { ... };
+
+<OperationView operation={operation} />
+```

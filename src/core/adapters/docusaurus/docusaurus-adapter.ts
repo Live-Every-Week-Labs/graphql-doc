@@ -92,18 +92,42 @@ export class DocusaurusAdapter {
   private generateSinglePageOutput(model: DocModel): GeneratedFile[] {
     const files: GeneratedFile[] = [];
     const docId = 'api-reference';
+    const operations = model.sections.flatMap((section) =>
+      section.subsections.flatMap((subsection) => subsection.operations)
+    );
+    const usedOperationIds = new Set<string>();
+    const getOperationId = (op: Operation) => {
+      const base = this.createOperationId(op);
+      let candidate = base;
+      let counter = 1;
+      while (usedOperationIds.has(candidate)) {
+        candidate = `${base}_${counter}`;
+        counter += 1;
+      }
+      usedOperationIds.add(candidate);
+      return candidate;
+    };
 
     // Build content sections
     const frontMatter = this.generateSinglePageFrontMatter();
+    const examplesExport = this.generateExamplesExport(operations);
     const toc = this.generateTableOfContents(model);
     const sectionsContent = model.sections
-      .map((section) => this.generateSectionContent(section))
+      .map((section) => this.generateSectionContent(section, getOperationId))
       .join('\n\n');
 
     // Combine all parts
-    const content = [frontMatter, '# API Reference', '', toc, '---', '', sectionsContent].join(
-      '\n'
-    );
+    const content = [
+      frontMatter,
+      examplesExport,
+      '',
+      '# API Reference',
+      '',
+      toc,
+      '---',
+      '',
+      sectionsContent,
+    ].join('\n');
 
     files.push({
       path: `${docId}.mdx`,
@@ -138,6 +162,7 @@ export class DocusaurusAdapter {
       'id: api-reference',
       'title: API Reference',
       'sidebar_label: API Reference',
+      'api: true',
       '---',
     ].join('\n');
   }
@@ -172,7 +197,10 @@ export class DocusaurusAdapter {
     return lines.join('\n');
   }
 
-  private generateSectionContent(section: Section): string {
+  private generateSectionContent(
+    section: Section,
+    operationExportName: (op: Operation) => string
+  ): string {
     const sectionSlug = slugify(section.name);
     const lines: string[] = [];
 
@@ -182,13 +210,17 @@ export class DocusaurusAdapter {
 
     // Generate subsection content
     for (const subsection of section.subsections) {
-      lines.push(this.generateSubsectionContent(subsection, sectionSlug));
+      lines.push(this.generateSubsectionContent(subsection, sectionSlug, operationExportName));
     }
 
     return lines.join('\n');
   }
 
-  private generateSubsectionContent(subsection: Subsection, sectionSlug: string): string {
+  private generateSubsectionContent(
+    subsection: Subsection,
+    sectionSlug: string,
+    operationExportName: (op: Operation) => string
+  ): string {
     const lines: string[] = [];
 
     if (subsection.name !== '') {
@@ -201,7 +233,7 @@ export class DocusaurusAdapter {
     // Generate operation content
     for (let i = 0; i < subsection.operations.length; i++) {
       const op = subsection.operations[i];
-      lines.push(this.generateOperationContentWithAnchor(op));
+      lines.push(this.generateOperationContent(op, operationExportName(op)));
 
       // Add divider between operations (but not after the last one)
       if (i < subsection.operations.length - 1) {
@@ -214,33 +246,24 @@ export class DocusaurusAdapter {
     return lines.join('\n');
   }
 
-  private generateOperationContentWithAnchor(op: Operation): string {
-    const opSlug = slugify(op.name);
-    const lines: string[] = [];
-
-    // Operation header with anchor
-    lines.push(`#### ${op.name} {#${opSlug}}`);
-    lines.push('');
-
-    // Get rendered content and strip the first line (which is the h1 header)
-    const renderedContent = this.renderer.renderOperation(op);
-    const contentLines = renderedContent.split('\n');
-
-    // Skip the first line if it's the h1 header (starts with "# ")
-    const startIndex = contentLines[0]?.startsWith('# ') ? 1 : 0;
-    const contentWithoutHeader = contentLines.slice(startIndex).join('\n').trim();
-
-    lines.push(contentWithoutHeader);
-
-    return lines.join('\n');
+  private generateOperationContent(op: Operation, exportName: string): string {
+    return this.renderer.renderOperation(op, {
+      exportName,
+      exportConst: false,
+      headingLevel: 4,
+    });
   }
 
   // ==================== Multi-Page Mode Methods ====================
 
   private generateMdx(op: Operation): string {
     const frontMatter = this.generateFrontMatter(op);
-    const content = this.renderer.renderOperation(op);
-    return `${frontMatter}\n\n${content}`;
+    const examplesExport = this.generateExamplesExport([op]);
+    const content = this.renderer.renderOperation(op, {
+      exportName: 'operation',
+      headingLevel: 1,
+    });
+    return `${frontMatter}\n\n${examplesExport}\n\n${content}`;
   }
 
   private generateFrontMatter(op: Operation): string {
@@ -257,6 +280,7 @@ export class DocusaurusAdapter {
 
     // Add custom front matter if needed (e.g. for search)
     lines.push('hide_title: true'); // Common Docusaurus pattern if h1 is in content
+    lines.push('api: true');
     lines.push('---');
 
     return lines.join('\n');
@@ -276,5 +300,23 @@ export class DocusaurusAdapter {
       null,
       2
     );
+  }
+
+  private createOperationId(op: Operation): string {
+    const slug = slugify(op.name).replace(/-/g, '_');
+    const safe = slug || 'operation';
+    return `operation_${safe}`;
+  }
+
+  private generateExamplesExport(operations: Operation[]): string {
+    const examplesByOperation = operations.reduce<Record<string, Operation['examples']>>(
+      (acc, operation) => {
+        acc[operation.name] = operation.examples ?? [];
+        return acc;
+      },
+      {}
+    );
+
+    return `export const examplesByOperation = ${JSON.stringify(examplesByOperation, null, 2)};`;
   }
 }

@@ -1,33 +1,9 @@
-# {{name}} {{#if isDeprecated}}<span class="gql-badge gql-badge-warning">Deprecated</span>{{/if}}
+{{exportKeyword}} {{exportName}} = {{{json operation}}};
 
-{{#if isDeprecated}}
-> [!WARNING]
-> **Deprecated**: {{deprecationReason}}
+<OperationView operation={ {{exportName}} }{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}>
+{{#if includeDescription}}
+{{#if operation.description}}
+{{{operation.description}}}
 {{/if}}
-
-{{description}}
-
-**Type:** <span class="gql-type">{{operationType}}</span>
-
-{{> arguments}}
-
-### Return Type
-
-{{> type returnType}}
-
-{{returnType.description}}
-
-{{#with (unwrap returnType)}}
-{{#if fields}}
-#### Fields
-
-| Name | Type | Description |
-| :--- | :--- | :--- |
-{{#each fields}}
-| <span class="gql-field">{{name}}</span> | {{> type type}} | {{#if description}}<span
-    class="gql-description">{{description}}</span>{{else}}-{{/if}} |
-{{/each}}
 {{/if}}
-{{/with}}
-
-{{> examples}}
+</OperationView>

@@ -9,8 +9,8 @@ The `DocusaurusAdapter` converts the internal model into a file structure and co
 ### Responsibilities
 
 1.  **File Structure**: Maps the `Section` and `Subsection` hierarchy to a nested directory structure.
-2.  **Front Matter**: Generates Docusaurus-compatible YAML front matter for MDX files (id, title, sidebar_label, tags).
-3.  **Content Generation**: Uses `MdxRenderer` to generate the body content of the MDX files.
+2.  **Front Matter**: Generates Docusaurus-compatible YAML front matter for MDX files (id, title, sidebar_label, tags, `api: true`).
+3.  **Content Generation**: Uses `MdxRenderer` to generate component-based MDX.
 4.  **Navigation**: Generates `_category_.json` files to control the Docusaurus sidebar structure and ordering.
 5.  **Sidebar Generation**: Automatically generates a `sidebars.js` file (or `sidebars.api.js` if one already exists) to provide a complete navigation structure for the API documentation.
 
@@ -25,7 +25,7 @@ const files = adapter.adapt(docModel);
 // files is an array of GeneratedFile objects:
 // {
 //   path: 'users/get-user.mdx',
-//   content: '---\nid: get-user\n...',
+//   content: '---\nid: get-user\napi: true\n...',
 //   type: 'mdx'
 // }
 ```

@@ -29,31 +29,18 @@ describe('MdxRenderer', () => {
 
   it('renders a basic operation', () => {
     const output = renderer.renderOperation(mockOperation);
-    expect(output).toContain('# getUser');
+    expect(output).toContain('export const operation');
+    expect(output).toContain('<OperationView');
     expect(output).toContain('Retrieves a user by ID.');
-    expect(output).toContain('**Type:** `query`');
   });
 
-  it('renders arguments table', () => {
-    const output = renderer.renderOperation(mockOperation);
-    expect(output).toContain('### Arguments');
-    expect(output).toContain('| `id` | `ID` | The user ID |');
-  });
-
-  it('renders return type', () => {
-    const output = renderer.renderOperation(mockOperation);
-    expect(output).toContain('### Return Type');
-    expect(output).toContain('`User`');
-  });
-
-  it('renders deprecation notice', () => {
-    const deprecatedOp = {
-      ...mockOperation,
-      isDeprecated: true,
-      deprecationReason: 'Use getUserById instead.',
-    };
-    const output = renderer.renderOperation(deprecatedOp);
-    expect(output).toContain('> [!WARNING]');
-    expect(output).toContain('**Deprecated**: Use getUserById instead.');
+  it('supports custom export names and heading levels', () => {
+    const output = renderer.renderOperation(mockOperation, {
+      exportName: 'operation_get_user',
+      exportConst: false,
+      headingLevel: 4,
+    });
+    expect(output).toContain('const operation_get_user');
+    expect(output).toMatch(/headingLevel=\{\s*4\s*\}/);
   });
 });

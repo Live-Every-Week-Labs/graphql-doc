@@ -84,10 +84,6 @@ describe('DocusaurusAdapter', () => {
   it('generates correct front matter', () => {
     const adapter = new DocusaurusAdapter();
     const files = adapter.adapt(mockModel);
-    console.log(
-      'Generated files:',
-      files.map((f) => f.path)
-    );
     const mdxFile = files.find((f) => f.path === 'users/get-user.mdx');
 
     expect(mdxFile).toBeDefined();
@@ -95,6 +91,7 @@ describe('DocusaurusAdapter', () => {
     expect(mdxFile?.content).toContain('title: getUser');
     expect(mdxFile?.content).toContain('sidebar_label: getUser');
     expect(mdxFile?.content).toContain('tags: ["read", "user"]');
+    expect(mdxFile?.content).toContain('api: true');
   });
 
   it('generates correct category json', () => {
@@ -134,6 +131,7 @@ describe('DocusaurusAdapter', () => {
       expect(mdxFile?.content).toContain('id: api-reference');
       expect(mdxFile?.content).toContain('title: API Reference');
       expect(mdxFile?.content).toContain('sidebar_label: API Reference');
+      expect(mdxFile?.content).toContain('api: true');
     });
 
     it('generates Table of Contents with anchor links', () => {
@@ -167,14 +165,13 @@ describe('DocusaurusAdapter', () => {
       expect(mdxFile?.content).toContain('### Admin {#users-admin}');
     });
 
-    it('generates operation headers with anchor IDs', () => {
+    it('includes examples export for scroll sync panels', () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
       const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
-      expect(mdxFile?.content).toContain('#### getUser {#get-user}');
-      expect(mdxFile?.content).toContain('#### deleteUser {#delete-user}');
+      expect(mdxFile?.content).toContain('export const examplesByOperation');
     });
 
     it('generates sidebar with hash links', () => {

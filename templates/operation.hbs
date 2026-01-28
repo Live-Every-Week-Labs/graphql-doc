@@ -1,32 +1,9 @@
-# {{name}}
+{{exportKeyword}} {{exportName}} = {{{json operation}}};
 
-{{#if isDeprecated}}
-> [!WARNING]
-> **Deprecated**: {{deprecationReason}}
+<OperationView operation={ {{exportName}} }{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}>
+{{#if includeDescription}}
+{{#if operation.description}}
+{{{operation.description}}}
 {{/if}}
-
-{{description}}
-
-**Type:** `{{operationType}}`
-
-{{> arguments}}
-
-### Return Type
-
-{{> type returnType}}
-
-{{returnType.description}}
-
-{{#with (unwrap returnType)}}
-{{#if fields}}
-#### Fields
-
-| Name | Type | Description |
-| :--- | :--- | :--- |
-{{#each fields}}
-| `{{name}}` | {{> type type}} | {{description}} |
-{{/each}}
 {{/if}}
-{{/with}}
-
-{{> examples}}
+</OperationView>

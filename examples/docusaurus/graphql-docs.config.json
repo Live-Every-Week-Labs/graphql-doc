@@ -3,6 +3,7 @@
   "outputDir": "./docs/api",
   "framework": "docusaurus",
   "singlePage": false,
+  "metadataDir": "../../test_schemas/ecommerce",
   "includeDeprecated": true,
   "generateSidebar": true,
   "sidebarFile": "./sidebars-api.js",

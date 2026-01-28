@@ -42,6 +42,24 @@ const mockObject: ExpandedType = {
   ],
 };
 
+const mockTypeRef: ExpandedType = {
+  kind: 'TYPE_REF',
+  name: 'User',
+  link: '#user',
+};
+
+const mockCircularRef: ExpandedType = {
+  kind: 'CIRCULAR_REF',
+  ref: 'User',
+  link: '#user',
+};
+
+const mockEmptyObject: ExpandedType = {
+  kind: 'OBJECT',
+  name: 'Empty',
+  fields: [],
+};
+
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <ExpansionProvider>{children}</ExpansionProvider>
 );
@@ -120,10 +138,9 @@ describe('TypeViewer', () => {
     );
 
     // Verify brackets are rendered with the type name
-    // Since they are now part of the text content tree of the specific component
-    // we just check if it finds the combined text text nodes possibly split?
-    // Or just look for the text content.
-    expect(screen.getByText('[String]')).toBeDefined();
+    const listNode = document.querySelector('.gql-type-list');
+    expect(listNode?.textContent).toContain('String');
+    expect(listNode?.textContent).toContain('[');
   });
 
   it('renders LIST of OBJECTS correctly', () => {
@@ -138,6 +155,72 @@ describe('TypeViewer', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByText('[User]')).toBeDefined();
+    const listNode = document.querySelector('.gql-type-list');
+    expect(listNode?.textContent).toContain('User');
+    expect(listNode?.textContent).toContain('[');
+  });
+
+  it('renders ENUM types with badge', () => {
+    render(
+      <TestWrapper>
+        <TypeViewer type={mockEnum} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('Role')).toBeDefined();
+    expect(screen.getByText('ENUM')).toBeDefined();
+  });
+
+  it('renders TYPE_REF and CIRCULAR_REF links', () => {
+    const { container } = render(
+      <TestWrapper>
+        <TypeViewer type={mockTypeRef} labelPrefix="(" labelSuffix=")" />
+        <TypeViewer type={mockCircularRef} />
+      </TestWrapper>
+    );
+
+    expect(container.textContent).toContain('(User)');
+    const links = screen.getAllByRole('link', { name: /User/ });
+    expect(links.some((link) => link.classList.contains('gql-circular-ref'))).toBe(true);
+  });
+
+  it('renders UNION types with separators', () => {
+    const unionType: ExpandedType = {
+      kind: 'UNION',
+      name: 'SearchResult',
+      possibleTypes: [mockScalar, mockTypeRef],
+    };
+
+    render(
+      <TestWrapper>
+        <TypeViewer type={unionType} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('union')).toBeDefined();
+    expect(screen.getByText('SearchResult')).toBeDefined();
+    expect(screen.getByText('|')).toBeDefined();
+  });
+
+  it('respects maxDepth and non-expandable objects', () => {
+    render(
+      <TestWrapper>
+        <TypeViewer type={mockObject} maxDepth={0} />
+        <TypeViewer type={mockEmptyObject} />
+      </TestWrapper>
+    );
+
+    expect(screen.queryByText('id')).toBeNull();
+    expect(document.querySelector('.gql-arrow')).toBeNull();
+  });
+
+  it('renders a fallback for missing types', () => {
+    render(
+      <TestWrapper>
+        <TypeViewer type={null as unknown as ExpandedType} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('Unknown Type')).toBeDefined();
   });
 });

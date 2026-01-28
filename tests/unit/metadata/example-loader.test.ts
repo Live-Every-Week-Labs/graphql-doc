@@ -1,10 +1,19 @@
+// @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { loadExamples } from '../../../src/core/metadata/example-loader';
-import fs from 'fs-extra';
+import * as fs from 'fs-extra';
 import { glob } from 'glob';
 
-vi.mock('fs-extra');
-vi.mock('glob');
+vi.mock('fs-extra', () => {
+  const readJson = vi.fn();
+  return {
+    readJson,
+    default: { readJson },
+  };
+});
+vi.mock('glob', () => ({
+  glob: vi.fn(),
+}));
 
 describe('loadExamples', () => {
   beforeEach(() => {
@@ -64,6 +73,49 @@ describe('loadExamples', () => {
     const result = await loadExamples('*.json');
     expect(result).toHaveLength(1);
     expect(result[0].examples[0].response.httpStatus).toBeUndefined();
+  });
+
+  it('should load example files that contain multiple operations', async () => {
+    const mockFiles = ['multi.json'];
+    const mockContent = [
+      {
+        operation: 'getUser',
+        operationType: 'query',
+        examples: [
+          {
+            name: 'Success',
+            query: 'query { user { id } }',
+            response: {
+              type: 'success',
+              body: { data: { user: { id: '1' } } },
+            },
+          },
+        ],
+      },
+      {
+        operation: 'createUser',
+        operationType: 'mutation',
+        examples: [
+          {
+            name: 'Create',
+            query: 'mutation { createUser { id } }',
+            response: {
+              type: 'success',
+              body: { data: { createUser: { id: '2' } } },
+            },
+          },
+        ],
+      },
+    ];
+
+    (glob as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockFiles);
+    (fs.readJson as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockContent);
+
+    const result = await loadExamples('*.json');
+
+    expect(result).toHaveLength(2);
+    expect(result[0].operation).toBe('getUser');
+    expect(result[1].operation).toBe('createUser');
   });
 
   it('should throw error for invalid example files', async () => {

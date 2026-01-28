@@ -8,6 +8,7 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - [CLI Reference](./docs/cli.md)
 - [Configuration Guide](./docs/configuration.md)
 - [Custom Directives](./docs/directives.md)
+- [Components Guide](./docs/components.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 
 ## Features
