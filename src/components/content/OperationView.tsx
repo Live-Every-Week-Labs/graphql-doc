@@ -39,60 +39,64 @@ export const OperationView = React.memo(function OperationView({
   return (
     <ExpansionProvider>
       <section className="gql-operation" data-operation={operation.name}>
-        <header className="gql-operation-header">
-          <div className="gql-operation-title-row">
-            <HeadingTag id={slug} className="gql-operation-title">
-              {operation.name}
-            </HeadingTag>
-            <span className={`gql-badge gql-badge-neutral gql-op-type`}>{typeLabel}</span>
-            {tags.map((tag) => (
-              <span key={tag} className="gql-tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-          {operation.isDeprecated && (
-            <div className="gql-deprecation-warning" role="note">
-              <span className="gql-deprecation-label">Deprecated</span>
-              {operation.deprecationReason ? `: ${operation.deprecationReason}` : ''}
+        <div className="gql-operation-layout">
+          <div className="gql-operation-main">
+            <header className="gql-operation-header">
+              <div className="gql-operation-title-row">
+                <HeadingTag id={slug} className="gql-operation-title">
+                  {operation.name}
+                </HeadingTag>
+                <span className={`gql-badge gql-badge-neutral gql-op-type`}>{typeLabel}</span>
+                {tags.map((tag) => (
+                  <span key={tag} className="gql-tag">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              {operation.isDeprecated && (
+                <div className="gql-deprecation-warning" role="note">
+                  <span className="gql-deprecation-label">Deprecated</span>
+                  {operation.deprecationReason ? `: ${operation.deprecationReason}` : ''}
+                </div>
+              )}
+            </header>
+
+            {(children || operation.description) && (
+              <div className="gql-operation-description">
+                {children ? children : renderDescription(operation.description)}
+              </div>
+            )}
+
+            {operation.arguments?.length > 0 && (
+              <div className="gql-operation-section">
+                <h3 className="gql-section-title">Arguments</h3>
+                <ArgumentsTable
+                  arguments={operation.arguments}
+                  depth={0}
+                  maxDepth={maxDepth}
+                  defaultExpandedLevels={defaultExpandedLevels}
+                />
+              </div>
+            )}
+
+            <div className="gql-operation-section">
+              <h3 className="gql-section-title">Response</h3>
+              <TypeViewer
+                type={operation.returnType}
+                depth={0}
+                maxDepth={maxDepth}
+                defaultExpandedLevels={defaultExpandedLevels}
+                path={`operation.${operation.name}.returnType`}
+              />
             </div>
+          </div>
+
+          {operation.examples?.length > 0 && (
+            <aside className="gql-operation-examples">
+              <ExamplesPanel examples={operation.examples} operationName={operation.name} />
+            </aside>
           )}
-        </header>
-
-        {(children || operation.description) && (
-          <div className="gql-operation-description">
-            {children ? children : renderDescription(operation.description)}
-          </div>
-        )}
-
-        {operation.arguments?.length > 0 && (
-          <div className="gql-operation-section">
-            <h3 className="gql-section-title">Arguments</h3>
-            <ArgumentsTable
-              arguments={operation.arguments}
-              depth={0}
-              maxDepth={maxDepth}
-              defaultExpandedLevels={defaultExpandedLevels}
-            />
-          </div>
-        )}
-
-        <div className="gql-operation-section">
-          <h3 className="gql-section-title">Response</h3>
-          <TypeViewer
-            type={operation.returnType}
-            depth={0}
-            maxDepth={maxDepth}
-            defaultExpandedLevels={defaultExpandedLevels}
-            path={`operation.${operation.name}.returnType`}
-          />
         </div>
-
-        {operation.examples?.length > 0 && (
-          <div className="gql-inline-example">
-            <ExamplesPanel examples={operation.examples} operationName={operation.name} />
-          </div>
-        )}
       </section>
     </ExpansionProvider>
   );

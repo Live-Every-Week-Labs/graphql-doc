@@ -29,3 +29,25 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* Docs layout width overrides for API pages */
+@layer docusaurus.theme-classic {
+  main[class^='docMainContainer'] .container,
+  main[class*='docMainContainer_'] .container {
+    max-width: 1800px;
+  }
+
+  @media (min-width: 997px) {
+    main[class^='docMainContainer'] [class^='docItemCol'],
+    main[class^='docMainContainer'] [class*='docItemCol_'],
+    main[class*='docMainContainer_'] [class^='docItemCol'],
+    main[class*='docMainContainer_'] [class*='docItemCol_'] {
+      max-width: 100% !important;
+    }
+  }
+
+  main[class^='docMainContainer'] .theme-doc-markdown,
+  main[class*='docMainContainer_'] .theme-doc-markdown {
+    max-width: 100%;
+  }
+}

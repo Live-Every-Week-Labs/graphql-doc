@@ -72,10 +72,22 @@ export const TwoColumnContent = React.memo(function TwoColumnContent({
     return null;
   }, [activeOperation, renderExamples, examples]);
 
+  const hasExamples = Boolean(renderedExamples);
+  const containerClassName = [
+    'gql-docs-content',
+    hasExamples ? 'gql-docs-content--has-examples' : 'gql-docs-content--no-examples',
+    className ?? '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+
   return (
-    <div className={`gql-docs-content ${className ?? ''}`.trim()}>
-      <div className="gql-docs-main">{children}</div>
-      <div className="gql-docs-examples">{renderedExamples}</div>
+    <div className="gql-docs-shell">
+      <div className={containerClassName}>
+        <div className="gql-docs-main">{children}</div>
+        {hasExamples && <div className="gql-docs-examples">{renderedExamples}</div>}
+      </div>
     </div>
   );
 });

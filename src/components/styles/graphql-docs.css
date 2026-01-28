@@ -471,13 +471,29 @@ a.gql-type:hover {
     color: var(--gql-field-color);
 }
 
-.gql-inline-example {
-    display: none;
-    margin-top: 16px;
+.gql-operation {
+    container-type: inline-size;
 }
 
-.gql-inline-example .gql-examples-panel {
+.gql-operation-layout {
+    display: block;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.gql-operation-main {
+    min-width: 0;
+}
+
+.gql-operation-examples {
+    margin-top: 16px;
+    min-width: 0;
+}
+
+.gql-operation-examples .gql-examples-panel {
     position: static;
+    top: auto;
 }
 
 /* ==========================================================================
@@ -485,11 +501,23 @@ a.gql-type:hover {
    ========================================================================== */
 
 .gql-docs-content {
+    display: block;
+    width: 100%;
+}
+
+.gql-docs-shell {
+    container-type: inline-size;
+    width: 100%;
+}
+
+.gql-docs-content--has-examples {
     display: grid;
-    grid-template-columns: minmax(420px, 1fr) minmax(320px, 40%);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--gql-content-gap);
     align-items: start;
     width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
 }
 
 .gql-docs-main {
@@ -498,6 +526,14 @@ a.gql-type:hover {
 
 .gql-docs-examples {
     min-width: 0;
+}
+
+.gql-docs-content--has-examples .gql-operation-examples {
+    display: none;
+}
+
+.gql-docs-content--has-examples .gql-operation-layout {
+    display: block;
 }
 
 /* ==========================================================================
@@ -712,16 +748,76 @@ a.gql-type:hover {
     }
 }
 
-@media (max-width: 1100px) {
-    .gql-docs-content {
+@container (max-width: 1000px) {
+    .gql-docs-content--has-examples {
         display: block;
     }
 
-    .gql-docs-examples {
+    .gql-docs-content--has-examples .gql-docs-examples {
         display: none;
     }
 
-    .gql-inline-example {
+    .gql-docs-content--has-examples .gql-operation-examples {
+        display: block;
+        margin-top: 16px;
+    }
+}
+
+@container (min-width: 1000px) {
+    .gql-operation-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: var(--gql-content-gap);
+        align-items: start;
+    }
+
+    .gql-operation-examples {
+        margin-top: 0;
+    }
+
+    .gql-operation-examples .gql-examples-panel {
+        position: sticky;
+        top: var(--gql-examples-top);
+    }
+
+    .gql-docs-content--has-examples .gql-operation-layout {
+        display: block;
+    }
+}
+
+@media (max-width: 1000px) {
+    .gql-docs-content--has-examples {
+        display: block;
+    }
+
+    .gql-docs-content--has-examples .gql-docs-examples {
+        display: none;
+    }
+
+    .gql-docs-content--has-examples .gql-operation-examples {
+        display: block;
+        margin-top: 16px;
+    }
+}
+
+@media (min-width: 1000px) {
+    .gql-operation-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: var(--gql-content-gap);
+        align-items: start;
+    }
+
+    .gql-operation-examples {
+        margin-top: 0;
+    }
+
+    .gql-operation-examples .gql-examples-panel {
+        position: sticky;
+        top: var(--gql-examples-top);
+    }
+
+    .gql-docs-content--has-examples .gql-operation-layout {
         display: block;
     }
 }
