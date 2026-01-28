@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { describe, it, expect, afterEach } from 'vitest';
 import { FieldTable } from './FieldTable';
 import { ArgumentsTable } from './ArgumentsTable';
@@ -28,6 +28,21 @@ describe('FieldTable', () => {
   });
 
   describe('Fields', () => {
+    const nestedType = {
+      kind: 'OBJECT' as const,
+      name: 'Profile',
+      fields: [
+        {
+          name: 'bio',
+          type: { kind: 'SCALAR' as const, name: 'String' },
+          description: 'Profile bio',
+          isRequired: false,
+          isList: false,
+          isDeprecated: false,
+        },
+      ],
+    };
+
     const mockFields: ExpandedField[] = [
       {
         name: 'id',
@@ -44,6 +59,14 @@ describe('FieldTable', () => {
         isList: false,
         isDeprecated: true,
         deprecationReason: 'Do not use',
+      },
+      {
+        name: 'profile',
+        type: nestedType,
+        description: 'Profile information',
+        isRequired: false,
+        isList: false,
+        isDeprecated: false,
       },
       {
         name: 'fieldWithArgs',
@@ -71,15 +94,15 @@ describe('FieldTable', () => {
       expect(screen.getByText('Unique identifier')).toBeDefined();
     });
 
-    it('displays required indicator', () => {
+    it('displays required badge', () => {
       render(
         <TestWrapper>
           <FieldTable fields={mockFields} />
         </TestWrapper>
       );
-      const requiredMarks = screen.getAllByTitle('Required');
-      expect(requiredMarks.length).toBeGreaterThan(0);
-      expect(requiredMarks[0].textContent).toBe('*');
+      const requiredBadges = screen.getAllByTitle('Required');
+      expect(requiredBadges.length).toBeGreaterThan(0);
+      expect(requiredBadges[0].textContent).toBe('Required');
     });
 
     it('displays deprecated status and reason', () => {
@@ -100,8 +123,21 @@ describe('FieldTable', () => {
           <FieldTable fields={mockFields} />
         </TestWrapper>
       );
-      expect(screen.getByText('Arguments:')).toBeDefined();
+      expect(screen.getByText('Arguments')).toBeDefined();
       expect(screen.getByText('limit')).toBeDefined();
+    });
+
+    it('toggles nested properties', () => {
+      render(
+        <TestWrapper>
+          <FieldTable fields={mockFields} />
+        </TestWrapper>
+      );
+
+      const toggle = screen.getByRole('button', { name: 'Show 1 property' });
+      expect(screen.queryByText('bio')).toBeNull();
+      fireEvent.click(toggle);
+      expect(screen.getByText('bio')).toBeDefined();
     });
   });
 
@@ -129,7 +165,7 @@ describe('FieldTable', () => {
       expect(screen.getByText('arg1')).toBeDefined();
     });
 
-    it('displays default values', () => {
+    it('displays default values for arguments', () => {
       render(
         <TestWrapper>
           <ArgumentsTable arguments={mockArgs} />

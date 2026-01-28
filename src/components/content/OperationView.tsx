@@ -26,8 +26,8 @@ const renderDescription = (description?: string) => {
 
 export const OperationView = React.memo(function OperationView({
   operation,
-  defaultExpandedLevels = 2,
-  maxDepth = 5,
+  defaultExpandedLevels = 0,
+  maxDepth = 3,
   headingLevel = 2,
   children,
 }: OperationViewProps) {

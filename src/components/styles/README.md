@@ -22,6 +22,7 @@ Users can override any variable in their own CSS to customize the look and feel.
 - `--gql-type-color`: Color for GraphQL types/links.
 - `--gql-field-color`: Color for field names.
 - `--gql-examples-top`: Sticky offset for the examples panel.
+- `--gql-nested-line`: Color for nested list guide line.
 - `--gql-primary-color` (conceptually, though we use specific tokens).
 
 ### Utility Classes
@@ -31,7 +32,7 @@ We provide utility classes to apply these standard styles to generated content:
 - `.gql-type`: Applies typography and color for types.
 - `.gql-field`: Applies styling for field names.
 - `.gql-description`: For description text.
-- `.gql-required`: For the non-null `!` indicator.
+- `.gql-required-badge`: For required field badges.
 - `.gql-badge`: Base class for status badges.
   - `.gql-badge-success`
   - `.gql-badge-warning`
@@ -47,9 +48,9 @@ We provide utility classes to apply these standard styles to generated content:
 
 ### Component Specific Classes
 
-For `TypeViewer` and tree structures:
+For list-based field rendering:
 
-- `.gql-tree-node`: Container for a node in the type tree.
-- `.gql-expand-toggle`: Clickable header for expandable elements.
-- `.gql-nested-content`: Container for children/fields with indentation and border.
-- `.gql-toggle-icon`: The expansion arrow indicator.
+- `.gql-field-list`, `.gql-field-item`: List container + item row.
+- `.gql-field-toggle`: Inline expand/collapse button.
+- `.gql-field-children`: Nested list container with a guide line.
+- `.gql-field-enum-values`: Enum value chips in lists.

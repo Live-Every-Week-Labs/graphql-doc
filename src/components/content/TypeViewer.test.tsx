@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { describe, it, expect, afterEach } from 'vitest';
 import { TypeViewer } from './TypeViewer';
 import { ExpansionProvider } from '../context/ExpansionProvider';
@@ -87,42 +87,17 @@ describe('TypeViewer', () => {
     expect(screen.getByText('User')).toBeDefined();
   });
 
-  it('renders fields of an OBJECT when expanded', () => {
-    // default expanded levels = 2, so it should be visible initially if depth 0
+  it('renders fields of an OBJECT', () => {
     render(
       <TestWrapper>
-        <TypeViewer type={mockObject} defaultExpandedLevels={2} />
+        <TypeViewer type={mockObject} />
       </TestWrapper>
     );
 
-    // Check for field names
     expect(screen.getByText('id')).toBeDefined();
     expect(screen.getByText('role')).toBeDefined();
-    // Check for nested types
     expect(screen.getByText('ID')).toBeDefined();
     expect(screen.getByText('Role')).toBeDefined();
-  });
-
-  it('collapses content when toggled', () => {
-    render(
-      <TestWrapper>
-        <TypeViewer type={mockObject} defaultExpandedLevels={2} />
-      </TestWrapper>
-    );
-
-    const userType = screen.getByText('User');
-    expect(screen.getByText('id')).toBeDefined(); // Initially visible
-
-    // Click to collapse
-    fireEvent.click(userType);
-
-    // Should verify fields are gone or hidden.
-    // Since rendering is conditional {expanded && ...}, they should be removed from DOM.
-    expect(screen.queryByText('id')).toBeNull();
-
-    // Click to expand
-    fireEvent.click(userType);
-    expect(screen.getByText('id')).toBeDefined();
   });
 
   it('renders LIST types with brackets', () => {
@@ -155,9 +130,9 @@ describe('TypeViewer', () => {
       </TestWrapper>
     );
 
-    const listNode = document.querySelector('.gql-type-list');
-    expect(listNode?.textContent).toContain('User');
-    expect(listNode?.textContent).toContain('[');
+    expect(screen.getByText('Array')).toBeDefined();
+    expect(screen.getByText('User')).toBeDefined();
+    expect(screen.getByText('id')).toBeDefined();
   });
 
   it('renders ENUM types with badge', () => {
@@ -202,16 +177,14 @@ describe('TypeViewer', () => {
     expect(screen.getByText('|')).toBeDefined();
   });
 
-  it('respects maxDepth and non-expandable objects', () => {
+  it('renders an empty object placeholder', () => {
     render(
       <TestWrapper>
-        <TypeViewer type={mockObject} maxDepth={0} />
         <TypeViewer type={mockEmptyObject} />
       </TestWrapper>
     );
 
-    expect(screen.queryByText('id')).toBeNull();
-    expect(document.querySelector('.gql-arrow')).toBeNull();
+    expect(screen.getByText('No fields')).toBeDefined();
   });
 
   it('renders a fallback for missing types', () => {

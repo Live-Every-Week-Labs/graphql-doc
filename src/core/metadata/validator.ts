@@ -12,7 +12,7 @@ export const ExampleSchema = z.object({
   }),
 });
 
-const ExampleFileEntrySchema = z.object({
+export const ExampleFileEntrySchema = z.object({
   operation: z.string(),
   operationType: z.enum(['query', 'mutation', 'subscription']),
   examples: z.array(ExampleSchema),

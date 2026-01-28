@@ -12,8 +12,8 @@ interface FieldTableProps {
 export const FieldTable = React.memo(function FieldTable({
   fields,
   depth = 0,
-  maxDepth = 10,
-  defaultExpandedLevels = 2,
+  maxDepth = 3,
+  defaultExpandedLevels = 0,
 }: FieldTableProps) {
   return (
     <PropertyTable

@@ -16,6 +16,7 @@
     --gql-border-radius: 6px;
     --gql-content-gap: 2rem;
     --gql-examples-top: 96px;
+    --gql-nested-line: #d1d5db;
 
     /* ==========================================================================
      Color Tokens - Light Theme (Default)
@@ -85,6 +86,7 @@
     /* Interactive */
     --gql-hover-bg: #161b22;
     --gql-active-bg: #21262d;
+    --gql-nested-line: #30363d;
 }
 
 /* ==========================================================================
@@ -722,4 +724,235 @@ a.gql-type:hover {
     .gql-inline-example {
         display: block;
     }
+}
+
+/* ========================================================================== */
+/* List-Based Field Rendering (Refactor)                                      */
+/* ========================================================================== */
+
+.gql-field-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.gql-field-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gql-border-color);
+}
+
+.gql-field-item:last-child {
+    border-bottom: none;
+}
+
+.gql-field-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.gql-required-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--gql-error-bg);
+    color: var(--gql-error-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.gql-field-meta {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+}
+
+.gql-field-type {
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    font-size: 0.9rem;
+}
+
+.gql-field-default {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--gql-description-color);
+}
+
+.gql-field-default-label {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--gql-description-color);
+}
+
+.gql-default-code {
+    background: var(--gql-hover-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.gql-field-description {
+    margin-top: 0.35rem;
+}
+
+.gql-field-toggle {
+    margin-top: 0.5rem;
+    border: 1px solid var(--gql-border-color);
+    background: transparent;
+    color: var(--gql-type-color);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--gql-transition-speed);
+}
+
+.gql-field-toggle:hover {
+    background: var(--gql-hover-bg);
+}
+
+.gql-field-link {
+    display: inline-flex;
+    margin-top: 0.5rem;
+    color: var(--gql-type-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.gql-field-link:hover {
+    text-decoration: underline;
+}
+
+.gql-field-children {
+    margin-top: 0.75rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--gql-nested-line);
+}
+
+.gql-field-enum {
+    margin-top: 0.5rem;
+}
+
+.gql-field-enum-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gql-description-color);
+}
+
+.gql-field-enum-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+}
+
+.gql-field-enum-chip {
+    background: var(--gql-neutral-bg);
+    color: var(--gql-neutral-text);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.gql-field-enum-more {
+    display: inline-block;
+    margin-top: 0.35rem;
+    color: var(--gql-type-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.gql-field-enum-more:hover {
+    text-decoration: underline;
+}
+
+.gql-field-args {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--gql-border-color);
+}
+
+.gql-args-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gql-description-color);
+    margin-bottom: 0.25rem;
+}
+
+.gql-args-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+}
+
+.gql-arg-name {
+    font-weight: 600;
+    color: var(--gql-field-color);
+}
+
+.gql-arg-separator {
+    margin: 0 0.35rem;
+    color: var(--gql-description-color);
+}
+
+.gql-arg-type {
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    color: var(--gql-type-color);
+}
+
+.gql-type-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.gql-type-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.gql-type-collection {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gql-description-color);
+    font-weight: 600;
+}
+
+.gql-enum-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+}
+
+.gql-enum-chip {
+    background: var(--gql-neutral-bg);
+    color: var(--gql-neutral-text);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }

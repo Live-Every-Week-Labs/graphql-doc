@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { ExpandedType, ExpandedField, ExpandedTypeKind } from '../../core/transformer/types';
-import { useExpansion } from '../context/ExpansionProvider';
+import React from 'react';
+import { ExpandedType } from '../../core/transformer/types';
+import { slugify } from '../../core/utils/string-utils';
 import { FieldTable } from './FieldTable';
 
 interface TypeViewerProps {
@@ -16,26 +16,65 @@ interface TypeViewerProps {
 export const TypeViewer = React.memo(function TypeViewer({
   type,
   depth = 0,
-  defaultExpandedLevels = 2,
-  maxDepth = 10,
+  defaultExpandedLevels = 0,
+  maxDepth = 3,
   path = 'root',
   labelPrefix = '',
   labelSuffix = '',
 }: TypeViewerProps) {
-  const { isExpanded, toggleExpand } = useExpansion();
-
-  // Memoize state calculation
-  const expanded = isExpanded(path, depth, defaultExpandedLevels);
-
-  // Helper to handle toggles
-  const handleToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleExpand(path, expanded);
-  };
-
   if (!type) {
     return <span className="gql-type-error">Unknown Type</span>;
   }
+
+  const unwrapType = (input: ExpandedType) => {
+    let current = input;
+    let isList = false;
+
+    while (current.kind === 'LIST') {
+      isList = true;
+      current = current.ofType;
+    }
+
+    return { baseType: current, isList };
+  };
+
+  const renderInlineType = (input: ExpandedType): React.ReactNode => {
+    switch (input.kind) {
+      case 'LIST':
+        return (
+          <span className="gql-type-list">
+            <span className="gql-bracket">[</span>
+            {renderInlineType(input.ofType)}
+            <span className="gql-bracket">]</span>
+          </span>
+        );
+      case 'TYPE_REF':
+        return (
+          <a href={input.link} className="gql-type-link">
+            {input.name}
+          </a>
+        );
+      case 'CIRCULAR_REF':
+        return (
+          <a
+            href={input.link}
+            className="gql-type-link gql-circular-ref"
+            title={`Circular reference to ${input.ref}`}
+          >
+            {input.ref} ↩
+          </a>
+        );
+      case 'SCALAR':
+      case 'ENUM':
+      case 'OBJECT':
+      case 'INTERFACE':
+      case 'INPUT_OBJECT':
+      case 'UNION':
+        return <span>{input.name}</span>;
+      default:
+        return <span>Unknown</span>;
+    }
+  };
 
   // 1. SCALAR
   if (type.kind === 'SCALAR') {
@@ -50,23 +89,35 @@ export const TypeViewer = React.memo(function TypeViewer({
 
   // 2. LIST
   if (type.kind === 'LIST') {
-    return (
-      <span className="gql-type-list">
-        [
-        {/* Pass prefix/suffix if needed, or handle wrapping here. 
-            For simplicitly, wrapping here as per previous logic, 
-            but could delegate if "bracket attachment" logic is preferred. 
-            Keeping it simple as per working version. */}
-        <TypeViewer
-          type={type.ofType}
-          depth={depth}
-          defaultExpandedLevels={defaultExpandedLevels}
-          maxDepth={maxDepth}
-          path={`${path}.list`}
-        />
-        ]
-      </span>
-    );
+    const { baseType } = unwrapType(type);
+    if (
+      baseType.kind === 'OBJECT' ||
+      baseType.kind === 'INTERFACE' ||
+      baseType.kind === 'INPUT_OBJECT'
+    ) {
+      return (
+        <div className="gql-type-block">
+          <div className="gql-type-heading">
+            {labelPrefix}
+            <span className="gql-type-collection">Array</span>
+            <span className="gql-type">{baseType.name}</span>
+            {labelSuffix}
+          </div>
+          {baseType.fields?.length ? (
+            <FieldTable
+              fields={baseType.fields}
+              depth={depth}
+              maxDepth={maxDepth}
+              defaultExpandedLevels={defaultExpandedLevels}
+            />
+          ) : (
+            <span className="gql-no-desc">No fields</span>
+          )}
+        </div>
+      );
+    }
+
+    return <span className="gql-type font-mono">{renderInlineType(type)}</span>;
   }
 
   // 3. CIRCULAR_REF
@@ -101,46 +152,47 @@ export const TypeViewer = React.memo(function TypeViewer({
 
   // 5. ENUM
   if (type.kind === 'ENUM') {
+    const moreCount = type.values?.length ? type.values.length - 25 : 0;
     return (
       <div className="gql-enum-viewer">
         <span className="gql-type">{type.name}</span>
         <span className="gql-enum-badge">ENUM</span>
+        {type.values?.length ? (
+          <div className="gql-enum-values">
+            {type.values.slice(0, 25).map((value) => (
+              <span key={value.name} className="gql-enum-chip">
+                {value.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        {moreCount > 0 && (
+          <a href={`#${slugify(type.name)}`} className="gql-field-enum-more">
+            Show more
+          </a>
+        )}
       </div>
     );
   }
 
   // 6. OBJECT / INTERFACE / INPUT_OBJECT
   if (type.kind === 'OBJECT' || type.kind === 'INTERFACE' || type.kind === 'INPUT_OBJECT') {
-    const isExpandable = type.fields && type.fields.length > 0;
-
-    // If max depth reached, just show name
-    if (depth >= maxDepth) {
-      return <span className="gql-type">{type.name}</span>;
-    }
-
     return (
-      <div className="gql-tree-node">
-        <div
-          className={`gql-expand-toggle ${isExpandable ? '' : 'cursor-default'}`}
-          onClick={isExpandable ? handleToggle : undefined}
-        >
-          {isExpandable && (
-            <span className={`gql-arrow ${expanded ? 'gql-arrow-down' : 'gql-arrow-right'}`}>
-              ▶
-            </span>
-          )}
+      <div className="gql-type-block">
+        <div className="gql-type-heading">
+          {labelPrefix}
           <span className="gql-type">{type.name}</span>
+          {labelSuffix}
         </div>
-
-        {expanded && isExpandable && (
-          <div className="gql-nested-content">
-            <FieldTable
-              fields={type.fields}
-              depth={depth + 1}
-              maxDepth={maxDepth}
-              defaultExpandedLevels={defaultExpandedLevels}
-            />
-          </div>
+        {type.fields?.length ? (
+          <FieldTable
+            fields={type.fields}
+            depth={depth}
+            maxDepth={maxDepth}
+            defaultExpandedLevels={defaultExpandedLevels}
+          />
+        ) : (
+          <span className="gql-no-desc">No fields</span>
         )}
       </div>
     );
@@ -156,13 +208,7 @@ export const TypeViewer = React.memo(function TypeViewer({
         {type.possibleTypes.map((t, i) => (
           <React.Fragment key={i}>
             {i > 0 && <span className="gql-operator">|</span>}
-            <TypeViewer
-              type={t}
-              depth={depth}
-              maxDepth={maxDepth}
-              defaultExpandedLevels={defaultExpandedLevels}
-              path={`${path}.union.${i}`}
-            />
+            <span className="gql-type">{renderInlineType(t)}</span>
           </React.Fragment>
         ))}
       </div>

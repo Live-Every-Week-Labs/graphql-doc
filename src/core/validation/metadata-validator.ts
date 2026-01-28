@@ -2,7 +2,7 @@ import { glob } from 'glob';
 import fs from 'fs-extra';
 import path from 'path';
 import { z } from 'zod';
-import { ExampleFileSchema, ErrorFileSchema } from '../metadata/validator.js';
+import { ExampleFileEntrySchema, ErrorFileSchema } from '../metadata/validator.js';
 import { ValidationError, MetadataValidationResult, ValidationErrorCode } from './types.js';
 
 /**
@@ -15,9 +15,13 @@ export class MetadataValidator {
    * @returns Validation result with errors, warnings, and referenced operations
    */
   async validateExamples(pattern: string): Promise<MetadataValidationResult> {
-    return this.validateFiles(pattern, ExampleFileSchema, 'example', (content) => [
-      content.operation,
-    ]);
+    return this.validateFiles(
+      pattern,
+      ExampleFileEntrySchema,
+      'example',
+      (content) => [content.operation],
+      { allowArray: true }
+    );
   }
 
   /**
@@ -67,7 +71,8 @@ export class MetadataValidator {
     pattern: string,
     schema: T,
     fileType: 'example' | 'error',
-    extractOperations: (content: z.infer<T>) => string[]
+    extractOperations: (content: z.infer<T>) => string[],
+    options?: { allowArray?: boolean }
   ): Promise<MetadataValidationResult> {
     const errors: ValidationError[] = [];
     const warnings: ValidationError[] = [];
@@ -94,7 +99,8 @@ export class MetadataValidator {
         schema,
         fileType,
         extractOperations,
-        referencedOperations
+        referencedOperations,
+        options
       );
       errors.push(...fileErrors.errors);
       warnings.push(...fileErrors.warnings);
@@ -116,7 +122,8 @@ export class MetadataValidator {
     schema: T,
     fileType: 'example' | 'error',
     extractOperations: (content: z.infer<T>) => string[],
-    referencedOperations: string[]
+    referencedOperations: string[],
+    options?: { allowArray?: boolean }
   ): Promise<{ errors: ValidationError[]; warnings: ValidationError[] }> {
     const errors: ValidationError[] = [];
     const warnings: ValidationError[] = [];
@@ -157,11 +164,10 @@ export class MetadataValidator {
       return { errors, warnings };
     }
 
-    // Validate against schema
-    const result = schema.safeParse(content);
-    if (!result.success) {
-      for (const issue of result.error.issues) {
-        const fieldPath = issue.path.join('.');
+    const pushIssues = (issues: z.ZodIssue[], prefix?: string) => {
+      for (const issue of issues) {
+        const rawPath = issue.path.join('.');
+        const fieldPath = prefix ? `${prefix}.${rawPath}` : rawPath;
         let code: ValidationErrorCode = 'INVALID_FIELD_TYPE';
         let message = issue.message;
 
@@ -186,8 +192,25 @@ export class MetadataValidator {
           code,
         });
       }
+    };
+
+    if (options?.allowArray && Array.isArray(content)) {
+      content.forEach((entry, index) => {
+        const entryResult = schema.safeParse(entry);
+        if (!entryResult.success) {
+          pushIssues(entryResult.error.issues, `[${index}]`);
+        } else {
+          const ops = extractOperations(entryResult.data);
+          referencedOperations.push(...ops);
+        }
+      });
+      return { errors, warnings };
+    }
+
+    const result = schema.safeParse(content);
+    if (!result.success) {
+      pushIssues(result.error.issues);
     } else {
-      // Extract referenced operations
       const ops = extractOperations(result.data);
       referencedOperations.push(...ops);
     }

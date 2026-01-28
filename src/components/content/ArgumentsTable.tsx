@@ -12,8 +12,8 @@ interface ArgumentsTableProps {
 export const ArgumentsTable = React.memo(function ArgumentsTable({
   arguments: args,
   depth = 0,
-  maxDepth = 10,
-  defaultExpandedLevels = 2,
+  maxDepth = 3,
+  defaultExpandedLevels = 0,
 }: ArgumentsTableProps) {
   return (
     <PropertyTable

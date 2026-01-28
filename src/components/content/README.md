@@ -10,9 +10,9 @@ The `TypeViewer` is a recursive component that renders `ExpandedType` objects. I
 
 **Features:**
 
-- Recursive rendering with depth control (`maxDepth`, `defaultExpandedLevels`).
-- Expandable/collapsible sections for Objects, Unions, and Enums.
-- Handles circular references gracefully.
+- List-based rendering with inline expansion for object fields.
+- Depth-limited expansion (defaults to 3 levels inline).
+- Handles circular references and type links gracefully.
 - Proper visualization of Lists (e.g., `[Type]`).
 - Themed styling using `graphql-docs.css`.
 
@@ -27,8 +27,8 @@ const myType: ExpandedType = { ... };
 <TypeViewer
   type={myType}
   depth={0}
-  defaultExpandedLevels={2}
-  maxDepth={5}
+  defaultExpandedLevels={0}
+  maxDepth={3}
 />
 ```
 
@@ -36,18 +36,18 @@ const myType: ExpandedType = { ... };
 
 - `type` (`ExpandedType`): The type definition to render.
 - `depth` (`number`): Current recursion depth (default: 0).
-- `defaultExpandedLevels` (`number`): How many levels deep to expand initially (default: 2).
-- `maxDepth` (`number`): Maximum recursion depth before truncating (default: 10).
+- `defaultExpandedLevels` (`number`): How many levels deep to expand initially (default: 0).
+- `maxDepth` (`number`): Maximum recursion depth before truncating (default: 3).
 
 ### `FieldTable`
 
-The `FieldTable` component renders a list of fields for an object type in a structured, readable table format.
+The `FieldTable` component renders a list of fields for an object type using a list-based layout.
 
 **Features:**
 
-- Responsive table layout (collapses on mobile).
-- Displays Field Name, Type (via `TypeViewer`), and Description.
-- Visual indicators for **Required** fields (\*) and **Deprecated** fields (strikethrough + badge).
+- List layout that preserves width at deeper nesting levels.
+- Displays Field Name, Type, Description, and inline expansion toggle for nested objects.
+- Visual indicator badge for **Required** fields and a badge for **Deprecated** fields.
 - Supporting nested arguments for fields.
 - Hover effects for better readability.
 
@@ -62,8 +62,8 @@ const fields: ExpandedField[] = [ ... ];
 <FieldTable
   fields={fields}
   depth={1}
-  maxDepth={5}
-  defaultExpandedLevels={2}
+  maxDepth={3}
+  defaultExpandedLevels={0}
 />
 ```
 
@@ -71,12 +71,12 @@ const fields: ExpandedField[] = [ ... ];
 
 - `fields` (`ExpandedField[]`): Array of fields to render.
 - `depth` (`number`): Current recursion depth.
-- `maxDepth` (`number`): Max recursion depth (passed to child `TypeViewer`s).
-- `defaultExpandedLevels` (`number`): Expansion level control (passed to child `TypeViewer`s).
+- `maxDepth` (`number`): Max inline expansion depth.
+- `defaultExpandedLevels` (`number`): Expansion level control.
 
 ### `ArgumentsTable`
 
-The `ArgumentsTable` component renders operation arguments with required indicators, types, defaults, and descriptions.
+The `ArgumentsTable` component renders operation arguments with required badges, types, defaults, and descriptions in a list format.
 
 **Usage:**
 
@@ -89,8 +89,8 @@ const args: ExpandedArgument[] = [ ... ];
 <ArgumentsTable
   arguments={args}
   depth={0}
-  maxDepth={5}
-  defaultExpandedLevels={2}
+  maxDepth={3}
+  defaultExpandedLevels={0}
 />
 ```
 

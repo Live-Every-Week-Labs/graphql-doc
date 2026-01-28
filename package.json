@@ -29,7 +29,7 @@
       "import": "./dist/components/index.js",
       "require": "./dist/components/index.cjs"
     },
-    "./components/styles.css": "./dist/components/styles.css"
+    "./components/styles.css": "./dist/components/index.css"
   },
   "bin": {
     "graphql-docs": "./dist/cli.js"
@@ -103,17 +103,18 @@
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
     "@vitest/coverage-v8": "^1.6.1",
+    "axe-core": "^4.9.1",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^10.1.8",
-    "axe-core": "^4.9.1",
     "husky": "^9.1.7",
     "jsdom": "^27.3.0",
     "lint-staged": "^16.2.7",
+    "playwright": "^1.58.0",
     "prettier": "^3.1.0",
     "tsup": "^8.0.0",
     "tsx": "^4.7.0",
     "typescript": "^5.3.0",
-    "vitest-axe": "^0.1.0",
-    "vitest": "^1.0.0"
+    "vitest": "^1.0.0",
+    "vitest-axe": "^0.1.0"
   }
 }
