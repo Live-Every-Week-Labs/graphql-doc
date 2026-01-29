@@ -17,6 +17,7 @@ The `src/core/config` module handles configuration loading and validation for th
   - `metadataDir`: Path to external metadata (default: `./docs-metadata`).
   - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).
   - `errorsDir`: Path to error definitions (default: `${metadataDir}/errors`).
+  - `typeLinkMode`: Controls type name links (`none`, `deep`, `all`, default: `none`).
   - `typeExpansion`: Settings for type depth and circular references.
     - `maxDepth`: Hard limit on recursion depth (default: `5`). Types at this depth have empty fields.
     - `defaultLevels`: Soft limit for UI expansion (default: `2`). Types beyond this depth are marked as collapsible.

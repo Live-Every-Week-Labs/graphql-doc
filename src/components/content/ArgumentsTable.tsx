@@ -5,6 +5,7 @@ import { PropertyTable } from './PropertyTable';
 interface ArgumentsTableProps {
   arguments: ExpandedArgument[];
   typeLinkBase?: string;
+  typeLinkMode?: 'none' | 'deep' | 'all';
   depth?: number;
   maxDepth?: number;
   defaultExpandedLevels?: number;
@@ -13,6 +14,7 @@ interface ArgumentsTableProps {
 export const ArgumentsTable = React.memo(function ArgumentsTable({
   arguments: args,
   typeLinkBase,
+  typeLinkMode,
   depth = 0,
   maxDepth = 3,
   defaultExpandedLevels = 0,
@@ -22,6 +24,7 @@ export const ArgumentsTable = React.memo(function ArgumentsTable({
       properties={args}
       variant="arguments"
       typeLinkBase={typeLinkBase}
+      typeLinkMode={typeLinkMode}
       depth={depth}
       maxDepth={maxDepth}
       defaultExpandedLevels={defaultExpandedLevels}

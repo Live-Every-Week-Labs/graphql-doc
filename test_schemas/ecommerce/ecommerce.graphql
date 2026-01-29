@@ -18,11 +18,17 @@ schema {
 Groups operations into logical sections for documentation organization.
 """
 directive @docGroup(
-  """The name of the documentation section"""
+  """
+  The name of the documentation section
+  """
   name: String!
-  """Display order (lower numbers first)"""
+  """
+  Display order (lower numbers first)
+  """
   order: Int
-  """Optional subsection within the main section"""
+  """
+  Optional subsection within the main section
+  """
   subsection: String
 ) on FIELD_DEFINITION
 
@@ -30,7 +36,9 @@ directive @docGroup(
 Sets the display priority for ordering operations within a section.
 """
 directive @docPriority(
-  """Priority level (lower numbers appear first)"""
+  """
+  Priority level (lower numbers appear first)
+  """
   level: Int!
 ) on FIELD_DEFINITION
 
@@ -38,7 +46,9 @@ directive @docPriority(
 Adds tags for filtering and categorizing operations.
 """
 directive @docTags(
-  """List of tags for this operation"""
+  """
+  List of tags for this operation
+  """
   tags: [String!]!
 ) on FIELD_DEFINITION
 
@@ -69,13 +79,21 @@ scalar UUID
 The current status of a user account
 """
 enum UserStatus {
-  """User account is active and in good standing"""
+  """
+  User account is active and in good standing
+  """
   ACTIVE
-  """User account is temporarily suspended"""
+  """
+  User account is temporarily suspended
+  """
   SUSPENDED
-  """User account has been permanently banned"""
+  """
+  User account has been permanently banned
+  """
   BANNED
-  """User account is pending email verification"""
+  """
+  User account is pending email verification
+  """
   PENDING_VERIFICATION
 }
 
@@ -83,13 +101,21 @@ enum UserStatus {
 User role determining access levels and permissions
 """
 enum UserRole {
-  """Regular customer with standard permissions"""
+  """
+  Regular customer with standard permissions
+  """
   CUSTOMER
-  """Seller with ability to list products"""
+  """
+  Seller with ability to list products
+  """
   SELLER
-  """Administrator with full system access"""
+  """
+  Administrator with full system access
+  """
   ADMIN
-  """Support staff with limited admin capabilities"""
+  """
+  Support staff with limited admin capabilities
+  """
   SUPPORT
 }
 
@@ -97,13 +123,21 @@ enum UserRole {
 Product availability status in the catalog
 """
 enum ProductStatus {
-  """Product is available for purchase"""
+  """
+  Product is available for purchase
+  """
   AVAILABLE
-  """Product is temporarily out of stock"""
+  """
+  Product is temporarily out of stock
+  """
   OUT_OF_STOCK
-  """Product listing is hidden from customers"""
+  """
+  Product listing is hidden from customers
+  """
   HIDDEN
-  """Product has been discontinued"""
+  """
+  Product has been discontinued
+  """
   DISCONTINUED
 }
 
@@ -111,19 +145,33 @@ enum ProductStatus {
 The lifecycle status of an order
 """
 enum OrderStatus {
-  """Order has been placed but not yet processed"""
+  """
+  Order has been placed but not yet processed
+  """
   PENDING
-  """Payment has been confirmed"""
+  """
+  Payment has been confirmed
+  """
   CONFIRMED
-  """Order is being prepared for shipment"""
+  """
+  Order is being prepared for shipment
+  """
   PROCESSING
-  """Order has been shipped"""
+  """
+  Order has been shipped
+  """
   SHIPPED
-  """Order has been delivered"""
+  """
+  Order has been delivered
+  """
   DELIVERED
-  """Order has been cancelled"""
+  """
+  Order has been cancelled
+  """
   CANCELLED
-  """Order has been refunded"""
+  """
+  Order has been refunded
+  """
   REFUNDED
 }
 
@@ -131,13 +179,21 @@ enum OrderStatus {
 Payment methods accepted by the platform
 """
 enum PaymentMethod {
-  """Credit or debit card payment"""
+  """
+  Credit or debit card payment
+  """
   CARD
-  """PayPal payment"""
+  """
+  PayPal payment
+  """
   PAYPAL
-  """Bank transfer"""
+  """
+  Bank transfer
+  """
   BANK_TRANSFER
-  """Cryptocurrency payment"""
+  """
+  Cryptocurrency payment
+  """
   CRYPTO @deprecated(reason: "Crypto payments will be removed in v2.0. Use CARD or PAYPAL instead.")
 }
 
@@ -145,13 +201,21 @@ enum PaymentMethod {
 Supported currencies for transactions
 """
 enum Currency {
-  """United States Dollar"""
+  """
+  United States Dollar
+  """
   USD
-  """Euro"""
+  """
+  Euro
+  """
   EUR
-  """British Pound Sterling"""
+  """
+  British Pound Sterling
+  """
   GBP
-  """Japanese Yen"""
+  """
+  Japanese Yen
+  """
   JPY
 }
 
@@ -159,9 +223,13 @@ enum Currency {
 Sort direction for list queries
 """
 enum SortDirection {
-  """Ascending order (A-Z, 0-9, oldest first)"""
+  """
+  Ascending order (A-Z, 0-9, oldest first)
+  """
   ASC
-  """Descending order (Z-A, 9-0, newest first)"""
+  """
+  Descending order (Z-A, 9-0, newest first)
+  """
   DESC
 }
 
@@ -169,15 +237,25 @@ enum SortDirection {
 Fields available for sorting product listings
 """
 enum ProductSortField {
-  """Sort by product name"""
+  """
+  Sort by product name
+  """
   NAME
-  """Sort by price"""
+  """
+  Sort by price
+  """
   PRICE
-  """Sort by creation date"""
+  """
+  Sort by creation date
+  """
   CREATED_AT
-  """Sort by popularity/sales"""
+  """
+  Sort by popularity/sales
+  """
   POPULARITY
-  """Sort by average rating"""
+  """
+  Sort by average rating
+  """
   RATING
 }
 
@@ -185,15 +263,25 @@ enum ProductSortField {
 Types of notifications sent to users
 """
 enum NotificationType {
-  """Order status update"""
+  """
+  Order status update
+  """
   ORDER_UPDATE
-  """Price drop on wishlist item"""
+  """
+  Price drop on wishlist item
+  """
   PRICE_ALERT
-  """Product back in stock"""
+  """
+  Product back in stock
+  """
   STOCK_ALERT
-  """Promotional offer"""
+  """
+  Promotional offer
+  """
   PROMOTION
-  """System announcement"""
+  """
+  System announcement
+  """
   SYSTEM
 }
 
@@ -208,9 +296,13 @@ All database entities implement this interface to provide
 consistent timestamp tracking.
 """
 interface Timestamped {
-  """When the entity was created"""
+  """
+  When the entity was created
+  """
   createdAt: DateTime!
-  """When the entity was last updated"""
+  """
+  When the entity was last updated
+  """
   updatedAt: DateTime!
 }
 
@@ -221,9 +313,13 @@ Entities implementing this interface are never permanently deleted
 but instead marked as deleted with a timestamp.
 """
 interface SoftDeletable {
-  """When the entity was deleted, null if not deleted"""
+  """
+  When the entity was deleted, null if not deleted
+  """
   deletedAt: DateTime
-  """Whether the entity is currently deleted"""
+  """
+  Whether the entity is currently deleted
+  """
   isDeleted: Boolean!
 }
 
@@ -231,11 +327,17 @@ interface SoftDeletable {
 Interface for content that can be moderated
 """
 interface Moderatable {
-  """Whether the content has been approved by moderators"""
+  """
+  Whether the content has been approved by moderators
+  """
   isApproved: Boolean!
-  """When the content was moderated"""
+  """
+  When the content was moderated
+  """
   moderatedAt: DateTime
-  """The moderator who reviewed this content"""
+  """
+  The moderator who reviewed this content
+  """
   moderatedBy: User
 }
 
@@ -272,53 +374,96 @@ can place orders, write reviews, and manage their wishlist.
 **Circular Reference:** User -> Review -> User (author)
 """
 type User implements Timestamped & SoftDeletable {
-  """Unique identifier for the user"""
+  """
+  Unique identifier for the user
+  """
   id: UUID!
-  """User's email address (unique)"""
+  """
+  User's email address (unique)
+  """
   email: String!
-  """User's display name"""
+  """
+  User's display name
+  """
   displayName: String!
-  """URL to user's avatar image"""
+  """
+  URL to user's avatar image
+  """
   avatarUrl: String
-  """User's account status"""
+  """
+  User's account status
+  """
   status: UserStatus!
-  """User's role and permissions"""
+  """
+  User's role and permissions
+  """
   role: UserRole!
-  """User's profile information"""
+  """
+  User's profile information
+  """
   profile: UserProfile
   """
   User's shipping addresses
   @deprecated Use `addressBook` instead for better address management
   """
-  addresses: [Address!]! @deprecated(reason: "Use `addressBook` instead for better address management")
-  """User's address book with labeled addresses"""
+  addresses: [Address!]!
+    @deprecated(reason: "Use `addressBook` instead for better address management")
+  """
+  User's address book with labeled addresses
+  """
   addressBook: AddressBook!
-  """Orders placed by this user (creates circular reference with Order.customer)"""
+  """
+  Orders placed by this user (creates circular reference with Order.customer)
+  """
   orders(
-    """Filter by order status"""
+    """
+    Filter by order status
+    """
     status: OrderStatus
-    """Maximum number of orders to return"""
+    """
+    Maximum number of orders to return
+    """
     first: Int = 10
-    """Cursor for pagination"""
+    """
+    Cursor for pagination
+    """
     after: String
   ): OrderConnection!
-  """Reviews written by this user (creates circular reference with Review.author)"""
+  """
+  Reviews written by this user (creates circular reference with Review.author)
+  """
   reviews(first: Int = 10, after: String): ReviewConnection!
-  """Products in user's wishlist"""
+  """
+  Products in user's wishlist
+  """
   wishlist: [Product!]!
-  """User's shopping cart"""
+  """
+  User's shopping cart
+  """
   cart: Cart
-  """Total amount spent by this user"""
+  """
+  Total amount spent by this user
+  """
   totalSpent: Money!
-  """Number of orders placed"""
+  """
+  Number of orders placed
+  """
   orderCount: Int!
-  """When the user was created"""
+  """
+  When the user was created
+  """
   createdAt: DateTime!
-  """When the user was last updated"""
+  """
+  When the user was last updated
+  """
   updatedAt: DateTime!
-  """When the user was deleted (soft delete)"""
+  """
+  When the user was deleted (soft delete)
+  """
   deletedAt: DateTime
-  """Whether the user account is deleted"""
+  """
+  Whether the user account is deleted
+  """
   isDeleted: Boolean!
 }
 
@@ -326,21 +471,37 @@ type User implements Timestamped & SoftDeletable {
 Extended profile information for a user
 """
 type UserProfile {
-  """User's first name"""
+  """
+  User's first name
+  """
   firstName: String
-  """User's last name"""
+  """
+  User's last name
+  """
   lastName: String
-  """User's phone number"""
+  """
+  User's phone number
+  """
   phoneNumber: String
-  """User's date of birth"""
+  """
+  User's date of birth
+  """
   dateOfBirth: DateTime
-  """User's bio or description"""
+  """
+  User's bio or description
+  """
   bio: String
-  """User's preferred language (ISO 639-1 code)"""
+  """
+  User's preferred language (ISO 639-1 code)
+  """
   preferredLanguage: String
-  """User's preferred currency"""
+  """
+  User's preferred currency
+  """
   preferredCurrency: Currency
-  """Whether user has opted into marketing emails"""
+  """
+  Whether user has opted into marketing emails
+  """
   marketingOptIn: Boolean!
 }
 
@@ -348,21 +509,37 @@ type UserProfile {
 A physical address for shipping or billing
 """
 type Address {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Street address line 1"""
+  """
+  Street address line 1
+  """
   street1: String!
-  """Street address line 2 (apt, suite, etc.)"""
+  """
+  Street address line 2 (apt, suite, etc.)
+  """
   street2: String
-  """City name"""
+  """
+  City name
+  """
   city: String!
-  """State or province"""
+  """
+  State or province
+  """
   state: String!
-  """Postal/ZIP code"""
+  """
+  Postal/ZIP code
+  """
   postalCode: String!
-  """Country code (ISO 3166-1 alpha-2)"""
+  """
+  Country code (ISO 3166-1 alpha-2)
+  """
   countryCode: String!
-  """Whether this is the default address"""
+  """
+  Whether this is the default address
+  """
   isDefault: Boolean!
 }
 
@@ -370,11 +547,17 @@ type Address {
 Collection of user addresses with labels
 """
 type AddressBook {
-  """All addresses in the address book"""
+  """
+  All addresses in the address book
+  """
   addresses: [LabeledAddress!]!
-  """Default shipping address"""
+  """
+  Default shipping address
+  """
   defaultShipping: LabeledAddress
-  """Default billing address"""
+  """
+  Default billing address
+  """
   defaultBilling: LabeledAddress
 }
 
@@ -382,13 +565,21 @@ type AddressBook {
 An address with a user-defined label
 """
 type LabeledAddress {
-  """The address details"""
+  """
+  The address details
+  """
   address: Address!
-  """User-defined label (e.g., "Home", "Work")"""
+  """
+  User-defined label (e.g., "Home", "Work")
+  """
   label: String!
-  """Whether this is the default shipping address"""
+  """
+  Whether this is the default shipping address
+  """
   isDefaultShipping: Boolean!
-  """Whether this is the default billing address"""
+  """
+  Whether this is the default billing address
+  """
   isDefaultBilling: Boolean!
 }
 
@@ -401,71 +592,124 @@ A product available for purchase
 
 Products belong to categories and can have multiple variants (size, color, etc.).
 Each product tracks inventory and pricing information.
-
-**Circular Reference:** Product -> Category -> Product (products)
-**Deep Nesting:** Product -> variants -> inventory -> warehouse -> region
 """
 type Product implements Timestamped & SoftDeletable {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """URL-friendly slug"""
+  """
+  URL-friendly slug
+  """
   slug: String!
-  """Product name"""
+  """
+  Product name
+  """
   name: String!
-  """Short description for listings"""
+  """
+  Short description for listings
+  """
   shortDescription: String!
-  """Full product description (supports markdown)"""
+  """
+  Full product description (supports markdown)
+  """
   description: String!
-  """Product images"""
+  """
+  Product images
+  """
   images: [ProductImage!]!
-  """Primary/featured image"""
+  """
+  Primary/featured image
+  """
   primaryImage: ProductImage
-  """Current price"""
+  """
+  Current price
+  """
   price: Money!
-  """Original price before discount (if on sale)"""
+  """
+  Original price before discount (if on sale)
+  """
   compareAtPrice: Money
-  """Whether product is currently on sale"""
+  """
+  Whether product is currently on sale
+  """
   isOnSale: Boolean!
-  """Product status"""
+  """
+  Product status
+  """
   status: ProductStatus!
   """
   Product category (creates circular reference)
   Category contains a list of products, and each product references its category
   """
   category: Category!
-  """Additional categories this product belongs to"""
+  """
+  Additional categories this product belongs to
+  """
   additionalCategories: [Category!]!
-  """Product tags for filtering"""
+  """
+  Product tags for filtering
+  """
   tags: [String!]!
-  """Product variants (size, color combinations)"""
+  """
+  Product variants (size, color combinations)
+  """
   variants: [ProductVariant!]!
-  """Total inventory across all variants"""
+  """
+  Total inventory across all variants
+  """
   totalInventory: Int!
-  """Whether any variant is in stock"""
+  """
+  Whether any variant is in stock
+  """
   isInStock: Boolean!
-  """Seller who listed this product"""
+  """
+  Seller who listed this product
+  """
   seller: User!
-  """Product reviews (circular: Review references Product)"""
+  """
+  Product reviews (circular: Review references Product)
+  """
   reviews(first: Int = 10, after: String): ReviewConnection!
-  """Average rating (1-5)"""
+  """
+  Average rating (1-5)
+  """
   averageRating: Float
-  """Total number of reviews"""
+  """
+  Total number of reviews
+  """
   reviewCount: Int!
-  """Related products (for "You might also like")"""
+  """
+  Related products (for "You might also like")
+  """
   relatedProducts(first: Int = 4): [Product!]!
-  """Products frequently bought together"""
+  """
+  Products frequently bought together
+  """
   frequentlyBoughtWith: [Product!]!
-  """Product specifications/attributes"""
+  """
+  Product specifications/attributes
+  """
   specifications: [ProductSpecification!]!
-  """SEO metadata"""
+  """
+  SEO metadata
+  """
   seo: SEOMetadata
-  """When created"""
+  """
+  When created
+  """
   createdAt: DateTime!
-  """When last updated"""
+  """
+  When last updated
+  """
   updatedAt: DateTime!
-  """When deleted (soft delete)"""
+  """
+  When deleted (soft delete)
+  """
   deletedAt: DateTime
-  """Whether deleted"""
+  """
+  Whether deleted
+  """
   isDeleted: Boolean!
 }
 
@@ -473,21 +717,37 @@ type Product implements Timestamped & SoftDeletable {
 A specific variant of a product (e.g., "Large, Blue")
 """
 type ProductVariant {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """SKU (Stock Keeping Unit)"""
+  """
+  SKU (Stock Keeping Unit)
+  """
   sku: String!
-  """Variant name (e.g., "Large / Blue")"""
+  """
+  Variant name (e.g., "Large / Blue")
+  """
   name: String!
-  """Variant-specific price (if different from base)"""
+  """
+  Variant-specific price (if different from base)
+  """
   price: Money
-  """Variant options (size, color, etc.)"""
+  """
+  Variant options (size, color, etc.)
+  """
   options: [VariantOption!]!
-  """Inventory information - contains warehouse details (deep nesting)"""
+  """
+  Inventory information - contains warehouse details (deep nesting)
+  """
   inventory: InventoryInfo!
-  """Weight in grams (for shipping calculation)"""
+  """
+  Weight in grams (for shipping calculation)
+  """
   weightGrams: Int
-  """Whether this variant is available for purchase"""
+  """
+  Whether this variant is available for purchase
+  """
   isAvailable: Boolean!
 }
 
@@ -495,9 +755,13 @@ type ProductVariant {
 A single option for a variant (e.g., "Size: Large")
 """
 type VariantOption {
-  """Option name (e.g., "Size")"""
+  """
+  Option name (e.g., "Size")
+  """
   name: String!
-  """Option value (e.g., "Large")"""
+  """
+  Option value (e.g., "Large")
+  """
   value: String!
 }
 
@@ -507,17 +771,29 @@ Inventory information for a product variant
 This type demonstrates deep nesting: Product -> Variant -> Inventory -> Warehouse -> Region
 """
 type InventoryInfo {
-  """Total quantity across all warehouses"""
+  """
+  Total quantity across all warehouses
+  """
   totalQuantity: Int!
-  """Quantity available for sale (excludes reserved)"""
+  """
+  Quantity available for sale (excludes reserved)
+  """
   availableQuantity: Int!
-  """Quantity reserved in carts"""
+  """
+  Quantity reserved in carts
+  """
   reservedQuantity: Int!
-  """Per-warehouse breakdown"""
+  """
+  Per-warehouse breakdown
+  """
   warehouseStock: [WarehouseStock!]!
-  """Whether to allow backorders"""
+  """
+  Whether to allow backorders
+  """
   allowBackorder: Boolean!
-  """Restock threshold for alerts"""
+  """
+  Restock threshold for alerts
+  """
   restockThreshold: Int
 }
 
@@ -525,11 +801,17 @@ type InventoryInfo {
 Stock information at a specific warehouse
 """
 type WarehouseStock {
-  """The warehouse"""
+  """
+  The warehouse
+  """
   warehouse: Warehouse!
-  """Quantity at this warehouse"""
+  """
+  Quantity at this warehouse
+  """
   quantity: Int!
-  """Whether this location can fulfill orders"""
+  """
+  Whether this location can fulfill orders
+  """
   canFulfill: Boolean!
 }
 
@@ -537,17 +819,29 @@ type WarehouseStock {
 A physical warehouse location
 """
 type Warehouse {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Warehouse name"""
+  """
+  Warehouse name
+  """
   name: String!
-  """Warehouse code"""
+  """
+  Warehouse code
+  """
   code: String!
-  """Geographic region"""
+  """
+  Geographic region
+  """
   region: Region!
-  """Warehouse address"""
+  """
+  Warehouse address
+  """
   address: Address!
-  """Whether warehouse is currently operational"""
+  """
+  Whether warehouse is currently operational
+  """
   isActive: Boolean!
 }
 
@@ -557,17 +851,29 @@ A geographic region for shipping and warehousing
 This is the deepest level of nesting in the Product hierarchy.
 """
 type Region {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Region name (e.g., "North America")"""
+  """
+  Region name (e.g., "North America")
+  """
   name: String!
-  """Region code (e.g., "NA")"""
+  """
+  Region code (e.g., "NA")
+  """
   code: String!
-  """Countries in this region"""
+  """
+  Countries in this region
+  """
   countries: [String!]!
-  """Default currency for this region"""
+  """
+  Default currency for this region
+  """
   defaultCurrency: Currency!
-  """Available shipping methods"""
+  """
+  Available shipping methods
+  """
   shippingMethods: [ShippingMethod!]!
 }
 
@@ -575,19 +881,33 @@ type Region {
 Product image with multiple sizes
 """
 type ProductImage {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Original image URL"""
+  """
+  Original image URL
+  """
   url: String!
-  """Thumbnail URL (100x100)"""
+  """
+  Thumbnail URL (100x100)
+  """
   thumbnailUrl: String!
-  """Medium size URL (400x400)"""
+  """
+  Medium size URL (400x400)
+  """
   mediumUrl: String!
-  """Large size URL (800x800)"""
+  """
+  Large size URL (800x800)
+  """
   largeUrl: String!
-  """Alt text for accessibility"""
+  """
+  Alt text for accessibility
+  """
   altText: String
-  """Display order"""
+  """
+  Display order
+  """
   sortOrder: Int!
 }
 
@@ -595,11 +915,17 @@ type ProductImage {
 A key-value specification for a product
 """
 type ProductSpecification {
-  """Specification name (e.g., "Material")"""
+  """
+  Specification name (e.g., "Material")
+  """
   name: String!
-  """Specification value (e.g., "100% Cotton")"""
+  """
+  Specification value (e.g., "100% Cotton")
+  """
   value: String!
-  """Optional unit (e.g., "cm", "kg")"""
+  """
+  Optional unit (e.g., "cm", "kg")
+  """
   unit: String
 }
 
@@ -610,34 +936,58 @@ Categories form a tree structure and contain products.
 **Circular Reference:** Category -> Product -> Category
 """
 type Category implements Timestamped {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """URL-friendly slug"""
+  """
+  URL-friendly slug
+  """
   slug: String!
-  """Category name"""
+  """
+  Category name
+  """
   name: String!
-  """Category description"""
+  """
+  Category description
+  """
   description: String
-  """Category image URL"""
+  """
+  Category image URL
+  """
   imageUrl: String
-  """Parent category (for hierarchy)"""
+  """
+  Parent category (for hierarchy)
+  """
   parent: Category
-  """Child categories"""
+  """
+  Child categories
+  """
   children: [Category!]!
-  """Full path from root (e.g., "Electronics > Phones > Smartphones")"""
+  """
+  Full path from root (e.g., "Electronics > Phones > Smartphones")
+  """
   breadcrumb: [Category!]!
-  """Products in this category (circular reference with Product.category)"""
+  """
+  Products in this category (circular reference with Product.category)
+  """
   products(
     first: Int = 20
     after: String
     sortBy: ProductSortField = CREATED_AT
     sortDirection: SortDirection = DESC
   ): ProductConnection!
-  """Total number of products in this category (including subcategories)"""
+  """
+  Total number of products in this category (including subcategories)
+  """
   productCount: Int!
-  """When created"""
+  """
+  When created
+  """
   createdAt: DateTime!
-  """When last updated"""
+  """
+  When last updated
+  """
   updatedAt: DateTime!
 }
 
@@ -645,15 +995,25 @@ type Category implements Timestamped {
 SEO metadata for products and pages
 """
 type SEOMetadata {
-  """Meta title"""
+  """
+  Meta title
+  """
   title: String
-  """Meta description"""
+  """
+  Meta description
+  """
   description: String
-  """Meta keywords"""
+  """
+  Meta keywords
+  """
   keywords: [String!]
-  """Canonical URL"""
+  """
+  Canonical URL
+  """
   canonicalUrl: String
-  """Open Graph image URL"""
+  """
+  Open Graph image URL
+  """
   ogImage: String
 }
 
@@ -668,47 +1028,89 @@ Orders track the purchase lifecycle from cart to delivery.
 **Circular Reference:** Order -> User -> Orders
 """
 type Order implements Timestamped {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Human-readable order number"""
+  """
+  Human-readable order number
+  """
   orderNumber: String!
-  """Customer who placed the order (circular reference)"""
+  """
+  Customer who placed the order (circular reference)
+  """
   customer: User!
-  """Current order status"""
+  """
+  Current order status
+  """
   status: OrderStatus!
-  """Order line items"""
+  """
+  Order line items
+  """
   items: [OrderItem!]!
-  """Subtotal before tax and shipping"""
+  """
+  Subtotal before tax and shipping
+  """
   subtotal: Money!
-  """Tax amount"""
+  """
+  Tax amount
+  """
   taxAmount: Money!
-  """Shipping cost"""
+  """
+  Shipping cost
+  """
   shippingAmount: Money!
-  """Discount amount"""
+  """
+  Discount amount
+  """
   discountAmount: Money!
-  """Total order amount"""
+  """
+  Total order amount
+  """
   total: Money!
-  """Currency used for this order"""
+  """
+  Currency used for this order
+  """
   currency: Currency!
-  """Shipping address"""
+  """
+  Shipping address
+  """
   shippingAddress: Address!
-  """Billing address"""
+  """
+  Billing address
+  """
   billingAddress: Address!
-  """Payment information"""
+  """
+  Payment information
+  """
   payment: PaymentInfo!
-  """Shipping information"""
+  """
+  Shipping information
+  """
   shipping: ShippingInfo
-  """Applied coupon codes"""
+  """
+  Applied coupon codes
+  """
   appliedCoupons: [Coupon!]!
-  """Order notes from customer"""
+  """
+  Order notes from customer
+  """
   customerNotes: String
-  """Internal notes (admin only)"""
+  """
+  Internal notes (admin only)
+  """
   internalNotes: String
-  """Order history/timeline"""
+  """
+  Order history/timeline
+  """
   timeline: [OrderEvent!]!
-  """When created"""
+  """
+  When created
+  """
   createdAt: DateTime!
-  """When last updated"""
+  """
+  When last updated
+  """
   updatedAt: DateTime!
 }
 
@@ -716,19 +1118,33 @@ type Order implements Timestamped {
 A line item in an order
 """
 type OrderItem {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """The product ordered"""
+  """
+  The product ordered
+  """
   product: Product!
-  """The specific variant ordered"""
+  """
+  The specific variant ordered
+  """
   variant: ProductVariant
-  """Quantity ordered"""
+  """
+  Quantity ordered
+  """
   quantity: Int!
-  """Price per unit at time of order"""
+  """
+  Price per unit at time of order
+  """
   unitPrice: Money!
-  """Total price for this line item"""
+  """
+  Total price for this line item
+  """
   totalPrice: Money!
-  """Any customization options selected"""
+  """
+  Any customization options selected
+  """
   customizations: [OrderItemCustomization!]
 }
 
@@ -736,11 +1152,17 @@ type OrderItem {
 Customization applied to an order item
 """
 type OrderItemCustomization {
-  """Customization name"""
+  """
+  Customization name
+  """
   name: String!
-  """Customization value"""
+  """
+  Customization value
+  """
   value: String!
-  """Additional cost for this customization"""
+  """
+  Additional cost for this customization
+  """
   additionalCost: Money
 }
 
@@ -748,17 +1170,29 @@ type OrderItemCustomization {
 Payment information for an order
 """
 type PaymentInfo {
-  """Payment method used"""
+  """
+  Payment method used
+  """
   method: PaymentMethod!
-  """Payment status"""
+  """
+  Payment status
+  """
   status: String!
-  """Transaction ID from payment processor"""
+  """
+  Transaction ID from payment processor
+  """
   transactionId: String
-  """Last 4 digits of card (if applicable)"""
+  """
+  Last 4 digits of card (if applicable)
+  """
   cardLast4: String
-  """Card brand (if applicable)"""
+  """
+  Card brand (if applicable)
+  """
   cardBrand: String
-  """When payment was processed"""
+  """
+  When payment was processed
+  """
   processedAt: DateTime
 }
 
@@ -766,17 +1200,29 @@ type PaymentInfo {
 Shipping information for an order
 """
 type ShippingInfo {
-  """Shipping method selected"""
+  """
+  Shipping method selected
+  """
   method: ShippingMethod!
-  """Carrier name"""
+  """
+  Carrier name
+  """
   carrier: String
-  """Tracking number"""
+  """
+  Tracking number
+  """
   trackingNumber: String
-  """Tracking URL"""
+  """
+  Tracking URL
+  """
   trackingUrl: String
-  """Estimated delivery date"""
+  """
+  Estimated delivery date
+  """
   estimatedDelivery: DateTime
-  """Actual delivery date"""
+  """
+  Actual delivery date
+  """
   deliveredAt: DateTime
 }
 
@@ -784,19 +1230,33 @@ type ShippingInfo {
 Available shipping method
 """
 type ShippingMethod {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Method name (e.g., "Standard Shipping")"""
+  """
+  Method name (e.g., "Standard Shipping")
+  """
   name: String!
-  """Method description"""
+  """
+  Method description
+  """
   description: String
-  """Base cost"""
+  """
+  Base cost
+  """
   baseCost: Money!
-  """Estimated delivery days (min)"""
+  """
+  Estimated delivery days (min)
+  """
   estimatedDaysMin: Int!
-  """Estimated delivery days (max)"""
+  """
+  Estimated delivery days (max)
+  """
   estimatedDaysMax: Int!
-  """Whether this method is available"""
+  """
+  Whether this method is available
+  """
   isAvailable: Boolean!
 }
 
@@ -804,13 +1264,21 @@ type ShippingMethod {
 A coupon/discount code
 """
 type Coupon {
-  """Coupon code"""
+  """
+  Coupon code
+  """
   code: String!
-  """Discount description"""
+  """
+  Discount description
+  """
   description: String!
-  """Discount amount or percentage"""
+  """
+  Discount amount or percentage
+  """
   discountValue: String!
-  """Whether this is a percentage discount"""
+  """
+  Whether this is a percentage discount
+  """
   isPercentage: Boolean!
 }
 
@@ -818,13 +1286,21 @@ type Coupon {
 An event in the order timeline
 """
 type OrderEvent {
-  """Event type"""
+  """
+  Event type
+  """
   type: String!
-  """Event description"""
+  """
+  Event description
+  """
   description: String!
-  """When the event occurred"""
+  """
+  When the event occurred
+  """
   occurredAt: DateTime!
-  """User who triggered the event (if applicable)"""
+  """
+  User who triggered the event (if applicable)
+  """
   actor: User
 }
 
@@ -832,21 +1308,37 @@ type OrderEvent {
 User's shopping cart
 """
 type Cart {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Cart items"""
+  """
+  Cart items
+  """
   items: [CartItem!]!
-  """Number of items in cart"""
+  """
+  Number of items in cart
+  """
   itemCount: Int!
-  """Cart subtotal"""
+  """
+  Cart subtotal
+  """
   subtotal: Money!
-  """Estimated tax"""
+  """
+  Estimated tax
+  """
   estimatedTax: Money
-  """Estimated total"""
+  """
+  Estimated total
+  """
   estimatedTotal: Money!
-  """Applied coupon codes"""
+  """
+  Applied coupon codes
+  """
   appliedCoupons: [Coupon!]!
-  """When cart was last updated"""
+  """
+  When cart was last updated
+  """
   updatedAt: DateTime!
 }
 
@@ -854,17 +1346,29 @@ type Cart {
 An item in the shopping cart
 """
 type CartItem {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """The product"""
+  """
+  The product
+  """
   product: Product!
-  """The specific variant"""
+  """
+  The specific variant
+  """
   variant: ProductVariant
-  """Quantity in cart"""
+  """
+  Quantity in cart
+  """
   quantity: Int!
-  """Unit price"""
+  """
+  Unit price
+  """
   unitPrice: Money!
-  """Total price for this item"""
+  """
+  Total price for this item
+  """
   totalPrice: Money!
 }
 
@@ -872,13 +1376,21 @@ type CartItem {
 Error returned when checkout fails
 """
 type CheckoutError {
-  """Error code"""
+  """
+  Error code
+  """
   code: String!
-  """Human-readable error message"""
+  """
+  Human-readable error message
+  """
   message: String!
-  """Field that caused the error (if applicable)"""
+  """
+  Field that caused the error (if applicable)
+  """
   field: String
-  """Suggested action to resolve"""
+  """
+  Suggested action to resolve
+  """
   suggestion: String
 }
 
@@ -886,13 +1398,21 @@ type CheckoutError {
 Returned when payment is still processing
 """
 type PaymentPending {
-  """Pending payment ID"""
+  """
+  Pending payment ID
+  """
   paymentId: UUID!
-  """Expected completion time"""
+  """
+  Expected completion time
+  """
   expectedCompletionAt: DateTime
-  """URL to check payment status"""
+  """
+  URL to check payment status
+  """
   statusUrl: String!
-  """Instructions for the user"""
+  """
+  Instructions for the user
+  """
   instructions: String
 }
 
@@ -907,41 +1427,77 @@ A product review written by a user
 **Circular Reference:** Review -> Product -> Reviews
 """
 type Review implements Timestamped & Moderatable {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """The product being reviewed"""
+  """
+  The product being reviewed
+  """
   product: Product!
-  """The user who wrote the review (circular reference)"""
+  """
+  The user who wrote the review (circular reference)
+  """
   author: User!
-  """Rating from 1 to 5"""
+  """
+  Rating from 1 to 5
+  """
   rating: Int!
-  """Review title"""
+  """
+  Review title
+  """
   title: String
-  """Review body text"""
+  """
+  Review body text
+  """
   body: String!
-  """Pros mentioned by reviewer"""
+  """
+  Pros mentioned by reviewer
+  """
   pros: [String!]
-  """Cons mentioned by reviewer"""
+  """
+  Cons mentioned by reviewer
+  """
   cons: [String!]
-  """Attached images"""
+  """
+  Attached images
+  """
   images: [ReviewImage!]
-  """Whether reviewer is a verified purchaser"""
+  """
+  Whether reviewer is a verified purchaser
+  """
   isVerifiedPurchase: Boolean!
-  """Number of users who found this helpful"""
+  """
+  Number of users who found this helpful
+  """
   helpfulCount: Int!
-  """Number of users who found this unhelpful"""
+  """
+  Number of users who found this unhelpful
+  """
   unhelpfulCount: Int!
-  """Replies to this review"""
+  """
+  Replies to this review
+  """
   replies: [ReviewReply!]!
-  """Whether approved by moderators"""
+  """
+  Whether approved by moderators
+  """
   isApproved: Boolean!
-  """When moderated"""
+  """
+  When moderated
+  """
   moderatedAt: DateTime
-  """Who moderated"""
+  """
+  Who moderated
+  """
   moderatedBy: User
-  """When created"""
+  """
+  When created
+  """
   createdAt: DateTime!
-  """When last updated"""
+  """
+  When last updated
+  """
   updatedAt: DateTime!
 }
 
@@ -949,9 +1505,13 @@ type Review implements Timestamped & Moderatable {
 Image attached to a review
 """
 type ReviewImage {
-  """Image URL"""
+  """
+  Image URL
+  """
   url: String!
-  """Image caption"""
+  """
+  Image caption
+  """
   caption: String
 }
 
@@ -959,15 +1519,25 @@ type ReviewImage {
 A reply to a review (typically from seller)
 """
 type ReviewReply {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Reply author"""
+  """
+  Reply author
+  """
   author: User!
-  """Reply text"""
+  """
+  Reply text
+  """
   body: String!
-  """Whether this is an official seller response"""
+  """
+  Whether this is an official seller response
+  """
   isSellerResponse: Boolean!
-  """When created"""
+  """
+  When created
+  """
   createdAt: DateTime!
 }
 
@@ -979,25 +1549,45 @@ type ReviewReply {
 A notification sent to a user
 """
 type Notification implements Timestamped {
-  """Unique identifier"""
+  """
+  Unique identifier
+  """
   id: UUID!
-  """Notification type"""
+  """
+  Notification type
+  """
   type: NotificationType!
-  """Notification title"""
+  """
+  Notification title
+  """
   title: String!
-  """Notification body"""
+  """
+  Notification body
+  """
   body: String!
-  """The target entity this notification is about"""
+  """
+  The target entity this notification is about
+  """
   target: NotificationTarget
-  """Whether the notification has been read"""
+  """
+  Whether the notification has been read
+  """
   isRead: Boolean!
-  """When the notification was read"""
+  """
+  When the notification was read
+  """
   readAt: DateTime
-  """Action URL (if applicable)"""
+  """
+  Action URL (if applicable)
+  """
   actionUrl: String
-  """When created"""
+  """
+  When created
+  """
   createdAt: DateTime!
-  """When last updated"""
+  """
+  When last updated
+  """
   updatedAt: DateTime!
 }
 
@@ -1009,15 +1599,25 @@ type Notification implements Timestamped {
 Pagination information following the Relay spec
 """
 type PageInfo {
-  """Whether there are more items after"""
+  """
+  Whether there are more items after
+  """
   hasNextPage: Boolean!
-  """Whether there are more items before"""
+  """
+  Whether there are more items before
+  """
   hasPreviousPage: Boolean!
-  """Cursor of the first item"""
+  """
+  Cursor of the first item
+  """
   startCursor: String
-  """Cursor of the last item"""
+  """
+  Cursor of the last item
+  """
   endCursor: String
-  """Total count of items"""
+  """
+  Total count of items
+  """
   totalCount: Int!
 }
 
@@ -1025,9 +1625,13 @@ type PageInfo {
 Paginated list of products
 """
 type ProductConnection {
-  """The products"""
+  """
+  The products
+  """
   edges: [ProductEdge!]!
-  """Pagination info"""
+  """
+  Pagination info
+  """
   pageInfo: PageInfo!
 }
 
@@ -1035,9 +1639,13 @@ type ProductConnection {
 Product edge for pagination
 """
 type ProductEdge {
-  """The product"""
+  """
+  The product
+  """
   node: Product!
-  """Pagination cursor"""
+  """
+  Pagination cursor
+  """
   cursor: String!
 }
 
@@ -1045,9 +1653,13 @@ type ProductEdge {
 Paginated list of orders
 """
 type OrderConnection {
-  """The orders"""
+  """
+  The orders
+  """
   edges: [OrderEdge!]!
-  """Pagination info"""
+  """
+  Pagination info
+  """
   pageInfo: PageInfo!
 }
 
@@ -1055,9 +1667,13 @@ type OrderConnection {
 Order edge for pagination
 """
 type OrderEdge {
-  """The order"""
+  """
+  The order
+  """
   node: Order!
-  """Pagination cursor"""
+  """
+  Pagination cursor
+  """
   cursor: String!
 }
 
@@ -1065,9 +1681,13 @@ type OrderEdge {
 Paginated list of reviews
 """
 type ReviewConnection {
-  """The reviews"""
+  """
+  The reviews
+  """
   edges: [ReviewEdge!]!
-  """Pagination info"""
+  """
+  Pagination info
+  """
   pageInfo: PageInfo!
 }
 
@@ -1075,9 +1695,13 @@ type ReviewConnection {
 Review edge for pagination
 """
 type ReviewEdge {
-  """The review"""
+  """
+  The review
+  """
   node: Review!
-  """Pagination cursor"""
+  """
+  Pagination cursor
+  """
   cursor: String!
 }
 
@@ -1089,13 +1713,21 @@ type ReviewEdge {
 Input for creating a new user account
 """
 input CreateUserInput {
-  """User's email address"""
+  """
+  User's email address
+  """
   email: String!
-  """User's password"""
+  """
+  User's password
+  """
   password: String!
-  """User's display name"""
+  """
+  User's display name
+  """
   displayName: String!
-  """Initial profile information"""
+  """
+  Initial profile information
+  """
   profile: UserProfileInput
 }
 
@@ -1103,21 +1735,37 @@ input CreateUserInput {
 Input for updating user profile
 """
 input UserProfileInput {
-  """First name"""
+  """
+  First name
+  """
   firstName: String
-  """Last name"""
+  """
+  Last name
+  """
   lastName: String
-  """Phone number"""
+  """
+  Phone number
+  """
   phoneNumber: String
-  """Date of birth"""
+  """
+  Date of birth
+  """
   dateOfBirth: DateTime
-  """Bio/description"""
+  """
+  Bio/description
+  """
   bio: String
-  """Preferred language code"""
+  """
+  Preferred language code
+  """
   preferredLanguage: String
-  """Preferred currency"""
+  """
+  Preferred currency
+  """
   preferredCurrency: Currency
-  """Marketing opt-in"""
+  """
+  Marketing opt-in
+  """
   marketingOptIn: Boolean
 }
 
@@ -1125,23 +1773,41 @@ input UserProfileInput {
 Input for creating/updating an address
 """
 input AddressInput {
-  """Street address line 1"""
+  """
+  Street address line 1
+  """
   street1: String!
-  """Street address line 2"""
+  """
+  Street address line 2
+  """
   street2: String
-  """City"""
+  """
+  City
+  """
   city: String!
-  """State/province"""
+  """
+  State/province
+  """
   state: String!
-  """Postal code"""
+  """
+  Postal code
+  """
   postalCode: String!
-  """Country code"""
+  """
+  Country code
+  """
   countryCode: String!
-  """Address label"""
+  """
+  Address label
+  """
   label: String
-  """Set as default shipping"""
+  """
+  Set as default shipping
+  """
   isDefaultShipping: Boolean
-  """Set as default billing"""
+  """
+  Set as default billing
+  """
   isDefaultBilling: Boolean
 }
 
@@ -1149,29 +1815,53 @@ input AddressInput {
 Input for creating a new product
 """
 input CreateProductInput {
-  """Product name"""
+  """
+  Product name
+  """
   name: String!
-  """Short description"""
+  """
+  Short description
+  """
   shortDescription: String!
-  """Full description"""
+  """
+  Full description
+  """
   description: String!
-  """Base price"""
+  """
+  Base price
+  """
   price: Money!
-  """Compare-at price"""
+  """
+  Compare-at price
+  """
   compareAtPrice: Money
-  """Category ID"""
+  """
+  Category ID
+  """
   categoryId: UUID!
-  """Additional category IDs"""
+  """
+  Additional category IDs
+  """
   additionalCategoryIds: [UUID!]
-  """Product tags"""
+  """
+  Product tags
+  """
   tags: [String!]
-  """Product variants"""
+  """
+  Product variants
+  """
   variants: [ProductVariantInput!]
-  """Product specifications"""
+  """
+  Product specifications
+  """
   specifications: [ProductSpecificationInput!]
-  """SEO metadata"""
+  """
+  SEO metadata
+  """
   seo: SEOInput
-  """Initial status"""
+  """
+  Initial status
+  """
   status: ProductStatus = HIDDEN
 }
 
@@ -1179,25 +1869,45 @@ input CreateProductInput {
 Input for updating a product
 """
 input UpdateProductInput {
-  """Product name"""
+  """
+  Product name
+  """
   name: String
-  """Short description"""
+  """
+  Short description
+  """
   shortDescription: String
-  """Full description"""
+  """
+  Full description
+  """
   description: String
-  """Base price"""
+  """
+  Base price
+  """
   price: Money
-  """Compare-at price"""
+  """
+  Compare-at price
+  """
   compareAtPrice: Money
-  """Category ID"""
+  """
+  Category ID
+  """
   categoryId: UUID
-  """Additional category IDs"""
+  """
+  Additional category IDs
+  """
   additionalCategoryIds: [UUID!]
-  """Product tags"""
+  """
+  Product tags
+  """
   tags: [String!]
-  """Product status"""
+  """
+  Product status
+  """
   status: ProductStatus
-  """SEO metadata"""
+  """
+  SEO metadata
+  """
   seo: SEOInput
 }
 
@@ -1205,17 +1915,29 @@ input UpdateProductInput {
 Input for creating a product variant
 """
 input ProductVariantInput {
-  """SKU"""
+  """
+  SKU
+  """
   sku: String!
-  """Variant name"""
+  """
+  Variant name
+  """
   name: String!
-  """Variant-specific price"""
+  """
+  Variant-specific price
+  """
   price: Money
-  """Variant options"""
+  """
+  Variant options
+  """
   options: [VariantOptionInput!]!
-  """Initial inventory quantity"""
+  """
+  Initial inventory quantity
+  """
   initialQuantity: Int!
-  """Weight in grams"""
+  """
+  Weight in grams
+  """
   weightGrams: Int
 }
 
@@ -1223,9 +1945,13 @@ input ProductVariantInput {
 Input for a variant option
 """
 input VariantOptionInput {
-  """Option name"""
+  """
+  Option name
+  """
   name: String!
-  """Option value"""
+  """
+  Option value
+  """
   value: String!
 }
 
@@ -1233,11 +1959,17 @@ input VariantOptionInput {
 Input for a product specification
 """
 input ProductSpecificationInput {
-  """Specification name"""
+  """
+  Specification name
+  """
   name: String!
-  """Specification value"""
+  """
+  Specification value
+  """
   value: String!
-  """Unit"""
+  """
+  Unit
+  """
   unit: String
 }
 
@@ -1245,13 +1977,21 @@ input ProductSpecificationInput {
 Input for SEO metadata
 """
 input SEOInput {
-  """Meta title"""
+  """
+  Meta title
+  """
   title: String
-  """Meta description"""
+  """
+  Meta description
+  """
   description: String
-  """Meta keywords"""
+  """
+  Meta keywords
+  """
   keywords: [String!]
-  """Canonical URL"""
+  """
+  Canonical URL
+  """
   canonicalUrl: String
 }
 
@@ -1259,25 +1999,45 @@ input SEOInput {
 Input for placing an order
 """
 input PlaceOrderInput {
-  """Shipping address ID or new address"""
+  """
+  Shipping address ID or new address
+  """
   shippingAddressId: UUID
-  """New shipping address (if not using existing)"""
+  """
+  New shipping address (if not using existing)
+  """
   shippingAddress: AddressInput
-  """Billing address ID or new address"""
+  """
+  Billing address ID or new address
+  """
   billingAddressId: UUID
-  """New billing address (if not using existing)"""
+  """
+  New billing address (if not using existing)
+  """
   billingAddress: AddressInput
-  """Use shipping address for billing"""
+  """
+  Use shipping address for billing
+  """
   useSameAddress: Boolean
-  """Selected shipping method ID"""
+  """
+  Selected shipping method ID
+  """
   shippingMethodId: UUID!
-  """Payment method"""
+  """
+  Payment method
+  """
   paymentMethod: PaymentMethod!
-  """Payment token from payment processor"""
+  """
+  Payment token from payment processor
+  """
   paymentToken: String!
-  """Coupon codes to apply"""
+  """
+  Coupon codes to apply
+  """
   couponCodes: [String!]
-  """Customer notes"""
+  """
+  Customer notes
+  """
   notes: String
 }
 
@@ -1285,13 +2045,21 @@ input PlaceOrderInput {
 Input for adding item to cart
 """
 input AddToCartInput {
-  """Product ID"""
+  """
+  Product ID
+  """
   productId: UUID!
-  """Variant ID (required if product has variants)"""
+  """
+  Variant ID (required if product has variants)
+  """
   variantId: UUID
-  """Quantity to add"""
+  """
+  Quantity to add
+  """
   quantity: Int!
-  """Customization options"""
+  """
+  Customization options
+  """
   customizations: [OrderItemCustomizationInput!]
 }
 
@@ -1299,9 +2067,13 @@ input AddToCartInput {
 Input for order item customization
 """
 input OrderItemCustomizationInput {
-  """Customization name"""
+  """
+  Customization name
+  """
   name: String!
-  """Customization value"""
+  """
+  Customization value
+  """
   value: String!
 }
 
@@ -1309,9 +2081,13 @@ input OrderItemCustomizationInput {
 Input for updating cart item quantity
 """
 input UpdateCartItemInput {
-  """Cart item ID"""
+  """
+  Cart item ID
+  """
   cartItemId: UUID!
-  """New quantity (0 to remove)"""
+  """
+  New quantity (0 to remove)
+  """
   quantity: Int!
 }
 
@@ -1319,17 +2095,29 @@ input UpdateCartItemInput {
 Input for creating a review
 """
 input CreateReviewInput {
-  """Product ID"""
+  """
+  Product ID
+  """
   productId: UUID!
-  """Rating 1-5"""
+  """
+  Rating 1-5
+  """
   rating: Int!
-  """Review title"""
+  """
+  Review title
+  """
   title: String
-  """Review body"""
+  """
+  Review body
+  """
   body: String!
-  """Pros"""
+  """
+  Pros
+  """
   pros: [String!]
-  """Cons"""
+  """
+  Cons
+  """
   cons: [String!]
 }
 
@@ -1337,27 +2125,49 @@ input CreateReviewInput {
 Filter options for listing products
 """
 input ProductFilterInput {
-  """Filter by category ID"""
+  """
+  Filter by category ID
+  """
   categoryId: UUID
-  """Filter by category IDs"""
+  """
+  Filter by category IDs
+  """
   categoryIds: [UUID!]
-  """Minimum price"""
+  """
+  Minimum price
+  """
   minPrice: Money
-  """Maximum price"""
+  """
+  Maximum price
+  """
   maxPrice: Money
-  """Filter by status"""
+  """
+  Filter by status
+  """
   status: ProductStatus
-  """Filter by seller ID"""
+  """
+  Filter by seller ID
+  """
   sellerId: UUID
-  """Filter by tags"""
+  """
+  Filter by tags
+  """
   tags: [String!]
-  """Only show items in stock"""
+  """
+  Only show items in stock
+  """
   inStockOnly: Boolean
-  """Only show items on sale"""
+  """
+  Only show items on sale
+  """
   onSaleOnly: Boolean
-  """Minimum rating"""
+  """
+  Minimum rating
+  """
   minRating: Float
-  """Search query"""
+  """
+  Search query
+  """
   searchQuery: String
 }
 
@@ -1365,17 +2175,29 @@ input ProductFilterInput {
 Filter options for listing orders
 """
 input OrderFilterInput {
-  """Filter by status"""
+  """
+  Filter by status
+  """
   status: OrderStatus
-  """Filter by statuses"""
+  """
+  Filter by statuses
+  """
   statuses: [OrderStatus!]
-  """Minimum date"""
+  """
+  Minimum date
+  """
   fromDate: DateTime
-  """Maximum date"""
+  """
+  Maximum date
+  """
   toDate: DateTime
-  """Minimum total"""
+  """
+  Minimum total
+  """
   minTotal: Money
-  """Maximum total"""
+  """
+  Maximum total
+  """
   maxTotal: Money
 }
 
@@ -1405,7 +2227,9 @@ type Query {
   Get a user by their ID
   """
   user(
-    """The user's unique identifier"""
+    """
+    The user's unique identifier
+    """
     id: UUID!
   ): User
     @docGroup(name: "User Management", order: 1, subsection: "Queries")
@@ -1416,15 +2240,25 @@ type Query {
   Search for users (admin only)
   """
   users(
-    """Search query"""
+    """
+    Search query
+    """
     query: String
-    """Filter by role"""
+    """
+    Filter by role
+    """
     role: UserRole
-    """Filter by status"""
+    """
+    Filter by status
+    """
     status: UserStatus
-    """Number of results"""
+    """
+    Number of results
+    """
     first: Int = 20
-    """Pagination cursor"""
+    """
+    Pagination cursor
+    """
     after: String
   ): [User!]!
     @deprecated(reason: "Use `usersSearch` instead for better filtering options")
@@ -1440,9 +2274,13 @@ type Query {
   Get a product by ID or slug
   """
   product(
-    """Product ID"""
+    """
+    Product ID
+    """
     id: UUID
-    """Product slug"""
+    """
+    Product slug
+    """
     slug: String
   ): Product
     @docGroup(name: "Product Catalog", order: 2, subsection: "Queries")
@@ -1453,15 +2291,25 @@ type Query {
   List products with filtering and pagination
   """
   products(
-    """Filter options"""
+    """
+    Filter options
+    """
     filter: ProductFilterInput
-    """Sort field"""
+    """
+    Sort field
+    """
     sortBy: ProductSortField = CREATED_AT
-    """Sort direction"""
+    """
+    Sort direction
+    """
     sortDirection: SortDirection = DESC
-    """Number of results"""
+    """
+    Number of results
+    """
     first: Int = 20
-    """Pagination cursor"""
+    """
+    Pagination cursor
+    """
     after: String
   ): ProductConnection!
     @docGroup(name: "Product Catalog", order: 2, subsection: "Queries")
@@ -1472,9 +2320,13 @@ type Query {
   Get a category by ID or slug
   """
   category(
-    """Category ID"""
+    """
+    Category ID
+    """
     id: UUID
-    """Category slug"""
+    """
+    Category slug
+    """
     slug: String
   ): Category
     @docGroup(name: "Product Catalog", order: 2, subsection: "Categories")
@@ -1495,9 +2347,13 @@ type Query {
   Returns a union type that can be Product, User, or Category.
   """
   search(
-    """Search query"""
+    """
+    Search query
+    """
     query: String!
-    """Maximum results"""
+    """
+    Maximum results
+    """
     limit: Int = 20
   ): [SearchResult!]!
     @docGroup(name: "Product Catalog", order: 2, subsection: "Search")
@@ -1512,7 +2368,9 @@ type Query {
   Get an order by ID
   """
   order(
-    """Order ID"""
+    """
+    Order ID
+    """
     id: UUID!
   ): Order
     @docGroup(name: "Orders & Checkout", order: 3, subsection: "Queries")
@@ -1523,13 +2381,21 @@ type Query {
   List orders for the current user
   """
   myOrders(
-    """Filter options"""
+    """
+    Filter options
+    """
     filter: OrderFilterInput
-    """Sort direction"""
+    """
+    Sort direction
+    """
     sortDirection: SortDirection = DESC
-    """Number of results"""
+    """
+    Number of results
+    """
     first: Int = 20
-    """Pagination cursor"""
+    """
+    Pagination cursor
+    """
     after: String
   ): OrderConnection!
     @docGroup(name: "Orders & Checkout", order: 3, subsection: "Queries")
@@ -1552,7 +2418,9 @@ type Query {
   Get a review by ID
   """
   review(
-    """Review ID"""
+    """
+    Review ID
+    """
     id: UUID!
   ): Review
     @docGroup(name: "Reviews & Ratings", order: 4)
@@ -1576,7 +2444,9 @@ type Mutation {
   Register a new user account
   """
   createUser(
-    """User registration data"""
+    """
+    User registration data
+    """
     input: CreateUserInput!
   ): User!
     @docGroup(name: "User Management", order: 1, subsection: "Mutations")
@@ -1587,7 +2457,9 @@ type Mutation {
   Update the current user's profile
   """
   updateProfile(
-    """Profile data to update"""
+    """
+    Profile data to update
+    """
     input: UserProfileInput!
   ): User!
     @docGroup(name: "User Management", order: 1, subsection: "Mutations")
@@ -1598,7 +2470,9 @@ type Mutation {
   Add an address to the user's address book
   """
   addAddress(
-    """Address data"""
+    """
+    Address data
+    """
     input: AddressInput!
   ): LabeledAddress!
     @docGroup(name: "User Management", order: 1, subsection: "Mutations")
@@ -1613,7 +2487,9 @@ type Mutation {
   Create a new product listing (seller only)
   """
   createProduct(
-    """Product data"""
+    """
+    Product data
+    """
     input: CreateProductInput!
   ): Product!
     @docGroup(name: "Product Catalog", order: 2, subsection: "Mutations")
@@ -1624,9 +2500,13 @@ type Mutation {
   Update an existing product (seller only)
   """
   updateProduct(
-    """Product ID"""
+    """
+    Product ID
+    """
     id: UUID!
-    """Product data to update"""
+    """
+    Product data to update
+    """
     input: UpdateProductInput!
   ): Product!
     @docGroup(name: "Product Catalog", order: 2, subsection: "Mutations")
@@ -1637,7 +2517,9 @@ type Mutation {
   Delete a product (soft delete)
   """
   deleteProduct(
-    """Product ID"""
+    """
+    Product ID
+    """
     id: UUID!
   ): Boolean!
     @docGroup(name: "Product Catalog", order: 2, subsection: "Mutations")
@@ -1652,7 +2534,9 @@ type Mutation {
   Add an item to the shopping cart
   """
   addToCart(
-    """Item to add"""
+    """
+    Item to add
+    """
     input: AddToCartInput!
   ): Cart!
     @docGroup(name: "Orders & Checkout", order: 3, subsection: "Cart")
@@ -1663,7 +2547,9 @@ type Mutation {
   Update quantity of a cart item
   """
   updateCartItem(
-    """Update data"""
+    """
+    Update data
+    """
     input: UpdateCartItemInput!
   ): Cart!
     @docGroup(name: "Orders & Checkout", order: 3, subsection: "Cart")
@@ -1674,7 +2560,9 @@ type Mutation {
   Remove an item from the cart
   """
   removeFromCart(
-    """Cart item ID to remove"""
+    """
+    Cart item ID to remove
+    """
     cartItemId: UUID!
   ): Cart!
     @docGroup(name: "Orders & Checkout", order: 3, subsection: "Cart")
@@ -1688,7 +2576,9 @@ type Mutation {
   or PaymentPending if payment is still processing.
   """
   placeOrder(
-    """Order placement data"""
+    """
+    Order placement data
+    """
     input: PlaceOrderInput!
   ): CheckoutResult!
     @docGroup(name: "Orders & Checkout", order: 3, subsection: "Checkout")
@@ -1703,7 +2593,9 @@ type Mutation {
   Create a review for a product
   """
   createReview(
-    """Review data"""
+    """
+    Review data
+    """
     input: CreateReviewInput!
   ): Review!
     @docGroup(name: "Reviews & Ratings", order: 4)
@@ -1714,9 +2606,13 @@ type Mutation {
   Mark a review as helpful
   """
   markReviewHelpful(
-    """Review ID"""
+    """
+    Review ID
+    """
     reviewId: UUID!
-    """Whether helpful (true) or not helpful (false)"""
+    """
+    Whether helpful (true) or not helpful (false)
+    """
     helpful: Boolean!
   ): Review!
     @docGroup(name: "Reviews & Ratings", order: 4)
@@ -1739,7 +2635,9 @@ type Subscription {
   Useful for showing live order tracking to customers.
   """
   orderStatusChanged(
-    """Order ID to subscribe to"""
+    """
+    Order ID to subscribe to
+    """
     orderId: UUID!
   ): Order!
     @docGroup(name: "Orders & Checkout", order: 3, subsection: "Subscriptions")

@@ -14,6 +14,7 @@ interface OperationViewProps {
   maxDepth?: number;
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   typesByName?: Record<string, ExpandedType>;
+  typeLinkMode?: 'none' | 'deep' | 'all';
   children?: React.ReactNode;
 }
 
@@ -34,6 +35,7 @@ export const OperationView = React.memo(function OperationView({
   maxDepth = 3,
   headingLevel = 2,
   typesByName,
+  typeLinkMode = 'none',
   children,
 }: OperationViewProps) {
   const slug = slugify(operation.name);
@@ -79,6 +81,7 @@ export const OperationView = React.memo(function OperationView({
                   <ArgumentsTable
                     arguments={operation.arguments}
                     typeLinkBase={typeLinkBase}
+                    typeLinkMode={typeLinkMode}
                     depth={0}
                     maxDepth={maxDepth}
                     defaultExpandedLevels={defaultExpandedLevels}
@@ -91,6 +94,7 @@ export const OperationView = React.memo(function OperationView({
                 <TypeViewer
                   type={operation.returnType}
                   typeLinkBase={typeLinkBase}
+                  typeLinkMode={typeLinkMode}
                   depth={0}
                   maxDepth={maxDepth}
                   defaultExpandedLevels={defaultExpandedLevels}

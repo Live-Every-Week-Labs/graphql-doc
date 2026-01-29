@@ -29,6 +29,11 @@
       "type": "boolean",
       "default": true
     },
+    "typeLinkMode": {
+      "type": "string",
+      "enum": ["none", "deep", "all"],
+      "default": "none"
+    },
     "skipTypes": {
       "type": "array",
       "items": {

@@ -68,6 +68,7 @@ describe('Generator', () => {
       metadataDir,
       examplesDir: path.join(metadataDir, 'examples'),
       errorsDir: path.join(metadataDir, 'errors'),
+      typeLinkMode: 'none',
       outputMode: 'multi-page',
       typeExpansion: {
         enabled: true,

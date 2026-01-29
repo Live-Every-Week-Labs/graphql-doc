@@ -11,6 +11,7 @@ interface TypeDefinitionViewProps {
   typeLinkBase?: string;
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   typesByName?: Record<string, ExpandedType>;
+  typeLinkMode?: 'none' | 'deep' | 'all';
   children?: React.ReactNode;
 }
 
@@ -43,17 +44,25 @@ const getKindLabel = (type: ExpandedType) => {
   }
 };
 
-const renderInlineType = (input: ExpandedType, typeLinkBase?: string): React.ReactNode => {
+const renderInlineType = (
+  input: ExpandedType,
+  typeLinkBase?: string,
+  typeLinkMode: 'none' | 'deep' | 'all' = 'none',
+  forceLink: boolean = false
+): React.ReactNode => {
   switch (input.kind) {
     case 'LIST':
       return (
         <span className="gql-type-list">
           <span className="gql-bracket">[</span>
-          {renderInlineType(input.ofType, typeLinkBase)}
+          {renderInlineType(input.ofType, typeLinkBase, typeLinkMode, forceLink)}
           <span className="gql-bracket">]</span>
         </span>
       );
     case 'TYPE_REF':
+      if (typeLinkMode === 'none' && !forceLink) {
+        return <span className="gql-type">{input.name}</span>;
+      }
       return (
         <a
           href={
@@ -67,6 +76,9 @@ const renderInlineType = (input: ExpandedType, typeLinkBase?: string): React.Rea
         </a>
       );
     case 'CIRCULAR_REF':
+      if (typeLinkMode === 'none' && !forceLink) {
+        return <span className="gql-type">{input.ref} ↩</span>;
+      }
       return (
         <a
           href={
@@ -97,6 +109,7 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
   typeLinkBase,
   headingLevel = 2,
   typesByName,
+  typeLinkMode = 'none',
   children,
 }: TypeDefinitionViewProps) {
   if (!type) return null;
@@ -137,6 +150,7 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
                   fields={type.fields}
                   requiredStyle={type.kind === 'INPUT_OBJECT' ? 'label' : 'indicator'}
                   typeLinkBase={typeLinkBase}
+                  typeLinkMode={typeLinkMode}
                 />
               ) : (
                 <span className="gql-no-desc">No fields</span>
@@ -152,7 +166,7 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
                   {type.possibleTypes.map((possible, index) => (
                     <React.Fragment key={index}>
                       {index > 0 && <span className="gql-operator">|</span>}
-                      {renderInlineType(possible, typeLinkBase)}
+                      {renderInlineType(possible, typeLinkBase, typeLinkMode, true)}
                     </React.Fragment>
                   ))}
                 </div>

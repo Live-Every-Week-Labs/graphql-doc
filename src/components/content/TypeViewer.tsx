@@ -1,12 +1,14 @@
 import React from 'react';
-import { ExpandedType } from '../../core/transformer/types';
+import { ExpandedType, ExpandedField } from '../../core/transformer/types';
 import { slugify } from '../../core/utils/string-utils';
 import { FieldTable } from './FieldTable';
 import { useTypeRegistry } from '../context/TypeRegistryProvider';
+import { useOptionalExpansion } from '../context/ExpansionProvider';
 
 interface TypeViewerProps {
   type: ExpandedType;
   typeLinkBase?: string;
+  typeLinkMode?: 'none' | 'deep' | 'all';
   depth?: number;
   defaultExpandedLevels?: number;
   maxDepth?: number;
@@ -18,6 +20,7 @@ interface TypeViewerProps {
 export const TypeViewer = React.memo(function TypeViewer({
   type,
   typeLinkBase,
+  typeLinkMode = 'none',
   depth = 0,
   defaultExpandedLevels = 0,
   maxDepth = 3,
@@ -31,6 +34,11 @@ export const TypeViewer = React.memo(function TypeViewer({
 
   const registry = useTypeRegistry();
   const typesByName = registry?.typesByName ?? {};
+  const expansion = useOptionalExpansion();
+  const isExpanded =
+    expansion?.isExpanded ??
+    ((_: string, currentDepth: number, levels: number) => currentDepth < levels);
+  const toggleExpand = expansion?.toggleExpand ?? (() => {});
 
   const unwrapType = (input: ExpandedType) => {
     let current = input;
@@ -50,6 +58,9 @@ export const TypeViewer = React.memo(function TypeViewer({
     }
     return input;
   };
+
+  const isObjectLike = (input: ExpandedType): input is ExpandedType & { fields: ExpandedField[] } =>
+    input.kind === 'OBJECT' || input.kind === 'INTERFACE' || input.kind === 'INPUT_OBJECT';
 
   const getRequiredStyle = (input: ExpandedType): 'label' | 'indicator' =>
     input.kind === 'INPUT_OBJECT' ? 'label' : 'indicator';
@@ -79,49 +90,57 @@ export const TypeViewer = React.memo(function TypeViewer({
     return undefined;
   };
 
-  const renderInlineType = (input: ExpandedType): React.ReactNode => {
+  const renderInlineType = (input: ExpandedType, allowLink: boolean = false): React.ReactNode => {
     switch (input.kind) {
       case 'LIST':
         return (
           <span className="gql-type-list">
             <span className="gql-bracket">[</span>
-            {renderInlineType(input.ofType)}
+            {renderInlineType(input.ofType, allowLink)}
             <span className="gql-bracket">]</span>
           </span>
         );
       case 'TYPE_REF': {
-        const resolved = resolveType(input);
-        const resolvedName =
-          resolved.kind === 'TYPE_REF'
-            ? input.name
-            : 'name' in resolved
-              ? resolved.name
-              : input.name;
-        const href =
-          getTypeDocLink(resolvedName, resolved.kind !== 'TYPE_REF' ? resolved.kind : 'TYPE_REF') ??
-          input.link;
-        return (
-          <a href={href} className="gql-type-link">
-            {input.name}
-          </a>
-        );
+        if (allowLink) {
+          const resolved = resolveType(input);
+          const resolvedName =
+            resolved.kind === 'TYPE_REF'
+              ? input.name
+              : 'name' in resolved
+                ? resolved.name
+                : input.name;
+          const href =
+            getTypeDocLink(
+              resolvedName,
+              resolved.kind !== 'TYPE_REF' ? resolved.kind : 'TYPE_REF'
+            ) ?? input.link;
+          return (
+            <a href={href} className="gql-type-link">
+              {input.name}
+            </a>
+          );
+        }
+        return <span>{input.name}</span>;
       }
       case 'CIRCULAR_REF': {
-        const resolved = typesByName[input.ref];
-        const href =
-          getTypeDocLink(
-            resolved && 'name' in resolved ? resolved.name : input.ref,
-            resolved ? resolved.kind : 'CIRCULAR_REF'
-          ) ?? input.link;
-        return (
-          <a
-            href={href}
-            className="gql-type-link gql-circular-ref"
-            title={`Circular reference to ${input.ref}`}
-          >
-            {input.ref} ↩
-          </a>
-        );
+        if (allowLink) {
+          const resolved = typesByName[input.ref];
+          const href =
+            getTypeDocLink(
+              resolved && 'name' in resolved ? resolved.name : input.ref,
+              resolved ? resolved.kind : 'CIRCULAR_REF'
+            ) ?? input.link;
+          return (
+            <a
+              href={href}
+              className="gql-type-link gql-circular-ref"
+              title={`Circular reference to ${input.ref}`}
+            >
+              {input.ref} ↩
+            </a>
+          );
+        }
+        return <span>{input.ref} ↩</span>;
       }
       case 'SCALAR':
       case 'ENUM':
@@ -133,6 +152,93 @@ export const TypeViewer = React.memo(function TypeViewer({
       default:
         return <span>Unknown</span>;
     }
+  };
+
+  const renderUnionOptions = (unionType: ExpandedType, basePath: string) => {
+    if (unionType.kind !== 'UNION') {
+      return null;
+    }
+    const possibleTypes = unionType.possibleTypes ?? [];
+    if (possibleTypes.length === 0) {
+      return <span className="gql-no-desc">No possible types</span>;
+    }
+
+    return (
+      <div className="gql-union-options">
+        {possibleTypes.map((possible, index) => {
+          const resolvedPossible = resolveType(possible);
+          const possibleName =
+            'name' in resolvedPossible
+              ? resolvedPossible.name
+              : resolvedPossible.kind === 'CIRCULAR_REF'
+                ? resolvedPossible.ref
+                : `union_${index}`;
+          const childCount = isObjectLike(resolvedPossible)
+            ? (resolvedPossible.fields?.length ?? 0)
+            : 0;
+          const unionDepth = depth + 1;
+          const canInlineExpand =
+            isObjectLike(resolvedPossible) && childCount > 0 && unionDepth < maxDepth;
+          const expanded = canInlineExpand
+            ? isExpanded(`${basePath}.union.${possibleName}`, unionDepth, defaultExpandedLevels)
+            : false;
+          const toggleLabel = expanded
+            ? 'Hide properties'
+            : `Show ${childCount} ${childCount === 1 ? 'property' : 'properties'}`;
+          const allowLink = typeLinkMode === 'all' || (typeLinkMode === 'deep' && !canInlineExpand);
+          const typeHref =
+            allowLink && 'name' in resolvedPossible
+              ? getTypeDocLink(
+                  resolvedPossible.name,
+                  resolvedPossible.kind === 'TYPE_REF' ? 'TYPE_REF' : resolvedPossible.kind
+                )
+              : allowLink && resolvedPossible.kind === 'CIRCULAR_REF'
+                ? getTypeDocLink(resolvedPossible.ref, 'CIRCULAR_REF')
+                : undefined;
+          return (
+            <div key={possibleName} className="gql-union-option">
+              <div className="gql-union-option-header">
+                {typeHref ? (
+                  <a href={typeHref} className="gql-type-link">
+                    {possibleName}
+                  </a>
+                ) : (
+                  <span className="gql-type">{possibleName}</span>
+                )}
+                {canInlineExpand && (
+                  <button
+                    type="button"
+                    className="gql-field-toggle"
+                    onClick={() => toggleExpand(`${basePath}.union.${possibleName}`, expanded)}
+                    aria-expanded={expanded}
+                  >
+                    {toggleLabel}
+                  </button>
+                )}
+                {!canInlineExpand && typeHref && (
+                  <a href={typeHref} className="gql-field-link">
+                    View {possibleName}
+                  </a>
+                )}
+              </div>
+              {canInlineExpand && expanded && isObjectLike(resolvedPossible) && (
+                <div className="gql-union-option-body">
+                  <FieldTable
+                    fields={resolvedPossible.fields}
+                    typeLinkBase={typeLinkBase}
+                    typeLinkMode={typeLinkMode}
+                    requiredStyle={getRequiredStyle(resolvedPossible)}
+                    depth={unionDepth}
+                    maxDepth={maxDepth}
+                    defaultExpandedLevels={defaultExpandedLevels}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   // 1. SCALAR
@@ -155,7 +261,8 @@ export const TypeViewer = React.memo(function TypeViewer({
     if (
       resolvedBaseType.kind === 'OBJECT' ||
       resolvedBaseType.kind === 'INTERFACE' ||
-      resolvedBaseType.kind === 'INPUT_OBJECT'
+      resolvedBaseType.kind === 'INPUT_OBJECT' ||
+      resolvedBaseType.kind === 'UNION'
     ) {
       return (
         <div className="gql-type-block">
@@ -164,11 +271,17 @@ export const TypeViewer = React.memo(function TypeViewer({
             <span className="gql-type-collection">Array</span>
             <span className="gql-type">{resolvedBaseType.name}</span>
             {labelSuffix}
+            {resolvedBaseType.kind === 'UNION' && (
+              <span className="gql-badge gql-badge-union">UNION</span>
+            )}
           </div>
-          {resolvedBaseType.fields?.length ? (
+          {resolvedBaseType.kind === 'UNION' ? (
+            renderUnionOptions(resolvedBaseType, path)
+          ) : resolvedBaseType.fields?.length ? (
             <FieldTable
               fields={resolvedBaseType.fields}
               typeLinkBase={typeLinkBase}
+              typeLinkMode={typeLinkMode}
               requiredStyle={getRequiredStyle(resolvedBaseType)}
               depth={depth}
               maxDepth={maxDepth}
@@ -181,22 +294,34 @@ export const TypeViewer = React.memo(function TypeViewer({
       );
     }
 
-    return <span className="gql-type font-mono">{renderInlineType(resolvedType)}</span>;
+    return (
+      <span className="gql-type font-mono">
+        {renderInlineType(resolvedType, typeLinkMode !== 'none')}
+      </span>
+    );
   }
 
   // 3. CIRCULAR_REF
   if (resolvedType.kind === 'CIRCULAR_REF') {
-    const href = getTypeDocLink(resolvedType.ref, 'CIRCULAR_REF') ?? resolvedType.link;
     return (
       <span className="gql-type">
         {labelPrefix}
-        <a
-          href={href}
-          className="gql-type-link gql-circular-ref"
-          title={`Circular reference to ${resolvedType.ref}`}
-        >
-          {resolvedType.ref} ↩
-        </a>
+        {typeLinkMode === 'none' ? (
+          <span
+            className="gql-type-link gql-circular-ref"
+            title={`Circular reference to ${resolvedType.ref}`}
+          >
+            {resolvedType.ref} ↩
+          </span>
+        ) : (
+          <a
+            href={getTypeDocLink(resolvedType.ref, 'CIRCULAR_REF') ?? resolvedType.link}
+            className="gql-type-link gql-circular-ref"
+            title={`Circular reference to ${resolvedType.ref}`}
+          >
+            {resolvedType.ref} ↩
+          </a>
+        )}
         {labelSuffix}
       </span>
     );
@@ -204,13 +329,19 @@ export const TypeViewer = React.memo(function TypeViewer({
 
   // 4. TYPE_REF
   if (resolvedType.kind === 'TYPE_REF') {
-    const href = getTypeDocLink(resolvedType.name, 'TYPE_REF') ?? resolvedType.link;
     return (
       <span className="gql-type">
         {labelPrefix}
-        <a href={href} className="gql-type-link">
-          {resolvedType.name}
-        </a>
+        {typeLinkMode === 'none' ? (
+          <span className="gql-type-link">{resolvedType.name}</span>
+        ) : (
+          <a
+            href={getTypeDocLink(resolvedType.name, 'TYPE_REF') ?? resolvedType.link}
+            className="gql-type-link"
+          >
+            {resolvedType.name}
+          </a>
+        )}
         {labelSuffix}
       </span>
     );
@@ -265,6 +396,7 @@ export const TypeViewer = React.memo(function TypeViewer({
           <FieldTable
             fields={resolvedType.fields}
             typeLinkBase={typeLinkBase}
+            typeLinkMode={typeLinkMode}
             requiredStyle={getRequiredStyle(resolvedType)}
             depth={depth}
             maxDepth={maxDepth}
@@ -280,16 +412,14 @@ export const TypeViewer = React.memo(function TypeViewer({
   // 7. UNION
   if (resolvedType.kind === 'UNION') {
     return (
-      <div className="gql-union-viewer">
-        <span className="gql-type-keyword">union</span>
-        <span className="gql-type">{resolvedType.name}</span>
-        <span className="gql-operator">=</span>
-        {resolvedType.possibleTypes.map((t, i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <span className="gql-operator">|</span>}
-            <span className="gql-type">{renderInlineType(t)}</span>
-          </React.Fragment>
-        ))}
+      <div className="gql-type-block">
+        <div className="gql-type-heading">
+          {labelPrefix}
+          <span className="gql-type">{resolvedType.name}</span>
+          {labelSuffix}
+          <span className="gql-badge gql-badge-union">UNION</span>
+        </div>
+        {renderUnionOptions(resolvedType, path)}
       </div>
     );
   }

@@ -54,6 +54,9 @@
     /* Neutral */
     --gql-neutral-bg: #e5e7eb;
     --gql-neutral-text: #374151;
+    /* Union */
+    --gql-union-bg: #dbeafe;
+    --gql-union-text: #1e40af;
 
     /* Interactive Elements */
     --gql-hover-bg: #f3f4f6;
@@ -87,6 +90,8 @@
     --gql-error-text: #ffffff;
     --gql-neutral-bg: #30363d;
     --gql-neutral-text: #e6edf3;
+    --gql-union-bg: #1e40af;
+    --gql-union-text: #dbeafe;
 
     /* Interactive */
     --gql-hover-bg: #161b22;
@@ -283,6 +288,11 @@ a.gql-type:hover {
 .gql-badge-neutral {
     background-color: var(--gql-neutral-bg);
     color: var(--gql-neutral-text);
+}
+
+.gql-badge-union {
+    background-color: var(--gql-union-bg);
+    color: var(--gql-union-text);
 }
 
 /* ==========================================================================
@@ -1115,6 +1125,29 @@ a.gql-type:hover {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
+}
+
+.gql-union-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.gql-union-option {
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--gql-border-color);
+}
+
+.gql-union-option-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.gql-union-option-body {
+    margin-top: 0.5rem;
 }
 
 .gql-operator {

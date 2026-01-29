@@ -146,7 +146,7 @@ describe('TypeViewer', () => {
     expect(screen.getByText('ENUM')).toBeDefined();
   });
 
-  it('renders TYPE_REF and CIRCULAR_REF links', () => {
+  it('renders TYPE_REF and CIRCULAR_REF without links by default', () => {
     const { container } = render(
       <TestWrapper>
         <TypeViewer type={mockTypeRef} labelPrefix="(" labelSuffix=")" />
@@ -155,11 +155,23 @@ describe('TypeViewer', () => {
     );
 
     expect(container.textContent).toContain('(User)');
+    expect(screen.queryAllByRole('link').length).toBe(0);
+  });
+
+  it('renders TYPE_REF and CIRCULAR_REF links when enabled', () => {
+    const { container } = render(
+      <TestWrapper>
+        <TypeViewer type={mockTypeRef} typeLinkMode="all" labelPrefix="(" labelSuffix=")" />
+        <TypeViewer type={mockCircularRef} typeLinkMode="all" />
+      </TestWrapper>
+    );
+
+    expect(container.textContent).toContain('(User)');
     const links = screen.getAllByRole('link', { name: /User/ });
     expect(links.some((link) => link.classList.contains('gql-circular-ref'))).toBe(true);
   });
 
-  it('renders UNION types with separators', () => {
+  it('renders UNION types with possible options', () => {
     const unionType: ExpandedType = {
       kind: 'UNION',
       name: 'SearchResult',
@@ -172,9 +184,10 @@ describe('TypeViewer', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByText('union')).toBeDefined();
+    expect(screen.getByText('UNION')).toBeDefined();
     expect(screen.getByText('SearchResult')).toBeDefined();
-    expect(screen.getByText('|')).toBeDefined();
+    expect(screen.getByText('String')).toBeDefined();
+    expect(screen.getByText('User')).toBeDefined();
   });
 
   it('renders an empty object placeholder', () => {

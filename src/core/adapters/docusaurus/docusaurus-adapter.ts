@@ -14,6 +14,7 @@ const TYPES_DATA_FILE = path.posix.join(DATA_DIR, 'types.json');
 export interface DocusaurusAdapterConfig {
   singlePage?: boolean;
   outputPath?: string;
+  typeLinkMode?: 'none' | 'deep' | 'all';
 }
 
 export class DocusaurusAdapter {
@@ -422,6 +423,7 @@ export class DocusaurusAdapter {
       exportConst: false,
       headingLevel: 4,
       dataReference: this.getOperationDataReference(op),
+      typeLinkMode: this.getTypeLinkMode(),
     });
   }
 
@@ -453,6 +455,7 @@ export class DocusaurusAdapter {
       headingLevel: 1,
       typeLinkBase,
       dataReference: this.getOperationDataReference(op),
+      typeLinkMode: this.getTypeLinkMode(),
     });
     const parts = [
       frontMatter,
@@ -588,6 +591,7 @@ export class DocusaurusAdapter {
       headingLevel: 1,
       typeLinkBase: '..',
       dataReference: 'name' in type && type.name ? this.getTypeDataReference(type.name) : undefined,
+      typeLinkMode: this.getTypeLinkMode(),
     });
     const parts = [frontMatter, ...(imports.length > 0 ? [imports.join('\n')] : []), content];
     return parts.join('\n\n');
@@ -673,6 +677,7 @@ export class DocusaurusAdapter {
             exportConst: false,
             headingLevel: 4,
             dataReference: typeName ? this.getTypeDataReference(typeName) : undefined,
+            typeLinkMode: this.getTypeLinkMode(),
           })
         );
         if (index < group.length - 1) {
@@ -704,5 +709,12 @@ export class DocusaurusAdapter {
     }
     const prefix = segments.map(() => '..').join('/');
     return `${prefix}/types`;
+  }
+
+  private getTypeLinkMode(): 'deep' | 'all' | undefined {
+    if (!this.config.typeLinkMode || this.config.typeLinkMode === 'none') {
+      return undefined;
+    }
+    return this.config.typeLinkMode;
   }
 }

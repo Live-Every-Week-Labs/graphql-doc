@@ -56,6 +56,7 @@ interface RenderOptions {
   headingLevel?: number;
   includeDescription?: boolean;
   typeLinkBase?: string;
+  typeLinkMode?: 'none' | 'deep' | 'all';
   dataReference?: string;
 }
 
@@ -81,6 +82,7 @@ export class MdxRenderer {
     const exportName = options.exportName ?? 'operation';
     const exportKeyword = options.exportConst === false ? 'const' : 'export const';
     const typeLinkBase = options.typeLinkBase ? JSON.stringify(options.typeLinkBase) : undefined;
+    const typeLinkMode = options.typeLinkMode ? JSON.stringify(options.typeLinkMode) : undefined;
 
     return this.operationTemplate({
       operation: op,
@@ -89,6 +91,7 @@ export class MdxRenderer {
       headingLevel: options.headingLevel,
       includeDescription: options.includeDescription !== false,
       typeLinkBase,
+      typeLinkMode,
       dataReference: options.dataReference,
     });
   }
@@ -97,6 +100,7 @@ export class MdxRenderer {
     const exportName = options.exportName ?? 'typeDefinition';
     const exportKeyword = options.exportConst === false ? 'const' : 'export const';
     const typeLinkBase = options.typeLinkBase ? JSON.stringify(options.typeLinkBase) : undefined;
+    const typeLinkMode = options.typeLinkMode ? JSON.stringify(options.typeLinkMode) : undefined;
 
     return this.typeDefinitionTemplate({
       type,
@@ -104,6 +108,7 @@ export class MdxRenderer {
       exportKeyword,
       headingLevel: options.headingLevel,
       typeLinkBase,
+      typeLinkMode,
       dataReference: options.dataReference,
     });
   }

@@ -97,7 +97,7 @@ const args: ExpandedArgument[] = [ ... ];
 
 ### `OperationView`
 
-`OperationView` renders a complete GraphQL operation with its description, arguments, return type, and inline examples (mobile). It also emits `data-operation` for scroll sync and anchors via `slugify()`. If you pass `typesByName`, referenced types are resolved at render time.
+`OperationView` renders a complete GraphQL operation with its description, arguments, return type, and inline examples (mobile). It also emits `data-operation` for scroll sync and anchors via `slugify()`. If you pass `typesByName`, referenced types are resolved at render time. Use `typeLinkMode` (`none`, `deep`, `all`) to control type name links.
 
 **Usage:**
 
@@ -113,7 +113,7 @@ const operation: Operation = { ... };
 ### `TypeDefinitionView`
 
 `TypeDefinitionView` renders a standalone type definition page. It supports enums (with per-value notes),
-inputs, objects, interfaces, unions, and scalars. If you pass `typesByName`, referenced field types are resolved at render time.
+inputs, objects, interfaces, unions, and scalars. If you pass `typesByName`, referenced field types are resolved at render time. Use `typeLinkMode` to control type name links.
 
 **Usage:**
 

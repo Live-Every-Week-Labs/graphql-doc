@@ -4,7 +4,7 @@
 {{exportKeyword}} {{exportName}} = {{{json operation}}};
 {{/if}}
 
-<OperationView operation={ {{exportName}} } typesByName={typesByName}{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}{{#if typeLinkBase}} typeLinkBase={{{typeLinkBase}}}{{/if}}>
+<OperationView operation={ {{exportName}} } typesByName={typesByName}{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}{{#if typeLinkBase}} typeLinkBase={{{typeLinkBase}}}{{/if}}{{#if typeLinkMode}} typeLinkMode={{{typeLinkMode}}}{{/if}}>
 {{#if includeDescription}}
 {{#if operation.description}}
 {{{operation.description}}}

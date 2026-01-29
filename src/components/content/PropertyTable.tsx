@@ -16,12 +16,14 @@ function isArgument(prop: ExpandedField | ExpandedArgument): prop is ExpandedArg
 
 type PropertyTableVariant = 'fields' | 'arguments';
 type RequiredStyle = 'label' | 'indicator';
+type TypeLinkMode = 'none' | 'deep' | 'all';
 
 interface PropertyTableProps {
   properties: (ExpandedField | ExpandedArgument)[];
   variant: PropertyTableVariant;
   requiredStyle?: RequiredStyle;
   typeLinkBase?: string;
+  typeLinkMode?: TypeLinkMode;
   depth?: number;
   maxDepth?: number;
   defaultExpandedLevels?: number;
@@ -75,36 +77,43 @@ const getTypeLink = (type: ExpandedType) => {
 
 const renderTypeLabel = (
   type: ExpandedType,
-  getTypeHref?: (input: ExpandedType) => string | undefined
+  getTypeHref?: (input: ExpandedType) => string | undefined,
+  allowLink: boolean = false
 ): React.ReactNode => {
   switch (type.kind) {
     case 'LIST':
       return (
         <span className="gql-type-list">
           <span className="gql-bracket">[</span>
-          {renderTypeLabel(type.ofType, getTypeHref)}
+          {renderTypeLabel(type.ofType, getTypeHref, allowLink)}
           <span className="gql-bracket">]</span>
         </span>
       );
     case 'TYPE_REF':
-      return (
-        <a
-          href={getTypeHref ? (getTypeHref(type) ?? type.link) : type.link}
-          className="gql-type-link"
-        >
-          {type.name}
-        </a>
-      );
+      if (allowLink) {
+        return (
+          <a
+            href={getTypeHref ? (getTypeHref(type) ?? type.link) : type.link}
+            className="gql-type-link"
+          >
+            {type.name}
+          </a>
+        );
+      }
+      return <span>{type.name}</span>;
     case 'CIRCULAR_REF':
-      return (
-        <a
-          href={getTypeHref ? (getTypeHref(type) ?? type.link) : type.link}
-          className="gql-type-link gql-circular-ref"
-          title={`Circular reference to ${type.ref}`}
-        >
-          {type.ref} ↩
-        </a>
-      );
+      if (allowLink) {
+        return (
+          <a
+            href={getTypeHref ? (getTypeHref(type) ?? type.link) : type.link}
+            className="gql-type-link gql-circular-ref"
+            title={`Circular reference to ${type.ref}`}
+          >
+            {type.ref} ↩
+          </a>
+        );
+      }
+      return <span>{type.ref} ↩</span>;
     case 'SCALAR':
     case 'ENUM':
     case 'OBJECT':
@@ -122,6 +131,7 @@ export const PropertyTable = React.memo(function PropertyTable({
   variant,
   requiredStyle: requiredStyleProp,
   typeLinkBase,
+  typeLinkMode = 'none',
   depth = 0,
   maxDepth = MAX_INLINE_DEPTH,
   defaultExpandedLevels = 0,
@@ -223,6 +233,8 @@ export const PropertyTable = React.memo(function PropertyTable({
           ? 'Hide properties'
           : `Show ${childCount} ${childCount === 1 ? 'property' : 'properties'}`;
         const typeLink = expandable ? getTypeDocLink(baseType) : undefined;
+        const allowTypeLink =
+          typeLinkMode === 'all' ? true : typeLinkMode === 'deep' ? !canInlineExpand : false;
 
         const isEnum =
           resolvedBaseType.kind === 'ENUM' &&
@@ -260,11 +272,11 @@ export const PropertyTable = React.memo(function PropertyTable({
                 <span className="gql-field-type gql-type">
                   {showNullableSuffix && !prop.isRequired ? (
                     <span className="gql-type-nullable">
-                      {renderTypeLabel(prop.type, getTypeDocLink)}
+                      {renderTypeLabel(prop.type, getTypeDocLink, allowTypeLink)}
                       <span className="gql-nullable-text">| null</span>
                     </span>
                   ) : (
-                    renderTypeLabel(prop.type, getTypeDocLink)
+                    renderTypeLabel(prop.type, getTypeDocLink, allowTypeLink)
                   )}
                 </span>
                 {variant === 'arguments' && isArgument(prop) && prop.defaultValue !== undefined && (
@@ -309,7 +321,9 @@ export const PropertyTable = React.memo(function PropertyTable({
                       <li key={arg.name}>
                         <span className="gql-arg-name">{arg.name}</span>
                         <span className="gql-arg-separator">·</span>
-                        <span className="gql-arg-type">{renderTypeLabel(arg.type)}</span>
+                        <span className="gql-arg-type">
+                          {renderTypeLabel(arg.type, getTypeDocLink, allowTypeLink)}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -328,7 +342,7 @@ export const PropertyTable = React.memo(function PropertyTable({
               </button>
             )}
 
-            {expandable && !canInlineExpand && typeLink && (
+            {expandable && !canInlineExpand && typeLinkMode !== 'none' && typeLink && (
               <a href={typeLink} className="gql-field-link">
                 View {resolvedBaseType.name}
               </a>
@@ -341,6 +355,7 @@ export const PropertyTable = React.memo(function PropertyTable({
                   variant="fields"
                   requiredStyle={requiredStyle}
                   typeLinkBase={typeLinkBase}
+                  typeLinkMode={typeLinkMode}
                   depth={depth + 1}
                   maxDepth={maxDepth}
                   defaultExpandedLevels={defaultExpandedLevels}

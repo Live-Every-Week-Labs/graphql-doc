@@ -110,6 +110,18 @@ The generator always writes shared JSON data files (e.g. `_data/operations.json`
 MDX files import those shared maps instead of embedding the full JSON payload inline. This keeps
 individual MDX files small and avoids repeating the same definitions across files.
 
+### Type Link Mode
+
+Control whether type names render as clickable links in generated docs:
+
+| Option         | Type     | Default | Description                                   |
+| :------------- | :------- | :------ | :-------------------------------------------- |
+| `typeLinkMode` | `string` | `none`  | `none`, `deep`, or `all` (see details below). |
+
+- `none`: No type name links (default).
+- `deep`: Only link type names when inline expansion is no longer possible.
+- `all`: Link all type name references.
+
 ### Type Expansion Options
 
 Control how nested types are expanded in the documentation:

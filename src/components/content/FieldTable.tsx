@@ -6,6 +6,7 @@ interface FieldTableProps {
   fields: ExpandedField[];
   requiredStyle?: 'label' | 'indicator';
   typeLinkBase?: string;
+  typeLinkMode?: 'none' | 'deep' | 'all';
   depth?: number;
   maxDepth?: number;
   defaultExpandedLevels?: number;
@@ -15,6 +16,7 @@ export const FieldTable = React.memo(function FieldTable({
   fields,
   requiredStyle,
   typeLinkBase,
+  typeLinkMode,
   depth = 0,
   maxDepth = 3,
   defaultExpandedLevels = 0,
@@ -25,6 +27,7 @@ export const FieldTable = React.memo(function FieldTable({
       variant="fields"
       requiredStyle={requiredStyle}
       typeLinkBase={typeLinkBase}
+      typeLinkMode={typeLinkMode}
       depth={depth}
       maxDepth={maxDepth}
       defaultExpandedLevels={defaultExpandedLevels}

@@ -8,6 +8,7 @@ export const ConfigSchema = z.object({
   examplesDir: z.string().optional(),
   errorsDir: z.string().optional(),
   includeDeprecated: z.boolean().default(true),
+  typeLinkMode: z.enum(['none', 'deep', 'all']).default('none'),
   skipTypes: z.array(z.string()).default([]),
   generateSidebar: z.boolean().default(true),
   sidebarFile: z.string().optional(),

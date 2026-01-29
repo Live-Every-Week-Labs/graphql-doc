@@ -113,3 +113,7 @@ export function useExpansion() {
   }
   return context;
 }
+
+export function useOptionalExpansion() {
+  return useContext(ExpansionContext);
+}
