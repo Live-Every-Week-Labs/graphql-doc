@@ -94,15 +94,26 @@ describe('FieldTable', () => {
       expect(screen.getByText('Unique identifier')).toBeDefined();
     });
 
-    it('displays required badge', () => {
+    it('displays nullable suffix for optional fields', () => {
       render(
         <TestWrapper>
           <FieldTable fields={mockFields} />
         </TestWrapper>
       );
+      const nullableText = screen.getAllByText(/or null/i);
+      expect(nullableText.length).toBeGreaterThan(0);
+    });
+
+    it('displays required badge for input-style fields', () => {
+      render(
+        <TestWrapper>
+          <FieldTable fields={mockFields} requiredStyle="label" />
+        </TestWrapper>
+      );
       const requiredBadges = screen.getAllByTitle('Required');
       expect(requiredBadges.length).toBeGreaterThan(0);
       expect(requiredBadges[0].textContent).toBe('Required');
+      expect(screen.queryByText(/or null/i)).toBeNull();
     });
 
     it('displays deprecated status and reason', () => {
@@ -173,6 +184,17 @@ describe('FieldTable', () => {
       );
       expect(screen.getByText('Default')).toBeDefined();
       expect(screen.getByText('"defaultVal"')).toBeDefined();
+    });
+
+    it('displays required badge for required arguments', () => {
+      render(
+        <TestWrapper>
+          <ArgumentsTable arguments={mockArgs} />
+        </TestWrapper>
+      );
+      const requiredBadges = screen.getAllByTitle('Required');
+      expect(requiredBadges.length).toBeGreaterThan(0);
+      expect(requiredBadges[0].textContent).toBe('Required');
     });
   });
 });

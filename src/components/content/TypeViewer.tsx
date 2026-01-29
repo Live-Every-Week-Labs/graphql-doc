@@ -38,6 +38,9 @@ export const TypeViewer = React.memo(function TypeViewer({
     return { baseType: current, isList };
   };
 
+  const getRequiredStyle = (input: ExpandedType): 'label' | 'indicator' =>
+    input.kind === 'INPUT_OBJECT' ? 'label' : 'indicator';
+
   const renderInlineType = (input: ExpandedType): React.ReactNode => {
     switch (input.kind) {
       case 'LIST':
@@ -106,6 +109,7 @@ export const TypeViewer = React.memo(function TypeViewer({
           {baseType.fields?.length ? (
             <FieldTable
               fields={baseType.fields}
+              requiredStyle={getRequiredStyle(baseType)}
               depth={depth}
               maxDepth={maxDepth}
               defaultExpandedLevels={defaultExpandedLevels}
@@ -187,6 +191,7 @@ export const TypeViewer = React.memo(function TypeViewer({
         {type.fields?.length ? (
           <FieldTable
             fields={type.fields}
+            requiredStyle={getRequiredStyle(type)}
             depth={depth}
             maxDepth={maxDepth}
             defaultExpandedLevels={defaultExpandedLevels}

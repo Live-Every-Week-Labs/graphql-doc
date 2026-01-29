@@ -17,6 +17,11 @@
     --gql-content-gap: 2rem;
     --gql-examples-top: 96px;
     --gql-nested-line: #d1d5db;
+    --gql-nested-line-1: #c7d2fe;
+    --gql-nested-line-2: #bbf7d0;
+    --gql-nested-line-3: #fde68a;
+    --gql-nested-line-4: #fecaca;
+    --gql-nested-line-5: #f5d0fe;
 
     /* ==========================================================================
      Color Tokens - Light Theme (Default)
@@ -87,6 +92,11 @@
     --gql-hover-bg: #161b22;
     --gql-active-bg: #21262d;
     --gql-nested-line: #30363d;
+    --gql-nested-line-1: #6366f1;
+    --gql-nested-line-2: #22c55e;
+    --gql-nested-line-3: #f59e0b;
+    --gql-nested-line-4: #ef4444;
+    --gql-nested-line-5: #a855f7;
 }
 
 /* ==========================================================================
@@ -489,6 +499,7 @@ a.gql-type:hover {
 .gql-operation-examples {
     margin-top: 16px;
     min-width: 0;
+    align-self: start;
 }
 
 .gql-operation-examples .gql-examples-panel {
@@ -768,11 +779,16 @@ a.gql-type:hover {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: var(--gql-content-gap);
-        align-items: start;
+        align-items: stretch;
+    }
+
+    .gql-operation-main {
+        padding-bottom: calc(var(--gql-examples-top) + var(--gql-content-gap) * 2);
     }
 
     .gql-operation-examples {
         margin-top: 0;
+        align-self: stretch;
     }
 
     .gql-operation-examples .gql-examples-panel {
@@ -805,11 +821,16 @@ a.gql-type:hover {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: var(--gql-content-gap);
-        align-items: start;
+        align-items: stretch;
+    }
+
+    .gql-operation-main {
+        padding-bottom: calc(var(--gql-examples-top) + var(--gql-content-gap) * 2);
     }
 
     .gql-operation-examples {
         margin-top: 0;
+        align-self: stretch;
     }
 
     .gql-operation-examples .gql-examples-panel {
@@ -835,10 +856,31 @@ a.gql-type:hover {
 .gql-field-item {
     padding: 0.75rem 0;
     border-bottom: 1px solid var(--gql-border-color);
+    --gql-nested-line-color: var(--gql-nested-line-1);
 }
 
 .gql-field-item:last-child {
     border-bottom: none;
+}
+
+.gql-field-item[data-depth='0'] {
+    --gql-nested-line-color: var(--gql-nested-line-1);
+}
+
+.gql-field-item[data-depth='1'] {
+    --gql-nested-line-color: var(--gql-nested-line-2);
+}
+
+.gql-field-item[data-depth='2'] {
+    --gql-nested-line-color: var(--gql-nested-line-3);
+}
+
+.gql-field-item[data-depth='3'] {
+    --gql-nested-line-color: var(--gql-nested-line-4);
+}
+
+.gql-field-item[data-depth='4'] {
+    --gql-nested-line-color: var(--gql-nested-line-5);
 }
 
 .gql-field-name-row {
@@ -858,6 +900,18 @@ a.gql-type:hover {
     color: var(--gql-error-text);
     font-size: 0.75rem;
     font-weight: 600;
+}
+
+.gql-type-nullable {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.gql-nullable-text {
+    color: var(--gql-description-color);
+    font-weight: 500;
 }
 
 .gql-field-meta {
@@ -933,7 +987,7 @@ a.gql-type:hover {
 .gql-field-children {
     margin-top: 0.75rem;
     padding-left: 1rem;
-    border-left: 2px solid var(--gql-nested-line);
+    border-left: 2px solid var(--gql-nested-line-color, var(--gql-nested-line));
 }
 
 .gql-field-enum {

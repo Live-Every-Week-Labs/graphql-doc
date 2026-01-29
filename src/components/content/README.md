@@ -47,7 +47,7 @@ The `FieldTable` component renders a list of fields for an object type using a l
 
 - List layout that preserves width at deeper nesting levels.
 - Displays Field Name, Type, Description, and inline expansion toggle for nested objects.
-- Visual indicator badge for **Required** fields and a badge for **Deprecated** fields.
+- Nullable suffix for response/type fields (`or null`), plus a **Required** badge for input-style fields.
 - Supporting nested arguments for fields.
 - Hover effects for better readability.
 
@@ -70,6 +70,7 @@ const fields: ExpandedField[] = [ ... ];
 **Props:**
 
 - `fields` (`ExpandedField[]`): Array of fields to render.
+- `requiredStyle` (`'label' | 'indicator'`): Controls required marker style (default: `indicator`).
 - `depth` (`number`): Current recursion depth.
 - `maxDepth` (`number`): Max inline expansion depth.
 - `defaultExpandedLevels` (`number`): Expansion level control.

@@ -14,10 +14,12 @@ function isArgument(prop: ExpandedField | ExpandedArgument): prop is ExpandedArg
 }
 
 type PropertyTableVariant = 'fields' | 'arguments';
+type RequiredStyle = 'label' | 'indicator';
 
 interface PropertyTableProps {
   properties: (ExpandedField | ExpandedArgument)[];
   variant: PropertyTableVariant;
+  requiredStyle?: RequiredStyle;
   depth?: number;
   maxDepth?: number;
   defaultExpandedLevels?: number;
@@ -110,6 +112,7 @@ const renderTypeLabel = (type: ExpandedType): React.ReactNode => {
 export const PropertyTable = React.memo(function PropertyTable({
   properties,
   variant,
+  requiredStyle: requiredStyleProp,
   depth = 0,
   maxDepth = MAX_INLINE_DEPTH,
   defaultExpandedLevels = 0,
@@ -121,6 +124,9 @@ export const PropertyTable = React.memo(function PropertyTable({
 
   const { isExpanded, toggleExpand } = useExpansion();
   const inlineDepthLimit = Math.min(MAX_INLINE_DEPTH, maxDepth);
+  const requiredStyle: RequiredStyle =
+    variant === 'arguments' ? 'label' : (requiredStyleProp ?? 'indicator');
+  const showNullableSuffix = requiredStyle === 'indicator';
 
   return (
     <div className="gql-field-list">
@@ -154,7 +160,7 @@ export const PropertyTable = React.memo(function PropertyTable({
                 >
                   {prop.name}
                 </span>
-                {prop.isRequired && (
+                {prop.isRequired && requiredStyle === 'label' && (
                   <span className="gql-required-badge" title="Required">
                     Required
                   </span>
@@ -167,7 +173,16 @@ export const PropertyTable = React.memo(function PropertyTable({
               </div>
 
               <div className="gql-field-meta">
-                <span className="gql-field-type gql-type">{renderTypeLabel(prop.type)}</span>
+                <span className="gql-field-type gql-type">
+                  {showNullableSuffix && !prop.isRequired ? (
+                    <span className="gql-type-nullable">
+                      {renderTypeLabel(prop.type)}
+                      <span className="gql-nullable-text"> or null</span>
+                    </span>
+                  ) : (
+                    renderTypeLabel(prop.type)
+                  )}
+                </span>
                 {variant === 'arguments' && isArgument(prop) && prop.defaultValue !== undefined && (
                   <span className="gql-field-default">
                     <span className="gql-field-default-label">Default</span>
@@ -240,6 +255,7 @@ export const PropertyTable = React.memo(function PropertyTable({
                 <PropertyTable
                   properties={baseType.fields}
                   variant="fields"
+                  requiredStyle={requiredStyle}
                   depth={depth + 1}
                   maxDepth={maxDepth}
                   defaultExpandedLevels={defaultExpandedLevels}
