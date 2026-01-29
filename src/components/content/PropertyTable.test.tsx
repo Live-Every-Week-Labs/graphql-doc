@@ -100,7 +100,7 @@ describe('FieldTable', () => {
           <FieldTable fields={mockFields} />
         </TestWrapper>
       );
-      const nullableText = screen.getAllByText(/or null/i);
+      const nullableText = screen.getAllByText(/\|\s*null/i);
       expect(nullableText.length).toBeGreaterThan(0);
     });
 
@@ -113,7 +113,7 @@ describe('FieldTable', () => {
       const requiredBadges = screen.getAllByTitle('Required');
       expect(requiredBadges.length).toBeGreaterThan(0);
       expect(requiredBadges[0].textContent).toBe('Required');
-      expect(screen.queryByText(/or null/i)).toBeNull();
+      expect(screen.queryByText(/\|\s*null/i)).toBeNull();
     });
 
     it('displays deprecated status and reason', () => {

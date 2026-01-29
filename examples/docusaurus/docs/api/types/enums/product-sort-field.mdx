@@ -1,0 +1,42 @@
+---
+id: product-sort-field
+title: ProductSortField
+sidebar_label: ProductSortField
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "ENUM",
+  "name": "ProductSortField",
+  "description": "Fields available for sorting product listings",
+  "values": [
+    {
+      "name": "NAME",
+      "description": "Sort by product name",
+      "isDeprecated": false
+    },
+    {
+      "name": "PRICE",
+      "description": "Sort by price",
+      "isDeprecated": false
+    },
+    {
+      "name": "CREATED_AT",
+      "description": "Sort by creation date",
+      "isDeprecated": false
+    },
+    {
+      "name": "POPULARITY",
+      "description": "Sort by popularity/sales",
+      "isDeprecated": false
+    },
+    {
+      "name": "RATING",
+      "description": "Sort by average rating",
+      "isDeprecated": false
+    }
+  ]
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

@@ -1,0 +1,37 @@
+---
+id: user-role
+title: UserRole
+sidebar_label: UserRole
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "ENUM",
+  "name": "UserRole",
+  "description": "User role determining access levels and permissions",
+  "values": [
+    {
+      "name": "CUSTOMER",
+      "description": "Regular customer with standard permissions",
+      "isDeprecated": false
+    },
+    {
+      "name": "SELLER",
+      "description": "Seller with ability to list products",
+      "isDeprecated": false
+    },
+    {
+      "name": "ADMIN",
+      "description": "Administrator with full system access",
+      "isDeprecated": false
+    },
+    {
+      "name": "SUPPORT",
+      "description": "Support staff with limited admin capabilities",
+      "isDeprecated": false
+    }
+  ]
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

@@ -20,6 +20,7 @@ interface PropertyTableProps {
   properties: (ExpandedField | ExpandedArgument)[];
   variant: PropertyTableVariant;
   requiredStyle?: RequiredStyle;
+  typeLinkBase?: string;
   depth?: number;
   maxDepth?: number;
   defaultExpandedLevels?: number;
@@ -71,26 +72,32 @@ const getTypeLink = (type: ExpandedType) => {
   return undefined;
 };
 
-const renderTypeLabel = (type: ExpandedType): React.ReactNode => {
+const renderTypeLabel = (
+  type: ExpandedType,
+  getTypeHref?: (input: ExpandedType) => string | undefined
+): React.ReactNode => {
   switch (type.kind) {
     case 'LIST':
       return (
         <span className="gql-type-list">
           <span className="gql-bracket">[</span>
-          {renderTypeLabel(type.ofType)}
+          {renderTypeLabel(type.ofType, getTypeHref)}
           <span className="gql-bracket">]</span>
         </span>
       );
     case 'TYPE_REF':
       return (
-        <a href={type.link} className="gql-type-link">
+        <a
+          href={getTypeHref ? (getTypeHref(type) ?? type.link) : type.link}
+          className="gql-type-link"
+        >
           {type.name}
         </a>
       );
     case 'CIRCULAR_REF':
       return (
         <a
-          href={type.link}
+          href={getTypeHref ? (getTypeHref(type) ?? type.link) : type.link}
           className="gql-type-link gql-circular-ref"
           title={`Circular reference to ${type.ref}`}
         >
@@ -113,6 +120,7 @@ export const PropertyTable = React.memo(function PropertyTable({
   properties,
   variant,
   requiredStyle: requiredStyleProp,
+  typeLinkBase,
   depth = 0,
   maxDepth = MAX_INLINE_DEPTH,
   defaultExpandedLevels = 0,
@@ -127,27 +135,58 @@ export const PropertyTable = React.memo(function PropertyTable({
   const requiredStyle: RequiredStyle =
     variant === 'arguments' ? 'label' : (requiredStyleProp ?? 'indicator');
   const showNullableSuffix = requiredStyle === 'indicator';
+  const normalizedTypeBase = typeLinkBase ? typeLinkBase.replace(/\/$/, '') : undefined;
+  const getTypeDocLink = (type: ExpandedType) => {
+    if (normalizedTypeBase && type.kind === 'TYPE_REF') {
+      const slug = slugify(type.name);
+      return `${normalizedTypeBase}/types/${slug}`;
+    }
+    if (normalizedTypeBase && type.kind === 'CIRCULAR_REF') {
+      const slug = slugify(type.ref);
+      return `${normalizedTypeBase}/types/${slug}`;
+    }
+    if (normalizedTypeBase && 'name' in type && type.name) {
+      const slug = slugify(type.name);
+      if (type.kind === 'ENUM') {
+        return `${normalizedTypeBase}/enums/${slug}`;
+      }
+      if (type.kind === 'INPUT_OBJECT') {
+        return `${normalizedTypeBase}/inputs/${slug}`;
+      }
+      if (
+        type.kind === 'OBJECT' ||
+        type.kind === 'INTERFACE' ||
+        type.kind === 'UNION' ||
+        type.kind === 'SCALAR'
+      ) {
+        return `${normalizedTypeBase}/types/${slug}`;
+      }
+    }
+    return getTypeLink(type);
+  };
 
   return (
     <div className="gql-field-list">
       {properties.map((prop) => {
         const { baseType } = unwrapType(prop.type);
-        const expandable = isObjectLike(baseType) && baseType.fields && baseType.fields.length > 0;
+        const expandable =
+          isObjectLike(baseType) &&
+          ((baseType.fields && baseType.fields.length > 0) || baseType.isCollapsible);
         const path = `${pathPrefix}.${prop.name}`;
         const expanded = expandable ? isExpanded(path, depth, defaultExpandedLevels) : false;
-        const canInlineExpand = expandable && depth < inlineDepthLimit;
-        const childCount = expandable ? baseType.fields.length : 0;
+        const childCount = baseType.fields?.length ?? 0;
+        const canInlineExpand = expandable && depth < inlineDepthLimit && childCount > 0;
         const toggleLabel = expanded
           ? 'Hide properties'
           : `Show ${childCount} ${childCount === 1 ? 'property' : 'properties'}`;
-        const typeLink = expandable ? getTypeLink(baseType) : undefined;
+        const typeLink = expandable ? getTypeDocLink(baseType) : undefined;
 
         const isEnum =
           baseType.kind === 'ENUM' && Array.isArray(baseType.values) && baseType.values.length > 0;
         const enumValues = isEnum ? baseType.values : [];
         const enumVisible = enumValues.slice(0, MAX_ENUM_VALUES);
         const enumMore = enumValues.length - enumVisible.length;
-        const enumLink = isEnum ? getTypeLink(baseType) : undefined;
+        const enumLink = isEnum ? getTypeDocLink(baseType) : undefined;
 
         return (
           <div key={prop.name} className="gql-field-item" data-depth={depth}>
@@ -176,11 +215,11 @@ export const PropertyTable = React.memo(function PropertyTable({
                 <span className="gql-field-type gql-type">
                   {showNullableSuffix && !prop.isRequired ? (
                     <span className="gql-type-nullable">
-                      {renderTypeLabel(prop.type)}
-                      <span className="gql-nullable-text"> or null</span>
+                      {renderTypeLabel(prop.type, getTypeDocLink)}
+                      <span className="gql-nullable-text">| null</span>
                     </span>
                   ) : (
-                    renderTypeLabel(prop.type)
+                    renderTypeLabel(prop.type, getTypeDocLink)
                   )}
                 </span>
                 {variant === 'arguments' && isArgument(prop) && prop.defaultValue !== undefined && (
@@ -256,6 +295,7 @@ export const PropertyTable = React.memo(function PropertyTable({
                   properties={baseType.fields}
                   variant="fields"
                   requiredStyle={requiredStyle}
+                  typeLinkBase={typeLinkBase}
                   depth={depth + 1}
                   maxDepth={maxDepth}
                   defaultExpandedLevels={defaultExpandedLevels}

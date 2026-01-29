@@ -1,0 +1,37 @@
+---
+id: currency
+title: Currency
+sidebar_label: Currency
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "ENUM",
+  "name": "Currency",
+  "description": "Supported currencies for transactions",
+  "values": [
+    {
+      "name": "USD",
+      "description": "United States Dollar",
+      "isDeprecated": false
+    },
+    {
+      "name": "EUR",
+      "description": "Euro",
+      "isDeprecated": false
+    },
+    {
+      "name": "GBP",
+      "description": "British Pound Sterling",
+      "isDeprecated": false
+    },
+    {
+      "name": "JPY",
+      "description": "Japanese Yen",
+      "isDeprecated": false
+    }
+  ]
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

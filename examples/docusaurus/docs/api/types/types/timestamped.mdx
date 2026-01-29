@@ -1,0 +1,42 @@
+---
+id: timestamped
+title: Timestamped
+sidebar_label: Timestamped
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "INTERFACE",
+  "name": "Timestamped",
+  "description": "Base interface for all entities with timestamps\n\nAll database entities implement this interface to provide\nconsistent timestamp tracking.",
+  "fields": [
+    {
+      "name": "createdAt",
+      "description": "When the entity was created",
+      "type": {
+        "kind": "SCALAR",
+        "name": "DateTime",
+        "description": "A date-time string in ISO 8601 format (e.g., \"2024-01-15T09:30:00Z\")"
+      },
+      "isRequired": true,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "updatedAt",
+      "description": "When the entity was last updated",
+      "type": {
+        "kind": "SCALAR",
+        "name": "DateTime",
+        "description": "A date-time string in ISO 8601 format (e.g., \"2024-01-15T09:30:00Z\")"
+      },
+      "isRequired": true,
+      "isList": false,
+      "isDeprecated": false
+    }
+  ],
+  "isCollapsible": false
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

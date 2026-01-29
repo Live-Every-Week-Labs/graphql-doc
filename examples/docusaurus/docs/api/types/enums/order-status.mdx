@@ -1,0 +1,52 @@
+---
+id: order-status
+title: OrderStatus
+sidebar_label: OrderStatus
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "ENUM",
+  "name": "OrderStatus",
+  "description": "The lifecycle status of an order",
+  "values": [
+    {
+      "name": "PENDING",
+      "description": "Order has been placed but not yet processed",
+      "isDeprecated": false
+    },
+    {
+      "name": "CONFIRMED",
+      "description": "Payment has been confirmed",
+      "isDeprecated": false
+    },
+    {
+      "name": "PROCESSING",
+      "description": "Order is being prepared for shipment",
+      "isDeprecated": false
+    },
+    {
+      "name": "SHIPPED",
+      "description": "Order has been shipped",
+      "isDeprecated": false
+    },
+    {
+      "name": "DELIVERED",
+      "description": "Order has been delivered",
+      "isDeprecated": false
+    },
+    {
+      "name": "CANCELLED",
+      "description": "Order has been cancelled",
+      "isDeprecated": false
+    },
+    {
+      "name": "REFUNDED",
+      "description": "Order has been refunded",
+      "isDeprecated": false
+    }
+  ]
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

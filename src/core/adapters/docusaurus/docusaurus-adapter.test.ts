@@ -9,6 +9,7 @@ vi.mock('../../renderer/mdx-renderer', () => {
   return {
     MdxRenderer: class {
       renderOperation = vi.fn().mockReturnValue('Mocked Content');
+      renderTypeDefinition = vi.fn().mockReturnValue('Mocked Type Content');
     },
   };
 });
@@ -51,6 +52,11 @@ describe('DocusaurusAdapter', () => {
           },
         ],
       },
+    ],
+    types: [
+      { kind: 'ENUM', name: 'UserStatus', values: [] },
+      { kind: 'INPUT_OBJECT', name: 'UserInput', fields: [] },
+      { kind: 'OBJECT', name: 'User', fields: [] },
     ],
   };
 
@@ -145,6 +151,9 @@ describe('DocusaurusAdapter', () => {
       expect(mdxFile?.content).toContain('- [getUser](#get-user)');
       expect(mdxFile?.content).toContain('- [Admin](#users-admin)');
       expect(mdxFile?.content).toContain('- [deleteUser](#delete-user)');
+      expect(mdxFile?.content).toContain('- [Types](#types)');
+      expect(mdxFile?.content).toContain('- [Enums](#types-enums)');
+      expect(mdxFile?.content).toContain('- [Inputs](#types-inputs)');
     });
 
     it('generates section headers with anchor IDs', () => {

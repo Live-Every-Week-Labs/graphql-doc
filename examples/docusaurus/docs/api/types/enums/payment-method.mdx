@@ -1,0 +1,38 @@
+---
+id: payment-method
+title: PaymentMethod
+sidebar_label: PaymentMethod
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "ENUM",
+  "name": "PaymentMethod",
+  "description": "Payment methods accepted by the platform",
+  "values": [
+    {
+      "name": "CARD",
+      "description": "Credit or debit card payment",
+      "isDeprecated": false
+    },
+    {
+      "name": "PAYPAL",
+      "description": "PayPal payment",
+      "isDeprecated": false
+    },
+    {
+      "name": "BANK_TRANSFER",
+      "description": "Bank transfer",
+      "isDeprecated": false
+    },
+    {
+      "name": "CRYPTO",
+      "description": "Cryptocurrency payment",
+      "isDeprecated": true,
+      "deprecationReason": "Crypto payments will be removed in v2.0. Use CARD or PAYPAL instead."
+    }
+  ]
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

@@ -110,4 +110,5 @@ export interface Section {
 
 export interface DocModel {
   sections: Section[];
+  types: ExpandedType[];
 }

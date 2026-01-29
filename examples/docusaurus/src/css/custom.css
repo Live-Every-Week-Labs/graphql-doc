@@ -51,3 +51,9 @@
     max-width: 100%;
   }
 }
+
+.menu__list-item.gql-sidebar-types {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+}

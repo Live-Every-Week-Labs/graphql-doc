@@ -8,6 +8,7 @@ import { ExamplesPanel } from '../examples/ExamplesPanel';
 
 interface OperationViewProps {
   operation: Operation;
+  typeLinkBase?: string;
   defaultExpandedLevels?: number;
   maxDepth?: number;
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
@@ -26,6 +27,7 @@ const renderDescription = (description?: string) => {
 
 export const OperationView = React.memo(function OperationView({
   operation,
+  typeLinkBase,
   defaultExpandedLevels = 0,
   maxDepth = 3,
   headingLevel = 2,
@@ -72,6 +74,7 @@ export const OperationView = React.memo(function OperationView({
                 <h3 className="gql-section-title">Arguments</h3>
                 <ArgumentsTable
                   arguments={operation.arguments}
+                  typeLinkBase={typeLinkBase}
                   depth={0}
                   maxDepth={maxDepth}
                   defaultExpandedLevels={defaultExpandedLevels}
@@ -83,6 +86,7 @@ export const OperationView = React.memo(function OperationView({
               <h3 className="gql-section-title">Response</h3>
               <TypeViewer
                 type={operation.returnType}
+                typeLinkBase={typeLinkBase}
                 depth={0}
                 maxDepth={maxDepth}
                 defaultExpandedLevels={defaultExpandedLevels}

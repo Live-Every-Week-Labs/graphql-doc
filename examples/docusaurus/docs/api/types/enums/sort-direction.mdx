@@ -1,0 +1,27 @@
+---
+id: sort-direction
+title: SortDirection
+sidebar_label: SortDirection
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "ENUM",
+  "name": "SortDirection",
+  "description": "Sort direction for list queries",
+  "values": [
+    {
+      "name": "ASC",
+      "description": "Ascending order (A-Z, 0-9, oldest first)",
+      "isDeprecated": false
+    },
+    {
+      "name": "DESC",
+      "description": "Descending order (Z-A, 9-0, newest first)",
+      "isDeprecated": false
+    }
+  ]
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

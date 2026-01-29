@@ -41,6 +41,11 @@ describe('SidebarGenerator', () => {
         ],
       },
     ],
+    types: [
+      { kind: 'ENUM', name: 'UserStatus', values: [] },
+      { kind: 'INPUT_OBJECT', name: 'UserInput', fields: [] },
+      { kind: 'OBJECT', name: 'User', fields: [] },
+    ],
   };
 
   it('generates correct sidebar structure', () => {
@@ -48,7 +53,7 @@ describe('SidebarGenerator', () => {
     const items = generator.generate(mockModel);
 
     expect(items).toBeDefined();
-    expect(items).toHaveLength(1);
+    expect(items).toHaveLength(2);
 
     const usersCategory = items[0];
     expect(usersCategory.type).toBe('category');
@@ -70,6 +75,10 @@ describe('SidebarGenerator', () => {
     const deleteUserOp = adminCategory?.items?.[0];
     expect(deleteUserOp?.type).toBe('doc');
     expect(deleteUserOp?.id).toBe('users/admin/delete-user');
+
+    const typesCategory = items[1];
+    expect(typesCategory.type).toBe('category');
+    expect(typesCategory.label).toBe('Types');
   });
 
   describe('generateSinglePageSidebar', () => {
@@ -78,7 +87,7 @@ describe('SidebarGenerator', () => {
       const items = generator.generateSinglePageSidebar(mockModel, 'api-reference');
 
       expect(items).toBeDefined();
-      expect(items).toHaveLength(1);
+      expect(items).toHaveLength(2);
 
       const usersCategory = items[0];
       expect(usersCategory.type).toBe('category');
@@ -106,6 +115,10 @@ describe('SidebarGenerator', () => {
       const deleteUserOp = adminCategory?.items?.[0];
       expect(deleteUserOp?.type).toBe('link');
       expect(deleteUserOp?.href).toBe('api-reference#delete-user');
+
+      const typesCategory = items[1];
+      expect(typesCategory?.type).toBe('category');
+      expect(typesCategory?.label).toBe('Types');
     });
 
     it('uses custom docId in hash links', () => {

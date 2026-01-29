@@ -12,8 +12,10 @@ export interface TransformerConfig {
 
 export class Transformer {
   private expander: TypeExpander;
+  private typeDefinitions: TypeDefinition[];
 
   constructor(types: TypeDefinition[], config: TransformerConfig = {}) {
+    this.typeDefinitions = types;
     this.expander = new TypeExpander(
       types,
       config.maxDepth ?? 5,
@@ -129,6 +131,13 @@ export class Transformer {
       }
     }
 
-    return { sections };
+    return { sections, types: this.expandTypes() };
+  }
+
+  private expandTypes() {
+    return this.typeDefinitions
+      .filter((type) => !type.name.startsWith('__'))
+      .map((type) => this.expander.expand(type.name))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 }

@@ -42,6 +42,7 @@ The output structure:
 ```typescript
 interface DocModel {
   sections: Section[];
+  types: ExpandedType[];
 }
 
 interface Section {

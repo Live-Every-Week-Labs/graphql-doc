@@ -1,0 +1,167 @@
+---
+id: order-filter-input
+title: OrderFilterInput
+sidebar_label: OrderFilterInput
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "INPUT_OBJECT",
+  "name": "OrderFilterInput",
+  "description": "Filter options for listing orders",
+  "fields": [
+    {
+      "name": "status",
+      "description": "Filter by status",
+      "type": {
+        "kind": "ENUM",
+        "name": "OrderStatus",
+        "description": "The lifecycle status of an order",
+        "values": [
+          {
+            "name": "PENDING",
+            "description": "Order has been placed but not yet processed",
+            "isDeprecated": false
+          },
+          {
+            "name": "CONFIRMED",
+            "description": "Payment has been confirmed",
+            "isDeprecated": false
+          },
+          {
+            "name": "PROCESSING",
+            "description": "Order is being prepared for shipment",
+            "isDeprecated": false
+          },
+          {
+            "name": "SHIPPED",
+            "description": "Order has been shipped",
+            "isDeprecated": false
+          },
+          {
+            "name": "DELIVERED",
+            "description": "Order has been delivered",
+            "isDeprecated": false
+          },
+          {
+            "name": "CANCELLED",
+            "description": "Order has been cancelled",
+            "isDeprecated": false
+          },
+          {
+            "name": "REFUNDED",
+            "description": "Order has been refunded",
+            "isDeprecated": false
+          }
+        ]
+      },
+      "isRequired": false,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "statuses",
+      "description": "Filter by statuses",
+      "type": {
+        "kind": "LIST",
+        "ofType": {
+          "kind": "ENUM",
+          "name": "OrderStatus",
+          "description": "The lifecycle status of an order",
+          "values": [
+            {
+              "name": "PENDING",
+              "description": "Order has been placed but not yet processed",
+              "isDeprecated": false
+            },
+            {
+              "name": "CONFIRMED",
+              "description": "Payment has been confirmed",
+              "isDeprecated": false
+            },
+            {
+              "name": "PROCESSING",
+              "description": "Order is being prepared for shipment",
+              "isDeprecated": false
+            },
+            {
+              "name": "SHIPPED",
+              "description": "Order has been shipped",
+              "isDeprecated": false
+            },
+            {
+              "name": "DELIVERED",
+              "description": "Order has been delivered",
+              "isDeprecated": false
+            },
+            {
+              "name": "CANCELLED",
+              "description": "Order has been cancelled",
+              "isDeprecated": false
+            },
+            {
+              "name": "REFUNDED",
+              "description": "Order has been refunded",
+              "isDeprecated": false
+            }
+          ]
+        }
+      },
+      "isRequired": false,
+      "isList": true,
+      "isDeprecated": false
+    },
+    {
+      "name": "fromDate",
+      "description": "Minimum date",
+      "type": {
+        "kind": "SCALAR",
+        "name": "DateTime",
+        "description": "A date-time string in ISO 8601 format (e.g., \"2024-01-15T09:30:00Z\")"
+      },
+      "isRequired": false,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "toDate",
+      "description": "Maximum date",
+      "type": {
+        "kind": "SCALAR",
+        "name": "DateTime",
+        "description": "A date-time string in ISO 8601 format (e.g., \"2024-01-15T09:30:00Z\")"
+      },
+      "isRequired": false,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "minTotal",
+      "description": "Minimum total",
+      "type": {
+        "kind": "SCALAR",
+        "name": "Money",
+        "description": "A monetary amount represented as a string with currency precision (e.g., \"19.99\")"
+      },
+      "isRequired": false,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "maxTotal",
+      "description": "Maximum total",
+      "type": {
+        "kind": "SCALAR",
+        "name": "Money",
+        "description": "A monetary amount represented as a string with currency precision (e.g., \"19.99\")"
+      },
+      "isRequired": false,
+      "isList": false,
+      "isDeprecated": false
+    }
+  ],
+  "isCollapsible": false
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

@@ -47,7 +47,7 @@ The `FieldTable` component renders a list of fields for an object type using a l
 
 - List layout that preserves width at deeper nesting levels.
 - Displays Field Name, Type, Description, and inline expansion toggle for nested objects.
-- Nullable suffix for response/type fields (`or null`), plus a **Required** badge for input-style fields.
+- Nullable suffix for response/type fields (`| null`), plus a **Required** badge for input-style fields.
 - Supporting nested arguments for fields.
 - Hover effects for better readability.
 
@@ -108,4 +108,20 @@ import { Operation } from '../../core/transformer/types';
 const operation: Operation = { ... };
 
 <OperationView operation={operation} />
+```
+
+### `TypeDefinitionView`
+
+`TypeDefinitionView` renders a standalone type definition page. It supports enums (with per-value notes),
+inputs, objects, interfaces, unions, and scalars.
+
+**Usage:**
+
+```tsx
+import { TypeDefinitionView } from './TypeDefinitionView';
+import { ExpandedType } from '../../core/transformer/types';
+
+const typeDefinition: ExpandedType = { ... };
+
+<TypeDefinitionView type={typeDefinition} />
 ```

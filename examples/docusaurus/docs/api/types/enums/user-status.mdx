@@ -1,0 +1,37 @@
+---
+id: user-status
+title: UserStatus
+sidebar_label: UserStatus
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "ENUM",
+  "name": "UserStatus",
+  "description": "The current status of a user account",
+  "values": [
+    {
+      "name": "ACTIVE",
+      "description": "User account is active and in good standing",
+      "isDeprecated": false
+    },
+    {
+      "name": "SUSPENDED",
+      "description": "User account is temporarily suspended",
+      "isDeprecated": false
+    },
+    {
+      "name": "BANNED",
+      "description": "User account has been permanently banned",
+      "isDeprecated": false
+    },
+    {
+      "name": "PENDING_VERIFICATION",
+      "description": "User account is pending email verification",
+      "isDeprecated": false
+    }
+  ]
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

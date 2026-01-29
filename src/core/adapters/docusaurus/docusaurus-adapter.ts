@@ -1,4 +1,4 @@
-import { DocModel, Operation, Section, Subsection } from '../../transformer/types';
+import { DocModel, Operation, Section, Subsection, ExpandedType } from '../../transformer/types';
 import { GeneratedFile } from '../types';
 import { MdxRenderer } from '../../renderer/mdx-renderer';
 import { SidebarGenerator } from './sidebar-generator';
@@ -46,6 +46,7 @@ export class DocusaurusAdapter {
         const subsectionPath = isRootSubsection
           ? sectionPath
           : `${sectionPath}/${slugify(subsection.name)}`;
+        const typeLinkBase = this.getTypeLinkBase(subsectionPath);
 
         if (!isRootSubsection) {
           files.push({
@@ -59,12 +60,14 @@ export class DocusaurusAdapter {
           const fileName = `${slugify(op.name)}.mdx`;
           files.push({
             path: `${subsectionPath}/${fileName}`,
-            content: this.generateMdx(op),
+            content: this.generateMdx(op, typeLinkBase),
             type: 'mdx',
           });
         }
       }
     }
+
+    files.push(...this.generateTypeFiles(model.types));
 
     // Generate sidebars.js or sidebars.api.js
     const sidebarItems = this.sidebarGenerator.generate(model);
@@ -95,7 +98,9 @@ export class DocusaurusAdapter {
     const operations = model.sections.flatMap((section) =>
       section.subsections.flatMap((subsection) => subsection.operations)
     );
+    const typeGroups = this.groupTypes(model.types);
     const usedOperationIds = new Set<string>();
+    const usedTypeIds = new Set<string>();
     const getOperationId = (op: Operation) => {
       const base = this.createOperationId(op);
       let candidate = base;
@@ -107,6 +112,17 @@ export class DocusaurusAdapter {
       usedOperationIds.add(candidate);
       return candidate;
     };
+    const getTypeId = (type: ExpandedType) => {
+      const base = this.createTypeId(type);
+      let candidate = base;
+      let counter = 1;
+      while (usedTypeIds.has(candidate)) {
+        candidate = `${base}_${counter}`;
+        counter += 1;
+      }
+      usedTypeIds.add(candidate);
+      return candidate;
+    };
 
     // Build content sections
     const frontMatter = this.generateSinglePageFrontMatter();
@@ -115,9 +131,10 @@ export class DocusaurusAdapter {
     const sectionsContent = model.sections
       .map((section) => this.generateSectionContent(section, getOperationId))
       .join('\n\n');
+    const typesContent = this.generateTypesContent(typeGroups, getTypeId);
 
     // Combine all parts
-    const content = [
+    const contentParts = [
       frontMatter,
       examplesExport,
       '',
@@ -127,7 +144,13 @@ export class DocusaurusAdapter {
       '---',
       '',
       sectionsContent,
-    ].join('\n');
+    ];
+
+    if (typesContent) {
+      contentParts.push('', '---', '', typesContent);
+    }
+
+    const content = contentParts.join('\n');
 
     files.push({
       path: `${docId}.mdx`,
@@ -194,6 +217,14 @@ export class DocusaurusAdapter {
       }
     }
 
+    const typeGroups = this.groupTypes(model.types);
+    if (typeGroups.enums.length + typeGroups.inputs.length + typeGroups.types.length > 0) {
+      lines.push(`- [Types](#types)`);
+      lines.push(`  - [Enums](#types-enums)`);
+      lines.push(`  - [Inputs](#types-inputs)`);
+      lines.push(`  - [Types](#types-types)`);
+    }
+
     return lines.join('\n');
   }
 
@@ -256,12 +287,13 @@ export class DocusaurusAdapter {
 
   // ==================== Multi-Page Mode Methods ====================
 
-  private generateMdx(op: Operation): string {
+  private generateMdx(op: Operation, typeLinkBase?: string): string {
     const frontMatter = this.generateFrontMatter(op);
     const examplesExport = this.generateExamplesExport([op]);
     const content = this.renderer.renderOperation(op, {
       exportName: 'operation',
       headingLevel: 1,
+      typeLinkBase,
     });
     return `${frontMatter}\n\n${examplesExport}\n\n${content}`;
   }
@@ -318,5 +350,188 @@ export class DocusaurusAdapter {
     );
 
     return `export const examplesByOperation = ${JSON.stringify(examplesByOperation, null, 2)};`;
+  }
+
+  private generateTypeFiles(types: ExpandedType[]): GeneratedFile[] {
+    const files: GeneratedFile[] = [];
+    const { enums, inputs, types: objectTypes } = this.groupTypes(types);
+
+    if (enums.length + inputs.length + objectTypes.length === 0) {
+      return files;
+    }
+
+    files.push({
+      path: 'types/_category_.json',
+      content: this.generateCategoryJson('Types', 999),
+      type: 'json',
+    });
+    files.push({
+      path: 'types/enums/_category_.json',
+      content: this.generateCategoryJson('Enums', 0),
+      type: 'json',
+    });
+    files.push({
+      path: 'types/inputs/_category_.json',
+      content: this.generateCategoryJson('Inputs', 0),
+      type: 'json',
+    });
+    files.push({
+      path: 'types/types/_category_.json',
+      content: this.generateCategoryJson('Types', 0),
+      type: 'json',
+    });
+
+    for (const enumType of enums) {
+      const name = (enumType as { name: string }).name;
+      const fileName = `${slugify(name)}.mdx`;
+      files.push({
+        path: `types/enums/${fileName}`,
+        content: this.generateTypeMdx(enumType),
+        type: 'mdx',
+      });
+    }
+
+    for (const inputType of inputs) {
+      const name = (inputType as { name: string }).name;
+      const fileName = `${slugify(name)}.mdx`;
+      files.push({
+        path: `types/inputs/${fileName}`,
+        content: this.generateTypeMdx(inputType),
+        type: 'mdx',
+      });
+    }
+
+    for (const objectType of objectTypes) {
+      const name = (objectType as { name: string }).name;
+      const fileName = `${slugify(name)}.mdx`;
+      files.push({
+        path: `types/types/${fileName}`,
+        content: this.generateTypeMdx(objectType),
+        type: 'mdx',
+      });
+    }
+
+    return files;
+  }
+
+  private generateTypeMdx(type: ExpandedType): string {
+    const frontMatter = this.generateTypeFrontMatter(type);
+    const content = this.renderer.renderTypeDefinition(type, {
+      exportName: 'typeDefinition',
+      headingLevel: 1,
+      typeLinkBase: '..',
+    });
+    return `${frontMatter}\n\n${content}`;
+  }
+
+  private generateTypeFrontMatter(type: ExpandedType): string {
+    const name = 'name' in type ? type.name : 'type';
+    const id = slugify(name);
+    const title = escapeYamlValue(name);
+    const sidebarLabel = escapeYamlValue(name);
+
+    const lines = ['---', `id: ${id}`, `title: ${title}`, `sidebar_label: ${sidebarLabel}`];
+    lines.push('hide_title: true');
+    lines.push('api: true');
+    lines.push('---');
+
+    return lines.join('\n');
+  }
+
+  private groupTypes(types: ExpandedType[]) {
+    const enums: ExpandedType[] = [];
+    const inputs: ExpandedType[] = [];
+    const objectTypes: ExpandedType[] = [];
+
+    for (const type of types) {
+      if (!('name' in type)) {
+        continue;
+      }
+      if (type.kind === 'ENUM') {
+        enums.push(type);
+      } else if (type.kind === 'INPUT_OBJECT') {
+        inputs.push(type);
+      } else if (
+        type.kind === 'OBJECT' ||
+        type.kind === 'INTERFACE' ||
+        type.kind === 'UNION' ||
+        type.kind === 'SCALAR'
+      ) {
+        objectTypes.push(type);
+      }
+    }
+
+    const byName = (a: ExpandedType, b: ExpandedType) =>
+      (a as { name: string }).name.localeCompare((b as { name: string }).name);
+
+    return {
+      enums: enums.sort(byName),
+      inputs: inputs.sort(byName),
+      types: objectTypes.sort(byName),
+    };
+  }
+
+  private generateTypesContent(
+    typeGroups: ReturnType<typeof this.groupTypes>,
+    typeExportName: (type: ExpandedType) => string
+  ): string {
+    const { enums, inputs, types } = typeGroups;
+
+    if (enums.length + inputs.length + types.length === 0) {
+      return '';
+    }
+
+    const lines: string[] = [];
+
+    lines.push('## Types {#types}');
+    lines.push('');
+
+    const pushTypeGroup = (label: string, anchor: string, group: ExpandedType[]) => {
+      lines.push(`### ${label} {#${anchor}}`);
+      lines.push('');
+
+      if (group.length === 0) {
+        lines.push('_No entries_');
+        lines.push('');
+        return;
+      }
+
+      group.forEach((type, index) => {
+        lines.push(
+          this.renderer.renderTypeDefinition(type, {
+            exportName: typeExportName(type),
+            exportConst: false,
+            headingLevel: 4,
+          })
+        );
+        if (index < group.length - 1) {
+          lines.push('');
+        }
+      });
+
+      lines.push('');
+    };
+
+    pushTypeGroup('Enums', 'types-enums', enums);
+    pushTypeGroup('Inputs', 'types-inputs', inputs);
+    pushTypeGroup('Types', 'types-types', types);
+
+    return lines.join('\n');
+  }
+
+  private createTypeId(type: ExpandedType): string {
+    const name = 'name' in type ? type.name : 'type';
+    const slug = slugify(name).replace(/-/g, '_');
+    const safe = slug || 'type';
+    return `type_${safe}`;
+  }
+
+  private getTypeLinkBase(docPath: string): string {
+    const segments = docPath.split('/').filter(Boolean);
+    if (segments.length === 0) {
+      return 'types';
+    }
+    const prefix = segments.map(() => '..').join('/');
+    return `${prefix}/types`;
   }
 }

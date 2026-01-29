@@ -5,6 +5,7 @@ import { FieldTable } from './FieldTable';
 
 interface TypeViewerProps {
   type: ExpandedType;
+  typeLinkBase?: string;
   depth?: number;
   defaultExpandedLevels?: number;
   maxDepth?: number;
@@ -15,6 +16,7 @@ interface TypeViewerProps {
 
 export const TypeViewer = React.memo(function TypeViewer({
   type,
+  typeLinkBase,
   depth = 0,
   defaultExpandedLevels = 0,
   maxDepth = 3,
@@ -53,14 +55,25 @@ export const TypeViewer = React.memo(function TypeViewer({
         );
       case 'TYPE_REF':
         return (
-          <a href={input.link} className="gql-type-link">
+          <a
+            href={
+              typeLinkBase
+                ? `${typeLinkBase.replace(/\/$/, '')}/types/${slugify(input.name)}`
+                : input.link
+            }
+            className="gql-type-link"
+          >
             {input.name}
           </a>
         );
       case 'CIRCULAR_REF':
         return (
           <a
-            href={input.link}
+            href={
+              typeLinkBase
+                ? `${typeLinkBase.replace(/\/$/, '')}/types/${slugify(input.ref)}`
+                : input.link
+            }
             className="gql-type-link gql-circular-ref"
             title={`Circular reference to ${input.ref}`}
           >
@@ -109,6 +122,7 @@ export const TypeViewer = React.memo(function TypeViewer({
           {baseType.fields?.length ? (
             <FieldTable
               fields={baseType.fields}
+              typeLinkBase={typeLinkBase}
               requiredStyle={getRequiredStyle(baseType)}
               depth={depth}
               maxDepth={maxDepth}
@@ -171,7 +185,14 @@ export const TypeViewer = React.memo(function TypeViewer({
           </div>
         ) : null}
         {moreCount > 0 && (
-          <a href={`#${slugify(type.name)}`} className="gql-field-enum-more">
+          <a
+            href={
+              typeLinkBase
+                ? `${typeLinkBase.replace(/\/$/, '')}/enums/${slugify(type.name)}`
+                : `#${slugify(type.name)}`
+            }
+            className="gql-field-enum-more"
+          >
             Show more
           </a>
         )}
@@ -191,6 +212,7 @@ export const TypeViewer = React.memo(function TypeViewer({
         {type.fields?.length ? (
           <FieldTable
             fields={type.fields}
+            typeLinkBase={typeLinkBase}
             requiredStyle={getRequiredStyle(type)}
             depth={depth}
             maxDepth={maxDepth}

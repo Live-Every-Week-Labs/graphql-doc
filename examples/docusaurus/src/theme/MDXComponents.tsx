@@ -3,6 +3,7 @@ import MDXComponents from '@theme-original/MDXComponents';
 import {
   OperationView,
   TypeViewer,
+  TypeDefinitionView,
   FieldTable,
   ArgumentsTable,
   ExamplesPanel,
@@ -13,6 +14,7 @@ export default {
   ...MDXComponents,
   OperationView,
   TypeViewer,
+  TypeDefinitionView,
   FieldTable,
   ArgumentsTable,
   ExamplesPanel,

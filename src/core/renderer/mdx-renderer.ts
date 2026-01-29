@@ -2,7 +2,7 @@ import Handlebars from 'handlebars';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Operation } from '../transformer/types';
+import { Operation, ExpandedType } from '../transformer/types';
 import { slugify } from '../utils/string-utils';
 
 /**
@@ -55,31 +55,53 @@ interface RenderOptions {
   exportConst?: boolean;
   headingLevel?: number;
   includeDescription?: boolean;
+  typeLinkBase?: string;
 }
 
 export class MdxRenderer {
-  private template: Handlebars.TemplateDelegate;
+  private operationTemplate: Handlebars.TemplateDelegate;
+  private typeDefinitionTemplate: Handlebars.TemplateDelegate;
 
   constructor() {
     this.registerHelpers();
 
     // Load main template from the templates directory
     // This works both in development (src/) and when installed as npm package (dist/)
-    const templatePath = path.join(templatesDir, 'operation.hbs');
-    const templateContent = fs.readFileSync(templatePath, 'utf-8');
-    this.template = Handlebars.compile(templateContent);
+    const operationTemplatePath = path.join(templatesDir, 'operation.hbs');
+    const operationTemplateContent = fs.readFileSync(operationTemplatePath, 'utf-8');
+    this.operationTemplate = Handlebars.compile(operationTemplateContent);
+
+    const typeDefinitionTemplatePath = path.join(templatesDir, 'type-definition.hbs');
+    const typeDefinitionTemplateContent = fs.readFileSync(typeDefinitionTemplatePath, 'utf-8');
+    this.typeDefinitionTemplate = Handlebars.compile(typeDefinitionTemplateContent);
   }
 
   public renderOperation(op: Operation, options: RenderOptions = {}): string {
     const exportName = options.exportName ?? 'operation';
     const exportKeyword = options.exportConst === false ? 'const' : 'export const';
+    const typeLinkBase = options.typeLinkBase ? JSON.stringify(options.typeLinkBase) : undefined;
 
-    return this.template({
+    return this.operationTemplate({
       operation: op,
       exportName,
       exportKeyword,
       headingLevel: options.headingLevel,
       includeDescription: options.includeDescription !== false,
+      typeLinkBase,
+    });
+  }
+
+  public renderTypeDefinition(type: ExpandedType, options: RenderOptions = {}): string {
+    const exportName = options.exportName ?? 'typeDefinition';
+    const exportKeyword = options.exportConst === false ? 'const' : 'export const';
+    const typeLinkBase = options.typeLinkBase ? JSON.stringify(options.typeLinkBase) : undefined;
+
+    return this.typeDefinitionTemplate({
+      type,
+      exportName,
+      exportKeyword,
+      headingLevel: options.headingLevel,
+      typeLinkBase,
     });
   }
 

@@ -1,0 +1,42 @@
+---
+id: notification-type
+title: NotificationType
+sidebar_label: NotificationType
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "ENUM",
+  "name": "NotificationType",
+  "description": "Types of notifications sent to users",
+  "values": [
+    {
+      "name": "ORDER_UPDATE",
+      "description": "Order status update",
+      "isDeprecated": false
+    },
+    {
+      "name": "PRICE_ALERT",
+      "description": "Price drop on wishlist item",
+      "isDeprecated": false
+    },
+    {
+      "name": "STOCK_ALERT",
+      "description": "Product back in stock",
+      "isDeprecated": false
+    },
+    {
+      "name": "PROMOTION",
+      "description": "Promotional offer",
+      "isDeprecated": false
+    },
+    {
+      "name": "SYSTEM",
+      "description": "System announcement",
+      "isDeprecated": false
+    }
+  ]
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

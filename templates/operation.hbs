@@ -1,6 +1,6 @@
 {{exportKeyword}} {{exportName}} = {{{json operation}}};
 
-<OperationView operation={ {{exportName}} }{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}>
+<OperationView operation={ {{exportName}} }{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}{{#if typeLinkBase}} typeLinkBase={{{typeLinkBase}}}{{/if}}>
 {{#if includeDescription}}
 {{#if operation.description}}
 {{{operation.description}}}

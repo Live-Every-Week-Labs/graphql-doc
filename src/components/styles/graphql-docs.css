@@ -442,6 +442,48 @@ a.gql-type:hover {
     font-size: 0.7rem;
 }
 
+.gql-type-kind {
+    font-size: 0.7rem;
+}
+
+.gql-type-definition {
+    padding: 8px 0 32px;
+    border-bottom: 1px solid var(--gql-border-color);
+}
+
+.gql-type-definition:last-child {
+    border-bottom: none;
+}
+
+.gql-type-definition-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.gql-type-definition-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.gql-type-definition-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gql-field-color);
+}
+
+.gql-type-definition-description {
+    color: var(--gql-description-color);
+}
+
+.gql-type-definition-section {
+    margin-top: 20px;
+}
+
 .gql-tag {
     display: inline-flex;
     align-items: center;
@@ -1029,6 +1071,55 @@ a.gql-type:hover {
 
 .gql-field-enum-more:hover {
     text-decoration: underline;
+}
+
+.gql-enum-definition {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.gql-enum-definition-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gql-border-color);
+}
+
+.gql-enum-definition-item:last-child {
+    border-bottom: none;
+}
+
+.gql-enum-value-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.gql-enum-value-name {
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    font-weight: 600;
+    color: var(--gql-field-color);
+}
+
+.gql-enum-value-description {
+    margin-top: 0.35rem;
+}
+
+.gql-enum-definition-empty {
+    color: var(--gql-description-color);
+    font-style: italic;
+}
+
+.gql-union-types {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gql-operator {
+    color: var(--gql-description-color);
+    opacity: 0.7;
 }
 
 .gql-field-args {

@@ -1,0 +1,55 @@
+---
+id: order-item-customization
+title: OrderItemCustomization
+sidebar_label: OrderItemCustomization
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "OBJECT",
+  "name": "OrderItemCustomization",
+  "description": "Customization applied to an order item",
+  "fields": [
+    {
+      "name": "name",
+      "description": "Customization name",
+      "type": {
+        "kind": "SCALAR",
+        "name": "String",
+        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
+      },
+      "isRequired": true,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "value",
+      "description": "Customization value",
+      "type": {
+        "kind": "SCALAR",
+        "name": "String",
+        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
+      },
+      "isRequired": true,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "additionalCost",
+      "description": "Additional cost for this customization",
+      "type": {
+        "kind": "SCALAR",
+        "name": "Money",
+        "description": "A monetary amount represented as a string with currency precision (e.g., \"19.99\")"
+      },
+      "isRequired": false,
+      "isList": false,
+      "isDeprecated": false
+    }
+  ],
+  "interfaces": [],
+  "isCollapsible": false
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />

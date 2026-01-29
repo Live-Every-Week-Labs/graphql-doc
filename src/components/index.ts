@@ -10,6 +10,7 @@ export { FieldTable } from './content/FieldTable';
 export { ArgumentsTable } from './content/ArgumentsTable';
 export { OperationView } from './content/OperationView';
 export { TypeViewer } from './content/TypeViewer';
+export { TypeDefinitionView } from './content/TypeDefinitionView';
 
 // Examples
 export { ExamplesPanel } from './examples/ExamplesPanel';

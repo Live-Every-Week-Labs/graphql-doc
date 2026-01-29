@@ -1,0 +1,67 @@
+---
+id: checkout-error
+title: CheckoutError
+sidebar_label: CheckoutError
+hide_title: true
+api: true
+---
+
+export const typeDefinition = {
+  "kind": "OBJECT",
+  "name": "CheckoutError",
+  "description": "Error returned when checkout fails",
+  "fields": [
+    {
+      "name": "code",
+      "description": "Error code",
+      "type": {
+        "kind": "SCALAR",
+        "name": "String",
+        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
+      },
+      "isRequired": true,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "message",
+      "description": "Human-readable error message",
+      "type": {
+        "kind": "SCALAR",
+        "name": "String",
+        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
+      },
+      "isRequired": true,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "field",
+      "description": "Field that caused the error (if applicable)",
+      "type": {
+        "kind": "SCALAR",
+        "name": "String",
+        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
+      },
+      "isRequired": false,
+      "isList": false,
+      "isDeprecated": false
+    },
+    {
+      "name": "suggestion",
+      "description": "Suggested action to resolve",
+      "type": {
+        "kind": "SCALAR",
+        "name": "String",
+        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
+      },
+      "isRequired": false,
+      "isList": false,
+      "isDeprecated": false
+    }
+  ],
+  "interfaces": [],
+  "isCollapsible": false
+};
+
+<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />
