@@ -7,116 +7,15 @@ hide_title: true
 api: true
 ---
 
+import operationsByType from '../../_data/operations.json';
+import typesByName from '../../_data/types.json';
+
 export const examplesByOperation = {
-  "deleteProduct": [
-    {
-      "name": "Delete Product",
-      "description": "Soft delete a product",
-      "query": "mutation DeleteProduct($id: UUID!) {\n  deleteProduct(id: $id)\n}",
-      "variables": {
-        "id": "prod_123"
-      },
-      "response": {
-        "type": "success",
-        "httpStatus": 200,
-        "body": {
-          "data": {
-            "deleteProduct": true
-          }
-        }
-      }
-    }
-  ]
+  "deleteProduct": (operationsByType["mutation"]["deleteProduct"]?.examples ?? []),
 };
 
-export const operation = {
-  "name": "deleteProduct",
-  "operationType": "mutation",
-  "description": "Delete a product (soft delete)",
-  "arguments": [
-    {
-      "name": "id",
-      "description": "Product ID",
-      "isRequired": true,
-      "type": {
-        "kind": "SCALAR",
-        "name": "UUID",
-        "description": "A universally unique identifier in UUID v4 format"
-      }
-    }
-  ],
-  "returnType": {
-    "kind": "SCALAR",
-    "name": "Boolean",
-    "description": "The `Boolean` scalar type represents `true` or `false`."
-  },
-  "directives": {
-    "docGroup": {
-      "name": "Product Catalog",
-      "order": 2,
-      "subsection": "Mutations"
-    },
-    "docPriority": {
-      "level": 3
-    },
-    "docTags": {
-      "tags": [
-        "products",
-        "write",
-        "seller-only",
-        "destructive"
-      ]
-    }
-  },
-  "referencedTypes": [
-    "Boolean",
-    "UUID"
-  ],
-  "isDeprecated": false,
-  "examples": [
-    {
-      "name": "Delete Product",
-      "description": "Soft delete a product",
-      "query": "mutation DeleteProduct($id: UUID!) {\n  deleteProduct(id: $id)\n}",
-      "variables": {
-        "id": "prod_123"
-      },
-      "response": {
-        "type": "success",
-        "httpStatus": 200,
-        "body": {
-          "data": {
-            "deleteProduct": true
-          }
-        }
-      }
-    }
-  ],
-  "errors": [
-    {
-      "code": "UNAUTHENTICATED",
-      "message": "Authentication required",
-      "description": "The operation requires authentication but no valid credentials were provided.",
-      "resolution": "Provide a valid Bearer token in the Authorization header.",
-      "httpStatus": 401
-    },
-    {
-      "code": "FORBIDDEN",
-      "message": "Access denied",
-      "description": "The authenticated user does not have permission to perform this action.",
-      "resolution": "Check the user's role and permissions.",
-      "httpStatus": 403
-    },
-    {
-      "code": "NOT_FOUND",
-      "message": "Resource not found",
-      "description": "The requested resource could not be found.",
-      "resolution": "Verify the ID or other identifiers used in the request.",
-      "httpStatus": 404
-    }
-  ]
-};
+export const operation = operationsByType["mutation"]["deleteProduct"];
 
-<OperationView operation={ operation } headingLevel={ 1 } typeLinkBase="../../types">
+<OperationView operation={ operation } typesByName={typesByName} headingLevel={ 1 } typeLinkBase="../../types">
 Delete a product (soft delete)
 </OperationView>

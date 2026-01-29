@@ -56,6 +56,7 @@ interface RenderOptions {
   headingLevel?: number;
   includeDescription?: boolean;
   typeLinkBase?: string;
+  dataReference?: string;
 }
 
 export class MdxRenderer {
@@ -88,6 +89,7 @@ export class MdxRenderer {
       headingLevel: options.headingLevel,
       includeDescription: options.includeDescription !== false,
       typeLinkBase,
+      dataReference: options.dataReference,
     });
   }
 
@@ -102,6 +104,7 @@ export class MdxRenderer {
       exportKeyword,
       headingLevel: options.headingLevel,
       typeLinkBase,
+      dataReference: options.dataReference,
     });
   }
 

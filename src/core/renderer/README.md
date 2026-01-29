@@ -13,6 +13,7 @@ The `MdxRenderer` class uses Handlebars to transform `Operation` objects into MD
   - `json`: Stringifies objects to JSON.
   - `slugify`: Converts strings to URL-friendly slugs.
 - **Component Output**: Emits `<OperationView />` with static props export.
+- **External Data References**: Supports `dataReference` to point exports at shared JSON instead of inlining.
 
 ### Usage
 

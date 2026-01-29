@@ -1,0 +1,2235 @@
+{
+  "query": {
+    "me": {
+      "name": "me",
+      "operationType": "query",
+      "description": "Get the currently authenticated user\n\nReturns null if not authenticated.",
+      "arguments": [],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "User",
+        "link": "#user"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "User Management",
+          "order": 1,
+          "subsection": "Queries"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["users", "read", "auth-required"]
+        }
+      },
+      "referencedTypes": ["User"],
+      "isDeprecated": false,
+      "examples": [],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "user": {
+      "name": "user",
+      "operationType": "query",
+      "description": "Get a user by their ID",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "The user's unique identifier",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "User",
+        "link": "#user"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "User Management",
+          "order": 1,
+          "subsection": "Queries"
+        },
+        "docPriority": {
+          "level": 2
+        },
+        "docTags": {
+          "tags": ["users", "read"]
+        }
+      },
+      "referencedTypes": ["User", "UUID"],
+      "isDeprecated": false,
+      "examples": [],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "users": {
+      "name": "users",
+      "operationType": "query",
+      "description": "Search for users (admin only)",
+      "arguments": [
+        {
+          "name": "query",
+          "description": "Search query",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        {
+          "name": "role",
+          "description": "Filter by role",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UserRole",
+            "link": "#user-role"
+          }
+        },
+        {
+          "name": "status",
+          "description": "Filter by status",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UserStatus",
+            "link": "#user-status"
+          }
+        },
+        {
+          "name": "first",
+          "description": "Number of results",
+          "isRequired": false,
+          "defaultValue": 20,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "Int",
+            "link": "#int"
+          }
+        },
+        {
+          "name": "after",
+          "description": "Pagination cursor",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "LIST",
+        "ofType": {
+          "kind": "TYPE_REF",
+          "name": "User",
+          "link": "#user"
+        }
+      },
+      "directives": {
+        "docGroup": {
+          "name": "User Management",
+          "order": 1,
+          "subsection": "Queries"
+        },
+        "docPriority": {
+          "level": 10
+        },
+        "docTags": {
+          "tags": ["users", "read", "admin-only", "deprecated"]
+        }
+      },
+      "referencedTypes": ["User", "String", "UserRole", "UserStatus", "Int"],
+      "isDeprecated": true,
+      "deprecationReason": "Use `usersSearch` instead for better filtering options",
+      "examples": [],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "category": {
+      "name": "category",
+      "operationType": "query",
+      "description": "Get a category by ID or slug",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Category ID",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        },
+        {
+          "name": "slug",
+          "description": "Category slug",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Category",
+        "link": "#category"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Product Catalog",
+          "order": 2,
+          "subsection": "Categories"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["categories", "read", "public"]
+        }
+      },
+      "referencedTypes": ["Category", "UUID", "String"],
+      "isDeprecated": false,
+      "examples": [],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "categories": {
+      "name": "categories",
+      "operationType": "query",
+      "description": "List all top-level categories",
+      "arguments": [],
+      "returnType": {
+        "kind": "LIST",
+        "ofType": {
+          "kind": "TYPE_REF",
+          "name": "Category",
+          "link": "#category"
+        }
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Product Catalog",
+          "order": 2,
+          "subsection": "Categories"
+        },
+        "docPriority": {
+          "level": 2
+        },
+        "docTags": {
+          "tags": ["categories", "read", "public"]
+        }
+      },
+      "referencedTypes": ["Category"],
+      "isDeprecated": false,
+      "examples": [],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "product": {
+      "name": "product",
+      "operationType": "query",
+      "description": "Get a product by ID or slug",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Product ID",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        },
+        {
+          "name": "slug",
+          "description": "Product slug",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Product",
+        "link": "#product"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Product Catalog",
+          "order": 2,
+          "subsection": "Queries"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["products", "read", "public"]
+        }
+      },
+      "referencedTypes": ["Product", "UUID", "String"],
+      "isDeprecated": false,
+      "examples": [],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "products": {
+      "name": "products",
+      "operationType": "query",
+      "description": "List products with filtering and pagination",
+      "arguments": [
+        {
+          "name": "filter",
+          "description": "Filter options",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "ProductFilterInput",
+            "link": "#product-filter-input"
+          }
+        },
+        {
+          "name": "sortBy",
+          "description": "Sort field",
+          "isRequired": false,
+          "defaultValue": "CREATED_AT",
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "ProductSortField",
+            "link": "#product-sort-field"
+          }
+        },
+        {
+          "name": "sortDirection",
+          "description": "Sort direction",
+          "isRequired": false,
+          "defaultValue": "DESC",
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "SortDirection",
+            "link": "#sort-direction"
+          }
+        },
+        {
+          "name": "first",
+          "description": "Number of results",
+          "isRequired": false,
+          "defaultValue": 20,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "Int",
+            "link": "#int"
+          }
+        },
+        {
+          "name": "after",
+          "description": "Pagination cursor",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "ProductConnection",
+        "link": "#product-connection"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Product Catalog",
+          "order": 2,
+          "subsection": "Queries"
+        },
+        "docPriority": {
+          "level": 2
+        },
+        "docTags": {
+          "tags": ["products", "read", "public", "paginated"]
+        }
+      },
+      "referencedTypes": [
+        "ProductConnection",
+        "ProductFilterInput",
+        "ProductSortField",
+        "SortDirection",
+        "Int",
+        "String"
+      ],
+      "isDeprecated": false,
+      "examples": [],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "search": {
+      "name": "search",
+      "operationType": "query",
+      "description": "Search across products, users, and categories\n\nReturns a union type that can be Product, User, or Category.",
+      "arguments": [
+        {
+          "name": "query",
+          "description": "Search query",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        {
+          "name": "limit",
+          "description": "Maximum results",
+          "isRequired": false,
+          "defaultValue": 20,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "Int",
+            "link": "#int"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "LIST",
+        "ofType": {
+          "kind": "TYPE_REF",
+          "name": "SearchResult",
+          "link": "#search-result"
+        }
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Product Catalog",
+          "order": 2,
+          "subsection": "Search"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["search", "read", "public"]
+        }
+      },
+      "referencedTypes": ["SearchResult", "String", "Int"],
+      "isDeprecated": false,
+      "examples": [],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "cart": {
+      "name": "cart",
+      "operationType": "query",
+      "description": "Get the current user's cart",
+      "arguments": [],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Cart",
+        "link": "#cart"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Orders & Checkout",
+          "order": 3,
+          "subsection": "Cart"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["cart", "read", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Cart"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Get Cart",
+          "description": "Retrieve current shopping cart",
+          "query": "query GetCart {\n  cart {\n    id\n    total\n    itemCount\n  }\n}",
+          "variables": {},
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "cart": {
+                  "id": "cart_123",
+                  "total": "49.99",
+                  "itemCount": 1
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "order": {
+      "name": "order",
+      "operationType": "query",
+      "description": "Get an order by ID",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Order ID",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Order",
+        "link": "#order"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Orders & Checkout",
+          "order": 3,
+          "subsection": "Queries"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["orders", "read", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Order", "UUID"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Get Order Details",
+          "description": "Retrieve details for a specific order",
+          "query": "query GetOrder($id: UUID!) {\n  order(id: $id) {\n    orderNumber\n    status\n    total\n    items {\n      product {\n        name\n      }\n      quantity\n    }\n  }\n}",
+          "variables": {
+            "id": "ord_789"
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "order": {
+                  "orderNumber": "ORD-2024-001",
+                  "status": "PENDING",
+                  "total": "99.99",
+                  "items": [
+                    {
+                      "product": {
+                        "name": "T-Shirt"
+                      },
+                      "quantity": 2
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "myOrders": {
+      "name": "myOrders",
+      "operationType": "query",
+      "description": "List orders for the current user",
+      "arguments": [
+        {
+          "name": "filter",
+          "description": "Filter options",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "OrderFilterInput",
+            "link": "#order-filter-input"
+          }
+        },
+        {
+          "name": "sortDirection",
+          "description": "Sort direction",
+          "isRequired": false,
+          "defaultValue": "DESC",
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "SortDirection",
+            "link": "#sort-direction"
+          }
+        },
+        {
+          "name": "first",
+          "description": "Number of results",
+          "isRequired": false,
+          "defaultValue": 20,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "Int",
+            "link": "#int"
+          }
+        },
+        {
+          "name": "after",
+          "description": "Pagination cursor",
+          "isRequired": false,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "OrderConnection",
+        "link": "#order-connection"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Orders & Checkout",
+          "order": 3,
+          "subsection": "Queries"
+        },
+        "docPriority": {
+          "level": 2
+        },
+        "docTags": {
+          "tags": ["orders", "read", "auth-required", "paginated"]
+        }
+      },
+      "referencedTypes": ["OrderConnection", "OrderFilterInput", "SortDirection", "Int", "String"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "List My Orders",
+          "description": "Get a paginated list of user's orders",
+          "query": "query MyOrders($first: Int) {\n  myOrders(first: $first) {\n    edges {\n      node {\n        orderNumber\n        createdAt\n        total\n      }\n    }\n  }\n}",
+          "variables": {
+            "first": 5
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "myOrders": {
+                  "edges": [
+                    {
+                      "node": {
+                        "orderNumber": "ORD-2024-001",
+                        "createdAt": "2024-01-15T10:00:00Z",
+                        "total": "99.99"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "review": {
+      "name": "review",
+      "operationType": "query",
+      "description": "Get a review by ID",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Review ID",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Review",
+        "link": "#review"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Reviews & Ratings",
+          "order": 4
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["reviews", "read", "public"]
+        }
+      },
+      "referencedTypes": ["Review", "UUID"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Get Review",
+          "description": "Get details of a specific review",
+          "query": "query GetReview($id: UUID!) {\n  review(id: $id) {\n    rating\n    comment\n    author {\n      displayName\n    }\n  }\n}",
+          "variables": {
+            "id": "rev_123"
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "review": {
+                  "rating": 5,
+                  "comment": "Great product!",
+                  "author": {
+                    "displayName": "John Doe"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    }
+  },
+  "mutation": {
+    "createUser": {
+      "name": "createUser",
+      "operationType": "mutation",
+      "description": "Register a new user account",
+      "arguments": [
+        {
+          "name": "input",
+          "description": "User registration data",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "CreateUserInput",
+            "link": "#create-user-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "User",
+        "link": "#user"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "User Management",
+          "order": 1,
+          "subsection": "Mutations"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["users", "write", "public"]
+        }
+      },
+      "referencedTypes": ["User", "CreateUserInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Create Customer",
+          "description": "Register a new customer account",
+          "query": "mutation CreateCustomer($input: CreateUserInput!) {\n  createUser(input: $input) {\n    id\n    email\n    displayName\n    role\n    profile {\n      firstName\n      lastName\n    }\n  }\n}",
+          "variables": {
+            "input": {
+              "email": "jane.doe@example.com",
+              "password": "securePassword123!",
+              "displayName": "Jane Doe",
+              "profile": {
+                "firstName": "Jane",
+                "lastName": "Doe",
+                "marketingOptIn": true
+              }
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "createUser": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "email": "jane.doe@example.com",
+                  "displayName": "Jane Doe",
+                  "role": "CUSTOMER",
+                  "profile": {
+                    "firstName": "Jane",
+                    "lastName": "Doe"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        },
+        {
+          "code": "INVALID_CREDENTIALS",
+          "message": "Invalid email or password",
+          "description": "The provided credentials do not match any active account.",
+          "resolution": "Verify the email and password and try again.",
+          "httpStatus": 401
+        },
+        {
+          "code": "ACCOUNT_LOCKED",
+          "message": "Account is locked",
+          "description": "The account has been locked due to too many failed login attempts.",
+          "resolution": "Contact support to unlock the account.",
+          "httpStatus": 403
+        }
+      ]
+    },
+    "updateProfile": {
+      "name": "updateProfile",
+      "operationType": "mutation",
+      "description": "Update the current user's profile",
+      "arguments": [
+        {
+          "name": "input",
+          "description": "Profile data to update",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UserProfileInput",
+            "link": "#user-profile-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "User",
+        "link": "#user"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "User Management",
+          "order": 1,
+          "subsection": "Mutations"
+        },
+        "docPriority": {
+          "level": 2
+        },
+        "docTags": {
+          "tags": ["users", "write", "auth-required"]
+        }
+      },
+      "referencedTypes": ["User", "UserProfileInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Update Bio",
+          "description": "Update user biography and preferences",
+          "query": "mutation UpdateProfile($input: UserProfileInput!) {\n  updateProfile(input: $input) {\n    id\n    profile {\n      bio\n      preferredLanguage\n    }\n  }\n}",
+          "variables": {
+            "input": {
+              "bio": " avid reader and tech enthusiast",
+              "preferredLanguage": "en"
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "updateProfile": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "profile": {
+                    "bio": " avid reader and tech enthusiast",
+                    "preferredLanguage": "en"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        },
+        {
+          "code": "INVALID_CREDENTIALS",
+          "message": "Invalid email or password",
+          "description": "The provided credentials do not match any active account.",
+          "resolution": "Verify the email and password and try again.",
+          "httpStatus": 401
+        },
+        {
+          "code": "ACCOUNT_LOCKED",
+          "message": "Account is locked",
+          "description": "The account has been locked due to too many failed login attempts.",
+          "resolution": "Contact support to unlock the account.",
+          "httpStatus": 403
+        }
+      ]
+    },
+    "addAddress": {
+      "name": "addAddress",
+      "operationType": "mutation",
+      "description": "Add an address to the user's address book",
+      "arguments": [
+        {
+          "name": "input",
+          "description": "Address data",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "AddressInput",
+            "link": "#address-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "LabeledAddress",
+        "link": "#labeled-address"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "User Management",
+          "order": 1,
+          "subsection": "Mutations"
+        },
+        "docPriority": {
+          "level": 3
+        },
+        "docTags": {
+          "tags": ["users", "write", "auth-required"]
+        }
+      },
+      "referencedTypes": ["LabeledAddress", "AddressInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Add Home Address",
+          "description": "Add a new shipping address",
+          "query": "mutation AddAddress($input: AddressInput!) {\n  addAddress(input: $input) {\n    label\n    address {\n      street1\n      city\n      postalCode\n    }\n  }\n}",
+          "variables": {
+            "input": {
+              "street1": "123 Main St",
+              "city": "New York",
+              "state": "NY",
+              "postalCode": "10001",
+              "countryCode": "US",
+              "label": "Home",
+              "isDefaultShipping": true
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "addAddress": {
+                  "label": "Home",
+                  "address": {
+                    "street1": "123 Main St",
+                    "city": "New York",
+                    "postalCode": "10001"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "createProduct": {
+      "name": "createProduct",
+      "operationType": "mutation",
+      "description": "Create a new product listing (seller only)",
+      "arguments": [
+        {
+          "name": "input",
+          "description": "Product data",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "CreateProductInput",
+            "link": "#create-product-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Product",
+        "link": "#product"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Product Catalog",
+          "order": 2,
+          "subsection": "Mutations"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["products", "write", "seller-only"]
+        }
+      },
+      "referencedTypes": ["Product", "CreateProductInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Create New Product",
+          "description": "List a new product for sale",
+          "query": "mutation CreateProduct($input: CreateProductInput!) {\n  createProduct(input: $input) {\n    id\n    name\n    slug\n    price\n  }\n}",
+          "variables": {
+            "input": {
+              "name": "Wireless Headphones",
+              "description": "High quality noise cancelling headphones",
+              "price": "199.99",
+              "categoryId": "cat_123"
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "createProduct": {
+                  "id": "prod_new_123",
+                  "name": "Wireless Headphones",
+                  "slug": "wireless-headphones",
+                  "price": "199.99"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "updateProduct": {
+      "name": "updateProduct",
+      "operationType": "mutation",
+      "description": "Update an existing product (seller only)",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Product ID",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        },
+        {
+          "name": "input",
+          "description": "Product data to update",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UpdateProductInput",
+            "link": "#update-product-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Product",
+        "link": "#product"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Product Catalog",
+          "order": 2,
+          "subsection": "Mutations"
+        },
+        "docPriority": {
+          "level": 2
+        },
+        "docTags": {
+          "tags": ["products", "write", "seller-only"]
+        }
+      },
+      "referencedTypes": ["Product", "UUID", "UpdateProductInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Update Price",
+          "description": "Update product price and status",
+          "query": "mutation UpdateProduct($id: UUID!, $input: UpdateProductInput!) {\n  updateProduct(id: $id, input: $input) {\n    id\n    price\n    status\n  }\n}",
+          "variables": {
+            "id": "prod_123",
+            "input": {
+              "price": "149.99",
+              "status": "ON_SALE"
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "updateProduct": {
+                  "id": "prod_123",
+                  "price": "149.99",
+                  "status": "ON_SALE"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "deleteProduct": {
+      "name": "deleteProduct",
+      "operationType": "mutation",
+      "description": "Delete a product (soft delete)",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Product ID",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Boolean",
+        "link": "#boolean"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Product Catalog",
+          "order": 2,
+          "subsection": "Mutations"
+        },
+        "docPriority": {
+          "level": 3
+        },
+        "docTags": {
+          "tags": ["products", "write", "seller-only", "destructive"]
+        }
+      },
+      "referencedTypes": ["Boolean", "UUID"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Delete Product",
+          "description": "Soft delete a product",
+          "query": "mutation DeleteProduct($id: UUID!) {\n  deleteProduct(id: $id)\n}",
+          "variables": {
+            "id": "prod_123"
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "deleteProduct": true
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "addToCart": {
+      "name": "addToCart",
+      "operationType": "mutation",
+      "description": "Add an item to the shopping cart",
+      "arguments": [
+        {
+          "name": "input",
+          "description": "Item to add",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "AddToCartInput",
+            "link": "#add-to-cart-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Cart",
+        "link": "#cart"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Orders & Checkout",
+          "order": 3,
+          "subsection": "Cart"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["cart", "write", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Cart", "AddToCartInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Add Item",
+          "description": "Add a product to cart",
+          "query": "mutation AddToCart($input: AddToCartInput!) {\n  addToCart(input: $input) {\n    itemCount\n    total\n  }\n}",
+          "variables": {
+            "input": {
+              "productId": "prod_456",
+              "quantity": 1
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "addToCart": {
+                  "itemCount": 2,
+                  "total": "79.98"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "updateCartItem": {
+      "name": "updateCartItem",
+      "operationType": "mutation",
+      "description": "Update quantity of a cart item",
+      "arguments": [
+        {
+          "name": "input",
+          "description": "Update data",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UpdateCartItemInput",
+            "link": "#update-cart-item-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Cart",
+        "link": "#cart"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Orders & Checkout",
+          "order": 3,
+          "subsection": "Cart"
+        },
+        "docPriority": {
+          "level": 2
+        },
+        "docTags": {
+          "tags": ["cart", "write", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Cart", "UpdateCartItemInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Update Quantity",
+          "description": "Change item quantity in cart",
+          "query": "mutation UpdateCartItem($input: UpdateCartItemInput!) {\n  updateCartItem(input: $input) {\n    items {\n      quantity\n    }\n  }\n}",
+          "variables": {
+            "input": {
+              "itemId": "item_789",
+              "quantity": 3
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "updateCartItem": {
+                  "items": [
+                    {
+                      "quantity": 3
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "removeFromCart": {
+      "name": "removeFromCart",
+      "operationType": "mutation",
+      "description": "Remove an item from the cart",
+      "arguments": [
+        {
+          "name": "cartItemId",
+          "description": "Cart item ID to remove",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Cart",
+        "link": "#cart"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Orders & Checkout",
+          "order": 3,
+          "subsection": "Cart"
+        },
+        "docPriority": {
+          "level": 3
+        },
+        "docTags": {
+          "tags": ["cart", "write", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Cart", "UUID"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Remove Item",
+          "description": "Remove an item from cart",
+          "query": "mutation RemoveFromCart($id: UUID!) {\n  removeFromCart(cartItemId: $id) {\n    itemCount\n  }\n}",
+          "variables": {
+            "id": "item_789"
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "removeFromCart": {
+                  "itemCount": 1
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "placeOrder": {
+      "name": "placeOrder",
+      "operationType": "mutation",
+      "description": "Place an order from the current cart\n\nReturns either an Order on success, CheckoutError on failure,\nor PaymentPending if payment is still processing.",
+      "arguments": [
+        {
+          "name": "input",
+          "description": "Order placement data",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "PlaceOrderInput",
+            "link": "#place-order-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "CheckoutResult",
+        "link": "#checkout-result"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Orders & Checkout",
+          "order": 3,
+          "subsection": "Checkout"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["orders", "write", "auth-required", "payment"]
+        }
+      },
+      "referencedTypes": ["CheckoutResult", "PlaceOrderInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Place Standard Order",
+          "description": "Place a standard order with credit card payment",
+          "query": "mutation PlaceOrder($input: PlaceOrderInput!) {\n  placeOrder(input: $input) {\n    ... on Order {\n      id\n      orderNumber\n      status\n      total\n    }\n    ... on CheckoutError {\n      code\n      message\n    }\n  }\n}",
+          "variables": {
+            "input": {
+              "items": [
+                {
+                  "productId": "prod_123",
+                  "quantity": 1
+                }
+              ],
+              "shippingAddressId": "addr_456",
+              "paymentMethod": "CARD"
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "placeOrder": {
+                  "id": "ord_789",
+                  "orderNumber": "ORD-2024-001",
+                  "status": "PENDING",
+                  "total": "99.99"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        },
+        {
+          "code": "INVALID_CREDENTIALS",
+          "message": "Invalid email or password",
+          "description": "The provided credentials do not match any active account.",
+          "resolution": "Verify the email and password and try again.",
+          "httpStatus": 401
+        },
+        {
+          "code": "ACCOUNT_LOCKED",
+          "message": "Account is locked",
+          "description": "The account has been locked due to too many failed login attempts.",
+          "resolution": "Contact support to unlock the account.",
+          "httpStatus": 403
+        }
+      ]
+    },
+    "createReview": {
+      "name": "createReview",
+      "operationType": "mutation",
+      "description": "Create a review for a product",
+      "arguments": [
+        {
+          "name": "input",
+          "description": "Review data",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "CreateReviewInput",
+            "link": "#create-review-input"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Review",
+        "link": "#review"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Reviews & Ratings",
+          "order": 4
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["reviews", "write", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Review", "CreateReviewInput"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Write Review",
+          "description": "Submit a new product review",
+          "query": "mutation CreateReview($input: CreateReviewInput!) {\n  createReview(input: $input) {\n    id\n    rating\n    isApproved\n  }\n}",
+          "variables": {
+            "input": {
+              "productId": "prod_123",
+              "rating": 5,
+              "title": "Amazing!",
+              "comment": "Best purchase ever."
+            }
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "createReview": {
+                  "id": "rev_new_123",
+                  "rating": 5,
+                  "isApproved": false
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "markReviewHelpful": {
+      "name": "markReviewHelpful",
+      "operationType": "mutation",
+      "description": "Mark a review as helpful",
+      "arguments": [
+        {
+          "name": "reviewId",
+          "description": "Review ID",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        },
+        {
+          "name": "helpful",
+          "description": "Whether helpful (true) or not helpful (false)",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "Boolean",
+            "link": "#boolean"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Review",
+        "link": "#review"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Reviews & Ratings",
+          "order": 4
+        },
+        "docPriority": {
+          "level": 2
+        },
+        "docTags": {
+          "tags": ["reviews", "write", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Review", "UUID", "Boolean"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Mark Helpful",
+          "description": "Mark a review as helpful",
+          "query": "mutation MarkHelpful($id: UUID!, $helpful: Boolean!) {\n  markReviewHelpful(reviewId: $id, helpful: $helpful) {\n    helpfulCount\n  }\n}",
+          "variables": {
+            "id": "rev_123",
+            "helpful": true
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "markReviewHelpful": {
+                  "helpfulCount": 15
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    }
+  },
+  "subscription": {
+    "orderStatusChanged": {
+      "name": "orderStatusChanged",
+      "operationType": "subscription",
+      "description": "Subscribe to order status updates\n\nReceives real-time updates when the status of an order changes.\nUseful for showing live order tracking to customers.",
+      "arguments": [
+        {
+          "name": "orderId",
+          "description": "Order ID to subscribe to",
+          "isRequired": true,
+          "type": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        }
+      ],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Order",
+        "link": "#order"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Orders & Checkout",
+          "order": 3,
+          "subsection": "Subscriptions"
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["orders", "realtime", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Order", "UUID"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "Order Status Update",
+          "description": "Subscribe to updates for a specific order",
+          "query": "subscription OnOrderStatusChanged($orderId: UUID!) {\n  orderStatusChanged(orderId: $orderId) {\n    id\n    status\n    updatedAt\n  }\n}",
+          "variables": {
+            "orderId": "ord_789"
+          },
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "orderStatusChanged": {
+                  "id": "ord_789",
+                  "status": "SHIPPED",
+                  "updatedAt": "2024-01-16T14:30:00Z"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    },
+    "notificationReceived": {
+      "name": "notificationReceived",
+      "operationType": "subscription",
+      "description": "Subscribe to notifications for the current user\n\nReceives real-time notifications including order updates,\nprice alerts, stock alerts, and system messages.",
+      "arguments": [],
+      "returnType": {
+        "kind": "TYPE_REF",
+        "name": "Notification",
+        "link": "#notification"
+      },
+      "directives": {
+        "docGroup": {
+          "name": "Notifications",
+          "order": 5
+        },
+        "docPriority": {
+          "level": 1
+        },
+        "docTags": {
+          "tags": ["notifications", "realtime", "auth-required"]
+        }
+      },
+      "referencedTypes": ["Notification"],
+      "isDeprecated": false,
+      "examples": [
+        {
+          "name": "User Notifications",
+          "description": "Subscribe to real-time user notifications",
+          "query": "subscription OnNotification {\n  notificationReceived {\n    type\n    message\n    read\n  }\n}",
+          "variables": {},
+          "response": {
+            "type": "success",
+            "httpStatus": 200,
+            "body": {
+              "data": {
+                "notificationReceived": {
+                  "type": "PRICE_ALERT",
+                  "message": "An item in your wishlist is on sale!",
+                  "read": false
+                }
+              }
+            }
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "UNAUTHENTICATED",
+          "message": "Authentication required",
+          "description": "The operation requires authentication but no valid credentials were provided.",
+          "resolution": "Provide a valid Bearer token in the Authorization header.",
+          "httpStatus": 401
+        },
+        {
+          "code": "FORBIDDEN",
+          "message": "Access denied",
+          "description": "The authenticated user does not have permission to perform this action.",
+          "resolution": "Check the user's role and permissions.",
+          "httpStatus": 403
+        },
+        {
+          "code": "NOT_FOUND",
+          "message": "Resource not found",
+          "description": "The requested resource could not be found.",
+          "resolution": "Verify the ID or other identifiers used in the request.",
+          "httpStatus": 404
+        }
+      ]
+    }
+  }
+}

@@ -4,11 +4,13 @@ import { slugify } from '../../core/utils/string-utils';
 import { FieldTable } from './FieldTable';
 import { EnumDefinitionView } from './EnumDefinitionView';
 import { ExpansionProvider } from '../context/ExpansionProvider';
+import { TypeRegistryProvider } from '../context/TypeRegistryProvider';
 
 interface TypeDefinitionViewProps {
   type: ExpandedType;
   typeLinkBase?: string;
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  typesByName?: Record<string, ExpandedType>;
   children?: React.ReactNode;
 }
 
@@ -94,6 +96,7 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
   type,
   typeLinkBase,
   headingLevel = 2,
+  typesByName,
   children,
 }: TypeDefinitionViewProps) {
   if (!type) return null;
@@ -105,64 +108,68 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
   const description = 'description' in type ? type.description : undefined;
 
   return (
-    <ExpansionProvider>
-      <section className="gql-type-definition" data-type={typeName}>
-        <header className="gql-type-definition-header">
-          <div className="gql-type-definition-title-row">
-            <HeadingTag id={slug} className="gql-type-definition-title">
-              {typeName}
-            </HeadingTag>
-            <span className="gql-badge gql-badge-neutral gql-type-kind">{kindLabel}</span>
-          </div>
-          {(children || description) && (
-            <div className="gql-type-definition-description">
-              {children ? children : renderDescription(description)}
+    <TypeRegistryProvider typesByName={typesByName}>
+      <ExpansionProvider>
+        <section className="gql-type-definition" data-type={typeName}>
+          <header className="gql-type-definition-header">
+            <div className="gql-type-definition-title-row">
+              <HeadingTag id={slug} className="gql-type-definition-title">
+                {typeName}
+              </HeadingTag>
+              <span className="gql-badge gql-badge-neutral gql-type-kind">{kindLabel}</span>
+            </div>
+            {(children || description) && (
+              <div className="gql-type-definition-description">
+                {children ? children : renderDescription(description)}
+              </div>
+            )}
+          </header>
+
+          {type.kind === 'ENUM' && <EnumDefinitionView enumType={type as ExpandedEnum} />}
+
+          {(type.kind === 'OBJECT' ||
+            type.kind === 'INTERFACE' ||
+            type.kind === 'INPUT_OBJECT') && (
+            <div className="gql-type-definition-section">
+              <h3 className="gql-section-title">Fields</h3>
+              {type.fields?.length ? (
+                <FieldTable
+                  fields={type.fields}
+                  requiredStyle={type.kind === 'INPUT_OBJECT' ? 'label' : 'indicator'}
+                  typeLinkBase={typeLinkBase}
+                />
+              ) : (
+                <span className="gql-no-desc">No fields</span>
+              )}
             </div>
           )}
-        </header>
 
-        {type.kind === 'ENUM' && <EnumDefinitionView enumType={type as ExpandedEnum} />}
+          {type.kind === 'UNION' && (
+            <div className="gql-type-definition-section">
+              <h3 className="gql-section-title">Possible Types</h3>
+              {type.possibleTypes?.length ? (
+                <div className="gql-union-types">
+                  {type.possibleTypes.map((possible, index) => (
+                    <React.Fragment key={index}>
+                      {index > 0 && <span className="gql-operator">|</span>}
+                      {renderInlineType(possible, typeLinkBase)}
+                    </React.Fragment>
+                  ))}
+                </div>
+              ) : (
+                <span className="gql-no-desc">No possible types</span>
+              )}
+            </div>
+          )}
 
-        {(type.kind === 'OBJECT' || type.kind === 'INTERFACE' || type.kind === 'INPUT_OBJECT') && (
-          <div className="gql-type-definition-section">
-            <h3 className="gql-section-title">Fields</h3>
-            {type.fields?.length ? (
-              <FieldTable
-                fields={type.fields}
-                requiredStyle={type.kind === 'INPUT_OBJECT' ? 'label' : 'indicator'}
-                typeLinkBase={typeLinkBase}
-              />
-            ) : (
-              <span className="gql-no-desc">No fields</span>
-            )}
-          </div>
-        )}
-
-        {type.kind === 'UNION' && (
-          <div className="gql-type-definition-section">
-            <h3 className="gql-section-title">Possible Types</h3>
-            {type.possibleTypes?.length ? (
-              <div className="gql-union-types">
-                {type.possibleTypes.map((possible, index) => (
-                  <React.Fragment key={index}>
-                    {index > 0 && <span className="gql-operator">|</span>}
-                    {renderInlineType(possible, typeLinkBase)}
-                  </React.Fragment>
-                ))}
-              </div>
-            ) : (
-              <span className="gql-no-desc">No possible types</span>
-            )}
-          </div>
-        )}
-
-        {type.kind === 'SCALAR' && (
-          <div className="gql-type-definition-section">
-            <h3 className="gql-section-title">Scalar</h3>
-            <span className="gql-description-text">Scalar type</span>
-          </div>
-        )}
-      </section>
-    </ExpansionProvider>
+          {type.kind === 'SCALAR' && (
+            <div className="gql-type-definition-section">
+              <h3 className="gql-section-title">Scalar</h3>
+              <span className="gql-description-text">Scalar type</span>
+            </div>
+          )}
+        </section>
+      </ExpansionProvider>
+    </TypeRegistryProvider>
   );
 });

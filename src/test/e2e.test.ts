@@ -111,8 +111,11 @@ describe('End-to-End Generator Test', () => {
     );
     expect(getUserContent).toContain('Get a user by their unique ID'); // Operation description
     expect(getUserContent).toContain('The ID of the user to retrieve'); // Argument description
-    expect(getUserContent).toContain('Represents a registered user in the system'); // Return type description
-    expect(getUserContent).toContain('Unique username chosen by the user'); // Field description in return type
+    expect(getUserContent).toContain("import typesByName from '../../_data/types.json'");
+
+    const typesJsonContent = fs.readFileSync(path.join(outputDir, '_data/types.json'), 'utf-8');
+    expect(typesJsonContent).toContain('Represents a registered user in the system');
+    expect(typesJsonContent).toContain('Unique username chosen by the user');
 
     const createPostContent = fs.readFileSync(
       path.join(outputDir, 'content/posts/create-post.mdx'),

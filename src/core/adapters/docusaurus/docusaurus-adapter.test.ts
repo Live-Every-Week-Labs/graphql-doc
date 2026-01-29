@@ -112,6 +112,20 @@ describe('DocusaurusAdapter', () => {
     expect(content.link.type).toBe('generated-index');
   });
 
+  it('generates shared data files and imports by default', () => {
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+    const adapter = new DocusaurusAdapter();
+    const files = adapter.adapt(mockModel);
+
+    expect(files.find((f) => f.path === '_data/operations.json')).toBeDefined();
+    expect(files.find((f) => f.path === '_data/types.json')).toBeDefined();
+
+    const mdxFile = files.find((f) => f.path === 'users/get-user.mdx');
+    expect(mdxFile?.content).toContain("import operationsByType from '../_data/operations.json'");
+    expect(mdxFile?.content).toContain("import typesByName from '../_data/types.json'");
+    expect(mdxFile?.content).toContain('export const examplesByOperation');
+  });
+
   describe('Single-Page Mode', () => {
     beforeEach(() => {
       vi.resetAllMocks();

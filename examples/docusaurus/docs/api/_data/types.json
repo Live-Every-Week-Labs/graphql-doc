@@ -1,0 +1,5410 @@
+{
+  "Address": {
+    "kind": "OBJECT",
+    "name": "Address",
+    "description": "A physical address for shipping or billing",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "street1",
+        "description": "Street address line 1",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "street2",
+        "description": "Street address line 2 (apt, suite, etc.)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "city",
+        "description": "City name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "state",
+        "description": "State or province",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "postalCode",
+        "description": "Postal/ZIP code",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "countryCode",
+        "description": "Country code (ISO 3166-1 alpha-2)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isDefault",
+        "description": "Whether this is the default address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "AddressBook": {
+    "kind": "OBJECT",
+    "name": "AddressBook",
+    "description": "Collection of user addresses with labels",
+    "fields": [
+      {
+        "name": "addresses",
+        "description": "All addresses in the address book",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "LabeledAddress",
+            "link": "#labeled-address"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "defaultShipping",
+        "description": "Default shipping address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "LabeledAddress",
+          "link": "#labeled-address"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "defaultBilling",
+        "description": "Default billing address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "LabeledAddress",
+          "link": "#labeled-address"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "AddressInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "AddressInput",
+    "description": "Input for creating/updating an address",
+    "fields": [
+      {
+        "name": "street1",
+        "description": "Street address line 1",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "street2",
+        "description": "Street address line 2",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "city",
+        "description": "City",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "state",
+        "description": "State/province",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "postalCode",
+        "description": "Postal code",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "countryCode",
+        "description": "Country code",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "label",
+        "description": "Address label",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isDefaultShipping",
+        "description": "Set as default shipping",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isDefaultBilling",
+        "description": "Set as default billing",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "AddToCartInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "AddToCartInput",
+    "description": "Input for adding item to cart",
+    "fields": [
+      {
+        "name": "productId",
+        "description": "Product ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "variantId",
+        "description": "Variant ID (required if product has variants)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "quantity",
+        "description": "Quantity to add",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "customizations",
+        "description": "Customization options",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "OrderItemCustomizationInput",
+            "link": "#order-item-customization-input"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "Boolean": {
+    "kind": "SCALAR",
+    "name": "Boolean",
+    "description": "The `Boolean` scalar type represents `true` or `false`."
+  },
+  "Cart": {
+    "kind": "OBJECT",
+    "name": "Cart",
+    "description": "User's shopping cart",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "items",
+        "description": "Cart items",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "CartItem",
+            "link": "#cart-item"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "itemCount",
+        "description": "Number of items in cart",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "subtotal",
+        "description": "Cart subtotal",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "estimatedTax",
+        "description": "Estimated tax",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "estimatedTotal",
+        "description": "Estimated total",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "appliedCoupons",
+        "description": "Applied coupon codes",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "Coupon",
+            "link": "#coupon"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "updatedAt",
+        "description": "When cart was last updated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "CartItem": {
+    "kind": "OBJECT",
+    "name": "CartItem",
+    "description": "An item in the shopping cart",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "product",
+        "description": "The product",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Product",
+          "link": "#product"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "variant",
+        "description": "The specific variant",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ProductVariant",
+          "link": "#product-variant"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "quantity",
+        "description": "Quantity in cart",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "unitPrice",
+        "description": "Unit price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "totalPrice",
+        "description": "Total price for this item",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "Category": {
+    "kind": "OBJECT",
+    "name": "Category",
+    "description": "Product category with hierarchical structure\n\nCategories form a tree structure and contain products.\n**Circular Reference:** Category -> Product -> Category",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "slug",
+        "description": "URL-friendly slug",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "name",
+        "description": "Category name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Category description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "imageUrl",
+        "description": "Category image URL",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "parent",
+        "description": "Parent category (for hierarchy)",
+        "type": {
+          "kind": "CIRCULAR_REF",
+          "ref": "Category",
+          "link": "#category"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "children",
+        "description": "Child categories",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "CIRCULAR_REF",
+            "ref": "Category",
+            "link": "#category"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "breadcrumb",
+        "description": "Full path from root (e.g., \"Electronics > Phones > Smartphones\")",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "CIRCULAR_REF",
+            "ref": "Category",
+            "link": "#category"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "products",
+        "description": "Products in this category (circular reference with Product.category)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ProductConnection",
+          "link": "#product-connection"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "productCount",
+        "description": "Total number of products in this category (including subcategories)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "createdAt",
+        "description": "When created",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "updatedAt",
+        "description": "When last updated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": ["Timestamped"],
+    "isCollapsible": false
+  },
+  "CheckoutError": {
+    "kind": "OBJECT",
+    "name": "CheckoutError",
+    "description": "Error returned when checkout fails",
+    "fields": [
+      {
+        "name": "code",
+        "description": "Error code",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "message",
+        "description": "Human-readable error message",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "field",
+        "description": "Field that caused the error (if applicable)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "suggestion",
+        "description": "Suggested action to resolve",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "CheckoutResult": {
+    "kind": "UNION",
+    "name": "CheckoutResult",
+    "description": "Possible results of a checkout operation",
+    "possibleTypes": [
+      {
+        "kind": "TYPE_REF",
+        "name": "Order",
+        "link": "#order"
+      },
+      {
+        "kind": "TYPE_REF",
+        "name": "CheckoutError",
+        "link": "#checkout-error"
+      },
+      {
+        "kind": "TYPE_REF",
+        "name": "PaymentPending",
+        "link": "#payment-pending"
+      }
+    ]
+  },
+  "Coupon": {
+    "kind": "OBJECT",
+    "name": "Coupon",
+    "description": "A coupon/discount code",
+    "fields": [
+      {
+        "name": "code",
+        "description": "Coupon code",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Discount description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "discountValue",
+        "description": "Discount amount or percentage",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isPercentage",
+        "description": "Whether this is a percentage discount",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "CreateProductInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "CreateProductInput",
+    "description": "Input for creating a new product",
+    "fields": [
+      {
+        "name": "name",
+        "description": "Product name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shortDescription",
+        "description": "Short description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Full description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "price",
+        "description": "Base price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "compareAtPrice",
+        "description": "Compare-at price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "categoryId",
+        "description": "Category ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "additionalCategoryIds",
+        "description": "Additional category IDs",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "tags",
+        "description": "Product tags",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "variants",
+        "description": "Product variants",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ProductVariantInput",
+            "link": "#product-variant-input"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "specifications",
+        "description": "Product specifications",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ProductSpecificationInput",
+            "link": "#product-specification-input"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "seo",
+        "description": "SEO metadata",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "SEOInput",
+          "link": "#seoinput"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "status",
+        "description": "Initial status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ProductStatus",
+          "link": "#product-status"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "CreateReviewInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "CreateReviewInput",
+    "description": "Input for creating a review",
+    "fields": [
+      {
+        "name": "productId",
+        "description": "Product ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "rating",
+        "description": "Rating 1-5",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "title",
+        "description": "Review title",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "body",
+        "description": "Review body",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "pros",
+        "description": "Pros",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "cons",
+        "description": "Cons",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "CreateUserInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "CreateUserInput",
+    "description": "Input for creating a new user account",
+    "fields": [
+      {
+        "name": "email",
+        "description": "User's email address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "password",
+        "description": "User's password",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "displayName",
+        "description": "User's display name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "profile",
+        "description": "Initial profile information",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UserProfileInput",
+          "link": "#user-profile-input"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "Currency": {
+    "kind": "ENUM",
+    "name": "Currency",
+    "description": "Supported currencies for transactions",
+    "values": [
+      {
+        "name": "USD",
+        "description": "United States Dollar",
+        "isDeprecated": false
+      },
+      {
+        "name": "EUR",
+        "description": "Euro",
+        "isDeprecated": false
+      },
+      {
+        "name": "GBP",
+        "description": "British Pound Sterling",
+        "isDeprecated": false
+      },
+      {
+        "name": "JPY",
+        "description": "Japanese Yen",
+        "isDeprecated": false
+      }
+    ]
+  },
+  "DateTime": {
+    "kind": "SCALAR",
+    "name": "DateTime",
+    "description": "A date-time string in ISO 8601 format (e.g., \"2024-01-15T09:30:00Z\")"
+  },
+  "Float": {
+    "kind": "SCALAR",
+    "name": "Float",
+    "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
+  },
+  "Int": {
+    "kind": "SCALAR",
+    "name": "Int",
+    "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+  },
+  "InventoryInfo": {
+    "kind": "OBJECT",
+    "name": "InventoryInfo",
+    "description": "Inventory information for a product variant\n\nThis type demonstrates deep nesting: Product -> Variant -> Inventory -> Warehouse -> Region",
+    "fields": [
+      {
+        "name": "totalQuantity",
+        "description": "Total quantity across all warehouses",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "availableQuantity",
+        "description": "Quantity available for sale (excludes reserved)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "reservedQuantity",
+        "description": "Quantity reserved in carts",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "warehouseStock",
+        "description": "Per-warehouse breakdown",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "WarehouseStock",
+            "link": "#warehouse-stock"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "allowBackorder",
+        "description": "Whether to allow backorders",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "restockThreshold",
+        "description": "Restock threshold for alerts",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "LabeledAddress": {
+    "kind": "OBJECT",
+    "name": "LabeledAddress",
+    "description": "An address with a user-defined label",
+    "fields": [
+      {
+        "name": "address",
+        "description": "The address details",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Address",
+          "link": "#address"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "label",
+        "description": "User-defined label (e.g., \"Home\", \"Work\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isDefaultShipping",
+        "description": "Whether this is the default shipping address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isDefaultBilling",
+        "description": "Whether this is the default billing address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "Moderatable": {
+    "kind": "INTERFACE",
+    "name": "Moderatable",
+    "description": "Interface for content that can be moderated",
+    "fields": [
+      {
+        "name": "isApproved",
+        "description": "Whether the content has been approved by moderators",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "moderatedAt",
+        "description": "When the content was moderated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "moderatedBy",
+        "description": "The moderator who reviewed this content",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "User",
+          "link": "#user"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "Money": {
+    "kind": "SCALAR",
+    "name": "Money",
+    "description": "A monetary amount represented as a string with currency precision (e.g., \"19.99\")"
+  },
+  "Notification": {
+    "kind": "OBJECT",
+    "name": "Notification",
+    "description": "A notification sent to a user",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "type",
+        "description": "Notification type",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "NotificationType",
+          "link": "#notification-type"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "title",
+        "description": "Notification title",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "body",
+        "description": "Notification body",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "target",
+        "description": "The target entity this notification is about",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "NotificationTarget",
+          "link": "#notification-target"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isRead",
+        "description": "Whether the notification has been read",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "readAt",
+        "description": "When the notification was read",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "actionUrl",
+        "description": "Action URL (if applicable)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "createdAt",
+        "description": "When created",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "updatedAt",
+        "description": "When last updated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": ["Timestamped"],
+    "isCollapsible": false
+  },
+  "NotificationTarget": {
+    "kind": "UNION",
+    "name": "NotificationTarget",
+    "description": "The target of a notification - what the notification is about",
+    "possibleTypes": [
+      {
+        "kind": "TYPE_REF",
+        "name": "Order",
+        "link": "#order"
+      },
+      {
+        "kind": "TYPE_REF",
+        "name": "Product",
+        "link": "#product"
+      },
+      {
+        "kind": "TYPE_REF",
+        "name": "Review",
+        "link": "#review"
+      },
+      {
+        "kind": "TYPE_REF",
+        "name": "User",
+        "link": "#user"
+      }
+    ]
+  },
+  "NotificationType": {
+    "kind": "ENUM",
+    "name": "NotificationType",
+    "description": "Types of notifications sent to users",
+    "values": [
+      {
+        "name": "ORDER_UPDATE",
+        "description": "Order status update",
+        "isDeprecated": false
+      },
+      {
+        "name": "PRICE_ALERT",
+        "description": "Price drop on wishlist item",
+        "isDeprecated": false
+      },
+      {
+        "name": "STOCK_ALERT",
+        "description": "Product back in stock",
+        "isDeprecated": false
+      },
+      {
+        "name": "PROMOTION",
+        "description": "Promotional offer",
+        "isDeprecated": false
+      },
+      {
+        "name": "SYSTEM",
+        "description": "System announcement",
+        "isDeprecated": false
+      }
+    ]
+  },
+  "Order": {
+    "kind": "OBJECT",
+    "name": "Order",
+    "description": "A customer order\n\nOrders track the purchase lifecycle from cart to delivery.\n**Circular Reference:** Order -> User -> Orders",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "orderNumber",
+        "description": "Human-readable order number",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "customer",
+        "description": "Customer who placed the order (circular reference)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "User",
+          "link": "#user"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "status",
+        "description": "Current order status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "OrderStatus",
+          "link": "#order-status"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "items",
+        "description": "Order line items",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "OrderItem",
+            "link": "#order-item"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "subtotal",
+        "description": "Subtotal before tax and shipping",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "taxAmount",
+        "description": "Tax amount",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shippingAmount",
+        "description": "Shipping cost",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "discountAmount",
+        "description": "Discount amount",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "total",
+        "description": "Total order amount",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "currency",
+        "description": "Currency used for this order",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Currency",
+          "link": "#currency"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shippingAddress",
+        "description": "Shipping address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Address",
+          "link": "#address"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "billingAddress",
+        "description": "Billing address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Address",
+          "link": "#address"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "payment",
+        "description": "Payment information",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "PaymentInfo",
+          "link": "#payment-info"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shipping",
+        "description": "Shipping information",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ShippingInfo",
+          "link": "#shipping-info"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "appliedCoupons",
+        "description": "Applied coupon codes",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "Coupon",
+            "link": "#coupon"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "customerNotes",
+        "description": "Order notes from customer",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "internalNotes",
+        "description": "Internal notes (admin only)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "timeline",
+        "description": "Order history/timeline",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "OrderEvent",
+            "link": "#order-event"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "createdAt",
+        "description": "When created",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "updatedAt",
+        "description": "When last updated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": ["Timestamped"],
+    "isCollapsible": false
+  },
+  "OrderConnection": {
+    "kind": "OBJECT",
+    "name": "OrderConnection",
+    "description": "Paginated list of orders",
+    "fields": [
+      {
+        "name": "edges",
+        "description": "The orders",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "OrderEdge",
+            "link": "#order-edge"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "pageInfo",
+        "description": "Pagination info",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "PageInfo",
+          "link": "#page-info"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "OrderEdge": {
+    "kind": "OBJECT",
+    "name": "OrderEdge",
+    "description": "Order edge for pagination",
+    "fields": [
+      {
+        "name": "node",
+        "description": "The order",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Order",
+          "link": "#order"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "cursor",
+        "description": "Pagination cursor",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "OrderEvent": {
+    "kind": "OBJECT",
+    "name": "OrderEvent",
+    "description": "An event in the order timeline",
+    "fields": [
+      {
+        "name": "type",
+        "description": "Event type",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Event description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "occurredAt",
+        "description": "When the event occurred",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "actor",
+        "description": "User who triggered the event (if applicable)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "User",
+          "link": "#user"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "OrderFilterInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "OrderFilterInput",
+    "description": "Filter options for listing orders",
+    "fields": [
+      {
+        "name": "status",
+        "description": "Filter by status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "OrderStatus",
+          "link": "#order-status"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "statuses",
+        "description": "Filter by statuses",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "OrderStatus",
+            "link": "#order-status"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "fromDate",
+        "description": "Minimum date",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "toDate",
+        "description": "Maximum date",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "minTotal",
+        "description": "Minimum total",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "maxTotal",
+        "description": "Maximum total",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "OrderItem": {
+    "kind": "OBJECT",
+    "name": "OrderItem",
+    "description": "A line item in an order",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "product",
+        "description": "The product ordered",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Product",
+          "link": "#product"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "variant",
+        "description": "The specific variant ordered",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ProductVariant",
+          "link": "#product-variant"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "quantity",
+        "description": "Quantity ordered",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "unitPrice",
+        "description": "Price per unit at time of order",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "totalPrice",
+        "description": "Total price for this line item",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "customizations",
+        "description": "Any customization options selected",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "OrderItemCustomization",
+            "link": "#order-item-customization"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "OrderItemCustomization": {
+    "kind": "OBJECT",
+    "name": "OrderItemCustomization",
+    "description": "Customization applied to an order item",
+    "fields": [
+      {
+        "name": "name",
+        "description": "Customization name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "value",
+        "description": "Customization value",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "additionalCost",
+        "description": "Additional cost for this customization",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "OrderItemCustomizationInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "OrderItemCustomizationInput",
+    "description": "Input for order item customization",
+    "fields": [
+      {
+        "name": "name",
+        "description": "Customization name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "value",
+        "description": "Customization value",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "OrderStatus": {
+    "kind": "ENUM",
+    "name": "OrderStatus",
+    "description": "The lifecycle status of an order",
+    "values": [
+      {
+        "name": "PENDING",
+        "description": "Order has been placed but not yet processed",
+        "isDeprecated": false
+      },
+      {
+        "name": "CONFIRMED",
+        "description": "Payment has been confirmed",
+        "isDeprecated": false
+      },
+      {
+        "name": "PROCESSING",
+        "description": "Order is being prepared for shipment",
+        "isDeprecated": false
+      },
+      {
+        "name": "SHIPPED",
+        "description": "Order has been shipped",
+        "isDeprecated": false
+      },
+      {
+        "name": "DELIVERED",
+        "description": "Order has been delivered",
+        "isDeprecated": false
+      },
+      {
+        "name": "CANCELLED",
+        "description": "Order has been cancelled",
+        "isDeprecated": false
+      },
+      {
+        "name": "REFUNDED",
+        "description": "Order has been refunded",
+        "isDeprecated": false
+      }
+    ]
+  },
+  "PageInfo": {
+    "kind": "OBJECT",
+    "name": "PageInfo",
+    "description": "Pagination information following the Relay spec",
+    "fields": [
+      {
+        "name": "hasNextPage",
+        "description": "Whether there are more items after",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "hasPreviousPage",
+        "description": "Whether there are more items before",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "startCursor",
+        "description": "Cursor of the first item",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "endCursor",
+        "description": "Cursor of the last item",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "totalCount",
+        "description": "Total count of items",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "PaymentInfo": {
+    "kind": "OBJECT",
+    "name": "PaymentInfo",
+    "description": "Payment information for an order",
+    "fields": [
+      {
+        "name": "method",
+        "description": "Payment method used",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "PaymentMethod",
+          "link": "#payment-method"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "status",
+        "description": "Payment status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "transactionId",
+        "description": "Transaction ID from payment processor",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "cardLast4",
+        "description": "Last 4 digits of card (if applicable)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "cardBrand",
+        "description": "Card brand (if applicable)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "processedAt",
+        "description": "When payment was processed",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "PaymentMethod": {
+    "kind": "ENUM",
+    "name": "PaymentMethod",
+    "description": "Payment methods accepted by the platform",
+    "values": [
+      {
+        "name": "CARD",
+        "description": "Credit or debit card payment",
+        "isDeprecated": false
+      },
+      {
+        "name": "PAYPAL",
+        "description": "PayPal payment",
+        "isDeprecated": false
+      },
+      {
+        "name": "BANK_TRANSFER",
+        "description": "Bank transfer",
+        "isDeprecated": false
+      },
+      {
+        "name": "CRYPTO",
+        "description": "Cryptocurrency payment",
+        "isDeprecated": true,
+        "deprecationReason": "Crypto payments will be removed in v2.0. Use CARD or PAYPAL instead."
+      }
+    ]
+  },
+  "PaymentPending": {
+    "kind": "OBJECT",
+    "name": "PaymentPending",
+    "description": "Returned when payment is still processing",
+    "fields": [
+      {
+        "name": "paymentId",
+        "description": "Pending payment ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "expectedCompletionAt",
+        "description": "Expected completion time",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "statusUrl",
+        "description": "URL to check payment status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "instructions",
+        "description": "Instructions for the user",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "PlaceOrderInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "PlaceOrderInput",
+    "description": "Input for placing an order",
+    "fields": [
+      {
+        "name": "shippingAddressId",
+        "description": "Shipping address ID or new address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shippingAddress",
+        "description": "New shipping address (if not using existing)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "AddressInput",
+          "link": "#address-input"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "billingAddressId",
+        "description": "Billing address ID or new address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "billingAddress",
+        "description": "New billing address (if not using existing)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "AddressInput",
+          "link": "#address-input"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "useSameAddress",
+        "description": "Use shipping address for billing",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shippingMethodId",
+        "description": "Selected shipping method ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "paymentMethod",
+        "description": "Payment method",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "PaymentMethod",
+          "link": "#payment-method"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "paymentToken",
+        "description": "Payment token from payment processor",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "couponCodes",
+        "description": "Coupon codes to apply",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "notes",
+        "description": "Customer notes",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "Product": {
+    "kind": "OBJECT",
+    "name": "Product",
+    "description": "A product available for purchase\n\nProducts belong to categories and can have multiple variants (size, color, etc.).\nEach product tracks inventory and pricing information.\n\n**Circular Reference:** Product -> Category -> Product (products)\n**Deep Nesting:** Product -> variants -> inventory -> warehouse -> region",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "slug",
+        "description": "URL-friendly slug",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "name",
+        "description": "Product name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shortDescription",
+        "description": "Short description for listings",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Full product description (supports markdown)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "images",
+        "description": "Product images",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ProductImage",
+            "link": "#product-image"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "primaryImage",
+        "description": "Primary/featured image",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ProductImage",
+          "link": "#product-image"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "price",
+        "description": "Current price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "compareAtPrice",
+        "description": "Original price before discount (if on sale)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isOnSale",
+        "description": "Whether product is currently on sale",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "status",
+        "description": "Product status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ProductStatus",
+          "link": "#product-status"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "category",
+        "description": "Product category (creates circular reference)\nCategory contains a list of products, and each product references its category",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Category",
+          "link": "#category"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "additionalCategories",
+        "description": "Additional categories this product belongs to",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "Category",
+            "link": "#category"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "tags",
+        "description": "Product tags for filtering",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "variants",
+        "description": "Product variants (size, color combinations)",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ProductVariant",
+            "link": "#product-variant"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "totalInventory",
+        "description": "Total inventory across all variants",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isInStock",
+        "description": "Whether any variant is in stock",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "seller",
+        "description": "Seller who listed this product",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "User",
+          "link": "#user"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "reviews",
+        "description": "Product reviews (circular: Review references Product)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ReviewConnection",
+          "link": "#review-connection"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "averageRating",
+        "description": "Average rating (1-5)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Float",
+          "link": "#float"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "reviewCount",
+        "description": "Total number of reviews",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "relatedProducts",
+        "description": "Related products (for \"You might also like\")",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "CIRCULAR_REF",
+            "ref": "Product",
+            "link": "#product"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "frequentlyBoughtWith",
+        "description": "Products frequently bought together",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "CIRCULAR_REF",
+            "ref": "Product",
+            "link": "#product"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "specifications",
+        "description": "Product specifications/attributes",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ProductSpecification",
+            "link": "#product-specification"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "seo",
+        "description": "SEO metadata",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "SEOMetadata",
+          "link": "#seometadata"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "createdAt",
+        "description": "When created",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "updatedAt",
+        "description": "When last updated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "deletedAt",
+        "description": "When deleted (soft delete)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isDeleted",
+        "description": "Whether deleted",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": ["Timestamped", "SoftDeletable"],
+    "isCollapsible": false
+  },
+  "ProductConnection": {
+    "kind": "OBJECT",
+    "name": "ProductConnection",
+    "description": "Paginated list of products",
+    "fields": [
+      {
+        "name": "edges",
+        "description": "The products",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ProductEdge",
+            "link": "#product-edge"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "pageInfo",
+        "description": "Pagination info",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "PageInfo",
+          "link": "#page-info"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ProductEdge": {
+    "kind": "OBJECT",
+    "name": "ProductEdge",
+    "description": "Product edge for pagination",
+    "fields": [
+      {
+        "name": "node",
+        "description": "The product",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Product",
+          "link": "#product"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "cursor",
+        "description": "Pagination cursor",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ProductFilterInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "ProductFilterInput",
+    "description": "Filter options for listing products",
+    "fields": [
+      {
+        "name": "categoryId",
+        "description": "Filter by category ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "categoryIds",
+        "description": "Filter by category IDs",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "minPrice",
+        "description": "Minimum price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "maxPrice",
+        "description": "Maximum price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "status",
+        "description": "Filter by status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ProductStatus",
+          "link": "#product-status"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "sellerId",
+        "description": "Filter by seller ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "tags",
+        "description": "Filter by tags",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "inStockOnly",
+        "description": "Only show items in stock",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "onSaleOnly",
+        "description": "Only show items on sale",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "minRating",
+        "description": "Minimum rating",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Float",
+          "link": "#float"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "searchQuery",
+        "description": "Search query",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "ProductImage": {
+    "kind": "OBJECT",
+    "name": "ProductImage",
+    "description": "Product image with multiple sizes",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "url",
+        "description": "Original image URL",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "thumbnailUrl",
+        "description": "Thumbnail URL (100x100)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "mediumUrl",
+        "description": "Medium size URL (400x400)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "largeUrl",
+        "description": "Large size URL (800x800)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "altText",
+        "description": "Alt text for accessibility",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "sortOrder",
+        "description": "Display order",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ProductSortField": {
+    "kind": "ENUM",
+    "name": "ProductSortField",
+    "description": "Fields available for sorting product listings",
+    "values": [
+      {
+        "name": "NAME",
+        "description": "Sort by product name",
+        "isDeprecated": false
+      },
+      {
+        "name": "PRICE",
+        "description": "Sort by price",
+        "isDeprecated": false
+      },
+      {
+        "name": "CREATED_AT",
+        "description": "Sort by creation date",
+        "isDeprecated": false
+      },
+      {
+        "name": "POPULARITY",
+        "description": "Sort by popularity/sales",
+        "isDeprecated": false
+      },
+      {
+        "name": "RATING",
+        "description": "Sort by average rating",
+        "isDeprecated": false
+      }
+    ]
+  },
+  "ProductSpecification": {
+    "kind": "OBJECT",
+    "name": "ProductSpecification",
+    "description": "A key-value specification for a product",
+    "fields": [
+      {
+        "name": "name",
+        "description": "Specification name (e.g., \"Material\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "value",
+        "description": "Specification value (e.g., \"100% Cotton\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "unit",
+        "description": "Optional unit (e.g., \"cm\", \"kg\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ProductSpecificationInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "ProductSpecificationInput",
+    "description": "Input for a product specification",
+    "fields": [
+      {
+        "name": "name",
+        "description": "Specification name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "value",
+        "description": "Specification value",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "unit",
+        "description": "Unit",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "ProductStatus": {
+    "kind": "ENUM",
+    "name": "ProductStatus",
+    "description": "Product availability status in the catalog",
+    "values": [
+      {
+        "name": "AVAILABLE",
+        "description": "Product is available for purchase",
+        "isDeprecated": false
+      },
+      {
+        "name": "OUT_OF_STOCK",
+        "description": "Product is temporarily out of stock",
+        "isDeprecated": false
+      },
+      {
+        "name": "HIDDEN",
+        "description": "Product listing is hidden from customers",
+        "isDeprecated": false
+      },
+      {
+        "name": "DISCONTINUED",
+        "description": "Product has been discontinued",
+        "isDeprecated": false
+      }
+    ]
+  },
+  "ProductVariant": {
+    "kind": "OBJECT",
+    "name": "ProductVariant",
+    "description": "A specific variant of a product (e.g., \"Large, Blue\")",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "sku",
+        "description": "SKU (Stock Keeping Unit)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "name",
+        "description": "Variant name (e.g., \"Large / Blue\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "price",
+        "description": "Variant-specific price (if different from base)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "options",
+        "description": "Variant options (size, color, etc.)",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "VariantOption",
+            "link": "#variant-option"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "inventory",
+        "description": "Inventory information - contains warehouse details (deep nesting)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "InventoryInfo",
+          "link": "#inventory-info"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "weightGrams",
+        "description": "Weight in grams (for shipping calculation)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isAvailable",
+        "description": "Whether this variant is available for purchase",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ProductVariantInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "ProductVariantInput",
+    "description": "Input for creating a product variant",
+    "fields": [
+      {
+        "name": "sku",
+        "description": "SKU",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "name",
+        "description": "Variant name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "price",
+        "description": "Variant-specific price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "options",
+        "description": "Variant options",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "VariantOptionInput",
+            "link": "#variant-option-input"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "initialQuantity",
+        "description": "Initial inventory quantity",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "weightGrams",
+        "description": "Weight in grams",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "Region": {
+    "kind": "OBJECT",
+    "name": "Region",
+    "description": "A geographic region for shipping and warehousing\n\nThis is the deepest level of nesting in the Product hierarchy.",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "name",
+        "description": "Region name (e.g., \"North America\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "code",
+        "description": "Region code (e.g., \"NA\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "countries",
+        "description": "Countries in this region",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "defaultCurrency",
+        "description": "Default currency for this region",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Currency",
+          "link": "#currency"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shippingMethods",
+        "description": "Available shipping methods",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ShippingMethod",
+            "link": "#shipping-method"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "Review": {
+    "kind": "OBJECT",
+    "name": "Review",
+    "description": "A product review written by a user\n\n**Circular Reference:** Review -> User -> Reviews\n**Circular Reference:** Review -> Product -> Reviews",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "product",
+        "description": "The product being reviewed",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Product",
+          "link": "#product"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "author",
+        "description": "The user who wrote the review (circular reference)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "User",
+          "link": "#user"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "rating",
+        "description": "Rating from 1 to 5",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "title",
+        "description": "Review title",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "body",
+        "description": "Review body text",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "pros",
+        "description": "Pros mentioned by reviewer",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "cons",
+        "description": "Cons mentioned by reviewer",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "images",
+        "description": "Attached images",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ReviewImage",
+            "link": "#review-image"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "isVerifiedPurchase",
+        "description": "Whether reviewer is a verified purchaser",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "helpfulCount",
+        "description": "Number of users who found this helpful",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "unhelpfulCount",
+        "description": "Number of users who found this unhelpful",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "replies",
+        "description": "Replies to this review",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ReviewReply",
+            "link": "#review-reply"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "isApproved",
+        "description": "Whether approved by moderators",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "moderatedAt",
+        "description": "When moderated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "moderatedBy",
+        "description": "Who moderated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "User",
+          "link": "#user"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "createdAt",
+        "description": "When created",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "updatedAt",
+        "description": "When last updated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": ["Timestamped", "Moderatable"],
+    "isCollapsible": false
+  },
+  "ReviewConnection": {
+    "kind": "OBJECT",
+    "name": "ReviewConnection",
+    "description": "Paginated list of reviews",
+    "fields": [
+      {
+        "name": "edges",
+        "description": "The reviews",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "ReviewEdge",
+            "link": "#review-edge"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "pageInfo",
+        "description": "Pagination info",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "PageInfo",
+          "link": "#page-info"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ReviewEdge": {
+    "kind": "OBJECT",
+    "name": "ReviewEdge",
+    "description": "Review edge for pagination",
+    "fields": [
+      {
+        "name": "node",
+        "description": "The review",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Review",
+          "link": "#review"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "cursor",
+        "description": "Pagination cursor",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ReviewImage": {
+    "kind": "OBJECT",
+    "name": "ReviewImage",
+    "description": "Image attached to a review",
+    "fields": [
+      {
+        "name": "url",
+        "description": "Image URL",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "caption",
+        "description": "Image caption",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ReviewReply": {
+    "kind": "OBJECT",
+    "name": "ReviewReply",
+    "description": "A reply to a review (typically from seller)",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "author",
+        "description": "Reply author",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "User",
+          "link": "#user"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "body",
+        "description": "Reply text",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isSellerResponse",
+        "description": "Whether this is an official seller response",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "createdAt",
+        "description": "When created",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "SearchResult": {
+    "kind": "UNION",
+    "name": "SearchResult",
+    "description": "Result of a search query - can return products, users, or categories",
+    "possibleTypes": [
+      {
+        "kind": "TYPE_REF",
+        "name": "Product",
+        "link": "#product"
+      },
+      {
+        "kind": "TYPE_REF",
+        "name": "User",
+        "link": "#user"
+      },
+      {
+        "kind": "TYPE_REF",
+        "name": "Category",
+        "link": "#category"
+      }
+    ]
+  },
+  "SEOInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "SEOInput",
+    "description": "Input for SEO metadata",
+    "fields": [
+      {
+        "name": "title",
+        "description": "Meta title",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Meta description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "keywords",
+        "description": "Meta keywords",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "canonicalUrl",
+        "description": "Canonical URL",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "SEOMetadata": {
+    "kind": "OBJECT",
+    "name": "SEOMetadata",
+    "description": "SEO metadata for products and pages",
+    "fields": [
+      {
+        "name": "title",
+        "description": "Meta title",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Meta description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "keywords",
+        "description": "Meta keywords",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "canonicalUrl",
+        "description": "Canonical URL",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "ogImage",
+        "description": "Open Graph image URL",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ShippingInfo": {
+    "kind": "OBJECT",
+    "name": "ShippingInfo",
+    "description": "Shipping information for an order",
+    "fields": [
+      {
+        "name": "method",
+        "description": "Shipping method selected",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ShippingMethod",
+          "link": "#shipping-method"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "carrier",
+        "description": "Carrier name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "trackingNumber",
+        "description": "Tracking number",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "trackingUrl",
+        "description": "Tracking URL",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "estimatedDelivery",
+        "description": "Estimated delivery date",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "deliveredAt",
+        "description": "Actual delivery date",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "ShippingMethod": {
+    "kind": "OBJECT",
+    "name": "ShippingMethod",
+    "description": "Available shipping method",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "name",
+        "description": "Method name (e.g., \"Standard Shipping\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Method description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "baseCost",
+        "description": "Base cost",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "estimatedDaysMin",
+        "description": "Estimated delivery days (min)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "estimatedDaysMax",
+        "description": "Estimated delivery days (max)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isAvailable",
+        "description": "Whether this method is available",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "SoftDeletable": {
+    "kind": "INTERFACE",
+    "name": "SoftDeletable",
+    "description": "Interface for entities that can be soft-deleted\n\nEntities implementing this interface are never permanently deleted\nbut instead marked as deleted with a timestamp.",
+    "fields": [
+      {
+        "name": "deletedAt",
+        "description": "When the entity was deleted, null if not deleted",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isDeleted",
+        "description": "Whether the entity is currently deleted",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "SortDirection": {
+    "kind": "ENUM",
+    "name": "SortDirection",
+    "description": "Sort direction for list queries",
+    "values": [
+      {
+        "name": "ASC",
+        "description": "Ascending order (A-Z, 0-9, oldest first)",
+        "isDeprecated": false
+      },
+      {
+        "name": "DESC",
+        "description": "Descending order (Z-A, 9-0, newest first)",
+        "isDeprecated": false
+      }
+    ]
+  },
+  "String": {
+    "kind": "SCALAR",
+    "name": "String",
+    "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
+  },
+  "Timestamped": {
+    "kind": "INTERFACE",
+    "name": "Timestamped",
+    "description": "Base interface for all entities with timestamps\n\nAll database entities implement this interface to provide\nconsistent timestamp tracking.",
+    "fields": [
+      {
+        "name": "createdAt",
+        "description": "When the entity was created",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "updatedAt",
+        "description": "When the entity was last updated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "UpdateCartItemInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "UpdateCartItemInput",
+    "description": "Input for updating cart item quantity",
+    "fields": [
+      {
+        "name": "cartItemId",
+        "description": "Cart item ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "quantity",
+        "description": "New quantity (0 to remove)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "UpdateProductInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "UpdateProductInput",
+    "description": "Input for updating a product",
+    "fields": [
+      {
+        "name": "name",
+        "description": "Product name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "shortDescription",
+        "description": "Short description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "description",
+        "description": "Full description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "price",
+        "description": "Base price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "compareAtPrice",
+        "description": "Compare-at price",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "categoryId",
+        "description": "Category ID",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "additionalCategoryIds",
+        "description": "Additional category IDs",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "UUID",
+            "link": "#uuid"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "tags",
+        "description": "Product tags",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "String",
+            "link": "#string"
+          }
+        },
+        "isRequired": false,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "status",
+        "description": "Product status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ProductStatus",
+          "link": "#product-status"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "seo",
+        "description": "SEO metadata",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "SEOInput",
+          "link": "#seoinput"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "User": {
+    "kind": "OBJECT",
+    "name": "User",
+    "description": "A registered user of the platform\n\nUsers can be customers, sellers, or administrators. Each user has a profile,\ncan place orders, write reviews, and manage their wishlist.\n\n**Circular Reference:** User -> Order -> User (orderBy)\n**Circular Reference:** User -> Review -> User (author)",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier for the user",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "email",
+        "description": "User's email address (unique)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "displayName",
+        "description": "User's display name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "avatarUrl",
+        "description": "URL to user's avatar image",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "status",
+        "description": "User's account status",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UserStatus",
+          "link": "#user-status"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "role",
+        "description": "User's role and permissions",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UserRole",
+          "link": "#user-role"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "profile",
+        "description": "User's profile information",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UserProfile",
+          "link": "#user-profile"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "addresses",
+        "description": "User's shipping addresses\n@deprecated Use `addressBook` instead for better address management",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "Address",
+            "link": "#address"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": true,
+        "deprecationReason": "Use `addressBook` instead for better address management"
+      },
+      {
+        "name": "addressBook",
+        "description": "User's address book with labeled addresses",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "AddressBook",
+          "link": "#address-book"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "orders",
+        "description": "Orders placed by this user (creates circular reference with Order.customer)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "OrderConnection",
+          "link": "#order-connection"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "reviews",
+        "description": "Reviews written by this user (creates circular reference with Review.author)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "ReviewConnection",
+          "link": "#review-connection"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "wishlist",
+        "description": "Products in user's wishlist",
+        "type": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "TYPE_REF",
+            "name": "Product",
+            "link": "#product"
+          }
+        },
+        "isRequired": true,
+        "isList": true,
+        "isDeprecated": false
+      },
+      {
+        "name": "cart",
+        "description": "User's shopping cart",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Cart",
+          "link": "#cart"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "totalSpent",
+        "description": "Total amount spent by this user",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Money",
+          "link": "#money"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "orderCount",
+        "description": "Number of orders placed",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "createdAt",
+        "description": "When the user was created",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "updatedAt",
+        "description": "When the user was last updated",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "deletedAt",
+        "description": "When the user was deleted (soft delete)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isDeleted",
+        "description": "Whether the user account is deleted",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": ["Timestamped", "SoftDeletable"],
+    "isCollapsible": false
+  },
+  "UserProfile": {
+    "kind": "OBJECT",
+    "name": "UserProfile",
+    "description": "Extended profile information for a user",
+    "fields": [
+      {
+        "name": "firstName",
+        "description": "User's first name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "lastName",
+        "description": "User's last name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "phoneNumber",
+        "description": "User's phone number",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "dateOfBirth",
+        "description": "User's date of birth",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "bio",
+        "description": "User's bio or description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "preferredLanguage",
+        "description": "User's preferred language (ISO 639-1 code)",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "preferredCurrency",
+        "description": "User's preferred currency",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Currency",
+          "link": "#currency"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "marketingOptIn",
+        "description": "Whether user has opted into marketing emails",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "UserProfileInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "UserProfileInput",
+    "description": "Input for updating user profile",
+    "fields": [
+      {
+        "name": "firstName",
+        "description": "First name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "lastName",
+        "description": "Last name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "phoneNumber",
+        "description": "Phone number",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "dateOfBirth",
+        "description": "Date of birth",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "DateTime",
+          "link": "#date-time"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "bio",
+        "description": "Bio/description",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "preferredLanguage",
+        "description": "Preferred language code",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "preferredCurrency",
+        "description": "Preferred currency",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Currency",
+          "link": "#currency"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "marketingOptIn",
+        "description": "Marketing opt-in",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": false,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "UserRole": {
+    "kind": "ENUM",
+    "name": "UserRole",
+    "description": "User role determining access levels and permissions",
+    "values": [
+      {
+        "name": "CUSTOMER",
+        "description": "Regular customer with standard permissions",
+        "isDeprecated": false
+      },
+      {
+        "name": "SELLER",
+        "description": "Seller with ability to list products",
+        "isDeprecated": false
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator with full system access",
+        "isDeprecated": false
+      },
+      {
+        "name": "SUPPORT",
+        "description": "Support staff with limited admin capabilities",
+        "isDeprecated": false
+      }
+    ]
+  },
+  "UserStatus": {
+    "kind": "ENUM",
+    "name": "UserStatus",
+    "description": "The current status of a user account",
+    "values": [
+      {
+        "name": "ACTIVE",
+        "description": "User account is active and in good standing",
+        "isDeprecated": false
+      },
+      {
+        "name": "SUSPENDED",
+        "description": "User account is temporarily suspended",
+        "isDeprecated": false
+      },
+      {
+        "name": "BANNED",
+        "description": "User account has been permanently banned",
+        "isDeprecated": false
+      },
+      {
+        "name": "PENDING_VERIFICATION",
+        "description": "User account is pending email verification",
+        "isDeprecated": false
+      }
+    ]
+  },
+  "UUID": {
+    "kind": "SCALAR",
+    "name": "UUID",
+    "description": "A universally unique identifier in UUID v4 format"
+  },
+  "VariantOption": {
+    "kind": "OBJECT",
+    "name": "VariantOption",
+    "description": "A single option for a variant (e.g., \"Size: Large\")",
+    "fields": [
+      {
+        "name": "name",
+        "description": "Option name (e.g., \"Size\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "value",
+        "description": "Option value (e.g., \"Large\")",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "VariantOptionInput": {
+    "kind": "INPUT_OBJECT",
+    "name": "VariantOptionInput",
+    "description": "Input for a variant option",
+    "fields": [
+      {
+        "name": "name",
+        "description": "Option name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "value",
+        "description": "Option value",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "isCollapsible": false
+  },
+  "Warehouse": {
+    "kind": "OBJECT",
+    "name": "Warehouse",
+    "description": "A physical warehouse location",
+    "fields": [
+      {
+        "name": "id",
+        "description": "Unique identifier",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "UUID",
+          "link": "#uuid"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "name",
+        "description": "Warehouse name",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "code",
+        "description": "Warehouse code",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "String",
+          "link": "#string"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "region",
+        "description": "Geographic region",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Region",
+          "link": "#region"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "address",
+        "description": "Warehouse address",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Address",
+          "link": "#address"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "isActive",
+        "description": "Whether warehouse is currently operational",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  },
+  "WarehouseStock": {
+    "kind": "OBJECT",
+    "name": "WarehouseStock",
+    "description": "Stock information at a specific warehouse",
+    "fields": [
+      {
+        "name": "warehouse",
+        "description": "The warehouse",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Warehouse",
+          "link": "#warehouse"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "quantity",
+        "description": "Quantity at this warehouse",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Int",
+          "link": "#int"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      },
+      {
+        "name": "canFulfill",
+        "description": "Whether this location can fulfill orders",
+        "type": {
+          "kind": "TYPE_REF",
+          "name": "Boolean",
+          "link": "#boolean"
+        },
+        "isRequired": true,
+        "isList": false,
+        "isDeprecated": false
+      }
+    ],
+    "interfaces": [],
+    "isCollapsible": false
+  }
+}

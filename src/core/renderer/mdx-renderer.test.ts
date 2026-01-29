@@ -43,4 +43,11 @@ describe('MdxRenderer', () => {
     expect(output).toContain('const operation_get_user');
     expect(output).toMatch(/headingLevel=\{\s*4\s*\}/);
   });
+
+  it('renders operation with a data reference when provided', () => {
+    const output = renderer.renderOperation(mockOperation, {
+      dataReference: "operationsByType['query']['getUser']",
+    });
+    expect(output).toContain("export const operation = operationsByType['query']['getUser']");
+  });
 });

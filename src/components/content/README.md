@@ -97,7 +97,7 @@ const args: ExpandedArgument[] = [ ... ];
 
 ### `OperationView`
 
-`OperationView` renders a complete GraphQL operation with its description, arguments, return type, and inline examples (mobile). It also emits `data-operation` for scroll sync and anchors via `slugify()`.
+`OperationView` renders a complete GraphQL operation with its description, arguments, return type, and inline examples (mobile). It also emits `data-operation` for scroll sync and anchors via `slugify()`. If you pass `typesByName`, referenced types are resolved at render time.
 
 **Usage:**
 
@@ -107,13 +107,13 @@ import { Operation } from '../../core/transformer/types';
 
 const operation: Operation = { ... };
 
-<OperationView operation={operation} />
+<OperationView operation={operation} typesByName={typesByName} />
 ```
 
 ### `TypeDefinitionView`
 
 `TypeDefinitionView` renders a standalone type definition page. It supports enums (with per-value notes),
-inputs, objects, interfaces, unions, and scalars.
+inputs, objects, interfaces, unions, and scalars. If you pass `typesByName`, referenced field types are resolved at render time.
 
 **Usage:**
 
@@ -123,5 +123,5 @@ import { ExpandedType } from '../../core/transformer/types';
 
 const typeDefinition: ExpandedType = { ... };
 
-<TypeDefinitionView type={typeDefinition} />
+<TypeDefinitionView type={typeDefinition} typesByName={typesByName} />
 ```

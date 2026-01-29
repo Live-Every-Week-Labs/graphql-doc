@@ -7,6 +7,10 @@ import { slugify } from '../../utils/string-utils';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const DATA_DIR = '_data';
+const OPERATIONS_DATA_FILE = path.posix.join(DATA_DIR, 'operations.json');
+const TYPES_DATA_FILE = path.posix.join(DATA_DIR, 'types.json');
+
 export interface DocusaurusAdapterConfig {
   singlePage?: boolean;
   outputPath?: string;
@@ -23,15 +27,139 @@ export class DocusaurusAdapter {
     this.config = config;
   }
 
-  adapt(model: DocModel): GeneratedFile[] {
-    if (this.config.singlePage) {
-      return this.generateSinglePageOutput(model);
+  private getSectionPath(section: Section): string {
+    return slugify(section.name);
+  }
+
+  private getSubsectionPath(section: Section, subsection: Subsection): string {
+    const sectionPath = this.getSectionPath(section);
+    return subsection.name === '' ? sectionPath : `${sectionPath}/${slugify(subsection.name)}`;
+  }
+
+  private getOperationDocId(section: Section, subsection: Subsection, op: Operation): string {
+    const subsectionPath = this.getSubsectionPath(section, subsection);
+    return `${subsectionPath}/${slugify(op.name)}`;
+  }
+
+  private getOperationDataReference(op: Operation): string {
+    return `operationsByType[${JSON.stringify(op.operationType)}][${JSON.stringify(op.name)}]`;
+  }
+
+  private getTypeName(type: ExpandedType): string | null {
+    if (!('name' in type)) {
+      return null;
     }
 
-    const files: GeneratedFile[] = [];
+    return type.name;
+  }
+
+  private getTypeDataReference(typeName: string): string {
+    return `typesByName[${JSON.stringify(typeName)}]`;
+  }
+
+  private getRelativeImportPath(fromPath: string, toPath: string): string {
+    const fromDir = path.posix.dirname(fromPath);
+    let relativePath = path.posix.relative(fromDir, toPath);
+
+    if (!relativePath.startsWith('.')) {
+      relativePath = `./${relativePath}`;
+    }
+
+    return relativePath;
+  }
+
+  private buildOperationsByType(model: DocModel): Record<string, Record<string, Operation>> {
+    const operationsByType: Record<string, Record<string, Operation>> = {
+      query: {},
+      mutation: {},
+      subscription: {},
+    };
 
     for (const section of model.sections) {
-      const sectionPath = slugify(section.name);
+      for (const subsection of section.subsections) {
+        for (const op of subsection.operations) {
+          operationsByType[op.operationType][op.name] = op;
+        }
+      }
+    }
+
+    return operationsByType;
+  }
+
+  private buildTypesByName(types: ExpandedType[]): Record<string, ExpandedType> {
+    const typesByName: Record<string, ExpandedType> = {};
+
+    for (const type of types) {
+      const name = this.getTypeName(type);
+      if (!name) continue;
+      typesByName[name] = type;
+    }
+
+    return typesByName;
+  }
+
+  private generateDataFiles(model: DocModel): GeneratedFile[] {
+    const operationsByType = this.buildOperationsByType(model);
+    const typesByName = this.buildTypesByName(model.types);
+    const files: GeneratedFile[] = [
+      {
+        path: OPERATIONS_DATA_FILE,
+        content: JSON.stringify(operationsByType, null, 2),
+        type: 'json',
+      },
+      {
+        path: TYPES_DATA_FILE,
+        content: JSON.stringify(typesByName, null, 2),
+        type: 'json',
+      },
+    ];
+
+    return files;
+  }
+
+  private collectOperationEntries(model: DocModel): Array<{ op: Operation }> {
+    const entries: Array<{ op: Operation }> = [];
+
+    for (const section of model.sections) {
+      for (const subsection of section.subsections) {
+        for (const op of subsection.operations) {
+          entries.push({ op });
+        }
+      }
+    }
+
+    return entries;
+  }
+
+  private generateExternalExamplesExport(
+    entries: Array<{ name: string; operationType: Operation['operationType'] }>
+  ): string {
+    if (entries.length === 0) {
+      return 'export const examplesByOperation = {};';
+    }
+
+    const lines = entries.map(
+      ({ name, operationType }) =>
+        `  ${JSON.stringify(name)}: (operationsByType[${JSON.stringify(
+          operationType
+        )}][${JSON.stringify(name)}]?.examples ?? []),`
+    );
+
+    return `export const examplesByOperation = {\n${lines.join('\n')}\n};`;
+  }
+
+  adapt(model: DocModel): GeneratedFile[] {
+    const dataFiles = this.generateDataFiles(model);
+
+    if (this.config.singlePage) {
+      const files = this.generateSinglePageOutput(model);
+      return [...files, ...dataFiles];
+    }
+
+    const files: GeneratedFile[] = [...dataFiles];
+
+    for (const section of model.sections) {
+      const sectionPath = this.getSectionPath(section);
 
       // Section category file
       files.push({
@@ -43,9 +171,7 @@ export class DocusaurusAdapter {
       for (const subsection of section.subsections) {
         // If subsection name is empty, it's the root of the section
         const isRootSubsection = subsection.name === '';
-        const subsectionPath = isRootSubsection
-          ? sectionPath
-          : `${sectionPath}/${slugify(subsection.name)}`;
+        const subsectionPath = this.getSubsectionPath(section, subsection);
         const typeLinkBase = this.getTypeLinkBase(subsectionPath);
 
         if (!isRootSubsection) {
@@ -60,7 +186,9 @@ export class DocusaurusAdapter {
           const fileName = `${slugify(op.name)}.mdx`;
           files.push({
             path: `${subsectionPath}/${fileName}`,
-            content: this.generateMdx(op, typeLinkBase),
+            content: this.generateMdx(op, typeLinkBase, {
+              mdxPath: `${subsectionPath}/${fileName}`,
+            }),
             type: 'mdx',
           });
         }
@@ -95,9 +223,6 @@ export class DocusaurusAdapter {
   private generateSinglePageOutput(model: DocModel): GeneratedFile[] {
     const files: GeneratedFile[] = [];
     const docId = 'api-reference';
-    const operations = model.sections.flatMap((section) =>
-      section.subsections.flatMap((subsection) => subsection.operations)
-    );
     const typeGroups = this.groupTypes(model.types);
     const usedOperationIds = new Set<string>();
     const usedTypeIds = new Set<string>();
@@ -126,7 +251,17 @@ export class DocusaurusAdapter {
 
     // Build content sections
     const frontMatter = this.generateSinglePageFrontMatter();
-    const examplesExport = this.generateExamplesExport(operations);
+    const operationEntries = this.collectOperationEntries(model);
+    const examplesExport = this.generateExternalExamplesExport(
+      operationEntries.map(({ op }) => ({ name: op.name, operationType: op.operationType }))
+    );
+    const imports = [
+      `import operationsByType from '${this.getRelativeImportPath(
+        `${docId}.mdx`,
+        OPERATIONS_DATA_FILE
+      )}';`,
+      `import typesByName from '${this.getRelativeImportPath(`${docId}.mdx`, TYPES_DATA_FILE)}';`,
+    ];
     const toc = this.generateTableOfContents(model);
     const sectionsContent = model.sections
       .map((section) => this.generateSectionContent(section, getOperationId))
@@ -136,6 +271,7 @@ export class DocusaurusAdapter {
     // Combine all parts
     const contentParts = [
       frontMatter,
+      imports.join('\n'),
       examplesExport,
       '',
       '# API Reference',
@@ -241,7 +377,9 @@ export class DocusaurusAdapter {
 
     // Generate subsection content
     for (const subsection of section.subsections) {
-      lines.push(this.generateSubsectionContent(subsection, sectionSlug, operationExportName));
+      lines.push(
+        this.generateSubsectionContent(subsection, section, sectionSlug, operationExportName)
+      );
     }
 
     return lines.join('\n');
@@ -249,6 +387,7 @@ export class DocusaurusAdapter {
 
   private generateSubsectionContent(
     subsection: Subsection,
+    section: Section,
     sectionSlug: string,
     operationExportName: (op: Operation) => string
   ): string {
@@ -282,20 +421,46 @@ export class DocusaurusAdapter {
       exportName,
       exportConst: false,
       headingLevel: 4,
+      dataReference: this.getOperationDataReference(op),
     });
   }
 
   // ==================== Multi-Page Mode Methods ====================
 
-  private generateMdx(op: Operation, typeLinkBase?: string): string {
+  private generateMdx(
+    op: Operation,
+    typeLinkBase?: string,
+    options: { mdxPath?: string } = {}
+  ): string {
     const frontMatter = this.generateFrontMatter(op);
-    const examplesExport = this.generateExamplesExport([op]);
+    const imports = options.mdxPath
+      ? [
+          `import operationsByType from '${this.getRelativeImportPath(
+            options.mdxPath,
+            OPERATIONS_DATA_FILE
+          )}';`,
+          `import typesByName from '${this.getRelativeImportPath(
+            options.mdxPath,
+            TYPES_DATA_FILE
+          )}';`,
+        ]
+      : [];
+    const examplesExport = this.generateExternalExamplesExport([
+      { name: op.name, operationType: op.operationType },
+    ]);
     const content = this.renderer.renderOperation(op, {
       exportName: 'operation',
       headingLevel: 1,
       typeLinkBase,
+      dataReference: this.getOperationDataReference(op),
     });
-    return `${frontMatter}\n\n${examplesExport}\n\n${content}`;
+    const parts = [
+      frontMatter,
+      ...(imports.length > 0 ? [imports.join('\n')] : []),
+      examplesExport,
+      content,
+    ];
+    return parts.join('\n\n');
   }
 
   private generateFrontMatter(op: Operation): string {
@@ -340,18 +505,6 @@ export class DocusaurusAdapter {
     return `operation_${safe}`;
   }
 
-  private generateExamplesExport(operations: Operation[]): string {
-    const examplesByOperation = operations.reduce<Record<string, Operation['examples']>>(
-      (acc, operation) => {
-        acc[operation.name] = operation.examples ?? [];
-        return acc;
-      },
-      {}
-    );
-
-    return `export const examplesByOperation = ${JSON.stringify(examplesByOperation, null, 2)};`;
-  }
-
   private generateTypeFiles(types: ExpandedType[]): GeneratedFile[] {
     const files: GeneratedFile[] = [];
     const { enums, inputs, types: objectTypes } = this.groupTypes(types);
@@ -386,7 +539,9 @@ export class DocusaurusAdapter {
       const fileName = `${slugify(name)}.mdx`;
       files.push({
         path: `types/enums/${fileName}`,
-        content: this.generateTypeMdx(enumType),
+        content: this.generateTypeMdx(enumType, {
+          mdxPath: `types/enums/${fileName}`,
+        }),
         type: 'mdx',
       });
     }
@@ -396,7 +551,9 @@ export class DocusaurusAdapter {
       const fileName = `${slugify(name)}.mdx`;
       files.push({
         path: `types/inputs/${fileName}`,
-        content: this.generateTypeMdx(inputType),
+        content: this.generateTypeMdx(inputType, {
+          mdxPath: `types/inputs/${fileName}`,
+        }),
         type: 'mdx',
       });
     }
@@ -406,7 +563,9 @@ export class DocusaurusAdapter {
       const fileName = `${slugify(name)}.mdx`;
       files.push({
         path: `types/types/${fileName}`,
-        content: this.generateTypeMdx(objectType),
+        content: this.generateTypeMdx(objectType, {
+          mdxPath: `types/types/${fileName}`,
+        }),
         type: 'mdx',
       });
     }
@@ -414,14 +573,24 @@ export class DocusaurusAdapter {
     return files;
   }
 
-  private generateTypeMdx(type: ExpandedType): string {
+  private generateTypeMdx(type: ExpandedType, options: { mdxPath?: string } = {}): string {
     const frontMatter = this.generateTypeFrontMatter(type);
+    const imports = options.mdxPath
+      ? [
+          `import typesByName from '${this.getRelativeImportPath(
+            options.mdxPath,
+            TYPES_DATA_FILE
+          )}';`,
+        ]
+      : [];
     const content = this.renderer.renderTypeDefinition(type, {
       exportName: 'typeDefinition',
       headingLevel: 1,
       typeLinkBase: '..',
+      dataReference: 'name' in type && type.name ? this.getTypeDataReference(type.name) : undefined,
     });
-    return `${frontMatter}\n\n${content}`;
+    const parts = [frontMatter, ...(imports.length > 0 ? [imports.join('\n')] : []), content];
+    return parts.join('\n\n');
   }
 
   private generateTypeFrontMatter(type: ExpandedType): string {
@@ -497,11 +666,13 @@ export class DocusaurusAdapter {
       }
 
       group.forEach((type, index) => {
+        const typeName = this.getTypeName(type);
         lines.push(
           this.renderer.renderTypeDefinition(type, {
             exportName: typeExportName(type),
             exportConst: false,
             headingLevel: 4,
+            dataReference: typeName ? this.getTypeDataReference(typeName) : undefined,
           })
         );
         if (index < group.length - 1) {

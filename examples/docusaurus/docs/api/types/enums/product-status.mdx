@@ -6,32 +6,8 @@ hide_title: true
 api: true
 ---
 
-export const typeDefinition = {
-  "kind": "ENUM",
-  "name": "ProductStatus",
-  "description": "Product availability status in the catalog",
-  "values": [
-    {
-      "name": "AVAILABLE",
-      "description": "Product is available for purchase",
-      "isDeprecated": false
-    },
-    {
-      "name": "OUT_OF_STOCK",
-      "description": "Product is temporarily out of stock",
-      "isDeprecated": false
-    },
-    {
-      "name": "HIDDEN",
-      "description": "Product listing is hidden from customers",
-      "isDeprecated": false
-    },
-    {
-      "name": "DISCONTINUED",
-      "description": "Product has been discontinued",
-      "isDeprecated": false
-    }
-  ]
-};
+import typesByName from '../../_data/types.json';
 
-<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />
+export const typeDefinition = typesByName["ProductStatus"];
+
+<TypeDefinitionView type={ typeDefinition } typesByName={typesByName} headingLevel={ 1 } typeLinkBase=".." />

@@ -104,6 +104,12 @@ extensions:
     singlePage: true
 ```
 
+### External Data Mode
+
+The generator always writes shared JSON data files (e.g. `_data/operations.json` and `_data/types.json`).
+MDX files import those shared maps instead of embedding the full JSON payload inline. This keeps
+individual MDX files small and avoids repeating the same definitions across files.
+
 ### Type Expansion Options
 
 Control how nested types are expanded in the documentation:

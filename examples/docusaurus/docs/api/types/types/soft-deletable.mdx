@@ -6,37 +6,8 @@ hide_title: true
 api: true
 ---
 
-export const typeDefinition = {
-  "kind": "INTERFACE",
-  "name": "SoftDeletable",
-  "description": "Interface for entities that can be soft-deleted\n\nEntities implementing this interface are never permanently deleted\nbut instead marked as deleted with a timestamp.",
-  "fields": [
-    {
-      "name": "deletedAt",
-      "description": "When the entity was deleted, null if not deleted",
-      "type": {
-        "kind": "SCALAR",
-        "name": "DateTime",
-        "description": "A date-time string in ISO 8601 format (e.g., \"2024-01-15T09:30:00Z\")"
-      },
-      "isRequired": false,
-      "isList": false,
-      "isDeprecated": false
-    },
-    {
-      "name": "isDeleted",
-      "description": "Whether the entity is currently deleted",
-      "type": {
-        "kind": "SCALAR",
-        "name": "Boolean",
-        "description": "The `Boolean` scalar type represents `true` or `false`."
-      },
-      "isRequired": true,
-      "isList": false,
-      "isDeprecated": false
-    }
-  ],
-  "isCollapsible": false
-};
+import typesByName from '../../_data/types.json';
 
-<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />
+export const typeDefinition = typesByName["SoftDeletable"];
+
+<TypeDefinitionView type={ typeDefinition } typesByName={typesByName} headingLevel={ 1 } typeLinkBase=".." />

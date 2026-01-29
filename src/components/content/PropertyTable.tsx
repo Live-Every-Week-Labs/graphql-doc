@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExpandedField, ExpandedArgument, ExpandedType } from '../../core/transformer/types';
 import { useExpansion } from '../context/ExpansionProvider';
+import { useTypeRegistry } from '../context/TypeRegistryProvider';
 import { slugify } from '../../core/utils/string-utils';
 
 // Type guard to check if property is a field (has args and deprecation)
@@ -131,12 +132,45 @@ export const PropertyTable = React.memo(function PropertyTable({
   }
 
   const { isExpanded, toggleExpand } = useExpansion();
+  const registry = useTypeRegistry();
+  const typesByName = registry?.typesByName ?? {};
   const inlineDepthLimit = Math.min(MAX_INLINE_DEPTH, maxDepth);
   const requiredStyle: RequiredStyle =
     variant === 'arguments' ? 'label' : (requiredStyleProp ?? 'indicator');
   const showNullableSuffix = requiredStyle === 'indicator';
   const normalizedTypeBase = typeLinkBase ? typeLinkBase.replace(/\/$/, '') : undefined;
   const getTypeDocLink = (type: ExpandedType) => {
+    const resolved =
+      type.kind === 'TYPE_REF'
+        ? (typesByName[type.name] ?? type)
+        : type.kind === 'CIRCULAR_REF'
+          ? (typesByName[type.ref] ?? type)
+          : type;
+    let resolvedName: string | undefined;
+    if ('name' in resolved) {
+      resolvedName = resolved.name;
+    } else if (resolved.kind === 'CIRCULAR_REF') {
+      resolvedName = resolved.ref;
+    }
+
+    if (normalizedTypeBase && resolvedName && resolved.kind !== 'TYPE_REF') {
+      const slug = slugify(resolvedName);
+      if (resolved.kind === 'ENUM') {
+        return `${normalizedTypeBase}/enums/${slug}`;
+      }
+      if (resolved.kind === 'INPUT_OBJECT') {
+        return `${normalizedTypeBase}/inputs/${slug}`;
+      }
+      if (
+        resolved.kind === 'OBJECT' ||
+        resolved.kind === 'INTERFACE' ||
+        resolved.kind === 'UNION' ||
+        resolved.kind === 'SCALAR'
+      ) {
+        return `${normalizedTypeBase}/types/${slug}`;
+      }
+    }
+
     if (normalizedTypeBase && type.kind === 'TYPE_REF') {
       const slug = slugify(type.name);
       return `${normalizedTypeBase}/types/${slug}`;
@@ -165,16 +199,25 @@ export const PropertyTable = React.memo(function PropertyTable({
     return getTypeLink(type);
   };
 
+  const resolveType = (type: ExpandedType): ExpandedType => {
+    if (type.kind === 'TYPE_REF') {
+      return typesByName[type.name] ?? type;
+    }
+    return type;
+  };
+
   return (
     <div className="gql-field-list">
       {properties.map((prop) => {
         const { baseType } = unwrapType(prop.type);
+        const resolvedBaseType = resolveType(baseType);
         const expandable =
-          isObjectLike(baseType) &&
-          ((baseType.fields && baseType.fields.length > 0) || baseType.isCollapsible);
+          isObjectLike(resolvedBaseType) &&
+          ((resolvedBaseType.fields && resolvedBaseType.fields.length > 0) ||
+            resolvedBaseType.isCollapsible);
         const path = `${pathPrefix}.${prop.name}`;
         const expanded = expandable ? isExpanded(path, depth, defaultExpandedLevels) : false;
-        const childCount = baseType.fields?.length ?? 0;
+        const childCount = resolvedBaseType.fields?.length ?? 0;
         const canInlineExpand = expandable && depth < inlineDepthLimit && childCount > 0;
         const toggleLabel = expanded
           ? 'Hide properties'
@@ -182,8 +225,10 @@ export const PropertyTable = React.memo(function PropertyTable({
         const typeLink = expandable ? getTypeDocLink(baseType) : undefined;
 
         const isEnum =
-          baseType.kind === 'ENUM' && Array.isArray(baseType.values) && baseType.values.length > 0;
-        const enumValues = isEnum ? baseType.values : [];
+          resolvedBaseType.kind === 'ENUM' &&
+          Array.isArray(resolvedBaseType.values) &&
+          resolvedBaseType.values.length > 0;
+        const enumValues = isEnum ? resolvedBaseType.values : [];
         const enumVisible = enumValues.slice(0, MAX_ENUM_VALUES);
         const enumMore = enumValues.length - enumVisible.length;
         const enumLink = isEnum ? getTypeDocLink(baseType) : undefined;
@@ -285,14 +330,14 @@ export const PropertyTable = React.memo(function PropertyTable({
 
             {expandable && !canInlineExpand && typeLink && (
               <a href={typeLink} className="gql-field-link">
-                View {baseType.name}
+                View {resolvedBaseType.name}
               </a>
             )}
 
             {expandable && canInlineExpand && expanded && (
               <div className="gql-field-children">
                 <PropertyTable
-                  properties={baseType.fields}
+                  properties={resolvedBaseType.fields}
                   variant="fields"
                   requiredStyle={requiredStyle}
                   typeLinkBase={typeLinkBase}

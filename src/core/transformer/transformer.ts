@@ -137,7 +137,7 @@ export class Transformer {
   private expandTypes() {
     return this.typeDefinitions
       .filter((type) => !type.name.startsWith('__'))
-      .map((type) => this.expander.expand(type.name))
+      .map((type) => this.expander.expandDefinition(type.name))
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 }

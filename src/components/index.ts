@@ -4,6 +4,7 @@ import './styles/graphql-docs.css';
 
 // Context
 export * from './context/ExpansionProvider';
+export * from './context/TypeRegistryProvider';
 
 // Content
 export { FieldTable } from './content/FieldTable';

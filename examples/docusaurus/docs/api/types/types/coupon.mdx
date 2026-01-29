@@ -6,62 +6,8 @@ hide_title: true
 api: true
 ---
 
-export const typeDefinition = {
-  "kind": "OBJECT",
-  "name": "Coupon",
-  "description": "A coupon/discount code",
-  "fields": [
-    {
-      "name": "code",
-      "description": "Coupon code",
-      "type": {
-        "kind": "SCALAR",
-        "name": "String",
-        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
-      },
-      "isRequired": true,
-      "isList": false,
-      "isDeprecated": false
-    },
-    {
-      "name": "description",
-      "description": "Discount description",
-      "type": {
-        "kind": "SCALAR",
-        "name": "String",
-        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
-      },
-      "isRequired": true,
-      "isList": false,
-      "isDeprecated": false
-    },
-    {
-      "name": "discountValue",
-      "description": "Discount amount or percentage",
-      "type": {
-        "kind": "SCALAR",
-        "name": "String",
-        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
-      },
-      "isRequired": true,
-      "isList": false,
-      "isDeprecated": false
-    },
-    {
-      "name": "isPercentage",
-      "description": "Whether this is a percentage discount",
-      "type": {
-        "kind": "SCALAR",
-        "name": "Boolean",
-        "description": "The `Boolean` scalar type represents `true` or `false`."
-      },
-      "isRequired": true,
-      "isList": false,
-      "isDeprecated": false
-    }
-  ],
-  "interfaces": [],
-  "isCollapsible": false
-};
+import typesByName from '../../_data/types.json';
 
-<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />
+export const typeDefinition = typesByName["Coupon"];
+
+<TypeDefinitionView type={ typeDefinition } typesByName={typesByName} headingLevel={ 1 } typeLinkBase=".." />

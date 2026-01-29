@@ -5,7 +5,7 @@ The Transformer module is responsible for converting the parsed GraphQL schema a
 ## Responsibilities
 
 1.  **Metadata Merging**: Combines parsed operations with examples and error definitions from external JSON files.
-2.  **Type Expansion**: Recursively expands GraphQL types (arguments, return types) into a rich, nested structure suitable for documentation.
+2.  **Type Normalization**: Produces reference-based type trees so each schema type is defined once and reused by reference.
 3.  **Grouping & Sorting**: Organizes operations into sections and subsections based on `@docGroup` directives and sorts them using `@docPriority`.
 
 ## Key Components
@@ -25,15 +25,13 @@ const docModel = transformer.transform(operations, exampleFiles, errorFiles);
 
 ### `TypeExpander`
 
-Handles the intelligent expansion of GraphQL types.
+Builds reference-first representations of GraphQL types:
 
-- **Recursion Control**:
-  - `maxDepth` (default: 5): Hard limit on recursion. Types at this depth have empty fields.
-  - `defaultLevels` (default: 2): Soft limit for UI. Types at depth >= defaultLevels are marked `isCollapsible` but still include field data.
-- **Circular Reference Detection**: Detects cycles and marks them based on `showCircularReferences` config:
-  - `true`: Returns `CIRCULAR_REF` kind with "(circular)" indicator in output.
-  - `false`: Returns `TYPE_REF` kind as a plain link (no indicator).
-- **Collapsible Support**: Marks types beyond `defaultLevels` as `isCollapsible`, allowing UI to render them as expandable sections.
+- **Reference Output**: Operation arguments/return types and type fields use `TYPE_REF` (or `CIRCULAR_REF`) for schema-defined types instead of embedding full definitions.
+- **Central Definitions**: The `types` array in the `DocModel` contains the single source of truth for each type definition (enums, inputs, objects, unions, scalars).
+- **Circular Reference Detection**: Direct self-references are marked based on `showCircularReferences`:
+  - `true`: Returns `CIRCULAR_REF` kind with a circular indicator.
+  - `false`: Returns `TYPE_REF` kind as a plain link.
 
 ### `DocModel`
 

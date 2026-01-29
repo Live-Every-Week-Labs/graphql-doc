@@ -1,82 +1,29 @@
 import { TypeDefinition } from '../parser/types';
-import {
-  ExpandedType,
-  ExpandedObject,
-  ExpandedScalar,
-  ExpandedEnum,
-  ExpandedUnion,
-  ExpandedList,
-  CircularRef,
-  TypeRef,
-} from './types';
+import { ExpandedType } from './types';
+import { slugify } from '../utils/string-utils';
 
 export class TypeExpander {
   private typeMap: Map<string, TypeDefinition>;
-  private maxDepth: number;
-  private defaultLevels: number;
   private showCircularReferences: boolean;
 
   constructor(
     types: TypeDefinition[],
-    maxDepth: number = 5,
-    defaultLevels: number = 2,
+    _maxDepth: number = 5,
+    _defaultLevels: number = 2,
     showCircularReferences: boolean = true
   ) {
     this.typeMap = new Map(types.map((t) => [t.name, t]));
-    this.maxDepth = maxDepth;
-    this.defaultLevels = defaultLevels;
     this.showCircularReferences = showCircularReferences;
   }
 
-  expand(
-    typeString: string,
-    currentDepth: number = 0,
-    visited: Set<string> = new Set()
-  ): ExpandedType {
-    return this.expandTypeString(typeString, currentDepth, visited);
+  expand(typeString: string, visited: Set<string> = new Set()): ExpandedType {
+    return this.expandTypeReference(typeString, visited);
   }
 
-  private expandTypeString(typeString: string, depth: number, visited: Set<string>): ExpandedType {
-    let current = typeString;
-    // Remove outer non-null
-    if (current.endsWith('!')) {
-      current = current.slice(0, -1);
-    }
-
-    // Check for list
-    if (current.startsWith('[') && current.endsWith(']')) {
-      const inner = current.slice(1, -1);
-      return {
-        kind: 'LIST',
-        ofType: this.expandTypeString(inner, depth, visited),
-      };
-    }
-
-    // Now we have the named type
-    return this.expandNamedType(current, depth, visited);
-  }
-
-  private expandNamedType(typeName: string, depth: number, visited: Set<string>): ExpandedType {
-    // Check for circular reference
-    if (visited.has(typeName)) {
-      if (this.showCircularReferences) {
-        return {
-          kind: 'CIRCULAR_REF',
-          ref: typeName,
-          link: `#${typeName.toLowerCase()}`,
-        };
-      } else {
-        return {
-          kind: 'TYPE_REF',
-          name: typeName,
-          link: `#${typeName.toLowerCase()}`,
-        };
-      }
-    }
-
+  expandDefinition(typeName: string): ExpandedType {
     const typeDef = this.typeMap.get(typeName);
+
     if (!typeDef) {
-      // Fallback for unknown types (e.g. standard scalars not in map)
       return {
         kind: 'SCALAR',
         name: typeName,
@@ -112,7 +59,8 @@ export class TypeExpander {
         name: typeDef.name,
         description: typeDef.description,
         possibleTypes:
-          typeDef.possibleTypes?.map((pt) => this.expandNamedType(pt, depth, visited)) || [],
+          typeDef.possibleTypes?.map((pt) => this.expandTypeReference(pt, new Set([typeName]))) ||
+          [],
       };
     }
 
@@ -121,26 +69,14 @@ export class TypeExpander {
       typeDef.kind === 'INTERFACE' ||
       typeDef.kind === 'INPUT_OBJECT'
     ) {
-      // Check depth limit
-      if (depth >= this.maxDepth) {
-        return {
-          kind: typeDef.kind,
-          name: typeDef.name,
-          description: typeDef.description,
-          fields: [],
-          interfaces: typeDef.interfaces,
-          isCollapsible: true,
-        };
-      }
-
-      const newVisited = new Set(visited);
-      newVisited.add(typeName);
+      const visited = new Set<string>();
+      visited.add(typeName);
 
       const fields =
         typeDef.fields?.map((f) => ({
           name: f.name,
           description: f.description,
-          type: this.expandTypeString(f.type, depth + 1, newVisited),
+          type: this.expandTypeReference(f.type, visited),
           isRequired: f.isRequired,
           isList: f.isList,
           isDeprecated: f.isDeprecated,
@@ -153,14 +89,72 @@ export class TypeExpander {
         description: typeDef.description,
         fields,
         interfaces: typeDef.interfaces,
-        isCollapsible: depth >= this.defaultLevels,
+        isCollapsible: false,
       };
     }
 
-    // Fallback
     return {
       kind: 'SCALAR',
-      name: typeName,
+      name: typeDef.name,
+    };
+  }
+
+  private expandTypeReference(typeString: string, visited: Set<string>): ExpandedType {
+    let current = typeString;
+    // Remove outer non-null
+    if (current.endsWith('!')) {
+      current = current.slice(0, -1);
+    }
+
+    // Check for list
+    if (current.startsWith('[') && current.endsWith(']')) {
+      const inner = current.slice(1, -1);
+      return {
+        kind: 'LIST',
+        ofType: this.expandTypeReference(inner, visited),
+      };
+    }
+
+    // Now we have the named type
+    return this.expandNamedTypeReference(current, visited);
+  }
+
+  private expandNamedTypeReference(typeName: string, visited: Set<string>): ExpandedType {
+    if (visited.has(typeName)) {
+      if (this.showCircularReferences) {
+        return {
+          kind: 'CIRCULAR_REF',
+          ref: typeName,
+          link: `#${slugify(typeName)}`,
+        };
+      }
+      return {
+        kind: 'TYPE_REF',
+        name: typeName,
+        link: `#${slugify(typeName)}`,
+      };
+    }
+
+    const typeDef = this.typeMap.get(typeName);
+    if (!typeDef) {
+      return {
+        kind: 'SCALAR',
+        name: typeName,
+      };
+    }
+
+    if (typeDef.kind === 'SCALAR') {
+      return {
+        kind: 'TYPE_REF',
+        name: typeDef.name,
+        link: `#${slugify(typeDef.name)}`,
+      };
+    }
+
+    return {
+      kind: 'TYPE_REF',
+      name: typeDef.name,
+      link: `#${slugify(typeDef.name)}`,
     };
   }
 }

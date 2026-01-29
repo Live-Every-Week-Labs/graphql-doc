@@ -6,49 +6,8 @@ hide_title: true
 api: true
 ---
 
-export const typeDefinition = {
-  "kind": "INPUT_OBJECT",
-  "name": "ProductSpecificationInput",
-  "description": "Input for a product specification",
-  "fields": [
-    {
-      "name": "name",
-      "description": "Specification name",
-      "type": {
-        "kind": "SCALAR",
-        "name": "String",
-        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
-      },
-      "isRequired": true,
-      "isList": false,
-      "isDeprecated": false
-    },
-    {
-      "name": "value",
-      "description": "Specification value",
-      "type": {
-        "kind": "SCALAR",
-        "name": "String",
-        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
-      },
-      "isRequired": true,
-      "isList": false,
-      "isDeprecated": false
-    },
-    {
-      "name": "unit",
-      "description": "Unit",
-      "type": {
-        "kind": "SCALAR",
-        "name": "String",
-        "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."
-      },
-      "isRequired": false,
-      "isList": false,
-      "isDeprecated": false
-    }
-  ],
-  "isCollapsible": false
-};
+import typesByName from '../../_data/types.json';
 
-<TypeDefinitionView type={ typeDefinition } headingLevel={ 1 } typeLinkBase=".." />
+export const typeDefinition = typesByName["ProductSpecificationInput"];
+
+<TypeDefinitionView type={ typeDefinition } typesByName={typesByName} headingLevel={ 1 } typeLinkBase=".." />

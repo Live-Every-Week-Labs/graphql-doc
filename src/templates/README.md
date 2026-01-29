@@ -4,7 +4,7 @@ This directory contains the Handlebars templates used for generating component-b
 
 ## Files
 
-- **`operation.hbs`**: Emits a static props export plus `<OperationView />` markup.
+- **`operation.hbs`**: Emits a static props export plus `<OperationView />` markup. Supports `dataReference` and passes `typesByName` for type resolution.
 - **`arguments.hbs`**, **`type.hbs`**, **`examples.hbs`**: Legacy partials (kept for reference).
 
 ## Usage

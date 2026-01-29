@@ -23,17 +23,22 @@ import '@graphql-docs/generator/components/styles.css';
 
 ## Generated MDX (Component-Based)
 
-The generator emits MDX that exports static data and renders components:
+The generator emits MDX that imports shared JSON maps and renders components:
 
 ```mdx
 ---
 api: true
 ---
 
-export const operation = { ... };
-export const examplesByOperation = { getUser: [ ... ] };
+import operationsByType from '../_data/operations.json';
+import typesByName from '../_data/types.json';
 
-<OperationView operation={operation} />
+export const operation = operationsByType.query.user;
+export const examplesByOperation = {
+  user: operationsByType.query.user?.examples ?? [],
+};
+
+<OperationView operation={operation} typesByName={typesByName} />
 ```
 
 ## Two-Column Layout

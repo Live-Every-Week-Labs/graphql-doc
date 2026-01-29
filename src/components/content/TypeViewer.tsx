@@ -2,6 +2,7 @@ import React from 'react';
 import { ExpandedType } from '../../core/transformer/types';
 import { slugify } from '../../core/utils/string-utils';
 import { FieldTable } from './FieldTable';
+import { useTypeRegistry } from '../context/TypeRegistryProvider';
 
 interface TypeViewerProps {
   type: ExpandedType;
@@ -28,6 +29,9 @@ export const TypeViewer = React.memo(function TypeViewer({
     return <span className="gql-type-error">Unknown Type</span>;
   }
 
+  const registry = useTypeRegistry();
+  const typesByName = registry?.typesByName ?? {};
+
   const unwrapType = (input: ExpandedType) => {
     let current = input;
     let isList = false;
@@ -40,8 +44,40 @@ export const TypeViewer = React.memo(function TypeViewer({
     return { baseType: current, isList };
   };
 
+  const resolveType = (input: ExpandedType): ExpandedType => {
+    if (input.kind === 'TYPE_REF') {
+      return typesByName[input.name] ?? input;
+    }
+    return input;
+  };
+
   const getRequiredStyle = (input: ExpandedType): 'label' | 'indicator' =>
     input.kind === 'INPUT_OBJECT' ? 'label' : 'indicator';
+
+  const getTypeDocLink = (name: string, kind?: ExpandedType['kind']) => {
+    if (!typeLinkBase) {
+      return undefined;
+    }
+    const base = typeLinkBase.replace(/\/$/, '');
+    const slug = slugify(name);
+    if (kind === 'ENUM') {
+      return `${base}/enums/${slug}`;
+    }
+    if (kind === 'INPUT_OBJECT') {
+      return `${base}/inputs/${slug}`;
+    }
+    if (
+      kind === 'OBJECT' ||
+      kind === 'INTERFACE' ||
+      kind === 'UNION' ||
+      kind === 'SCALAR' ||
+      kind === 'TYPE_REF' ||
+      kind === 'CIRCULAR_REF'
+    ) {
+      return `${base}/types/${slug}`;
+    }
+    return undefined;
+  };
 
   const renderInlineType = (input: ExpandedType): React.ReactNode => {
     switch (input.kind) {
@@ -53,33 +89,40 @@ export const TypeViewer = React.memo(function TypeViewer({
             <span className="gql-bracket">]</span>
           </span>
         );
-      case 'TYPE_REF':
+      case 'TYPE_REF': {
+        const resolved = resolveType(input);
+        const resolvedName =
+          resolved.kind === 'TYPE_REF'
+            ? input.name
+            : 'name' in resolved
+              ? resolved.name
+              : input.name;
+        const href =
+          getTypeDocLink(resolvedName, resolved.kind !== 'TYPE_REF' ? resolved.kind : 'TYPE_REF') ??
+          input.link;
         return (
-          <a
-            href={
-              typeLinkBase
-                ? `${typeLinkBase.replace(/\/$/, '')}/types/${slugify(input.name)}`
-                : input.link
-            }
-            className="gql-type-link"
-          >
+          <a href={href} className="gql-type-link">
             {input.name}
           </a>
         );
-      case 'CIRCULAR_REF':
+      }
+      case 'CIRCULAR_REF': {
+        const resolved = typesByName[input.ref];
+        const href =
+          getTypeDocLink(
+            resolved && 'name' in resolved ? resolved.name : input.ref,
+            resolved ? resolved.kind : 'CIRCULAR_REF'
+          ) ?? input.link;
         return (
           <a
-            href={
-              typeLinkBase
-                ? `${typeLinkBase.replace(/\/$/, '')}/types/${slugify(input.ref)}`
-                : input.link
-            }
+            href={href}
             className="gql-type-link gql-circular-ref"
             title={`Circular reference to ${input.ref}`}
           >
             {input.ref} ↩
           </a>
         );
+      }
       case 'SCALAR':
       case 'ENUM':
       case 'OBJECT':
@@ -93,37 +136,40 @@ export const TypeViewer = React.memo(function TypeViewer({
   };
 
   // 1. SCALAR
-  if (type.kind === 'SCALAR') {
+  const resolvedType = resolveType(type);
+
+  if (resolvedType.kind === 'SCALAR') {
     return (
       <span className="gql-type font-mono">
         {labelPrefix}
-        {type.name}
+        {resolvedType.name}
         {labelSuffix}
       </span>
     );
   }
 
   // 2. LIST
-  if (type.kind === 'LIST') {
-    const { baseType } = unwrapType(type);
+  if (resolvedType.kind === 'LIST') {
+    const { baseType } = unwrapType(resolvedType);
+    const resolvedBaseType = resolveType(baseType);
     if (
-      baseType.kind === 'OBJECT' ||
-      baseType.kind === 'INTERFACE' ||
-      baseType.kind === 'INPUT_OBJECT'
+      resolvedBaseType.kind === 'OBJECT' ||
+      resolvedBaseType.kind === 'INTERFACE' ||
+      resolvedBaseType.kind === 'INPUT_OBJECT'
     ) {
       return (
         <div className="gql-type-block">
           <div className="gql-type-heading">
             {labelPrefix}
             <span className="gql-type-collection">Array</span>
-            <span className="gql-type">{baseType.name}</span>
+            <span className="gql-type">{resolvedBaseType.name}</span>
             {labelSuffix}
           </div>
-          {baseType.fields?.length ? (
+          {resolvedBaseType.fields?.length ? (
             <FieldTable
-              fields={baseType.fields}
+              fields={resolvedBaseType.fields}
               typeLinkBase={typeLinkBase}
-              requiredStyle={getRequiredStyle(baseType)}
+              requiredStyle={getRequiredStyle(resolvedBaseType)}
               depth={depth}
               maxDepth={maxDepth}
               defaultExpandedLevels={defaultExpandedLevels}
@@ -135,20 +181,21 @@ export const TypeViewer = React.memo(function TypeViewer({
       );
     }
 
-    return <span className="gql-type font-mono">{renderInlineType(type)}</span>;
+    return <span className="gql-type font-mono">{renderInlineType(resolvedType)}</span>;
   }
 
   // 3. CIRCULAR_REF
-  if (type.kind === 'CIRCULAR_REF') {
+  if (resolvedType.kind === 'CIRCULAR_REF') {
+    const href = getTypeDocLink(resolvedType.ref, 'CIRCULAR_REF') ?? resolvedType.link;
     return (
       <span className="gql-type">
         {labelPrefix}
         <a
-          href={type.link}
+          href={href}
           className="gql-type-link gql-circular-ref"
-          title={`Circular reference to ${type.ref}`}
+          title={`Circular reference to ${resolvedType.ref}`}
         >
-          {type.ref} ↩
+          {resolvedType.ref} ↩
         </a>
         {labelSuffix}
       </span>
@@ -156,12 +203,13 @@ export const TypeViewer = React.memo(function TypeViewer({
   }
 
   // 4. TYPE_REF
-  if (type.kind === 'TYPE_REF') {
+  if (resolvedType.kind === 'TYPE_REF') {
+    const href = getTypeDocLink(resolvedType.name, 'TYPE_REF') ?? resolvedType.link;
     return (
       <span className="gql-type">
         {labelPrefix}
-        <a href={type.link} className="gql-type-link">
-          {type.name}
+        <a href={href} className="gql-type-link">
+          {resolvedType.name}
         </a>
         {labelSuffix}
       </span>
@@ -169,15 +217,15 @@ export const TypeViewer = React.memo(function TypeViewer({
   }
 
   // 5. ENUM
-  if (type.kind === 'ENUM') {
-    const moreCount = type.values?.length ? type.values.length - 25 : 0;
+  if (resolvedType.kind === 'ENUM') {
+    const moreCount = resolvedType.values?.length ? resolvedType.values.length - 25 : 0;
     return (
       <div className="gql-enum-viewer">
-        <span className="gql-type">{type.name}</span>
+        <span className="gql-type">{resolvedType.name}</span>
         <span className="gql-enum-badge">ENUM</span>
-        {type.values?.length ? (
+        {resolvedType.values?.length ? (
           <div className="gql-enum-values">
-            {type.values.slice(0, 25).map((value) => (
+            {resolvedType.values.slice(0, 25).map((value) => (
               <span key={value.name} className="gql-enum-chip">
                 {value.name}
               </span>
@@ -188,8 +236,8 @@ export const TypeViewer = React.memo(function TypeViewer({
           <a
             href={
               typeLinkBase
-                ? `${typeLinkBase.replace(/\/$/, '')}/enums/${slugify(type.name)}`
-                : `#${slugify(type.name)}`
+                ? `${typeLinkBase.replace(/\/$/, '')}/enums/${slugify(resolvedType.name)}`
+                : `#${slugify(resolvedType.name)}`
             }
             className="gql-field-enum-more"
           >
@@ -201,19 +249,23 @@ export const TypeViewer = React.memo(function TypeViewer({
   }
 
   // 6. OBJECT / INTERFACE / INPUT_OBJECT
-  if (type.kind === 'OBJECT' || type.kind === 'INTERFACE' || type.kind === 'INPUT_OBJECT') {
+  if (
+    resolvedType.kind === 'OBJECT' ||
+    resolvedType.kind === 'INTERFACE' ||
+    resolvedType.kind === 'INPUT_OBJECT'
+  ) {
     return (
       <div className="gql-type-block">
         <div className="gql-type-heading">
           {labelPrefix}
-          <span className="gql-type">{type.name}</span>
+          <span className="gql-type">{resolvedType.name}</span>
           {labelSuffix}
         </div>
-        {type.fields?.length ? (
+        {resolvedType.fields?.length ? (
           <FieldTable
-            fields={type.fields}
+            fields={resolvedType.fields}
             typeLinkBase={typeLinkBase}
-            requiredStyle={getRequiredStyle(type)}
+            requiredStyle={getRequiredStyle(resolvedType)}
             depth={depth}
             maxDepth={maxDepth}
             defaultExpandedLevels={defaultExpandedLevels}
@@ -226,13 +278,13 @@ export const TypeViewer = React.memo(function TypeViewer({
   }
 
   // 7. UNION
-  if (type.kind === 'UNION') {
+  if (resolvedType.kind === 'UNION') {
     return (
       <div className="gql-union-viewer">
         <span className="gql-type-keyword">union</span>
-        <span className="gql-type">{type.name}</span>
+        <span className="gql-type">{resolvedType.name}</span>
         <span className="gql-operator">=</span>
-        {type.possibleTypes.map((t, i) => (
+        {resolvedType.possibleTypes.map((t, i) => (
           <React.Fragment key={i}>
             {i > 0 && <span className="gql-operator">|</span>}
             <span className="gql-type">{renderInlineType(t)}</span>
