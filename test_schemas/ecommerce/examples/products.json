@@ -1,12 +1,215 @@
 [
   {
+    "operation": "product",
+    "operationType": "query",
+    "examples": [
+      {
+        "name": "Get Product by ID",
+        "description": "Retrieve a single product with all its details",
+        "query": "query GetProduct($id: UUID!) {\n  product(id: $id) {\n    id\n    name\n    description\n    price\n    compareAtPrice\n    status\n    inventory {\n      quantity\n      isAvailable\n    }\n    images {\n      url\n      alt\n    }\n  }\n}",
+        "variables": {
+          "id": "prod_123"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "product": {
+                "id": "prod_123",
+                "name": "Wireless Headphones",
+                "description": "High quality noise-cancelling headphones with 30-hour battery life",
+                "price": "199.99",
+                "compareAtPrice": "249.99",
+                "status": "ACTIVE",
+                "inventory": {
+                  "quantity": 150,
+                  "isAvailable": true
+                },
+                "images": [
+                  {
+                    "url": "https://cdn.example.com/products/headphones-1.jpg",
+                    "alt": "Wireless Headphones - Black"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Product Not Found",
+        "description": "When a product ID doesn't exist or has been deleted",
+        "query": "query GetProduct($id: UUID!) {\n  product(id: $id) {\n    id\n    name\n  }\n}",
+        "variables": {
+          "id": "prod_nonexistent"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "product": null
+            },
+            "errors": [
+              {
+                "message": "Product not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "Product"
+                },
+                "path": ["product"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Get Product by Slug",
+        "description": "Products can also be retrieved by their URL-friendly slug",
+        "query": "query GetProduct($slug: String!) {\n  product(slug: $slug) {\n    id\n    name\n    slug\n    price\n  }\n}",
+        "variables": {
+          "slug": "wireless-headphones-pro"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "product": {
+                "id": "prod_123",
+                "name": "Wireless Headphones Pro",
+                "slug": "wireless-headphones-pro",
+                "price": "199.99"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "products",
+    "operationType": "query",
+    "examples": [
+      {
+        "name": "List All Products",
+        "description": "Get a paginated list of all active products",
+        "query": "query ListProducts($first: Int, $after: String) {\n  products(first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        price\n        status\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    totalCount\n  }\n}",
+        "variables": {
+          "first": 10
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "products": {
+                "edges": [
+                  {
+                    "node": {
+                      "id": "prod_001",
+                      "name": "Wireless Headphones",
+                      "price": "199.99",
+                      "status": "ACTIVE"
+                    },
+                    "cursor": "cursor_001"
+                  },
+                  {
+                    "node": {
+                      "id": "prod_002",
+                      "name": "Bluetooth Speaker",
+                      "price": "79.99",
+                      "status": "ACTIVE"
+                    },
+                    "cursor": "cursor_002"
+                  }
+                ],
+                "pageInfo": {
+                  "hasNextPage": true,
+                  "endCursor": "cursor_002"
+                },
+                "totalCount": 156
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Filter by Category",
+        "description": "Get products in a specific category",
+        "query": "query ListProducts($first: Int, $categoryId: UUID!) {\n  products(first: $first, filter: { categoryId: $categoryId }) {\n    edges {\n      node {\n        id\n        name\n        price\n        category {\n          name\n        }\n      }\n    }\n    totalCount\n  }\n}",
+        "variables": {
+          "first": 10,
+          "categoryId": "cat_electronics"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "products": {
+                "edges": [
+                  {
+                    "node": {
+                      "id": "prod_001",
+                      "name": "Wireless Headphones",
+                      "price": "199.99",
+                      "category": {
+                        "name": "Electronics"
+                      }
+                    }
+                  }
+                ],
+                "totalCount": 45
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
     "operation": "searchProducts",
     "operationType": "query",
     "examples": [
       {
-        "name": "Search Smartphones",
-        "description": "Search for smartphones with price range filter",
-        "query": "query SearchSmartphones($query: String!, $filter: ProductFilterInput) {\n  searchProducts(query: $query, filter: $filter) {\n    items {\n      name\n      price\n      averageRating\n    }\n    totalCount\n  }\n}",
+        "name": "Basic Search",
+        "description": "Search products by keyword",
+        "query": "query SearchProducts($query: String!) {\n  searchProducts(query: $query) {\n    items {\n      id\n      name\n      price\n      averageRating\n    }\n    totalCount\n  }\n}",
+        "variables": {
+          "query": "headphones"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "searchProducts": {
+                "items": [
+                  {
+                    "id": "prod_001",
+                    "name": "Wireless Headphones Pro",
+                    "price": "199.99",
+                    "averageRating": 4.8
+                  },
+                  {
+                    "id": "prod_002",
+                    "name": "Gaming Headphones",
+                    "price": "149.99",
+                    "averageRating": 4.5
+                  }
+                ],
+                "totalCount": 12
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Search with Filters",
+        "description": "Search with price range and availability filters",
+        "query": "query SearchProducts($query: String!, $filter: ProductFilterInput) {\n  searchProducts(query: $query, filter: $filter) {\n    items {\n      name\n      price\n      inventory {\n        isAvailable\n      }\n    }\n    totalCount\n    facets {\n      field\n      values {\n        value\n        count\n      }\n    }\n  }\n}",
         "variables": {
           "query": "smartphone",
           "filter": {
@@ -25,17 +228,77 @@
                   {
                     "name": "Phone X Pro",
                     "price": "999.00",
-                    "averageRating": 4.8
+                    "inventory": {
+                      "isAvailable": true
+                    }
                   },
                   {
                     "name": "Phone Y Mini",
                     "price": "699.00",
-                    "averageRating": 4.5
+                    "inventory": {
+                      "isAvailable": true
+                    }
                   }
                 ],
-                "totalCount": 15
+                "totalCount": 8,
+                "facets": [
+                  {
+                    "field": "brand",
+                    "values": [
+                      { "value": "BrandA", "count": 5 },
+                      { "value": "BrandB", "count": 3 }
+                    ]
+                  }
+                ]
               }
             }
+          }
+        }
+      },
+      {
+        "name": "No Results",
+        "description": "When no products match the search query",
+        "query": "query SearchProducts($query: String!) {\n  searchProducts(query: $query) {\n    items {\n      id\n      name\n    }\n    totalCount\n    suggestions\n  }\n}",
+        "variables": {
+          "query": "xyznonexistent"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "searchProducts": {
+                "items": [],
+                "totalCount": 0,
+                "suggestions": ["Did you mean: headphones, keyboards, monitors?"]
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Search Query Too Short",
+        "description": "Search queries must be at least 2 characters",
+        "query": "query SearchProducts($query: String!) {\n  searchProducts(query: $query) {\n    items {\n      id\n    }\n  }\n}",
+        "variables": {
+          "query": "a"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Search query must be at least 2 characters",
+                "extensions": {
+                  "code": "VALIDATION_ERROR",
+                  "field": "query",
+                  "minLength": 2
+                },
+                "path": ["searchProducts"]
+              }
+            ]
           }
         }
       }
@@ -46,9 +309,9 @@
     "operationType": "mutation",
     "examples": [
       {
-        "name": "Create New Product",
-        "description": "List a new product for sale",
-        "query": "mutation CreateProduct($input: CreateProductInput!) {\n  createProduct(input: $input) {\n    id\n    name\n    slug\n    price\n  }\n}",
+        "name": "Create Basic Product",
+        "description": "Create a new product with required fields",
+        "query": "mutation CreateProduct($input: CreateProductInput!) {\n  createProduct(input: $input) {\n    id\n    name\n    slug\n    price\n    status\n  }\n}",
         "variables": {
           "input": {
             "name": "Wireless Headphones",
@@ -66,9 +329,165 @@
                 "id": "prod_new_123",
                 "name": "Wireless Headphones",
                 "slug": "wireless-headphones",
-                "price": "199.99"
+                "price": "199.99",
+                "status": "DRAFT"
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Create with Variants",
+        "description": "Create a product with multiple variants (sizes, colors, etc.)",
+        "query": "mutation CreateProduct($input: CreateProductInput!) {\n  createProduct(input: $input) {\n    id\n    name\n    variants {\n      id\n      sku\n      options {\n        name\n        value\n      }\n      price\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "name": "Classic T-Shirt",
+            "description": "Comfortable cotton t-shirt",
+            "price": "29.99",
+            "categoryId": "cat_apparel",
+            "variants": [
+              {
+                "sku": "TSHIRT-S-BLK",
+                "options": [
+                  { "name": "Size", "value": "Small" },
+                  { "name": "Color", "value": "Black" }
+                ],
+                "price": "29.99"
+              },
+              {
+                "sku": "TSHIRT-M-BLK",
+                "options": [
+                  { "name": "Size", "value": "Medium" },
+                  { "name": "Color", "value": "Black" }
+                ],
+                "price": "29.99"
+              }
+            ]
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "createProduct": {
+                "id": "prod_tshirt_001",
+                "name": "Classic T-Shirt",
+                "variants": [
+                  {
+                    "id": "var_001",
+                    "sku": "TSHIRT-S-BLK",
+                    "options": [
+                      { "name": "Size", "value": "Small" },
+                      { "name": "Color", "value": "Black" }
+                    ],
+                    "price": "29.99"
+                  },
+                  {
+                    "id": "var_002",
+                    "sku": "TSHIRT-M-BLK",
+                    "options": [
+                      { "name": "Size", "value": "Medium" },
+                      { "name": "Color", "value": "Black" }
+                    ],
+                    "price": "29.99"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Duplicate SKU",
+        "description": "SKUs must be unique across all products and variants",
+        "query": "mutation CreateProduct($input: CreateProductInput!) {\n  createProduct(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "name": "New Product",
+            "description": "Description",
+            "price": "99.99",
+            "sku": "EXISTING-SKU-001",
+            "categoryId": "cat_123"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "A product with this SKU already exists",
+                "extensions": {
+                  "code": "DUPLICATE_SKU",
+                  "field": "sku",
+                  "existingSku": "EXISTING-SKU-001"
+                },
+                "path": ["createProduct"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Invalid Category",
+        "description": "The category ID must reference an existing category",
+        "query": "mutation CreateProduct($input: CreateProductInput!) {\n  createProduct(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "name": "New Product",
+            "description": "Description",
+            "price": "99.99",
+            "categoryId": "cat_nonexistent"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Category not found",
+                "extensions": {
+                  "code": "INVALID_CATEGORY",
+                  "field": "categoryId"
+                },
+                "path": ["createProduct"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Permission Denied",
+        "description": "Only users with MANAGE_PRODUCTS permission can create products",
+        "query": "mutation CreateProduct($input: CreateProductInput!) {\n  createProduct(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "name": "New Product",
+            "description": "Description",
+            "price": "99.99",
+            "categoryId": "cat_123"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "You don't have permission to create products",
+                "extensions": {
+                  "code": "FORBIDDEN",
+                  "requiredPermission": "MANAGE_PRODUCTS"
+                },
+                "path": ["createProduct"]
+              }
+            ]
           }
         }
       }
@@ -81,12 +500,13 @@
       {
         "name": "Update Price",
         "description": "Update product price and status",
-        "query": "mutation UpdateProduct($id: UUID!, $input: UpdateProductInput!) {\n  updateProduct(id: $id, input: $input) {\n    id\n    price\n    status\n  }\n}",
+        "query": "mutation UpdateProduct($id: UUID!, $input: UpdateProductInput!) {\n  updateProduct(id: $id, input: $input) {\n    id\n    price\n    compareAtPrice\n    status\n    updatedAt\n  }\n}",
         "variables": {
           "id": "prod_123",
           "input": {
             "price": "149.99",
-            "status": "ON_SALE"
+            "compareAtPrice": "199.99",
+            "status": "ACTIVE"
           }
         },
         "response": {
@@ -97,9 +517,98 @@
               "updateProduct": {
                 "id": "prod_123",
                 "price": "149.99",
-                "status": "ON_SALE"
+                "compareAtPrice": "199.99",
+                "status": "ACTIVE",
+                "updatedAt": "2024-01-21T10:30:00Z"
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Update Inventory",
+        "description": "Update product stock levels",
+        "query": "mutation UpdateProduct($id: UUID!, $input: UpdateProductInput!) {\n  updateProduct(id: $id, input: $input) {\n    id\n    inventory {\n      quantity\n      isAvailable\n      lowStockThreshold\n    }\n  }\n}",
+        "variables": {
+          "id": "prod_123",
+          "input": {
+            "inventory": {
+              "quantity": 50,
+              "lowStockThreshold": 10
+            }
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "updateProduct": {
+                "id": "prod_123",
+                "inventory": {
+                  "quantity": 50,
+                  "isAvailable": true,
+                  "lowStockThreshold": 10
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Product Not Found",
+        "description": "Attempting to update a non-existent product",
+        "query": "mutation UpdateProduct($id: UUID!, $input: UpdateProductInput!) {\n  updateProduct(id: $id, input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "id": "prod_nonexistent",
+          "input": {
+            "price": "99.99"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Product not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "Product"
+                },
+                "path": ["updateProduct"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Invalid Price",
+        "description": "Price must be a positive number",
+        "query": "mutation UpdateProduct($id: UUID!, $input: UpdateProductInput!) {\n  updateProduct(id: $id, input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "id": "prod_123",
+          "input": {
+            "price": "-10.00"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Price must be a positive number",
+                "extensions": {
+                  "code": "VALIDATION_ERROR",
+                  "field": "price",
+                  "constraint": "positive"
+                },
+                "path": ["updateProduct"]
+              }
+            ]
           }
         }
       }
@@ -110,8 +619,8 @@
     "operationType": "mutation",
     "examples": [
       {
-        "name": "Delete Product",
-        "description": "Soft delete a product",
+        "name": "Soft Delete",
+        "description": "Soft delete a product (can be restored later)",
         "query": "mutation DeleteProduct($id: UUID!) {\n  deleteProduct(id: $id)\n}",
         "variables": {
           "id": "prod_123"
@@ -122,6 +631,120 @@
           "body": {
             "data": {
               "deleteProduct": true
+            }
+          }
+        }
+      },
+      {
+        "name": "Product with Active Orders",
+        "description": "Products with pending orders cannot be deleted",
+        "query": "mutation DeleteProduct($id: UUID!) {\n  deleteProduct(id: $id)\n}",
+        "variables": {
+          "id": "prod_with_orders"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Cannot delete product with pending orders",
+                "extensions": {
+                  "code": "PRODUCT_HAS_PENDING_ORDERS",
+                  "pendingOrderCount": 3,
+                  "suggestion": "Wait for orders to complete or archive the product instead"
+                },
+                "path": ["deleteProduct"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Product Not Found",
+        "description": "Attempting to delete a product that doesn't exist",
+        "query": "mutation DeleteProduct($id: UUID!) {\n  deleteProduct(id: $id)\n}",
+        "variables": {
+          "id": "prod_nonexistent"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Product not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "Product"
+                },
+                "path": ["deleteProduct"]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "categories",
+    "operationType": "query",
+    "examples": [
+      {
+        "name": "List Root Categories",
+        "description": "Get all top-level categories",
+        "query": "query GetCategories {\n  categories(parentId: null) {\n    id\n    name\n    slug\n    productCount\n    children {\n      id\n      name\n    }\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "categories": [
+                {
+                  "id": "cat_electronics",
+                  "name": "Electronics",
+                  "slug": "electronics",
+                  "productCount": 156,
+                  "children": [
+                    { "id": "cat_phones", "name": "Phones" },
+                    { "id": "cat_audio", "name": "Audio" }
+                  ]
+                },
+                {
+                  "id": "cat_apparel",
+                  "name": "Apparel",
+                  "slug": "apparel",
+                  "productCount": 89,
+                  "children": [
+                    { "id": "cat_mens", "name": "Men's" },
+                    { "id": "cat_womens", "name": "Women's" }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "name": "Get Subcategories",
+        "description": "Get child categories of a specific parent",
+        "query": "query GetCategories($parentId: UUID!) {\n  categories(parentId: $parentId) {\n    id\n    name\n    productCount\n  }\n}",
+        "variables": {
+          "parentId": "cat_electronics"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "categories": [
+                { "id": "cat_phones", "name": "Phones", "productCount": 45 },
+                { "id": "cat_audio", "name": "Audio", "productCount": 32 },
+                { "id": "cat_computers", "name": "Computers", "productCount": 28 }
+              ]
             }
           }
         }

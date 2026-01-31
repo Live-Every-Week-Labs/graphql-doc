@@ -5,7 +5,7 @@
     "examples": [
       {
         "name": "Create Customer",
-        "description": "Register a new customer account",
+        "description": "Register a new customer account with full profile information",
         "query": "mutation CreateCustomer($input: CreateUserInput!) {\n  createUser(input: $input) {\n    id\n    email\n    displayName\n    role\n    profile {\n      firstName\n      lastName\n    }\n  }\n}",
         "variables": {
           "input": {
@@ -37,6 +37,132 @@
             }
           }
         }
+      },
+      {
+        "name": "Duplicate Email",
+        "description": "Attempting to create an account with an email that already exists returns a validation error. The API checks for email uniqueness before account creation.",
+        "query": "mutation CreateCustomer($input: CreateUserInput!) {\n  createUser(input: $input) {\n    id\n    email\n  }\n}",
+        "variables": {
+          "input": {
+            "email": "existing.user@example.com",
+            "password": "securePassword123!",
+            "displayName": "New User"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "An account with this email already exists",
+                "extensions": {
+                  "code": "EMAIL_ALREADY_EXISTS",
+                  "field": "email"
+                },
+                "path": ["createUser"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Weak Password",
+        "description": "Passwords must meet minimum security requirements: at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.",
+        "query": "mutation CreateCustomer($input: CreateUserInput!) {\n  createUser(input: $input) {\n    id\n    email\n  }\n}",
+        "variables": {
+          "input": {
+            "email": "newuser@example.com",
+            "password": "weak",
+            "displayName": "New User"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Password does not meet security requirements",
+                "extensions": {
+                  "code": "INVALID_PASSWORD",
+                  "field": "password",
+                  "requirements": {
+                    "minLength": 8,
+                    "requireUppercase": true,
+                    "requireLowercase": true,
+                    "requireNumber": true,
+                    "requireSpecialChar": true
+                  }
+                },
+                "path": ["createUser"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Invalid Email Format",
+        "description": "The email field must contain a valid email address format. The API validates email format before processing the request.",
+        "query": "mutation CreateCustomer($input: CreateUserInput!) {\n  createUser(input: $input) {\n    id\n    email\n  }\n}",
+        "variables": {
+          "input": {
+            "email": "not-a-valid-email",
+            "password": "securePassword123!",
+            "displayName": "New User"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Invalid email format",
+                "extensions": {
+                  "code": "INVALID_EMAIL_FORMAT",
+                  "field": "email"
+                },
+                "path": ["createUser"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Create Admin User",
+        "description": "Creating an admin user requires elevated permissions. This example shows how to create an admin account (requires SUPER_ADMIN role).",
+        "query": "mutation CreateAdminUser($input: CreateUserInput!) {\n  createUser(input: $input) {\n    id\n    email\n    displayName\n    role\n    permissions\n  }\n}",
+        "variables": {
+          "input": {
+            "email": "admin@company.com",
+            "password": "AdminSecure123!",
+            "displayName": "Admin User",
+            "role": "ADMIN",
+            "profile": {
+              "firstName": "Admin",
+              "lastName": "User"
+            }
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "createUser": {
+                "id": "660e8400-e29b-41d4-a716-446655440001",
+                "email": "admin@company.com",
+                "displayName": "Admin User",
+                "role": "ADMIN",
+                "permissions": ["MANAGE_PRODUCTS", "MANAGE_ORDERS", "VIEW_ANALYTICS"]
+              }
+            }
+          }
+        }
       }
     ]
   },
@@ -50,7 +176,7 @@
         "query": "mutation UpdateProfile($input: UserProfileInput!) {\n  updateProfile(input: $input) {\n    id\n    profile {\n      bio\n      preferredLanguage\n    }\n  }\n}",
         "variables": {
           "input": {
-            "bio": " avid reader and tech enthusiast",
+            "bio": "Avid reader and tech enthusiast",
             "preferredLanguage": "en"
           }
         },
@@ -62,11 +188,92 @@
               "updateProfile": {
                 "id": "550e8400-e29b-41d4-a716-446655440000",
                 "profile": {
-                  "bio": " avid reader and tech enthusiast",
+                  "bio": "Avid reader and tech enthusiast",
                   "preferredLanguage": "en"
                 }
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Update Phone Number",
+        "description": "Adding or updating a phone number triggers SMS verification. The phone number must be in E.164 format.",
+        "query": "mutation UpdateProfile($input: UserProfileInput!) {\n  updateProfile(input: $input) {\n    id\n    profile {\n      phoneNumber\n      phoneVerified\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "phoneNumber": "+14155551234"
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "updateProfile": {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "profile": {
+                  "phoneNumber": "+14155551234",
+                  "phoneVerified": false
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Invalid Phone Format",
+        "description": "Phone numbers must be in E.164 format (e.g., +14155551234). Local formats are not accepted.",
+        "query": "mutation UpdateProfile($input: UserProfileInput!) {\n  updateProfile(input: $input) {\n    id\n    profile {\n      phoneNumber\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "phoneNumber": "415-555-1234"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Phone number must be in E.164 format (e.g., +14155551234)",
+                "extensions": {
+                  "code": "INVALID_PHONE_FORMAT",
+                  "field": "phoneNumber"
+                },
+                "path": ["updateProfile"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Bio Too Long",
+        "description": "Bio text is limited to 500 characters to ensure consistent display across the platform.",
+        "query": "mutation UpdateProfile($input: UserProfileInput!) {\n  updateProfile(input: $input) {\n    id\n    profile {\n      bio\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "bio": "This is an extremely long bio that exceeds the maximum allowed character limit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. And even more text to make it even longer..."
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Bio cannot exceed 500 characters",
+                "extensions": {
+                  "code": "VALIDATION_ERROR",
+                  "field": "bio",
+                  "maxLength": 500,
+                  "actualLength": 623
+                },
+                "path": ["updateProfile"]
+              }
+            ]
           }
         }
       }
@@ -78,7 +285,7 @@
     "examples": [
       {
         "name": "Add Home Address",
-        "description": "Add a new shipping address",
+        "description": "Add a new shipping address to the user's address book",
         "query": "mutation AddAddress($input: AddressInput!) {\n  addAddress(input: $input) {\n    label\n    address {\n      street1\n      city\n      postalCode\n    }\n  }\n}",
         "variables": {
           "input": {
@@ -105,6 +312,220 @@
                 }
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Add International Address",
+        "description": "Adding an address outside the US. Note that some shipping methods may not be available for international addresses.",
+        "query": "mutation AddAddress($input: AddressInput!) {\n  addAddress(input: $input) {\n    label\n    address {\n      street1\n      street2\n      city\n      postalCode\n      countryCode\n    }\n    shippingMethods\n  }\n}",
+        "variables": {
+          "input": {
+            "street1": "10 Downing Street",
+            "city": "London",
+            "postalCode": "SW1A 2AA",
+            "countryCode": "GB",
+            "label": "UK Office"
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "addAddress": {
+                "label": "UK Office",
+                "address": {
+                  "street1": "10 Downing Street",
+                  "street2": null,
+                  "city": "London",
+                  "postalCode": "SW1A 2AA",
+                  "countryCode": "GB"
+                },
+                "shippingMethods": ["INTERNATIONAL_STANDARD", "INTERNATIONAL_EXPRESS"]
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Invalid Postal Code",
+        "description": "Postal codes are validated against the country's expected format. US postal codes must be 5 digits or 5+4 format.",
+        "query": "mutation AddAddress($input: AddressInput!) {\n  addAddress(input: $input) {\n    label\n  }\n}",
+        "variables": {
+          "input": {
+            "street1": "123 Main St",
+            "city": "New York",
+            "state": "NY",
+            "postalCode": "ABCDE",
+            "countryCode": "US",
+            "label": "Home"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Invalid postal code format for country US",
+                "extensions": {
+                  "code": "INVALID_POSTAL_CODE",
+                  "field": "postalCode",
+                  "expectedFormat": "XXXXX or XXXXX-XXXX"
+                },
+                "path": ["addAddress"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Address Limit Exceeded",
+        "description": "Users can store a maximum of 10 addresses. Remove an existing address before adding a new one.",
+        "query": "mutation AddAddress($input: AddressInput!) {\n  addAddress(input: $input) {\n    label\n  }\n}",
+        "variables": {
+          "input": {
+            "street1": "789 New St",
+            "city": "Boston",
+            "state": "MA",
+            "postalCode": "02101",
+            "countryCode": "US",
+            "label": "Office"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Maximum number of addresses reached",
+                "extensions": {
+                  "code": "ADDRESS_LIMIT_EXCEEDED",
+                  "maxAddresses": 10,
+                  "currentCount": 10
+                },
+                "path": ["addAddress"]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "me",
+    "operationType": "query",
+    "examples": [
+      {
+        "name": "Get Current User",
+        "description": "Retrieve the currently authenticated user's profile information",
+        "query": "query Me {\n  me {\n    id\n    email\n    displayName\n    role\n    profile {\n      firstName\n      lastName\n      avatarUrl\n    }\n    createdAt\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "me": {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "email": "jane.doe@example.com",
+                "displayName": "Jane Doe",
+                "role": "CUSTOMER",
+                "profile": {
+                  "firstName": "Jane",
+                  "lastName": "Doe",
+                  "avatarUrl": "https://cdn.example.com/avatars/550e8400.jpg"
+                },
+                "createdAt": "2024-01-01T00:00:00Z"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Unauthenticated Request",
+        "description": "The `me` query requires authentication. Requests without a valid Bearer token will receive an error.",
+        "query": "query Me {\n  me {\n    id\n    email\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "me": null
+            },
+            "errors": [
+              {
+                "message": "Authentication required",
+                "extensions": {
+                  "code": "UNAUTHENTICATED"
+                },
+                "path": ["me"]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "user",
+    "operationType": "query",
+    "examples": [
+      {
+        "name": "Get User by ID",
+        "description": "Retrieve a specific user's public profile by their ID",
+        "query": "query GetUser($id: UUID!) {\n  user(id: $id) {\n    id\n    displayName\n    profile {\n      avatarUrl\n      bio\n    }\n    createdAt\n  }\n}",
+        "variables": {
+          "id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "user": {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "displayName": "Jane Doe",
+                "profile": {
+                  "avatarUrl": "https://cdn.example.com/avatars/550e8400.jpg",
+                  "bio": "Avid reader and tech enthusiast"
+                },
+                "createdAt": "2024-01-01T00:00:00Z"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "User Not Found",
+        "description": "When a user ID doesn't exist or the account has been deleted, the query returns null with an error.",
+        "query": "query GetUser($id: UUID!) {\n  user(id: $id) {\n    id\n    displayName\n  }\n}",
+        "variables": {
+          "id": "00000000-0000-0000-0000-000000000000"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "user": null
+            },
+            "errors": [
+              {
+                "message": "User not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "User",
+                  "resourceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "path": ["user"]
+              }
+            ]
           }
         }
       }

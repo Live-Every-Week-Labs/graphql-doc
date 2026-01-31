@@ -33,6 +33,178 @@
             }
           }
         }
+      },
+      {
+        "name": "Out of Stock Item",
+        "description": "When an item in the order is no longer available, the order fails with a stock error. The response includes which items are affected.",
+        "query": "mutation PlaceOrder($input: PlaceOrderInput!) {\n  placeOrder(input: $input) {\n    ... on Order {\n      id\n      orderNumber\n    }\n    ... on CheckoutError {\n      code\n      message\n      details\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "items": [
+              {
+                "productId": "prod_sold_out",
+                "quantity": 5
+              }
+            ],
+            "shippingAddressId": "addr_456",
+            "paymentMethod": "CARD"
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "placeOrder": {
+                "code": "INSUFFICIENT_STOCK",
+                "message": "One or more items are out of stock",
+                "details": {
+                  "items": [
+                    {
+                      "productId": "prod_sold_out",
+                      "requested": 5,
+                      "available": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Payment Declined",
+        "description": "The payment provider declined the transaction. This can happen due to insufficient funds, card expiry, or fraud detection.",
+        "query": "mutation PlaceOrder($input: PlaceOrderInput!) {\n  placeOrder(input: $input) {\n    ... on Order {\n      id\n    }\n    ... on CheckoutError {\n      code\n      message\n      details\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "items": [
+              {
+                "productId": "prod_123",
+                "quantity": 1
+              }
+            ],
+            "shippingAddressId": "addr_456",
+            "paymentMethod": "CARD"
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "placeOrder": {
+                "code": "PAYMENT_DECLINED",
+                "message": "Payment was declined by your card issuer",
+                "details": {
+                  "declineCode": "insufficient_funds",
+                  "suggestion": "Please try a different payment method or contact your bank"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Invalid Shipping Address",
+        "description": "The shipping address could not be validated or is not serviceable by any available shipping method.",
+        "query": "mutation PlaceOrder($input: PlaceOrderInput!) {\n  placeOrder(input: $input) {\n    ... on Order {\n      id\n    }\n    ... on CheckoutError {\n      code\n      message\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "items": [
+              {
+                "productId": "prod_123",
+                "quantity": 1
+              }
+            ],
+            "shippingAddressId": "addr_invalid",
+            "paymentMethod": "CARD"
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "placeOrder": {
+                "code": "INVALID_SHIPPING_ADDRESS",
+                "message": "We cannot ship to the selected address"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Apply Discount Code",
+        "description": "Place an order with a promotional discount code applied",
+        "query": "mutation PlaceOrder($input: PlaceOrderInput!) {\n  placeOrder(input: $input) {\n    ... on Order {\n      id\n      orderNumber\n      subtotal\n      discount {\n        code\n        amount\n      }\n      total\n    }\n    ... on CheckoutError {\n      code\n      message\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "items": [
+              {
+                "productId": "prod_123",
+                "quantity": 2
+              }
+            ],
+            "shippingAddressId": "addr_456",
+            "paymentMethod": "CARD",
+            "discountCode": "SAVE20"
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "placeOrder": {
+                "id": "ord_790",
+                "orderNumber": "ORD-2024-002",
+                "subtotal": "199.98",
+                "discount": {
+                  "code": "SAVE20",
+                  "amount": "39.99"
+                },
+                "total": "159.99"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Expired Discount Code",
+        "description": "The discount code has expired or reached its usage limit. The order still processes but without the discount.",
+        "query": "mutation PlaceOrder($input: PlaceOrderInput!) {\n  placeOrder(input: $input) {\n    ... on Order {\n      id\n      warnings {\n        code\n        message\n      }\n      total\n    }\n    ... on CheckoutError {\n      code\n      message\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "items": [
+              {
+                "productId": "prod_123",
+                "quantity": 1
+              }
+            ],
+            "shippingAddressId": "addr_456",
+            "paymentMethod": "CARD",
+            "discountCode": "EXPIRED2023"
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "placeOrder": {
+                "id": "ord_791",
+                "warnings": [
+                  {
+                    "code": "DISCOUNT_EXPIRED",
+                    "message": "Discount code 'EXPIRED2023' has expired and was not applied"
+                  }
+                ],
+                "total": "99.99"
+              }
+            }
+          }
+        }
       }
     ]
   },
@@ -42,8 +214,8 @@
     "examples": [
       {
         "name": "Get Order Details",
-        "description": "Retrieve details for a specific order",
-        "query": "query GetOrder($id: UUID!) {\n  order(id: $id) {\n    orderNumber\n    status\n    total\n    items {\n      product {\n        name\n      }\n      quantity\n    }\n  }\n}",
+        "description": "Retrieve complete details for a specific order including items and shipping",
+        "query": "query GetOrder($id: UUID!) {\n  order(id: $id) {\n    orderNumber\n    status\n    total\n    items {\n      product {\n        name\n      }\n      quantity\n      unitPrice\n    }\n    shippingAddress {\n      street1\n      city\n    }\n  }\n}",
         "variables": {
           "id": "ord_789"
         },
@@ -54,18 +226,76 @@
             "data": {
               "order": {
                 "orderNumber": "ORD-2024-001",
-                "status": "PENDING",
+                "status": "SHIPPED",
                 "total": "99.99",
                 "items": [
                   {
                     "product": {
-                      "name": "T-Shirt"
+                      "name": "Wireless Headphones"
                     },
-                    "quantity": 2
+                    "quantity": 1,
+                    "unitPrice": "99.99"
                   }
-                ]
+                ],
+                "shippingAddress": {
+                  "street1": "123 Main St",
+                  "city": "New York"
+                }
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Order Not Found",
+        "description": "When the order ID doesn't exist or belongs to a different user, the query returns null.",
+        "query": "query GetOrder($id: UUID!) {\n  order(id: $id) {\n    orderNumber\n    status\n  }\n}",
+        "variables": {
+          "id": "ord_nonexistent"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "order": null
+            },
+            "errors": [
+              {
+                "message": "Order not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "Order"
+                },
+                "path": ["order"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Access Denied",
+        "description": "Attempting to view another user's order without admin permissions results in an access error.",
+        "query": "query GetOrder($id: UUID!) {\n  order(id: $id) {\n    orderNumber\n    status\n  }\n}",
+        "variables": {
+          "id": "ord_other_user"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "order": null
+            },
+            "errors": [
+              {
+                "message": "You do not have permission to view this order",
+                "extensions": {
+                  "code": "FORBIDDEN"
+                },
+                "path": ["order"]
+              }
+            ]
           }
         }
       }
@@ -76,9 +306,9 @@
     "operationType": "query",
     "examples": [
       {
-        "name": "List My Orders",
-        "description": "Get a paginated list of user's orders",
-        "query": "query MyOrders($first: Int) {\n  myOrders(first: $first) {\n    edges {\n      node {\n        orderNumber\n        createdAt\n        total\n      }\n    }\n  }\n}",
+        "name": "List Recent Orders",
+        "description": "Get a paginated list of the current user's orders, sorted by most recent first",
+        "query": "query MyOrders($first: Int, $after: String) {\n  myOrders(first: $first, after: $after) {\n    edges {\n      node {\n        orderNumber\n        status\n        createdAt\n        total\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
         "variables": {
           "first": 5
         },
@@ -91,14 +321,162 @@
                 "edges": [
                   {
                     "node": {
-                      "orderNumber": "ORD-2024-001",
+                      "orderNumber": "ORD-2024-003",
+                      "status": "DELIVERED",
+                      "createdAt": "2024-01-20T10:00:00Z",
+                      "total": "149.99"
+                    },
+                    "cursor": "cursor_003"
+                  },
+                  {
+                    "node": {
+                      "orderNumber": "ORD-2024-002",
+                      "status": "SHIPPED",
                       "createdAt": "2024-01-15T10:00:00Z",
                       "total": "99.99"
-                    }
+                    },
+                    "cursor": "cursor_002"
                   }
-                ]
+                ],
+                "pageInfo": {
+                  "hasNextPage": true,
+                  "endCursor": "cursor_002"
+                }
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Filter by Status",
+        "description": "Filter orders by their current status to find specific orders",
+        "query": "query MyOrders($first: Int, $status: OrderStatus) {\n  myOrders(first: $first, filter: { status: $status }) {\n    edges {\n      node {\n        orderNumber\n        status\n        total\n      }\n    }\n    totalCount\n  }\n}",
+        "variables": {
+          "first": 10,
+          "status": "PENDING"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "myOrders": {
+                "edges": [
+                  {
+                    "node": {
+                      "orderNumber": "ORD-2024-005",
+                      "status": "PENDING",
+                      "total": "299.99"
+                    }
+                  }
+                ],
+                "totalCount": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "No Orders",
+        "description": "When the user has no orders, an empty list is returned",
+        "query": "query MyOrders($first: Int) {\n  myOrders(first: $first) {\n    edges {\n      node {\n        orderNumber\n      }\n    }\n    totalCount\n  }\n}",
+        "variables": {
+          "first": 10
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "myOrders": {
+                "edges": [],
+                "totalCount": 0
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "cancelOrder",
+    "operationType": "mutation",
+    "examples": [
+      {
+        "name": "Cancel Pending Order",
+        "description": "Cancel an order that hasn't been shipped yet. Full refund is issued automatically.",
+        "query": "mutation CancelOrder($id: UUID!, $reason: String) {\n  cancelOrder(orderId: $id, reason: $reason) {\n    id\n    status\n    cancelledAt\n    refund {\n      amount\n      status\n    }\n  }\n}",
+        "variables": {
+          "id": "ord_pending_123",
+          "reason": "Changed my mind"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "cancelOrder": {
+                "id": "ord_pending_123",
+                "status": "CANCELLED",
+                "cancelledAt": "2024-01-21T14:30:00Z",
+                "refund": {
+                  "amount": "99.99",
+                  "status": "PROCESSING"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Already Shipped",
+        "description": "Orders that have already shipped cannot be cancelled. Use the return process instead.",
+        "query": "mutation CancelOrder($id: UUID!) {\n  cancelOrder(orderId: $id) {\n    id\n    status\n  }\n}",
+        "variables": {
+          "id": "ord_shipped_456"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Cannot cancel order that has already shipped",
+                "extensions": {
+                  "code": "ORDER_ALREADY_SHIPPED",
+                  "currentStatus": "SHIPPED",
+                  "suggestion": "Please initiate a return instead"
+                },
+                "path": ["cancelOrder"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Cancellation Window Expired",
+        "description": "Some orders can only be cancelled within a specific time window after placement.",
+        "query": "mutation CancelOrder($id: UUID!) {\n  cancelOrder(orderId: $id) {\n    id\n  }\n}",
+        "variables": {
+          "id": "ord_old_789"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Cancellation window has expired",
+                "extensions": {
+                  "code": "CANCELLATION_WINDOW_EXPIRED",
+                  "windowHours": 24,
+                  "orderAge": "72 hours"
+                },
+                "path": ["cancelOrder"]
+              }
+            ]
           }
         }
       }
@@ -110,8 +488,8 @@
     "examples": [
       {
         "name": "Get Cart",
-        "description": "Retrieve current shopping cart",
-        "query": "query GetCart {\n  cart {\n    id\n    total\n    itemCount\n  }\n}",
+        "description": "Retrieve the current shopping cart with all items",
+        "query": "query GetCart {\n  cart {\n    id\n    items {\n      id\n      product {\n        name\n        price\n      }\n      quantity\n    }\n    subtotal\n    total\n    itemCount\n  }\n}",
         "variables": {},
         "response": {
           "type": "success",
@@ -120,8 +498,82 @@
             "data": {
               "cart": {
                 "id": "cart_123",
-                "total": "49.99",
+                "items": [
+                  {
+                    "id": "item_1",
+                    "product": {
+                      "name": "Wireless Headphones",
+                      "price": "99.99"
+                    },
+                    "quantity": 1
+                  }
+                ],
+                "subtotal": "99.99",
+                "total": "107.99",
                 "itemCount": 1
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Empty Cart",
+        "description": "When the cart is empty, items array is empty and totals are zero",
+        "query": "query GetCart {\n  cart {\n    id\n    items {\n      id\n    }\n    total\n    itemCount\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "cart": {
+                "id": "cart_new_user",
+                "items": [],
+                "total": "0.00",
+                "itemCount": 0
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Cart with Unavailable Items",
+        "description": "Items that have become unavailable since being added are flagged in the response",
+        "query": "query GetCart {\n  cart {\n    id\n    items {\n      id\n      product {\n        name\n        isAvailable\n      }\n      quantity\n    }\n    warnings {\n      type\n      message\n      itemId\n    }\n    total\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "cart": {
+                "id": "cart_456",
+                "items": [
+                  {
+                    "id": "item_available",
+                    "product": {
+                      "name": "Wireless Headphones",
+                      "isAvailable": true
+                    },
+                    "quantity": 1
+                  },
+                  {
+                    "id": "item_unavailable",
+                    "product": {
+                      "name": "Limited Edition Speaker",
+                      "isAvailable": false
+                    },
+                    "quantity": 1
+                  }
+                ],
+                "warnings": [
+                  {
+                    "type": "ITEM_UNAVAILABLE",
+                    "message": "Limited Edition Speaker is no longer available",
+                    "itemId": "item_unavailable"
+                  }
+                ],
+                "total": "99.99"
               }
             }
           }
@@ -134,9 +586,9 @@
     "operationType": "mutation",
     "examples": [
       {
-        "name": "Add Item",
-        "description": "Add a product to cart",
-        "query": "mutation AddToCart($input: AddToCartInput!) {\n  addToCart(input: $input) {\n    itemCount\n    total\n  }\n}",
+        "name": "Add Single Item",
+        "description": "Add a product to the shopping cart",
+        "query": "mutation AddToCart($input: AddToCartInput!) {\n  addToCart(input: $input) {\n    id\n    itemCount\n    total\n    addedItem {\n      id\n      product {\n        name\n      }\n      quantity\n    }\n  }\n}",
         "variables": {
           "input": {
             "productId": "prod_456",
@@ -149,10 +601,106 @@
           "body": {
             "data": {
               "addToCart": {
+                "id": "cart_123",
                 "itemCount": 2,
-                "total": "79.98"
+                "total": "179.98",
+                "addedItem": {
+                  "id": "item_new",
+                  "product": {
+                    "name": "Bluetooth Speaker"
+                  },
+                  "quantity": 1
+                }
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Product Out of Stock",
+        "description": "Attempting to add an out-of-stock product returns an error",
+        "query": "mutation AddToCart($input: AddToCartInput!) {\n  addToCart(input: $input) {\n    id\n    itemCount\n  }\n}",
+        "variables": {
+          "input": {
+            "productId": "prod_sold_out",
+            "quantity": 1
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Product is currently out of stock",
+                "extensions": {
+                  "code": "OUT_OF_STOCK",
+                  "productId": "prod_sold_out",
+                  "restockDate": "2024-02-01"
+                },
+                "path": ["addToCart"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Quantity Exceeds Stock",
+        "description": "When requested quantity exceeds available stock, only available quantity is added",
+        "query": "mutation AddToCart($input: AddToCartInput!) {\n  addToCart(input: $input) {\n    id\n    addedItem {\n      quantity\n    }\n    warnings {\n      type\n      message\n    }\n  }\n}",
+        "variables": {
+          "input": {
+            "productId": "prod_limited",
+            "quantity": 10
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "addToCart": {
+                "id": "cart_123",
+                "addedItem": {
+                  "quantity": 3
+                },
+                "warnings": [
+                  {
+                    "type": "QUANTITY_ADJUSTED",
+                    "message": "Only 3 units available. Quantity adjusted from 10 to 3."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Product Not Found",
+        "description": "Adding a non-existent product returns a not found error",
+        "query": "mutation AddToCart($input: AddToCartInput!) {\n  addToCart(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "productId": "prod_nonexistent",
+            "quantity": 1
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Product not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "Product"
+                },
+                "path": ["addToCart"]
+              }
+            ]
           }
         }
       }
@@ -164,8 +712,8 @@
     "examples": [
       {
         "name": "Update Quantity",
-        "description": "Change item quantity in cart",
-        "query": "mutation UpdateCartItem($input: UpdateCartItemInput!) {\n  updateCartItem(input: $input) {\n    items {\n      quantity\n    }\n  }\n}",
+        "description": "Change the quantity of an item in the cart",
+        "query": "mutation UpdateCartItem($input: UpdateCartItemInput!) {\n  updateCartItem(input: $input) {\n    id\n    items {\n      id\n      quantity\n    }\n    total\n  }\n}",
         "variables": {
           "input": {
             "itemId": "item_789",
@@ -178,13 +726,73 @@
           "body": {
             "data": {
               "updateCartItem": {
+                "id": "cart_123",
                 "items": [
                   {
+                    "id": "item_789",
                     "quantity": 3
                   }
-                ]
+                ],
+                "total": "299.97"
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Item Not in Cart",
+        "description": "Attempting to update an item that doesn't exist in the cart",
+        "query": "mutation UpdateCartItem($input: UpdateCartItemInput!) {\n  updateCartItem(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "itemId": "item_not_in_cart",
+            "quantity": 2
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Item not found in cart",
+                "extensions": {
+                  "code": "ITEM_NOT_IN_CART",
+                  "itemId": "item_not_in_cart"
+                },
+                "path": ["updateCartItem"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Invalid Quantity",
+        "description": "Quantity must be a positive integer. Setting to 0 should use removeFromCart instead.",
+        "query": "mutation UpdateCartItem($input: UpdateCartItemInput!) {\n  updateCartItem(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "itemId": "item_789",
+            "quantity": -1
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Quantity must be a positive integer",
+                "extensions": {
+                  "code": "INVALID_QUANTITY",
+                  "field": "quantity",
+                  "minValue": 1
+                },
+                "path": ["updateCartItem"]
+              }
+            ]
           }
         }
       }
@@ -196,8 +804,8 @@
     "examples": [
       {
         "name": "Remove Item",
-        "description": "Remove an item from cart",
-        "query": "mutation RemoveFromCart($id: UUID!) {\n  removeFromCart(cartItemId: $id) {\n    itemCount\n  }\n}",
+        "description": "Remove a specific item from the cart",
+        "query": "mutation RemoveFromCart($id: UUID!) {\n  removeFromCart(cartItemId: $id) {\n    id\n    itemCount\n    total\n  }\n}",
         "variables": {
           "id": "item_789"
         },
@@ -207,9 +815,58 @@
           "body": {
             "data": {
               "removeFromCart": {
-                "itemCount": 1
+                "id": "cart_123",
+                "itemCount": 1,
+                "total": "99.99"
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Remove Last Item",
+        "description": "Removing the last item results in an empty cart",
+        "query": "mutation RemoveFromCart($id: UUID!) {\n  removeFromCart(cartItemId: $id) {\n    id\n    itemCount\n    items {\n      id\n    }\n    total\n  }\n}",
+        "variables": {
+          "id": "item_last"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "removeFromCart": {
+                "id": "cart_123",
+                "itemCount": 0,
+                "items": [],
+                "total": "0.00"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Item Not Found",
+        "description": "Attempting to remove an item that doesn't exist in the cart",
+        "query": "mutation RemoveFromCart($id: UUID!) {\n  removeFromCart(cartItemId: $id) {\n    id\n  }\n}",
+        "variables": {
+          "id": "item_nonexistent"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Cart item not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "CartItem"
+                },
+                "path": ["removeFromCart"]
+              }
+            ]
           }
         }
       }

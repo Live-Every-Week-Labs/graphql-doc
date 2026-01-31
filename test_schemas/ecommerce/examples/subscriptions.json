@@ -5,8 +5,8 @@
     "examples": [
       {
         "name": "Order Status Update",
-        "description": "Subscribe to updates for a specific order",
-        "query": "subscription OnOrderStatusChanged($orderId: UUID!) {\n  orderStatusChanged(orderId: $orderId) {\n    id\n    status\n    updatedAt\n  }\n}",
+        "description": "Subscribe to status updates for a specific order. Receives events when order status changes (e.g., pending -> processing -> shipped -> delivered).",
+        "query": "subscription OnOrderStatusChanged($orderId: UUID!) {\n  orderStatusChanged(orderId: $orderId) {\n    id\n    orderNumber\n    status\n    previousStatus\n    updatedAt\n    trackingInfo {\n      carrier\n      trackingNumber\n      trackingUrl\n    }\n  }\n}",
         "variables": {
           "orderId": "ord_789"
         },
@@ -17,10 +17,66 @@
             "data": {
               "orderStatusChanged": {
                 "id": "ord_789",
+                "orderNumber": "ORD-2024-001",
                 "status": "SHIPPED",
-                "updatedAt": "2024-01-16T14:30:00Z"
+                "previousStatus": "PROCESSING",
+                "updatedAt": "2024-01-16T14:30:00Z",
+                "trackingInfo": {
+                  "carrier": "FedEx",
+                  "trackingNumber": "1234567890",
+                  "trackingUrl": "https://fedex.com/track/1234567890"
+                }
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Order Delivered",
+        "description": "Notification when order has been delivered",
+        "query": "subscription OnOrderStatusChanged($orderId: UUID!) {\n  orderStatusChanged(orderId: $orderId) {\n    id\n    status\n    deliveredAt\n    deliveryProof {\n      signedBy\n      photoUrl\n    }\n  }\n}",
+        "variables": {
+          "orderId": "ord_789"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "orderStatusChanged": {
+                "id": "ord_789",
+                "status": "DELIVERED",
+                "deliveredAt": "2024-01-18T10:15:00Z",
+                "deliveryProof": {
+                  "signedBy": "J. Smith",
+                  "photoUrl": "https://delivery.example.com/proof/ord_789.jpg"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Order Not Found",
+        "description": "Subscription fails if the order doesn't exist or user doesn't have access",
+        "query": "subscription OnOrderStatusChanged($orderId: UUID!) {\n  orderStatusChanged(orderId: $orderId) {\n    id\n    status\n  }\n}",
+        "variables": {
+          "orderId": "ord_nonexistent"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Order not found or access denied",
+                "extensions": {
+                  "code": "NOT_FOUND"
+                },
+                "path": ["orderStatusChanged"]
+              }
+            ]
           }
         }
       }
@@ -31,9 +87,9 @@
     "operationType": "subscription",
     "examples": [
       {
-        "name": "User Notifications",
-        "description": "Subscribe to real-time user notifications",
-        "query": "subscription OnNotification {\n  notificationReceived {\n    type\n    message\n    read\n  }\n}",
+        "name": "Price Alert",
+        "description": "Receive notification when a wishlisted item goes on sale",
+        "query": "subscription OnNotification {\n  notificationReceived {\n    id\n    type\n    title\n    message\n    data\n    read\n    createdAt\n  }\n}",
         "variables": {},
         "response": {
           "type": "success",
@@ -41,9 +97,369 @@
           "body": {
             "data": {
               "notificationReceived": {
+                "id": "notif_001",
                 "type": "PRICE_ALERT",
-                "message": "An item in your wishlist is on sale!",
-                "read": false
+                "title": "Price Drop Alert",
+                "message": "Wireless Headphones Pro is now 20% off!",
+                "data": {
+                  "productId": "prod_123",
+                  "originalPrice": "199.99",
+                  "salePrice": "159.99",
+                  "discount": "20%"
+                },
+                "read": false,
+                "createdAt": "2024-01-20T09:00:00Z"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Order Shipped",
+        "description": "Receive notification when an order ships",
+        "query": "subscription OnNotification {\n  notificationReceived {\n    id\n    type\n    title\n    message\n    data\n    actionUrl\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "notificationReceived": {
+                "id": "notif_002",
+                "type": "ORDER_UPDATE",
+                "title": "Your order has shipped!",
+                "message": "Order #ORD-2024-001 is on its way. Estimated delivery: Jan 22.",
+                "data": {
+                  "orderId": "ord_789",
+                  "orderNumber": "ORD-2024-001",
+                  "trackingNumber": "1234567890"
+                },
+                "actionUrl": "/orders/ord_789"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Back in Stock",
+        "description": "Receive notification when a previously out-of-stock item becomes available",
+        "query": "subscription OnNotification {\n  notificationReceived {\n    id\n    type\n    title\n    message\n    data\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "notificationReceived": {
+                "id": "notif_003",
+                "type": "BACK_IN_STOCK",
+                "title": "Back in Stock",
+                "message": "Limited Edition Speaker is back in stock! Only 5 left.",
+                "data": {
+                  "productId": "prod_limited",
+                  "availableQuantity": 5
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Review Response",
+        "description": "Receive notification when a seller responds to your review",
+        "query": "subscription OnNotification {\n  notificationReceived {\n    id\n    type\n    title\n    message\n    data\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "notificationReceived": {
+                "id": "notif_004",
+                "type": "REVIEW_RESPONSE",
+                "title": "Seller responded to your review",
+                "message": "TechStore has responded to your review of Wireless Headphones Pro",
+                "data": {
+                  "reviewId": "rev_123",
+                  "productId": "prod_123",
+                  "sellerResponse": "Thank you for your feedback! We're glad you're enjoying the product."
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Unauthenticated",
+        "description": "Subscription requires authentication",
+        "query": "subscription OnNotification {\n  notificationReceived {\n    id\n    type\n    message\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Authentication required for notifications",
+                "extensions": {
+                  "code": "UNAUTHENTICATED"
+                },
+                "path": ["notificationReceived"]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "inventoryUpdated",
+    "operationType": "subscription",
+    "examples": [
+      {
+        "name": "Stock Level Change",
+        "description": "Subscribe to inventory changes for a specific product (useful for sellers/admins)",
+        "query": "subscription OnInventoryUpdated($productId: UUID!) {\n  inventoryUpdated(productId: $productId) {\n    productId\n    productName\n    previousQuantity\n    currentQuantity\n    changeReason\n    timestamp\n  }\n}",
+        "variables": {
+          "productId": "prod_123"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "inventoryUpdated": {
+                "productId": "prod_123",
+                "productName": "Wireless Headphones Pro",
+                "previousQuantity": 50,
+                "currentQuantity": 45,
+                "changeReason": "ORDER_FULFILLED",
+                "timestamp": "2024-01-20T11:30:00Z"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Low Stock Alert",
+        "description": "Inventory dropped below threshold",
+        "query": "subscription OnInventoryUpdated($productId: UUID!) {\n  inventoryUpdated(productId: $productId) {\n    productId\n    currentQuantity\n    lowStockThreshold\n    isLowStock\n    changeReason\n  }\n}",
+        "variables": {
+          "productId": "prod_123"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "inventoryUpdated": {
+                "productId": "prod_123",
+                "currentQuantity": 8,
+                "lowStockThreshold": 10,
+                "isLowStock": true,
+                "changeReason": "ORDER_FULFILLED"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Permission Denied",
+        "description": "Only product owners and admins can subscribe to inventory updates",
+        "query": "subscription OnInventoryUpdated($productId: UUID!) {\n  inventoryUpdated(productId: $productId) {\n    productId\n    currentQuantity\n  }\n}",
+        "variables": {
+          "productId": "prod_not_owned"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "You don't have permission to subscribe to this product's inventory",
+                "extensions": {
+                  "code": "FORBIDDEN"
+                },
+                "path": ["inventoryUpdated"]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "cartUpdated",
+    "operationType": "subscription",
+    "examples": [
+      {
+        "name": "Item Added",
+        "description": "Receive updates when cart contents change (useful for syncing across devices)",
+        "query": "subscription OnCartUpdated {\n  cartUpdated {\n    id\n    event\n    item {\n      id\n      product {\n        name\n        price\n      }\n      quantity\n    }\n    itemCount\n    total\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "cartUpdated": {
+                "id": "cart_123",
+                "event": "ITEM_ADDED",
+                "item": {
+                  "id": "item_new",
+                  "product": {
+                    "name": "Bluetooth Speaker",
+                    "price": "79.99"
+                  },
+                  "quantity": 1
+                },
+                "itemCount": 3,
+                "total": "279.97"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Item Removed",
+        "description": "Notification when an item is removed from the cart",
+        "query": "subscription OnCartUpdated {\n  cartUpdated {\n    id\n    event\n    item {\n      id\n      product {\n        name\n      }\n    }\n    itemCount\n    total\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "cartUpdated": {
+                "id": "cart_123",
+                "event": "ITEM_REMOVED",
+                "item": {
+                  "id": "item_removed",
+                  "product": {
+                    "name": "Wireless Headphones"
+                  }
+                },
+                "itemCount": 2,
+                "total": "179.98"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Price Changed",
+        "description": "Notification when a product price changes while in cart",
+        "query": "subscription OnCartUpdated {\n  cartUpdated {\n    id\n    event\n    item {\n      id\n      product {\n        name\n      }\n      originalPrice\n      currentPrice\n    }\n    priceChangeWarning\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "cartUpdated": {
+                "id": "cart_123",
+                "event": "PRICE_CHANGED",
+                "item": {
+                  "id": "item_price_change",
+                  "product": {
+                    "name": "Gaming Keyboard"
+                  },
+                  "originalPrice": "149.99",
+                  "currentPrice": "129.99"
+                },
+                "priceChangeWarning": "Good news! Gaming Keyboard price dropped from $149.99 to $129.99"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Item Became Unavailable",
+        "description": "Notification when a cart item goes out of stock",
+        "query": "subscription OnCartUpdated {\n  cartUpdated {\n    id\n    event\n    item {\n      id\n      product {\n        name\n        isAvailable\n      }\n    }\n    warnings {\n      type\n      message\n    }\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "cartUpdated": {
+                "id": "cart_123",
+                "event": "ITEM_UNAVAILABLE",
+                "item": {
+                  "id": "item_oos",
+                  "product": {
+                    "name": "Limited Edition Controller",
+                    "isAvailable": false
+                  }
+                },
+                "warnings": [
+                  {
+                    "type": "ITEM_UNAVAILABLE",
+                    "message": "Limited Edition Controller is no longer available and has been removed from your cart"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "priceAlert",
+    "operationType": "subscription",
+    "examples": [
+      {
+        "name": "Price Drop Alert",
+        "description": "Subscribe to price drops for products on your wishlist",
+        "query": "subscription OnPriceAlert {\n  priceAlert {\n    product {\n      id\n      name\n      slug\n      images {\n        url\n      }\n    }\n    previousPrice\n    currentPrice\n    discountPercentage\n    alertType\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "priceAlert": {
+                "product": {
+                  "id": "prod_123",
+                  "name": "Wireless Headphones Pro",
+                  "slug": "wireless-headphones-pro",
+                  "images": [
+                    {
+                      "url": "https://cdn.example.com/products/headphones.jpg"
+                    }
+                  ]
+                },
+                "previousPrice": "199.99",
+                "currentPrice": "149.99",
+                "discountPercentage": 25,
+                "alertType": "PRICE_DROP"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Target Price Reached",
+        "description": "Alert when product reaches user-specified target price",
+        "query": "subscription OnPriceAlert {\n  priceAlert {\n    product {\n      id\n      name\n    }\n    currentPrice\n    targetPrice\n    alertType\n  }\n}",
+        "variables": {},
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "priceAlert": {
+                "product": {
+                  "id": "prod_456",
+                  "name": "4K Monitor"
+                },
+                "currentPrice": "399.99",
+                "targetPrice": "400.00",
+                "alertType": "TARGET_PRICE_REACHED"
               }
             }
           }

@@ -6,7 +6,7 @@
       {
         "name": "Get Review",
         "description": "Get details of a specific review",
-        "query": "query GetReview($id: UUID!) {\n  review(id: $id) {\n    rating\n    comment\n    author {\n      displayName\n    }\n  }\n}",
+        "query": "query GetReview($id: UUID!) {\n  review(id: $id) {\n    id\n    rating\n    title\n    comment\n    author {\n      displayName\n      avatarUrl\n    }\n    isVerifiedPurchase\n    helpfulCount\n    createdAt\n  }\n}",
         "variables": {
           "id": "rev_123"
         },
@@ -16,11 +16,155 @@
           "body": {
             "data": {
               "review": {
+                "id": "rev_123",
                 "rating": 5,
-                "comment": "Great product!",
+                "title": "Excellent product!",
+                "comment": "Great sound quality and comfortable to wear for long periods. Battery life exceeded expectations.",
                 "author": {
-                  "displayName": "John Doe"
-                }
+                  "displayName": "John Doe",
+                  "avatarUrl": "https://cdn.example.com/avatars/john.jpg"
+                },
+                "isVerifiedPurchase": true,
+                "helpfulCount": 42,
+                "createdAt": "2024-01-15T10:30:00Z"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Review Not Found",
+        "description": "When a review ID doesn't exist or has been removed",
+        "query": "query GetReview($id: UUID!) {\n  review(id: $id) {\n    id\n    rating\n  }\n}",
+        "variables": {
+          "id": "rev_deleted"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "review": null
+            },
+            "errors": [
+              {
+                "message": "Review not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "Review"
+                },
+                "path": ["review"]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "reviews",
+    "operationType": "query",
+    "examples": [
+      {
+        "name": "List Product Reviews",
+        "description": "Get paginated reviews for a specific product",
+        "query": "query ProductReviews($productId: UUID!, $first: Int, $sortBy: ReviewSortBy) {\n  reviews(productId: $productId, first: $first, sortBy: $sortBy) {\n    edges {\n      node {\n        id\n        rating\n        title\n        comment\n        author {\n          displayName\n        }\n        isVerifiedPurchase\n      }\n    }\n    averageRating\n    totalCount\n    ratingDistribution {\n      rating\n      count\n      percentage\n    }\n  }\n}",
+        "variables": {
+          "productId": "prod_123",
+          "first": 10,
+          "sortBy": "MOST_HELPFUL"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "reviews": {
+                "edges": [
+                  {
+                    "node": {
+                      "id": "rev_001",
+                      "rating": 5,
+                      "title": "Best headphones I've owned",
+                      "comment": "The noise cancellation is incredible. Perfect for flights and working from home.",
+                      "author": {
+                        "displayName": "AudioPhile92"
+                      },
+                      "isVerifiedPurchase": true
+                    }
+                  },
+                  {
+                    "node": {
+                      "id": "rev_002",
+                      "rating": 4,
+                      "title": "Great value",
+                      "comment": "Sound quality is excellent for the price. Only minor complaint is the carrying case could be better.",
+                      "author": {
+                        "displayName": "TechReviewer"
+                      },
+                      "isVerifiedPurchase": true
+                    }
+                  }
+                ],
+                "averageRating": 4.6,
+                "totalCount": 234,
+                "ratingDistribution": [
+                  { "rating": 5, "count": 156, "percentage": 66.7 },
+                  { "rating": 4, "count": 52, "percentage": 22.2 },
+                  { "rating": 3, "count": 15, "percentage": 6.4 },
+                  { "rating": 2, "count": 7, "percentage": 3.0 },
+                  { "rating": 1, "count": 4, "percentage": 1.7 }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Filter Verified Only",
+        "description": "Get only reviews from verified purchasers",
+        "query": "query ProductReviews($productId: UUID!, $first: Int) {\n  reviews(productId: $productId, first: $first, filter: { verifiedOnly: true }) {\n    edges {\n      node {\n        id\n        rating\n        isVerifiedPurchase\n      }\n    }\n    totalCount\n  }\n}",
+        "variables": {
+          "productId": "prod_123",
+          "first": 10
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "reviews": {
+                "edges": [
+                  {
+                    "node": {
+                      "id": "rev_001",
+                      "rating": 5,
+                      "isVerifiedPurchase": true
+                    }
+                  }
+                ],
+                "totalCount": 198
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "No Reviews Yet",
+        "description": "Product with no reviews returns empty list with null average",
+        "query": "query ProductReviews($productId: UUID!) {\n  reviews(productId: $productId, first: 10) {\n    edges {\n      node {\n        id\n      }\n    }\n    averageRating\n    totalCount\n  }\n}",
+        "variables": {
+          "productId": "prod_new"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "reviews": {
+                "edges": [],
+                "averageRating": null,
+                "totalCount": 0
               }
             }
           }
@@ -33,15 +177,15 @@
     "operationType": "mutation",
     "examples": [
       {
-        "name": "Write Review",
-        "description": "Submit a new product review",
-        "query": "mutation CreateReview($input: CreateReviewInput!) {\n  createReview(input: $input) {\n    id\n    rating\n    isApproved\n  }\n}",
+        "name": "Submit Review",
+        "description": "Submit a new product review. Reviews require moderation before appearing publicly.",
+        "query": "mutation CreateReview($input: CreateReviewInput!) {\n  createReview(input: $input) {\n    id\n    rating\n    title\n    comment\n    isApproved\n    status\n  }\n}",
         "variables": {
           "input": {
             "productId": "prod_123",
             "rating": 5,
-            "title": "Amazing!",
-            "comment": "Best purchase ever."
+            "title": "Amazing product!",
+            "comment": "Exceeded all my expectations. The build quality is superb and it works flawlessly."
           }
         },
         "response": {
@@ -52,9 +196,274 @@
               "createReview": {
                 "id": "rev_new_123",
                 "rating": 5,
-                "isApproved": false
+                "title": "Amazing product!",
+                "comment": "Exceeded all my expectations. The build quality is superb and it works flawlessly.",
+                "isApproved": false,
+                "status": "PENDING_MODERATION"
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Already Reviewed",
+        "description": "Users can only submit one review per product",
+        "query": "mutation CreateReview($input: CreateReviewInput!) {\n  createReview(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "productId": "prod_already_reviewed",
+            "rating": 4,
+            "title": "Second review",
+            "comment": "Trying to review again"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "You have already reviewed this product",
+                "extensions": {
+                  "code": "DUPLICATE_REVIEW",
+                  "existingReviewId": "rev_existing_456",
+                  "suggestion": "You can edit your existing review instead"
+                },
+                "path": ["createReview"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Not Purchased",
+        "description": "Some products require a verified purchase before reviewing",
+        "query": "mutation CreateReview($input: CreateReviewInput!) {\n  createReview(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "productId": "prod_not_purchased",
+            "rating": 1,
+            "title": "Looks bad",
+            "comment": "Never bought this but it looks terrible"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "This product requires a verified purchase to review",
+                "extensions": {
+                  "code": "PURCHASE_REQUIRED",
+                  "productId": "prod_not_purchased"
+                },
+                "path": ["createReview"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Invalid Rating",
+        "description": "Rating must be between 1 and 5 stars",
+        "query": "mutation CreateReview($input: CreateReviewInput!) {\n  createReview(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "productId": "prod_123",
+            "rating": 10,
+            "title": "Perfect!",
+            "comment": "10 out of 5 stars!"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Rating must be between 1 and 5",
+                "extensions": {
+                  "code": "VALIDATION_ERROR",
+                  "field": "rating",
+                  "min": 1,
+                  "max": 5
+                },
+                "path": ["createReview"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Comment Too Short",
+        "description": "Reviews require a minimum comment length to be helpful",
+        "query": "mutation CreateReview($input: CreateReviewInput!) {\n  createReview(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "productId": "prod_123",
+            "rating": 5,
+            "title": "Good",
+            "comment": "Nice"
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Review comment must be at least 20 characters",
+                "extensions": {
+                  "code": "VALIDATION_ERROR",
+                  "field": "comment",
+                  "minLength": 20,
+                  "actualLength": 4
+                },
+                "path": ["createReview"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Product Not Found",
+        "description": "Cannot review a product that doesn't exist",
+        "query": "mutation CreateReview($input: CreateReviewInput!) {\n  createReview(input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "input": {
+            "productId": "prod_nonexistent",
+            "rating": 5,
+            "title": "Great!",
+            "comment": "This is a wonderful product that I really enjoy using."
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "Product not found",
+                "extensions": {
+                  "code": "NOT_FOUND",
+                  "resourceType": "Product"
+                },
+                "path": ["createReview"]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "updateReview",
+    "operationType": "mutation",
+    "examples": [
+      {
+        "name": "Update Review",
+        "description": "Edit an existing review. Updated reviews may require re-moderation.",
+        "query": "mutation UpdateReview($id: UUID!, $input: UpdateReviewInput!) {\n  updateReview(id: $id, input: $input) {\n    id\n    rating\n    comment\n    status\n    updatedAt\n  }\n}",
+        "variables": {
+          "id": "rev_123",
+          "input": {
+            "rating": 4,
+            "comment": "Updated: After using this for a month, I'm adjusting my rating. Still great but battery life has degraded slightly."
+          }
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "updateReview": {
+                "id": "rev_123",
+                "rating": 4,
+                "comment": "Updated: After using this for a month, I'm adjusting my rating. Still great but battery life has degraded slightly.",
+                "status": "PENDING_MODERATION",
+                "updatedAt": "2024-02-15T10:30:00Z"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Not Your Review",
+        "description": "Can only update your own reviews",
+        "query": "mutation UpdateReview($id: UUID!, $input: UpdateReviewInput!) {\n  updateReview(id: $id, input: $input) {\n    id\n  }\n}",
+        "variables": {
+          "id": "rev_other_user",
+          "input": {
+            "rating": 1
+          }
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "You can only update your own reviews",
+                "extensions": {
+                  "code": "FORBIDDEN"
+                },
+                "path": ["updateReview"]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "deleteReview",
+    "operationType": "mutation",
+    "examples": [
+      {
+        "name": "Delete Own Review",
+        "description": "Remove your own review from a product",
+        "query": "mutation DeleteReview($id: UUID!) {\n  deleteReview(id: $id)\n}",
+        "variables": {
+          "id": "rev_123"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "deleteReview": true
+            }
+          }
+        }
+      },
+      {
+        "name": "Not Your Review",
+        "description": "Can only delete your own reviews (unless admin)",
+        "query": "mutation DeleteReview($id: UUID!) {\n  deleteReview(id: $id)\n}",
+        "variables": {
+          "id": "rev_other_user"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "You can only delete your own reviews",
+                "extensions": {
+                  "code": "FORBIDDEN"
+                },
+                "path": ["deleteReview"]
+              }
+            ]
           }
         }
       }
@@ -66,8 +475,8 @@
     "examples": [
       {
         "name": "Mark Helpful",
-        "description": "Mark a review as helpful",
-        "query": "mutation MarkHelpful($id: UUID!, $helpful: Boolean!) {\n  markReviewHelpful(reviewId: $id, helpful: $helpful) {\n    helpfulCount\n  }\n}",
+        "description": "Mark a review as helpful to surface quality reviews",
+        "query": "mutation MarkHelpful($id: UUID!, $helpful: Boolean!) {\n  markReviewHelpful(reviewId: $id, helpful: $helpful) {\n    id\n    helpfulCount\n    notHelpfulCount\n    userVote\n  }\n}",
         "variables": {
           "id": "rev_123",
           "helpful": true
@@ -78,9 +487,158 @@
           "body": {
             "data": {
               "markReviewHelpful": {
-                "helpfulCount": 15
+                "id": "rev_123",
+                "helpfulCount": 43,
+                "notHelpfulCount": 2,
+                "userVote": "HELPFUL"
               }
             }
+          }
+        }
+      },
+      {
+        "name": "Mark Not Helpful",
+        "description": "Mark a review as not helpful",
+        "query": "mutation MarkHelpful($id: UUID!, $helpful: Boolean!) {\n  markReviewHelpful(reviewId: $id, helpful: $helpful) {\n    id\n    helpfulCount\n    notHelpfulCount\n    userVote\n  }\n}",
+        "variables": {
+          "id": "rev_spam",
+          "helpful": false
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "markReviewHelpful": {
+                "id": "rev_spam",
+                "helpfulCount": 1,
+                "notHelpfulCount": 15,
+                "userVote": "NOT_HELPFUL"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Cannot Vote Own Review",
+        "description": "Users cannot vote on their own reviews",
+        "query": "mutation MarkHelpful($id: UUID!, $helpful: Boolean!) {\n  markReviewHelpful(reviewId: $id, helpful: $helpful) {\n    id\n  }\n}",
+        "variables": {
+          "id": "rev_own",
+          "helpful": true
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "You cannot vote on your own review",
+                "extensions": {
+                  "code": "CANNOT_VOTE_OWN_REVIEW"
+                },
+                "path": ["markReviewHelpful"]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Change Vote",
+        "description": "Users can change their vote from helpful to not helpful or vice versa",
+        "query": "mutation MarkHelpful($id: UUID!, $helpful: Boolean!) {\n  markReviewHelpful(reviewId: $id, helpful: $helpful) {\n    id\n    helpfulCount\n    notHelpfulCount\n    userVote\n  }\n}",
+        "variables": {
+          "id": "rev_voted",
+          "helpful": false
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "markReviewHelpful": {
+                "id": "rev_voted",
+                "helpfulCount": 41,
+                "notHelpfulCount": 3,
+                "userVote": "NOT_HELPFUL"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "reportReview",
+    "operationType": "mutation",
+    "examples": [
+      {
+        "name": "Report Spam",
+        "description": "Report a review that appears to be spam or promotional content",
+        "query": "mutation ReportReview($id: UUID!, $reason: ReportReason!, $details: String) {\n  reportReview(reviewId: $id, reason: $reason, details: $details) {\n    id\n    status\n  }\n}",
+        "variables": {
+          "id": "rev_spam",
+          "reason": "SPAM",
+          "details": "This review is clearly promotional content for a competitor product"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "reportReview": {
+                "id": "report_001",
+                "status": "PENDING_REVIEW"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Report Inappropriate",
+        "description": "Report a review with inappropriate or offensive content",
+        "query": "mutation ReportReview($id: UUID!, $reason: ReportReason!) {\n  reportReview(reviewId: $id, reason: $reason) {\n    id\n    status\n  }\n}",
+        "variables": {
+          "id": "rev_offensive",
+          "reason": "INAPPROPRIATE_CONTENT"
+        },
+        "response": {
+          "type": "success",
+          "httpStatus": 200,
+          "body": {
+            "data": {
+              "reportReview": {
+                "id": "report_002",
+                "status": "PENDING_REVIEW"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Already Reported",
+        "description": "Each user can only report a review once",
+        "query": "mutation ReportReview($id: UUID!, $reason: ReportReason!) {\n  reportReview(reviewId: $id, reason: $reason) {\n    id\n  }\n}",
+        "variables": {
+          "id": "rev_already_reported",
+          "reason": "SPAM"
+        },
+        "response": {
+          "type": "error",
+          "httpStatus": 200,
+          "body": {
+            "data": null,
+            "errors": [
+              {
+                "message": "You have already reported this review",
+                "extensions": {
+                  "code": "ALREADY_REPORTED",
+                  "existingReportId": "report_existing"
+                },
+                "path": ["reportReview"]
+              }
+            ]
           }
         }
       }

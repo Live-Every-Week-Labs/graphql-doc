@@ -3,25 +3,88 @@
   "operations": ["*"],
   "errors": [
     {
-      "code": "UNAUTHENTICATED",
-      "message": "Authentication required",
-      "description": "The operation requires authentication but no valid credentials were provided.",
-      "resolution": "Provide a valid Bearer token in the Authorization header.",
-      "httpStatus": 401
-    },
-    {
-      "code": "FORBIDDEN",
-      "message": "Access denied",
-      "description": "The authenticated user does not have permission to perform this action.",
-      "resolution": "Check the user's role and permissions.",
-      "httpStatus": 403
-    },
-    {
       "code": "NOT_FOUND",
       "message": "Resource not found",
-      "description": "The requested resource could not be found.",
-      "resolution": "Verify the ID or other identifiers used in the request.",
+      "description": "The requested resource could not be found. This may indicate the resource was deleted, never existed, or the ID is incorrect.",
+      "resolution": "Verify the ID or identifier used in the request. Check if the resource may have been deleted.",
       "httpStatus": 404
+    },
+    {
+      "code": "VALIDATION_ERROR",
+      "message": "Validation failed",
+      "description": "One or more input fields failed validation. The error extensions will contain details about which fields failed and why.",
+      "resolution": "Check the error extensions for specific field errors. Common issues include missing required fields, incorrect formats, or values outside allowed ranges.",
+      "httpStatus": 400
+    },
+    {
+      "code": "INVALID_INPUT",
+      "message": "Invalid input provided",
+      "description": "The input data is malformed or contains invalid values that cannot be processed.",
+      "resolution": "Review the input data format and ensure all values are of the correct type and within expected bounds.",
+      "httpStatus": 400
+    },
+    {
+      "code": "RATE_LIMITED",
+      "message": "Too many requests",
+      "description": "The client has exceeded the rate limit for this operation. Rate limits vary by operation and user tier.",
+      "resolution": "Wait before retrying. Check the Retry-After header for the recommended wait time. Consider implementing exponential backoff.",
+      "httpStatus": 429
+    },
+    {
+      "code": "INTERNAL_ERROR",
+      "message": "An internal error occurred",
+      "description": "An unexpected server error occurred while processing the request. This is typically a transient issue.",
+      "resolution": "Retry the request after a brief delay. If the issue persists, contact support with the request ID from the error.",
+      "httpStatus": 500
+    },
+    {
+      "code": "SERVICE_UNAVAILABLE",
+      "message": "Service temporarily unavailable",
+      "description": "The service is temporarily unavailable, possibly due to maintenance or high load.",
+      "resolution": "Retry the request after a brief delay. Check the status page for any ongoing incidents.",
+      "httpStatus": 503
+    },
+    {
+      "code": "CONFLICT",
+      "message": "Resource conflict",
+      "description": "The operation conflicts with the current state of the resource. This often occurs with concurrent modifications.",
+      "resolution": "Refresh the resource state and retry the operation. Consider implementing optimistic locking if available.",
+      "httpStatus": 409
+    },
+    {
+      "code": "DUPLICATE_ENTRY",
+      "message": "Duplicate entry",
+      "description": "The operation would create a duplicate entry for a field that must be unique (e.g., email, SKU, slug).",
+      "resolution": "Use a different value for the unique field, or update the existing resource instead of creating a new one.",
+      "httpStatus": 409
+    },
+    {
+      "code": "OPERATION_NOT_ALLOWED",
+      "message": "Operation not allowed",
+      "description": "The requested operation is not allowed in the current context or for the current resource state.",
+      "resolution": "Check the resource state and ensure the operation is valid. Some operations may require the resource to be in a specific state.",
+      "httpStatus": 400
+    },
+    {
+      "code": "PAYLOAD_TOO_LARGE",
+      "message": "Request payload too large",
+      "description": "The request body exceeds the maximum allowed size. This typically applies to file uploads or very large query variables.",
+      "resolution": "Reduce the size of the request payload. For file uploads, compress the file or split into multiple uploads.",
+      "httpStatus": 413
+    },
+    {
+      "code": "QUERY_COMPLEXITY_EXCEEDED",
+      "message": "Query complexity limit exceeded",
+      "description": "The GraphQL query is too complex and would consume too many server resources. Complexity is calculated based on field count, depth, and list sizes.",
+      "resolution": "Simplify the query by reducing nested fields, requesting fewer items in lists, or splitting into multiple smaller queries.",
+      "httpStatus": 400
+    },
+    {
+      "code": "DEPRECATED_OPERATION",
+      "message": "Operation is deprecated",
+      "description": "This operation is deprecated and will be removed in a future version. The response includes information about the replacement.",
+      "resolution": "Migrate to the recommended replacement operation before the deprecation deadline.",
+      "httpStatus": 200
     }
   ]
 }
