@@ -2,8 +2,5 @@
   "label": "Orders & Checkout",
   "position": 3,
   "collapsible": true,
-  "collapsed": true,
-  "link": {
-    "type": "generated-index"
-  }
+  "collapsed": true
 }

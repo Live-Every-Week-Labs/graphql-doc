@@ -2608,7 +2608,7 @@
   "Product": {
     "kind": "OBJECT",
     "name": "Product",
-    "description": "A product available for purchase\n\nProducts belong to categories and can have multiple variants (size, color, etc.).\nEach product tracks inventory and pricing information.\n\n**Circular Reference:** Product -> Category -> Product (products)\n**Deep Nesting:** Product -> variants -> inventory -> warehouse -> region",
+    "description": "A product available for purchase\n\nProducts belong to categories and can have multiple variants (size, color, etc.).\nEach product tracks inventory and pricing information.",
     "fields": [
       {
         "name": "id",

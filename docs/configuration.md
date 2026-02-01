@@ -36,13 +36,17 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 | :------------------ | :--------- | :------ | :----------------------------------------------- |
 | `includeDeprecated` | `boolean`  | `true`  | Include deprecated operations in documentation   |
 | `skipTypes`         | `string[]` | `[]`    | List of type names to exclude from documentation |
+| `typeLinkMode`      | `string`   | `none`  | Controls when type names render as links         |
 
 ### Sidebar Options
 
-| Option            | Type      | Default | Description                                                                  |
-| :---------------- | :-------- | :------ | :--------------------------------------------------------------------------- |
-| `generateSidebar` | `boolean` | `true`  | Generate Docusaurus sidebar configuration                                    |
-| `sidebarFile`     | `string`  | auto    | Custom filename for sidebar (defaults to `sidebars.js` or `sidebars.api.js`) |
+| Option                 | Type      | Default            | Description                                                                  |
+| :--------------------- | :-------- | :----------------- | :--------------------------------------------------------------------------- |
+| `generateSidebar`      | `boolean` | `true`             | Generate Docusaurus sidebar configuration                                    |
+| `sidebarFile`          | `string`  | auto               | Custom filename for sidebar (defaults to `sidebars.js` or `sidebars.api.js`) |
+| `sidebarCategoryIndex` | `boolean` | `false`            | When true, category labels link to a generated index page                    |
+| `introDocs`            | `array`   | `[]`               | MD/MDX docs to prepend to the API sidebar                                    |
+| `sidebarSectionLabels` | `object`  | `Operations/Types` | Labels for sidebar section headers (operations/types)                        |
 
 ### Single-Page Mode
 
@@ -121,6 +125,51 @@ Control whether type names render as clickable links in generated docs:
 - `none`: No type name links (default).
 - `deep`: Only link type names when inline expansion is no longer possible.
 - `all`: Link all type name references.
+
+### Sidebar Category Index Pages
+
+Control whether clicking a sidebar category label navigates to an index page or just expands/collapses:
+
+| Option                 | Type      | Default | Description                                                         |
+| :--------------------- | :-------- | :------ | :------------------------------------------------------------------ |
+| `sidebarCategoryIndex` | `boolean` | `false` | When true, generates a `generated-index` page for category headers. |
+
+### Sidebar Section Labels
+
+Customize the header labels shown above the operations and types sections:
+
+```yaml
+extensions:
+  graphql-docs:
+    sidebarSectionLabels:
+      operations: Operations
+      types: Types
+```
+
+### Intro Docs
+
+Provide MD/MDX files that appear at the top of the API sidebar. The first doc becomes the landing page
+for the API docs (via sidebar order).
+
+```yaml
+extensions:
+  graphql-docs:
+    introDocs:
+      - ./docs/api-overview.mdx
+      - source: ./docs/authentication.mdx
+        label: Authentication
+        outputPath: intro/authentication.mdx
+```
+
+Each entry can be either a string path or an object:
+
+| Field        | Type     | Description                                       |
+| :----------- | :------- | :------------------------------------------------ |
+| `source`     | `string` | Path to the source `.md` or `.mdx` file.          |
+| `outputPath` | `string` | Optional path under the output directory.         |
+| `id`         | `string` | Optional frontmatter id (inserted if missing).    |
+| `label`      | `string` | Optional sidebar label (inserted if missing).     |
+| `title`      | `string` | Optional frontmatter title (inserted if missing). |
 
 ### Type Expansion Options
 

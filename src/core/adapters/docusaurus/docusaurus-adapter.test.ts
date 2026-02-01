@@ -109,6 +109,16 @@ describe('DocusaurusAdapter', () => {
     const content = JSON.parse(categoryFile!.content);
     expect(content.label).toBe('Users');
     expect(content.position).toBe(1);
+    expect(content.link).toBeUndefined();
+  });
+
+  it('generates category index when enabled', () => {
+    const adapter = new DocusaurusAdapter({ sidebarCategoryIndex: true });
+    const files = adapter.adapt(mockModel);
+    const categoryFile = files.find((f) => f.path === 'users/_category_.json');
+
+    expect(categoryFile).toBeDefined();
+    const content = JSON.parse(categoryFile!.content);
     expect(content.link.type).toBe('generated-index');
   });
 
@@ -124,6 +134,27 @@ describe('DocusaurusAdapter', () => {
     expect(mdxFile?.content).toContain("import operationsByType from '../_data/operations.json'");
     expect(mdxFile?.content).toContain("import typesByName from '../_data/types.json'");
     expect(mdxFile?.content).toContain('export const examplesByOperation');
+  });
+
+  it('prepends intro docs to the sidebar when configured', () => {
+    const introPath = path.join(process.cwd(), 'docs', 'intro', 'overview.mdx');
+    vi.mocked(fs.existsSync).mockImplementation((value) => value === introPath);
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      '---\ntitle: Overview\nsidebar_label: Overview\n---\n\n# Overview'
+    );
+
+    const adapter = new DocusaurusAdapter({
+      introDocs: [{ source: introPath, outputPath: 'intro/overview.mdx' }],
+    });
+    const files = adapter.adapt(mockModel);
+
+    const introFile = files.find((f) => f.path === 'intro/overview.mdx');
+    expect(introFile).toBeDefined();
+
+    const sidebarFile = files.find((f) => f.path === 'sidebars.js');
+    expect(sidebarFile).toBeDefined();
+    expect(sidebarFile?.content).toContain('intro/overview');
+    expect(sidebarFile?.content).toContain('gql-sidebar-divider');
   });
 
   describe('Single-Page Mode', () => {

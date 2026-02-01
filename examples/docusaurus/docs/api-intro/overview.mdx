@@ -1,0 +1,23 @@
+---
+title: API Overview
+sidebar_label: Overview
+api: true
+---
+
+# API Overview
+
+Welcome to the API documentation. This section covers shared concepts, authentication,
+and error handling so you can ship faster.
+
+## Authentication
+
+All requests require a valid access token. Include it in the `Authorization` header:
+
+```
+Authorization: Bearer <token>
+```
+
+## Pagination
+
+List queries use cursor-based pagination. Use `first`/`after` to page forward and
+`last`/`before` to page backward.

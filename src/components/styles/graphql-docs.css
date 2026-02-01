@@ -158,6 +158,27 @@ body {
 }
 
 /* ==========================================================================
+   Sidebar Divider (Docusaurus)
+   ========================================================================== */
+
+.gql-sidebar-divider {
+    border: 0;
+    border-top: 1px solid var(--ifm-color-emphasis-300, var(--gql-border-color));
+    height: 0;
+    margin: 0.4rem 0;
+    opacity: 0.85;
+    width: 100%;
+}
+
+.gql-sidebar-section-title {
+    color: var(--ifm-color-emphasis-800, var(--gql-field-color));
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    text-transform: none;
+}
+
+/* ==========================================================================
    Tree / Indentation Layouts
    ========================================================================== */
 
@@ -527,10 +548,20 @@ a.gql-type:hover {
     margin-top: 20px;
 }
 
+.gql-operation-section + .gql-operation-section {
+    border-top: 2px solid var(--gql-border-color);
+    padding-top: 16px;
+}
+
 .gql-section-title {
     font-size: 1rem;
     margin-bottom: 12px;
     color: var(--gql-field-color);
+}
+
+.gql-operation-section .gql-section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
 }
 
 .gql-operation {

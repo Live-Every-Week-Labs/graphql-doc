@@ -34,6 +34,43 @@
       "enum": ["none", "deep", "all"],
       "default": "none"
     },
+    "sidebarCategoryIndex": {
+      "type": "boolean",
+      "default": false
+    },
+    "sidebarSectionLabels": {
+      "type": "object",
+      "properties": {
+        "operations": { "type": "string" },
+        "types": { "type": "string" }
+      },
+      "default": {
+        "operations": "Operations",
+        "types": "Types"
+      }
+    },
+    "introDocs": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "source": { "type": "string" },
+              "outputPath": { "type": "string" },
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "title": { "type": "string" }
+            },
+            "required": ["source"]
+          }
+        ]
+      },
+      "default": []
+    },
     "skipTypes": {
       "type": "array",
       "items": {

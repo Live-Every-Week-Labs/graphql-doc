@@ -1,7 +1,7 @@
 import { DocModel, Operation, Section, Subsection, ExpandedType } from '../../transformer/types';
 import { GeneratedFile } from '../types';
 import { MdxRenderer } from '../../renderer/mdx-renderer';
-import { SidebarGenerator } from './sidebar-generator';
+import { SidebarGenerator, SidebarItem } from './sidebar-generator';
 import { escapeYamlValue, escapeYamlTag } from '../../utils/yaml-escape';
 import { slugify } from '../../utils/string-utils';
 import * as fs from 'fs';
@@ -15,6 +15,21 @@ export interface DocusaurusAdapterConfig {
   singlePage?: boolean;
   outputPath?: string;
   typeLinkMode?: 'none' | 'deep' | 'all';
+  sidebarCategoryIndex?: boolean;
+  sidebarSectionLabels?: {
+    operations?: string;
+    types?: string;
+  };
+  introDocs?: Array<
+    | string
+    | {
+        source: string;
+        outputPath?: string;
+        id?: string;
+        label?: string;
+        title?: string;
+      }
+  >;
 }
 
 export class DocusaurusAdapter {
@@ -24,8 +39,142 @@ export class DocusaurusAdapter {
 
   constructor(config: DocusaurusAdapterConfig = {}) {
     this.renderer = new MdxRenderer();
-    this.sidebarGenerator = new SidebarGenerator();
+    this.sidebarGenerator = new SidebarGenerator({
+      categoryIndex: config.sidebarCategoryIndex,
+      sectionLabels: config.sidebarSectionLabels,
+    });
     this.config = config;
+  }
+
+  private getIntroDocs(): Array<{
+    source: string;
+    outputPath?: string;
+    id?: string;
+    label?: string;
+    title?: string;
+  }> {
+    const introDocs = this.config.introDocs ?? [];
+    return introDocs.map((doc) => (typeof doc === 'string' ? { source: doc } : doc));
+  }
+
+  private parseFrontMatter(content: string): {
+    frontMatter?: Record<string, string>;
+    frontMatterBlock?: string;
+  } {
+    if (!content.startsWith('---')) {
+      return {};
+    }
+    const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+    if (!match) {
+      return {};
+    }
+    const block = match[1];
+    const frontMatter: Record<string, string> = {};
+    block.split('\n').forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) return;
+      const separator = trimmed.indexOf(':');
+      if (separator === -1) return;
+      const key = trimmed.slice(0, separator).trim();
+      let value = trimmed.slice(separator + 1).trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      frontMatter[key] = value;
+    });
+    return { frontMatter, frontMatterBlock: match[0] };
+  }
+
+  private ensureFrontMatter(
+    content: string,
+    options: { id?: string; title?: string; label?: string }
+  ): string {
+    const { id, title, label } = options;
+    if (!id && !title && !label) {
+      return content;
+    }
+
+    if (content.startsWith('---')) {
+      const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+      if (!match) {
+        return content;
+      }
+      const block = match[1];
+      const lines = block.split('\n');
+      const hasId = lines.some((line) => line.trim().startsWith('id:'));
+      const hasTitle = lines.some((line) => line.trim().startsWith('title:'));
+      const hasLabel = lines.some((line) => line.trim().startsWith('sidebar_label:'));
+      const additions: string[] = [];
+      if (id && !hasId) additions.push(`id: ${id}`);
+      if (title && !hasTitle) additions.push(`title: ${title}`);
+      if (label && !hasLabel) additions.push(`sidebar_label: ${label}`);
+      if (additions.length === 0) {
+        return content;
+      }
+      const updatedBlock = ['---', ...additions, ...lines, '---'].join('\n');
+      return content.replace(match[0], `${updatedBlock}\n`);
+    }
+
+    const frontMatterLines = ['---'];
+    if (id) frontMatterLines.push(`id: ${id}`);
+    if (title) frontMatterLines.push(`title: ${title}`);
+    if (label) frontMatterLines.push(`sidebar_label: ${label}`);
+    frontMatterLines.push('---');
+    return `${frontMatterLines.join('\n')}\n\n${content}`;
+  }
+
+  private buildIntroDocs(): {
+    files: GeneratedFile[];
+    sidebarItems: SidebarItem[];
+  } {
+    const introDocs = this.getIntroDocs();
+    if (introDocs.length === 0) {
+      return { files: [], sidebarItems: [] };
+    }
+
+    const files: GeneratedFile[] = [];
+    const sidebarItems: SidebarItem[] = [];
+
+    for (const doc of introDocs) {
+      const sourcePath = doc.source;
+      if (!fs.existsSync(sourcePath)) {
+        throw new Error(`Intro doc not found: ${sourcePath}`);
+      }
+      const rawContent = fs.readFileSync(sourcePath, 'utf-8');
+      const { frontMatter } = this.parseFrontMatter(rawContent);
+      const sourceExt = path.extname(sourcePath) || '.mdx';
+      const outputPathRaw = doc.outputPath ?? path.basename(sourcePath);
+      const outputPath = outputPathRaw.endsWith(sourceExt)
+        ? outputPathRaw
+        : `${outputPathRaw}${sourceExt}`;
+      const docId =
+        doc.id ?? frontMatter?.id ?? outputPath.replace(/\.[^/.]+$/, '').replace(/\\/g, '/');
+      const label =
+        doc.label ?? frontMatter?.sidebar_label ?? frontMatter?.title ?? docId.split('/').pop()!;
+
+      const content = this.ensureFrontMatter(rawContent, {
+        id: doc.id,
+        title: doc.title,
+        label: doc.label,
+      });
+
+      files.push({
+        path: outputPath.replace(/\\/g, '/'),
+        content,
+        type: 'mdx',
+      });
+
+      sidebarItems.push({
+        type: 'doc',
+        id: docId,
+        label,
+      });
+    }
+
+    return { files, sidebarItems };
   }
 
   private getSectionPath(section: Section): string {
@@ -151,13 +300,14 @@ export class DocusaurusAdapter {
 
   adapt(model: DocModel): GeneratedFile[] {
     const dataFiles = this.generateDataFiles(model);
+    const introDocs = this.buildIntroDocs();
 
     if (this.config.singlePage) {
-      const files = this.generateSinglePageOutput(model);
-      return [...files, ...dataFiles];
+      const files = this.generateSinglePageOutput(model, introDocs);
+      return [...introDocs.files, ...files, ...dataFiles];
     }
 
-    const files: GeneratedFile[] = [...dataFiles];
+    const files: GeneratedFile[] = [...introDocs.files, ...dataFiles];
 
     for (const section of model.sections) {
       const sectionPath = this.getSectionPath(section);
@@ -199,7 +349,14 @@ export class DocusaurusAdapter {
     files.push(...this.generateTypeFiles(model.types));
 
     // Generate sidebars.js or sidebars.api.js
-    const sidebarItems = this.sidebarGenerator.generate(model);
+    let sidebarItems = this.sidebarGenerator.generate(model);
+    if (introDocs.sidebarItems.length > 0) {
+      sidebarItems = [
+        ...introDocs.sidebarItems,
+        { type: 'html', value: '<hr class="gql-sidebar-divider" />', defaultStyle: true },
+        ...sidebarItems,
+      ];
+    }
     const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
 
     if (fs.existsSync(sidebarsPath)) {
@@ -221,7 +378,10 @@ export class DocusaurusAdapter {
 
   // ==================== Single-Page Mode Methods ====================
 
-  private generateSinglePageOutput(model: DocModel): GeneratedFile[] {
+  private generateSinglePageOutput(
+    model: DocModel,
+    introDocs: { files: GeneratedFile[]; sidebarItems: SidebarItem[] }
+  ): GeneratedFile[] {
     const files: GeneratedFile[] = [];
     const docId = 'api-reference';
     const typeGroups = this.groupTypes(model.types);
@@ -296,7 +456,14 @@ export class DocusaurusAdapter {
     });
 
     // Generate sidebar with hash links
-    const sidebarItems = this.sidebarGenerator.generateSinglePageSidebar(model, docId);
+    let sidebarItems = this.sidebarGenerator.generateSinglePageSidebar(model, docId);
+    if (introDocs.sidebarItems.length > 0) {
+      sidebarItems = [
+        ...introDocs.sidebarItems,
+        { type: 'html', value: '<hr class="gql-sidebar-divider" />', defaultStyle: true },
+        ...sidebarItems,
+      ];
+    }
     const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
 
     if (fs.existsSync(sidebarsPath)) {
@@ -487,19 +654,20 @@ export class DocusaurusAdapter {
   }
 
   private generateCategoryJson(label: string, position: number): string {
-    return JSON.stringify(
-      {
-        label,
-        position,
-        collapsible: true,
-        collapsed: true,
-        link: {
-          type: 'generated-index',
-        },
-      },
-      null,
-      2
-    );
+    const category: Record<string, unknown> = {
+      label,
+      position,
+      collapsible: true,
+      collapsed: true,
+    };
+
+    if (this.config.sidebarCategoryIndex) {
+      category.link = {
+        type: 'generated-index',
+      };
+    }
+
+    return JSON.stringify(category, null, 2);
   }
 
   private createOperationId(op: Operation): string {

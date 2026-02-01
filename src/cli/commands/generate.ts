@@ -86,6 +86,15 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
   if (!path.isAbsolute(config.metadataDir)) {
     config.metadataDir = path.resolve(targetDir, config.metadataDir);
   }
+  if (config.introDocs && config.introDocs.length > 0) {
+    config.introDocs = config.introDocs.map((doc) => {
+      if (typeof doc === 'string') {
+        return path.isAbsolute(doc) ? doc : path.resolve(targetDir, doc);
+      }
+      const source = path.isAbsolute(doc.source) ? doc.source : path.resolve(targetDir, doc.source);
+      return { ...doc, source };
+    });
+  }
 
   // Resolve schema pointer
   const schemaPointer = await resolveSchemaPointer(options, targetDir);

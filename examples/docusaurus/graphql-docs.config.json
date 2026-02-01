@@ -7,6 +7,16 @@
   "includeDeprecated": true,
   "generateSidebar": true,
   "sidebarFile": "./sidebars-api.js",
+  "introDocs": [
+    {
+      "source": "./docs/api-intro/overview.mdx",
+      "outputPath": "intro/overview.mdx"
+    },
+    {
+      "source": "./docs/api-intro/errors.mdx",
+      "outputPath": "intro/errors.mdx"
+    }
+  ],
   "typeExpansion": {
     "maxDepth": 6,
     "defaultLevels": 3,

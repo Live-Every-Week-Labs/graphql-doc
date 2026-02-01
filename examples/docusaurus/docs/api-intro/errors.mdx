@@ -1,0 +1,21 @@
+---
+title: Errors
+sidebar_label: Errors
+api: true
+---
+
+# Errors
+
+All error responses include a top-level `errors` array with a `message` and optional metadata.
+
+## Common Error Codes
+
+- `UNAUTHENTICATED`: Missing or invalid auth token.
+- `FORBIDDEN`: Authenticated but not permitted for this operation.
+- `NOT_FOUND`: Resource does not exist.
+- `RATE_LIMITED`: Too many requests in a short window.
+
+## Partial Data
+
+Some queries can return both `data` and `errors` when only part of the request fails.
+Handle both to avoid missing valid results.
