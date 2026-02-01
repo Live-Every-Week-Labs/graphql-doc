@@ -158,27 +158,6 @@ body {
 }
 
 /* ==========================================================================
-   Sidebar Divider (Docusaurus)
-   ========================================================================== */
-
-.gql-sidebar-divider {
-    border: 0;
-    border-top: 1px solid var(--ifm-color-emphasis-300, var(--gql-border-color));
-    height: 0;
-    margin: 0.4rem 0;
-    opacity: 0.85;
-    width: 100%;
-}
-
-.gql-sidebar-section-title {
-    color: var(--ifm-color-emphasis-800, var(--gql-field-color));
-    font-size: 1rem;
-    font-weight: 900;
-    letter-spacing: 0.01em;
-    text-transform: none;
-}
-
-/* ==========================================================================
    Tree / Indentation Layouts
    ========================================================================== */
 

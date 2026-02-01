@@ -29,7 +29,8 @@
       "import": "./dist/components/index.js",
       "require": "./dist/components/index.cjs"
     },
-    "./components/styles.css": "./dist/components/index.css"
+    "./components/styles.css": "./dist/components/index.css",
+    "./components/docusaurus.css": "./dist/components/docusaurus.css"
   },
   "bin": {
     "graphql-docs": "./dist/cli.js"

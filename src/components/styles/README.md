@@ -13,6 +13,10 @@ The system supports Light and Dark modes.
 - **Light Mode**: Defined in `:root`.
 - **Dark Mode**: Defined in `[data-theme='dark']` (compatible with Docusaurus).
 
+## `docusaurus.css`
+
+Optional Docusaurus-only helpers (sidebar dividers and section headers). Import this alongside the core styles only when using the Docusaurus adapter.
+
 ### Customization
 
 Users can override any variable in their own CSS to customize the look and feel.
@@ -41,7 +45,7 @@ We provide utility classes to apply these standard styles to generated content:
 
 ### Sidebar Helpers
 
-These classes are used by the Docusaurus adapter but can be reused elsewhere:
+These classes live in `docusaurus.css` and are used by the Docusaurus adapter:
 
 - `.gql-sidebar-divider`: Lightweight horizontal divider.
 - `.gql-sidebar-section-title`: Section header label for grouped sidebar items.

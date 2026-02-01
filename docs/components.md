@@ -19,7 +19,11 @@ import {
   TypeViewer,
 } from '@graphql-docs/generator/components';
 import '@graphql-docs/generator/components/styles.css';
+// Optional: sidebar helpers for the Docusaurus adapter
+import '@graphql-docs/generator/components/docusaurus.css';
 ```
+
+If you are not using Docusaurus, you can skip the `docusaurus.css` import.
 
 ## Generated MDX (Component-Based)
 

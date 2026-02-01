@@ -6,6 +6,7 @@ export default defineConfig([
       index: 'src/index.ts',
       cli: 'src/cli/index.ts',
       'components/index': 'src/components/index.ts',
+      'components/docusaurus': 'src/components/docusaurus.ts',
     },
     format: ['cjs', 'esm'],
     dts: true,
