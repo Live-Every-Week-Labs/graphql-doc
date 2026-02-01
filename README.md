@@ -17,6 +17,12 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - 🧩 **Docusaurus Integration**: Generates MDX files compatible with Docusaurus sidebars.
 - 🔍 **Custom Directives**: Use `@docGroup`, `@docPriority`, and `@docTags` to organize your schema.
 - 📄 **External Metadata**: Keep your schema clean by loading examples and error definitions from external JSON files.
+- 🧱 **Shared Data Mode**: Generates shared JSON maps for operations/types to avoid repeated inline payloads.
+- 📚 **Intro Docs**: Prepend MD/MDX docs to the API sidebar as a landing section.
+- 🧭 **Sidebar Controls**: Configurable category index pages and section header labels.
+- 🔗 **Type Link Modes**: Control when type names render as links (`none`, `deep`, `all`).
+- 🧩 **Single-Page Mode**: Generate a single MDX file with hash-based navigation.
+- ✅ **Validation**: Validate schema + metadata without generating docs.
 - 🛠️ **Configurable**: Supports `.graphqlrc`, `graphql-docs.config.js`, and more.
 - 🎨 **Themable**: Full CSS variables support for easy customization and dark mode integration.
 

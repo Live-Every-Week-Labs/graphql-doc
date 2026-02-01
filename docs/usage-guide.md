@@ -63,14 +63,28 @@ Options:
 
 Generate documentation from your GraphQL schema.
 
-```bash
+````bash
 graphql-docs generate [options]
 
 Options:
   -s, --schema <path>   Path to GraphQL schema file or URL
   -o, --output <path>   Output directory
   -c, --config <path>   Path to config file
-```
+
+### `validate`
+
+Validate your schema and metadata without generating docs (useful for CI).
+
+```bash
+graphql-docs validate [options]
+
+Options:
+  -s, --schema <path>   Path to GraphQL schema file or URL
+  -c, --config <path>   Path to config file
+  --strict              Treat warnings as errors
+````
+
+````
 
 ## Using a Config File
 
@@ -85,7 +99,7 @@ extensions:
     outputDir: ./docs/api
     framework: docusaurus
     metadataDir: ./docs-metadata
-```
+````
 
 Then simply run:
 
@@ -94,6 +108,22 @@ graphql-docs generate
 ```
 
 See the [Configuration Guide](./configuration.md) for all available options.
+
+### Optional Enhancements
+
+```yaml
+extensions:
+  graphql-docs:
+    singlePage: false
+    typeLinkMode: deep
+    introDocs:
+      - ./docs/api-overview.mdx
+      - source: ./docs/authentication.mdx
+        outputPath: intro/authentication.mdx
+    sidebarSectionLabels:
+      operations: Operations
+      types: Types
+```
 
 ## Integration with Docusaurus
 

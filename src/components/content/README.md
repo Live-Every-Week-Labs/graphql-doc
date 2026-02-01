@@ -35,6 +35,8 @@ const myType: ExpandedType = { ... };
 **Props:**
 
 - `type` (`ExpandedType`): The type definition to render.
+- `typeLinkBase` (`string`): Base path for generated type docs (e.g. `../types`).
+- `typeLinkMode` (`'none' | 'deep' | 'all'`): Controls when type names render as links.
 - `depth` (`number`): Current recursion depth (default: 0).
 - `defaultExpandedLevels` (`number`): How many levels deep to expand initially (default: 0).
 - `maxDepth` (`number`): Maximum recursion depth before truncating (default: 3).
@@ -71,6 +73,8 @@ const fields: ExpandedField[] = [ ... ];
 
 - `fields` (`ExpandedField[]`): Array of fields to render.
 - `requiredStyle` (`'label' | 'indicator'`): Controls required marker style (default: `indicator`).
+- `typeLinkBase` (`string`): Base path for generated type docs.
+- `typeLinkMode` (`'none' | 'deep' | 'all'`): Controls when type names render as links.
 - `depth` (`number`): Current recursion depth.
 - `maxDepth` (`number`): Max inline expansion depth.
 - `defaultExpandedLevels` (`number`): Expansion level control.
@@ -95,6 +99,15 @@ const args: ExpandedArgument[] = [ ... ];
 />
 ```
 
+**Props:**
+
+- `arguments` (`ExpandedArgument[]`): Array of arguments to render.
+- `typeLinkBase` (`string`): Base path for generated type docs.
+- `typeLinkMode` (`'none' | 'deep' | 'all'`): Controls when type names render as links.
+- `depth` (`number`): Current recursion depth.
+- `maxDepth` (`number`): Max inline expansion depth.
+- `defaultExpandedLevels` (`number`): Expansion level control.
+
 ### `OperationView`
 
 `OperationView` renders a complete GraphQL operation with its description, arguments, return type, and inline examples (mobile). It also emits `data-operation` for scroll sync and anchors via `slugify()`. If you pass `typesByName`, referenced types are resolved at render time. Use `typeLinkMode` (`none`, `deep`, `all`) to control type name links.
@@ -107,13 +120,13 @@ import { Operation } from '../../core/transformer/types';
 
 const operation: Operation = { ... };
 
-<OperationView operation={operation} typesByName={typesByName} />
+<OperationView operation={operation} typesByName={typesByName} typeLinkBase="../types" />
 ```
 
 ### `TypeDefinitionView`
 
 `TypeDefinitionView` renders a standalone type definition page. It supports enums (with per-value notes),
-inputs, objects, interfaces, unions, and scalars. If you pass `typesByName`, referenced field types are resolved at render time. Use `typeLinkMode` to control type name links.
+inputs, objects, interfaces, unions, and scalars. If you pass `typesByName`, referenced field types are resolved at render time. Use `typeLinkMode` to control type name links, and `typeLinkBase` to build links to other type pages.
 
 **Usage:**
 
@@ -123,5 +136,5 @@ import { ExpandedType } from '../../core/transformer/types';
 
 const typeDefinition: ExpandedType = { ... };
 
-<TypeDefinitionView type={typeDefinition} typesByName={typesByName} />
+<TypeDefinitionView type={typeDefinition} typesByName={typesByName} typeLinkBase=".." />
 ```

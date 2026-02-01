@@ -122,12 +122,16 @@ prism: {
 
 ## Component API Highlights
 
-- `OperationView({ operation, defaultExpandedLevels, maxDepth, headingLevel, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
-- `FieldTable({ fields, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
-- `ArgumentsTable({ arguments, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
+- `OperationView({ operation, typesByName, typeLinkBase, defaultExpandedLevels, maxDepth, headingLevel, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
+- `TypeDefinitionView({ type, typesByName, typeLinkBase, headingLevel, typeLinkMode })`
+- `TypeViewer({ type, typeLinkBase, typeLinkMode, depth, maxDepth, defaultExpandedLevels })`
+- `FieldTable({ fields, typeLinkBase, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
+- `ArgumentsTable({ arguments, typeLinkBase, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
 - `ExamplesPanel({ examples, operationName })`
 - `CodeExample({ example })`
 - `TwoColumnContent({ examplesByOperation, renderExamples })`
+
+`typeLinkBase` is used to build links to generated type pages (e.g. `types/enums/*`, `types/inputs/*`, `types/types/*`). When omitted, link targets fall back to the inline `#type` anchors produced by the transformer.
 
 ## Theming
 

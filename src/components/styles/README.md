@@ -39,6 +39,13 @@ We provide utility classes to apply these standard styles to generated content:
   - `.gql-badge-error`
   - `.gql-badge-neutral`
 
+### Sidebar Helpers
+
+These classes are used by the Docusaurus adapter but can be reused elsewhere:
+
+- `.gql-sidebar-divider`: Lightweight horizontal divider.
+- `.gql-sidebar-section-title`: Section header label for grouped sidebar items.
+
 ### Layout & Examples
 
 - `.gql-docs-content`, `.gql-docs-main`, `.gql-docs-examples`: Two-column layout wrappers.

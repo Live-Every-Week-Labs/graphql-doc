@@ -11,8 +11,10 @@ The `DocusaurusAdapter` converts the internal model into a file structure and co
 1.  **File Structure**: Maps the `Section` and `Subsection` hierarchy to a nested directory structure.
 2.  **Front Matter**: Generates Docusaurus-compatible YAML front matter for MDX files (id, title, sidebar_label, tags, `api: true`).
 3.  **Content Generation**: Uses `MdxRenderer` to generate component-based MDX.
-4.  **Navigation**: Generates `_category_.json` files to control the Docusaurus sidebar structure and ordering.
-5.  **Sidebar Generation**: Automatically generates a `sidebars.js` file (or `sidebars.api.js` if one already exists) to provide a complete navigation structure for the API documentation.
+4.  **Shared Data Files**: Emits `_data/operations.json` and `_data/types.json` so MDX files import shared maps instead of inlining payloads.
+5.  **Navigation**: Generates `_category_.json` files to control the Docusaurus sidebar structure and ordering.
+6.  **Sidebar Generation**: Automatically generates a `sidebars.js` file (or `sidebars.api.js` if one already exists) to provide a complete navigation structure for the API documentation.
+7.  **Intro Docs & Section Headers**: Prepends configurable intro docs and optional section headers to the API sidebar.
 
 ### Usage
 
