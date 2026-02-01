@@ -18,6 +18,7 @@ The `src/core/config` module handles configuration loading and validation for th
   - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).
   - `errorsDir`: Path to error definitions (default: `${metadataDir}/errors`).
   - `typeLinkMode`: Controls type name links (`none`, `deep`, `all`, default: `none`).
+  - `excludeDocGroups`: Doc group names to exclude from output (string or array, default: `[]`).
   - `sidebarCategoryIndex`: When true, category labels link to a generated index page (default: `false`).
   - `sidebarSectionLabels`: Sidebar section header labels (default: `Operations`/`Types`).
   - `introDocs`: MD/MDX files to prepend to the API sidebar (default: `[]`).

@@ -32,11 +32,12 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 
 ### Content Options
 
-| Option              | Type       | Default | Description                                      |
-| :------------------ | :--------- | :------ | :----------------------------------------------- |
-| `includeDeprecated` | `boolean`  | `true`  | Include deprecated operations in documentation   |
-| `skipTypes`         | `string[]` | `[]`    | List of type names to exclude from documentation |
-| `typeLinkMode`      | `string`   | `none`  | Controls when type names render as links         |
+| Option              | Type                 | Default | Description                                      |
+| :------------------ | :------------------- | :------ | :----------------------------------------------- |
+| `includeDeprecated` | `boolean`            | `true`  | Include deprecated operations in documentation   |
+| `skipTypes`         | `string[]`           | `[]`    | List of type names to exclude from documentation |
+| `typeLinkMode`      | `string`             | `none`  | Controls when type names render as links         |
+| `excludeDocGroups`  | `string \| string[]` | `[]`    | Doc group names to exclude from generated docs   |
 
 ### Sidebar Options
 
@@ -125,6 +126,20 @@ Control whether type names render as clickable links in generated docs:
 - `none`: No type name links (default).
 - `deep`: Only link type names when inline expansion is no longer possible.
 - `all`: Link all type name references.
+
+### Excluding Doc Groups
+
+Skip entire doc groups by name. Useful for pre-release or internal-only operations.
+
+```yaml
+extensions:
+  graphql-docs:
+    excludeDocGroups:
+      - Internal
+      - Experimental
+```
+
+You can also pass a single string (it will be normalized to an array).
 
 ### Sidebar Category Index Pages
 

@@ -116,6 +116,9 @@ extensions:
   graphql-docs:
     singlePage: false
     typeLinkMode: deep
+    excludeDocGroups:
+      - Internal
+      - Experimental
     introDocs:
       - ./docs/api-overview.mdx
       - source: ./docs/authentication.mdx

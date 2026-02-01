@@ -23,6 +23,7 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - 🔗 **Type Link Modes**: Control when type names render as links (`none`, `deep`, `all`).
 - 🧩 **Single-Page Mode**: Generate a single MDX file with hash-based navigation.
 - ✅ **Validation**: Validate schema + metadata without generating docs.
+- 🚫 **Group Exclusions**: Exclude doc groups from output via configuration.
 - 🛠️ **Configurable**: Supports `.graphqlrc`, `graphql-docs.config.js`, and more.
 - 🎨 **Themable**: Full CSS variables support for easy customization and dark mode integration.
 

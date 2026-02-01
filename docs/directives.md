@@ -92,6 +92,18 @@ User Management/
 
 Operations without a `@docGroup` directive are placed in an "Uncategorized" section at the end.
 
+### Excluding Groups
+
+If you want to keep a group out of published docs, you can exclude it via configuration:
+
+```yaml
+extensions:
+  graphql-docs:
+    excludeDocGroups:
+      - Internal
+      - Experimental
+```
+
 ---
 
 ## @docPriority

@@ -32,7 +32,10 @@ export class Generator {
     const errors = await loadErrors(errorsPattern);
 
     console.log('Transforming data...');
-    const transformer = new Transformer(types, this.config.typeExpansion);
+    const transformer = new Transformer(types, {
+      ...this.config.typeExpansion,
+      excludeDocGroups: this.config.excludeDocGroups,
+    });
     const docModel = transformer.transform(operations, examples, errors);
 
     console.log('Generating documentation...');

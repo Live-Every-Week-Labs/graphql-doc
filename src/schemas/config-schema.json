@@ -34,6 +34,16 @@
       "enum": ["none", "deep", "all"],
       "default": "none"
     },
+    "excludeDocGroups": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ],
+      "default": []
+    },
     "sidebarCategoryIndex": {
       "type": "boolean",
       "default": false

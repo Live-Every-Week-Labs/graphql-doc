@@ -8,11 +8,13 @@ export interface TransformerConfig {
   maxDepth?: number;
   defaultLevels?: number;
   showCircularReferences?: boolean;
+  excludeDocGroups?: string[];
 }
 
 export class Transformer {
   private expander: TypeExpander;
   private typeDefinitions: TypeDefinition[];
+  private excludedDocGroups: Set<string>;
 
   constructor(types: TypeDefinition[], config: TransformerConfig = {}) {
     this.typeDefinitions = types;
@@ -22,6 +24,7 @@ export class Transformer {
       config.defaultLevels ?? 2,
       config.showCircularReferences ?? true
     );
+    this.excludedDocGroups = new Set(config.excludeDocGroups ?? []);
   }
 
   transform(
@@ -70,6 +73,9 @@ export class Transformer {
 
     for (const op of operations) {
       const groupName = op.directives.docGroup?.name || 'Uncategorized';
+      if (this.excludedDocGroups.has(groupName)) {
+        continue;
+      }
       const groupOrder = op.directives.docGroup?.order; // undefined if not specified
       const subsectionName = op.directives.docGroup?.subsection;
 

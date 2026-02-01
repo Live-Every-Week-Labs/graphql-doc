@@ -63,6 +63,14 @@ describe('Transformer', () => {
     expect(mainSubsection.operations[1].name).toBe('getUser');
   });
 
+  it('excludes operations in configured doc groups', () => {
+    const transformer = new Transformer(mockTypes, { excludeDocGroups: ['System'] });
+    const result = transformer.transform(mockOperations, [], []);
+
+    expect(result.sections).toHaveLength(1);
+    expect(result.sections[0].name).toBe('Users');
+  });
+
   it('merges metadata', () => {
     const exampleFiles: ExampleFile[] = [
       {

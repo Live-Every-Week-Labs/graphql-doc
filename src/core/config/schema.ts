@@ -9,6 +9,14 @@ export const ConfigSchema = z.object({
   errorsDir: z.string().optional(),
   includeDeprecated: z.boolean().default(true),
   typeLinkMode: z.enum(['none', 'deep', 'all']).default('none'),
+  excludeDocGroups: z
+    .preprocess((value) => {
+      if (typeof value === 'string') {
+        return [value];
+      }
+      return value;
+    }, z.array(z.string()))
+    .default([]),
   sidebarCategoryIndex: z.boolean().default(false),
   sidebarSectionLabels: z
     .object({
