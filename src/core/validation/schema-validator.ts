@@ -15,7 +15,7 @@ import { ValidationError, SchemaValidationResult, ValidationErrorCode } from './
 // Zod schemas for directive validation (matching directive-definitions.ts requirements)
 const DocGroupArgsSchema = z.object({
   name: z.string(),
-  order: z.number().int(), // Required per directive definition
+  order: z.number().int().optional(),
   subsection: z.string().optional(),
 });
 

@@ -16,8 +16,5 @@ export const examplesByOperation = {
 
 export const operation = operationsByType["query"]["search"];
 
-<OperationView operation={ operation } typesByName={typesByName} headingLevel={ 1 } typeLinkBase="../../types">
-Search across products, users, and categories
-
-Returns a union type that can be Product, User, or Category.
+<OperationView operation={ operation } typesByName={typesByName} headingLevel={ 1 } defaultExpandedLevels={ 0 } maxDepth={ 6 } typeLinkBase="../../types">
 </OperationView>

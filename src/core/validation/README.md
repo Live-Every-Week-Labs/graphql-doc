@@ -17,7 +17,6 @@ This module provides validation services for GraphQL schemas and metadata files.
 
 - **`metadata-validator.ts`**: Validates metadata JSON files.
   - Validates example files against Zod schemas
-  - Validates error files against Zod schemas
   - Cross-validates that referenced operations exist in the schema
 
 ## Usage
@@ -32,7 +31,6 @@ const schemaResult = await schemaValidator.validate('schema.graphql');
 // Validate metadata
 const metadataValidator = new MetadataValidator();
 const examplesResult = await metadataValidator.validateExamples('docs-metadata/examples/**/*.json');
-const errorsResult = await metadataValidator.validateErrors('docs-metadata/errors/**/*.json');
 
 // Cross-validate operations
 const warnings = metadataValidator.crossValidateOperations(

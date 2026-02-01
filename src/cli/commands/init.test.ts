@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { runInit } from './init.js';
-import { ExampleFileSchema, ErrorFileSchema } from '../../core/metadata/validator.js';
+import { ExampleFileSchema } from '../../core/metadata/validator.js';
 
 // Mock @inquirer/prompts
 vi.mock('@inquirer/prompts', () => ({
@@ -49,11 +49,8 @@ describe('init command', () => {
 
       const queriesDir = path.join(testDir, 'docs-metadata', 'examples', 'queries');
       const mutationsDir = path.join(testDir, 'docs-metadata', 'examples', 'mutations');
-      const errorsDir = path.join(testDir, 'docs-metadata', 'errors');
-
       expect(await fs.pathExists(queriesDir)).toBe(true);
       expect(await fs.pathExists(mutationsDir)).toBe(true);
-      expect(await fs.pathExists(errorsDir)).toBe(true);
     });
 
     it('creates valid example query JSON file', async () => {
@@ -97,22 +94,6 @@ describe('init command', () => {
 
       // Validate against schema
       const result = ExampleFileSchema.safeParse(content);
-      expect(result.success).toBe(true);
-    });
-
-    it('creates valid common errors JSON file', async () => {
-      await runInit({ yes: true, targetDir: testDir });
-
-      const errorsPath = path.join(testDir, 'docs-metadata', 'errors', 'common-errors.json');
-      expect(await fs.pathExists(errorsPath)).toBe(true);
-
-      const content = await fs.readJson(errorsPath);
-      expect(content.category).toBe('Common');
-      expect(content.operations).toContain('*');
-      expect(content.errors).toHaveLength(2);
-
-      // Validate against schema
-      const result = ErrorFileSchema.safeParse(content);
       expect(result.success).toBe(true);
     });
   });

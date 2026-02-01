@@ -15,7 +15,6 @@ describe('SidebarGenerator', () => {
     referencedTypes: [],
     isDeprecated: false,
     examples: [],
-    errors: [],
   };
 
   const mockModel: DocModel = {
@@ -153,7 +152,9 @@ describe('SidebarGenerator', () => {
       const generator = new SidebarGenerator();
       const items = generator.generateSinglePageSidebar(mockModel, 'api-reference');
 
-      const usersCategory = items[0];
+      const usersCategory = items.find(
+        (item) => item.type === 'category' && item.label === 'Users'
+      );
       const adminCategory = usersCategory.items?.find((item) => item.label === 'Admin');
 
       expect(adminCategory).toBeDefined();
@@ -174,8 +175,10 @@ describe('SidebarGenerator', () => {
       const generator = new SidebarGenerator();
       const items = generator.generateSinglePageSidebar(mockModel, 'custom-doc-id');
 
-      const usersCategory = items[0];
-      const getUserOp = usersCategory.items?.find((item) => item.label === 'getUser');
+      const usersCategory = items.find(
+        (item) => item.type === 'category' && item.label === 'Users'
+      );
+      const getUserOp = usersCategory?.items?.find((item) => item.label === 'getUser');
 
       expect(getUserOp?.href).toBe('custom-doc-id#get-user');
     });

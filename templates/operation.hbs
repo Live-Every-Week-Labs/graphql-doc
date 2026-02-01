@@ -4,10 +4,12 @@
 {{exportKeyword}} {{exportName}} = {{{json operation}}};
 {{/if}}
 
-<OperationView operation={ {{exportName}} } typesByName={typesByName}{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}{{#if typeLinkBase}} typeLinkBase={{{typeLinkBase}}}{{/if}}{{#if typeLinkMode}} typeLinkMode={{{typeLinkMode}}}{{/if}}>
+<OperationView operation={ {{exportName}} } typesByName={typesByName}{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}{{#if hasDefaultExpandedLevels}} defaultExpandedLevels={ {{defaultExpandedLevels}} }{{/if}}{{#if hasMaxDepth}} maxDepth={ {{maxDepth}} }{{/if}}{{#if typeLinkBase}} typeLinkBase={{{typeLinkBase}}}{{/if}}{{#if typeLinkMode}} typeLinkMode={{{typeLinkMode}}}{{/if}}>
 {{#if includeDescription}}
 {{#if operation.description}}
+{{#if unsafeDescriptionMdx}}
 {{{operation.description}}}
+{{/if}}
 {{/if}}
 {{/if}}
 </OperationView>

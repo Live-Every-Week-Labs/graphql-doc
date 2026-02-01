@@ -145,7 +145,7 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int!, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
 
         type Query {
           users: [User] @docGroup(name: "Users", order: 1)
@@ -169,7 +169,7 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int!, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
 
         type Query {
           users: [User] @docGroup(order: 1)
@@ -188,31 +188,6 @@ describe('SchemaValidator', () => {
       expect(result.errors[0].code).toBe('DIRECTIVE_MISSING_ARG');
       expect(result.errors[0].message).toContain('@docGroup');
       expect(result.errors[0].message).toContain('name');
-    });
-
-    it('fails when @docGroup is missing required order argument', async () => {
-      const schemaPath = path.join(testDir, 'schema.graphql');
-      await fs.writeFile(
-        schemaPath,
-        `
-        directive @docGroup(name: String!, order: Int!, subsection: String) on FIELD_DEFINITION
-
-        type Query {
-          users: [User] @docGroup(name: "Users")
-        }
-
-        type User {
-          id: ID!
-        }
-        `
-      );
-
-      const result = await validator.validate(schemaPath);
-
-      expect(result.valid).toBe(false);
-      expect(result.errors).toHaveLength(1);
-      expect(result.errors[0].code).toBe('DIRECTIVE_MISSING_ARG');
-      expect(result.errors[0].message).toContain('order');
     });
 
     it('passes with valid @docPriority directive', async () => {
@@ -339,7 +314,7 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int!, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
 
         type Query {
           users: [User] @docGroup(name: "Users", order: "not-a-number")
@@ -363,7 +338,7 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int!, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
         directive @docPriority(level: Int!) on FIELD_DEFINITION
 
         type Query {
@@ -380,8 +355,7 @@ describe('SchemaValidator', () => {
       const result = await validator.validate(schemaPath);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toHaveLength(2);
-      expect(result.errors.some((e) => e.message.includes('order'))).toBe(true);
+      expect(result.errors).toHaveLength(1);
       expect(result.errors.some((e) => e.message.includes('level'))).toBe(true);
     });
 
@@ -390,7 +364,7 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int!, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
         directive @docPriority(level: Int!) on FIELD_DEFINITION
         directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 
@@ -414,10 +388,10 @@ describe('SchemaValidator', () => {
       const schemaPath = path.join(testDir, 'schema.graphql');
       await fs.writeFile(
         schemaPath,
-        `directive @docGroup(name: String!, order: Int!) on FIELD_DEFINITION
+        `directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 
 type Query {
-  users: [User] @docGroup(name: "Users")
+  users: [User] @docTags
 }
 
 type User {

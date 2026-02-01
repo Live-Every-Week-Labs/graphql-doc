@@ -16,15 +16,16 @@ The `src/core/config` module handles configuration loading and validation for th
   - `singlePage`: Toggle single-page vs multi-page (default: `false`).
   - `metadataDir`: Path to external metadata (default: `./docs-metadata`).
   - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).
-  - `errorsDir`: Path to error definitions (default: `${metadataDir}/errors`).
+  - `allowRemoteSchema`: Allow loading schema from remote URLs (default: `false`).
+  - `unsafeMdxDescriptions`: Render schema descriptions as raw MDX (default: `false`).
   - `typeLinkMode`: Controls type name links (`none`, `deep`, `all`, default: `none`).
   - `excludeDocGroups`: Doc group names to exclude from output (string or array, default: `[]`).
   - `sidebarCategoryIndex`: When true, category labels link to a generated index page (default: `false`).
   - `sidebarSectionLabels`: Sidebar section header labels (default: `Operations`/`Types`).
   - `introDocs`: MD/MDX files to prepend to the API sidebar (default: `[]`).
   - `typeExpansion`: Settings for type depth and circular references.
-    - `maxDepth`: Hard limit on recursion depth (default: `5`). Types at this depth have empty fields.
-    - `defaultLevels`: Soft limit for UI expansion (default: `2`). Types beyond this depth are marked as collapsible.
+    - `maxDepth`: Hard limit on inline expansion depth (default: `5`). Deeper references render as type links.
+    - `defaultLevels`: Soft limit for UI expansion (default: `0`). Types beyond this depth are marked as collapsible.
     - `showCircularReferences`: Show circular reference indicators (default: `true`).
 
 ### 2. Config Loader
@@ -39,7 +40,7 @@ The `src/core/config` module handles configuration loading and validation for th
   3.  **Defaults:** Falls back to default values defined in the Zod schema.
 
 - **Smart Defaults:**
-  - If `examplesDir` or `errorsDir` are not explicitly provided, they automatically default to subdirectories within the configured `metadataDir`.
+  - If `examplesDir` is not explicitly provided, it automatically defaults to a subdirectory within the configured `metadataDir`.
   - Example: If `metadataDir` is `./api-data`, examples will be looked for in `./api-data/examples`.
 
 ## Usage

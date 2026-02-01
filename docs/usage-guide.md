@@ -30,7 +30,6 @@ This creates:
 
 - `.graphqlrc` - Configuration file
 - `docs-metadata/examples/` - Directory for operation examples
-- `docs-metadata/errors/` - Directory for error definitions
 - Sample JSON files to get you started
 
 ### 2. Generate Documentation
@@ -109,6 +108,13 @@ graphql-docs generate
 
 See the [Configuration Guide](./configuration.md) for all available options.
 
+## Handling Errors in Docs
+
+For MVP, error documentation is handled in two places:
+
+- **Universal errors** (authentication, rate limits, etc.) should live in your intro docs so they appear at the top of the sidebar.
+- **Operation-specific errors** should be shown inside examples using the GraphQL `errors` array with `response.type: "error"` in your example JSON.
+
 ### Optional Enhancements
 
 ```yaml
@@ -159,9 +165,9 @@ type Query {
 }
 ```
 
-## Adding Examples and Error Documentation
+## Adding Examples
 
-Place JSON files in your metadata directories to add examples and error documentation to your operations.
+Place JSON files in your metadata directories to add examples to your operations.
 
 ### Example Files
 
@@ -190,24 +196,3 @@ Create files in `docs-metadata/examples/`:
   ]
 }
 ```
-
-### Error Files
-
-Create files in `docs-metadata/errors/`:
-
-```json
-{
-  "category": "Authentication",
-  "operations": ["*"],
-  "errors": [
-    {
-      "code": "UNAUTHORIZED",
-      "message": "Authentication required",
-      "description": "The request requires a valid authentication token.",
-      "resolution": "Include a valid JWT in the Authorization header."
-    }
-  ]
-}
-```
-
-The `operations` array can contain specific operation names or `"*"` to apply to all operations.

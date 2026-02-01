@@ -92,7 +92,6 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
   const allWarnings: ValidationError[] = [];
   let schemaValid = false;
   let examplesValid = false;
-  let errorsValid = false;
   let operationNames: string[] = [];
 
   // ===== Schema Validation =====
@@ -128,23 +127,6 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
   }
   allWarnings.push(...examplesResult.warnings);
 
-  // ===== Error Files Validation =====
-  const errorsDir = config.errorsDir ?? path.join(config.metadataDir, 'errors');
-  const errorsPattern = path.join(targetDir, errorsDir, '**/*.json');
-
-  const errorsSpinner = ora('Validating error files...').start();
-
-  const errorFilesResult = await metadataValidator.validateErrors(errorsPattern);
-
-  if (errorFilesResult.errors.length > 0) {
-    errorsSpinner.fail('Error files validation failed');
-    allErrors.push(...errorFilesResult.errors);
-  } else {
-    errorsSpinner.succeed('Error files valid');
-    errorsValid = true;
-  }
-  allWarnings.push(...errorFilesResult.warnings);
-
   // ===== Cross-validation =====
   if (schemaValid) {
     const crossValidationSpinner = ora('Cross-validating operations...').start();
@@ -156,13 +138,6 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
     for (const op of examplesResult.referencedOperations) {
       const existing = referencedOps.get(op) || [];
       existing.push(`${examplesDir}/**/*.json`);
-      referencedOps.set(op, existing);
-    }
-
-    // From error files - each error file can reference multiple operations
-    for (const op of errorFilesResult.referencedOperations) {
-      const existing = referencedOps.get(op) || [];
-      existing.push(`${errorsDir}/**/*.json`);
       referencedOps.set(op, existing);
     }
 
@@ -197,7 +172,6 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
   console.log(chalk.white('\nSummary:'));
   console.log(`  Schema:   ${schemaValid ? chalk.green('✓ Valid') : chalk.red('✗ Invalid')}`);
   console.log(`  Examples: ${examplesValid ? chalk.green('✓ Valid') : chalk.red('✗ Invalid')}`);
-  console.log(`  Errors:   ${errorsValid ? chalk.green('✓ Valid') : chalk.red('✗ Invalid')}`);
 
   // ===== Final Result =====
   const hasErrors = allErrors.length > 0;

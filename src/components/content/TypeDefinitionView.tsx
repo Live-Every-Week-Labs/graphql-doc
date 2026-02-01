@@ -12,6 +12,8 @@ interface TypeDefinitionViewProps {
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   typesByName?: Record<string, ExpandedType>;
   typeLinkMode?: 'none' | 'deep' | 'all';
+  defaultExpandedLevels?: number;
+  maxDepth?: number;
   children?: React.ReactNode;
 }
 
@@ -110,6 +112,8 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
   headingLevel = 2,
   typesByName,
   typeLinkMode = 'none',
+  defaultExpandedLevels = 0,
+  maxDepth = 5,
   children,
 }: TypeDefinitionViewProps) {
   if (!type) return null;
@@ -151,6 +155,8 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
                   requiredStyle={type.kind === 'INPUT_OBJECT' ? 'label' : 'indicator'}
                   typeLinkBase={typeLinkBase}
                   typeLinkMode={typeLinkMode}
+                  defaultExpandedLevels={defaultExpandedLevels}
+                  maxDepth={maxDepth}
                 />
               ) : (
                 <span className="gql-no-desc">No fields</span>

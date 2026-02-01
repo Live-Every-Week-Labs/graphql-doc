@@ -18,7 +18,7 @@ export const FieldTable = React.memo(function FieldTable({
   typeLinkBase,
   typeLinkMode,
   depth = 0,
-  maxDepth = 3,
+  maxDepth = 5,
   defaultExpandedLevels = 0,
 }: FieldTableProps) {
   return (

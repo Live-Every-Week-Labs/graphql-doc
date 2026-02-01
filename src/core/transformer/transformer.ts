@@ -1,5 +1,5 @@
 import { Operation as BaseOperation, TypeDefinition } from '../parser/types';
-import { ExampleFile, ErrorFile, Example, ErrorDefinition } from '../metadata/types';
+import { ExampleFile, Example } from '../metadata/types';
 import { DocModel, Section, Operation, ExpandedArgument } from './types';
 import { TypeExpander } from './type-expander';
 import { mergeMetadata } from './metadata-merger';
@@ -21,19 +21,15 @@ export class Transformer {
     this.expander = new TypeExpander(
       types,
       config.maxDepth ?? 5,
-      config.defaultLevels ?? 2,
+      config.defaultLevels ?? 3,
       config.showCircularReferences ?? true
     );
     this.excludedDocGroups = new Set(config.excludeDocGroups ?? []);
   }
 
-  transform(
-    baseOperations: BaseOperation[],
-    exampleFiles: ExampleFile[],
-    errorFiles: ErrorFile[]
-  ): DocModel {
+  transform(baseOperations: BaseOperation[], exampleFiles: ExampleFile[]): DocModel {
     // 1. Merge metadata
-    const operationsWithMetadata = mergeMetadata(baseOperations, exampleFiles, errorFiles);
+    const operationsWithMetadata = mergeMetadata(baseOperations, exampleFiles);
 
     // 2. Expand types
     const expandedOperations = operationsWithMetadata.map((op) => this.expandOperation(op));
@@ -42,9 +38,7 @@ export class Transformer {
     return this.groupAndSort(expandedOperations);
   }
 
-  private expandOperation(
-    op: BaseOperation & { examples: Example[]; errors: ErrorDefinition[] }
-  ): Operation {
+  private expandOperation(op: BaseOperation & { examples: Example[] }): Operation {
     const args: ExpandedArgument[] = op.arguments
       .filter((arg) => !arg.directives?.docIgnore)
       .map((arg) => ({
@@ -151,6 +145,10 @@ export class Transformer {
       .filter((type) => !type.name.startsWith('__'))
       .filter((type) => !type.directives?.docIgnore)
       .map((type) => this.expander.expandDefinition(type.name))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => {
+        const nameA = 'name' in a ? a.name : '';
+        const nameB = 'name' in b ? b.name : '';
+        return nameA.localeCompare(nameB);
+      });
   }
 }

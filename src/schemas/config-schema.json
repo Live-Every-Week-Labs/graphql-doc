@@ -22,8 +22,13 @@
     "examplesDir": {
       "type": "string"
     },
-    "errorsDir": {
-      "type": "string"
+    "allowRemoteSchema": {
+      "type": "boolean",
+      "default": false
+    },
+    "unsafeMdxDescriptions": {
+      "type": "boolean",
+      "default": false
     },
     "includeDeprecated": {
       "type": "boolean",
@@ -104,7 +109,7 @@
         },
         "defaultLevels": {
           "type": "number",
-          "default": 2
+          "default": 0
         },
         "showCircularReferences": {
           "type": "boolean",

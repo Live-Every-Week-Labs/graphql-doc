@@ -79,6 +79,7 @@ describe('FieldTable', () => {
             name: 'limit',
             type: { kind: 'SCALAR' as const, name: 'Int' },
             description: 'Limit results',
+            isRequired: false,
           },
         ],
       },
@@ -141,7 +142,7 @@ describe('FieldTable', () => {
     it('toggles nested properties', () => {
       render(
         <TestWrapper>
-          <FieldTable fields={mockFields} />
+          <FieldTable fields={mockFields} defaultExpandedLevels={0} />
         </TestWrapper>
       );
 

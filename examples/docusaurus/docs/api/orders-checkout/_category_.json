@@ -1,6 +1,6 @@
 {
   "label": "Orders & Checkout",
-  "position": 3,
   "collapsible": true,
-  "collapsed": true
+  "collapsed": true,
+  "position": 3
 }

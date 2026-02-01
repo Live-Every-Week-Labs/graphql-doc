@@ -19,7 +19,7 @@
   ],
   "typeExpansion": {
     "maxDepth": 6,
-    "defaultLevels": 3,
+    "defaultLevels": 0,
     "showCircularReferences": true
   }
 }

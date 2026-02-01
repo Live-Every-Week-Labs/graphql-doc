@@ -59,7 +59,6 @@ export const mockOperation: Operation = {
   ],
   returnType: mockReturnType,
   examples: [mockExampleSuccess, mockExampleError],
-  errors: [],
   directives: {
     docTags: { tags: ['user'] },
   },

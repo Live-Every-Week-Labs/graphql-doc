@@ -9,7 +9,7 @@ export class TypeExpander {
   constructor(
     types: TypeDefinition[],
     _maxDepth: number = 5,
-    _defaultLevels: number = 2,
+    _defaultLevels: number = 3,
     showCircularReferences: boolean = true
   ) {
     this.typeMap = new Map(types.map((t) => [t.name, t]));

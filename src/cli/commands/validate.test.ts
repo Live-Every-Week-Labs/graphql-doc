@@ -48,9 +48,8 @@ describe('validate command', () => {
         `
       );
 
-      // Create required metadata directories (empty)
+      // Create required metadata directory (empty)
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
 
       // Mock process.exit
       const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
@@ -86,7 +85,7 @@ describe('validate command', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int!, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
         directive @docPriority(level: Int!) on FIELD_DEFINITION
         directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 
@@ -101,9 +100,8 @@ describe('validate command', () => {
         `
       );
 
-      // Create required metadata directories
+      // Create required metadata directory
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
 
       // Mock process.exit
       const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
@@ -122,10 +120,10 @@ describe('validate command', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int!, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
 
         type Query {
-          users: [User] @docGroup(name: "Users")
+          users: [User] @docGroup(order: 1)
         }
 
         type User {
@@ -134,9 +132,8 @@ describe('validate command', () => {
         `
       );
 
-      // Create required metadata directories
+      // Create required metadata directory
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
 
       // Mock process.exit
       const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
@@ -172,7 +169,6 @@ describe('validate command', () => {
     it('passes with valid example files', async () => {
       // Create directories
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples', 'queries'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
 
       // Create valid example file
       const examplePath = path.join(
@@ -212,7 +208,6 @@ describe('validate command', () => {
     it('fails with invalid example JSON', async () => {
       // Create directories
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
 
       // Create invalid JSON file
       const examplePath = path.join(testDir, 'docs-metadata', 'examples', 'invalid.json');
@@ -232,7 +227,6 @@ describe('validate command', () => {
     it('fails with missing required fields in example', async () => {
       // Create directories
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
 
       // Create example file missing required fields
       const examplePath = path.join(testDir, 'docs-metadata', 'examples', 'incomplete.json');
@@ -251,66 +245,12 @@ describe('validate command', () => {
       expect(mockExit).toHaveBeenCalledWith(1);
       mockExit.mockRestore();
     });
-
-    it('passes with valid error files', async () => {
-      // Create directories
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
-
-      // Create valid error file
-      const errorPath = path.join(testDir, 'docs-metadata', 'errors', 'common.json');
-      await fs.writeJson(errorPath, {
-        category: 'Common',
-        operations: ['*'],
-        errors: [
-          {
-            code: 'UNAUTHORIZED',
-            message: 'Not authorized',
-            description: 'You need to log in',
-          },
-        ],
-      });
-
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
-    });
-
-    it('fails with missing required fields in error file', async () => {
-      // Create directories
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
-
-      // Create error file missing required fields
-      const errorPath = path.join(testDir, 'docs-metadata', 'errors', 'incomplete.json');
-      await fs.writeJson(errorPath, {
-        category: 'Common',
-        // Missing operations and errors
-      });
-
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
-    });
   });
 
   describe('cross-validation', () => {
     beforeEach(async () => {
       // Create directories
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
     });
 
     it('warns when example references unknown operation', async () => {
@@ -398,50 +338,12 @@ describe('validate command', () => {
       expect(mockExit).toHaveBeenCalledWith(1);
       mockExit.mockRestore();
     });
-
-    it('does not warn for wildcard operations in errors', async () => {
-      // Create a simple schema
-      const schemaPath = path.join(testDir, 'schema.graphql');
-      await fs.writeFile(
-        schemaPath,
-        `
-        type Query {
-          hello: String
-        }
-        `
-      );
-
-      // Create error file with wildcard
-      const errorPath = path.join(testDir, 'docs-metadata', 'errors', 'common.json');
-      await fs.writeJson(errorPath, {
-        category: 'Common',
-        operations: ['*'],
-        errors: [
-          {
-            code: 'ERROR',
-            message: 'Error',
-            description: 'Description',
-          },
-        ],
-      });
-
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
-    });
   });
 
   describe('CLI options', () => {
     beforeEach(async () => {
       // Create directories
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
     });
 
     it('uses custom schema path', async () => {
@@ -485,7 +387,6 @@ describe('validate command', () => {
 
       // Create custom metadata directory
       await fs.ensureDir(path.join(testDir, 'custom-metadata', 'examples'));
-      await fs.ensureDir(path.join(testDir, 'custom-metadata', 'errors'));
 
       // Create custom config
       const configPath = path.join(testDir, 'custom-config.json');

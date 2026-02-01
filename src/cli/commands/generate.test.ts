@@ -56,7 +56,6 @@ describe('generate command', () => {
 
     // Create required directories
     await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
-    await fs.ensureDir(path.join(testDir, 'docs-metadata', 'errors'));
 
     // Create a test schema file
     await fs.writeFile(path.join(testDir, 'schema.graphql'), TEST_SCHEMA);

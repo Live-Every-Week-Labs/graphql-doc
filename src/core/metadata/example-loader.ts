@@ -10,7 +10,7 @@ export async function loadExamples(pattern: string): Promise<ExampleFile[]> {
   for (const file of files) {
     try {
       const content = await fs.readJson(file);
-      const validated = ExampleFileSchema.parse(content);
+      const validated = ExampleFileSchema.parse(content) as ExampleFile | ExampleFile[];
       if (Array.isArray(validated)) {
         results.push(...validated);
       } else {

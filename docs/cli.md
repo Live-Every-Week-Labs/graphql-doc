@@ -72,8 +72,6 @@ docs-metadata/
 │   │   └── example-query.json               # Sample query example
 │   └── mutations/
 │       └── example-mutation.json            # Sample mutation example
-└── errors/
-    └── common-errors.json                   # Sample error definitions
 ```
 
 **Interactive Prompts:**
@@ -82,7 +80,7 @@ When run without `--yes`, the command prompts for:
 
 1. **Schema path** - Path to your GraphQL schema file (default: `schema.graphql`)
 2. **Output directory** - Where generated docs will be written (default: `./docs/api`)
-3. **Metadata directory** - Directory for examples and errors (default: `./docs-metadata`)
+3. **Metadata directory** - Directory for examples (default: `./docs-metadata`)
 4. **Framework** - Documentation framework to use (default: `docusaurus`)
 
 ---
@@ -129,7 +127,7 @@ The `validate` command performs the following checks:
 
 1. **Schema Validation**
    - GraphQL SDL syntax is valid
-   - Custom directives (`@docGroup`, `@docPriority`, `@docTags`, `@docIgnore`) have required arguments
+   - Custom directives (`@docGroup`, `@docPriority`, `@docTags`, `@docIgnore`) have required arguments (`@docGroup` requires `name`; `order` is optional)
    - Directive argument types are correct
 
 2. **Example Files Validation**
@@ -139,15 +137,8 @@ The `validate` command performs the following checks:
    - `operationType` is one of: `query`, `mutation`, `subscription`
    - Response `type` is one of: `success`, `failure`, `error`
 
-3. **Error Files Validation**
-   - JSON files are valid
-   - Required fields (`category`, `operations`, `errors`) are present
-   - Each error has required fields (`code`, `message`, `description`)
-
-4. **Cross-Validation**
+3. **Cross-Validation**
    - Operations referenced in example files exist in the schema (warning)
-   - Operations referenced in error files exist in the schema (warning)
-   - Wildcard (`*`) in error operations is always valid
 
 **Sample Output:**
 
@@ -162,8 +153,6 @@ GraphQL Docs Validator
 Summary:
   Schema:   ✓ Valid
   Examples: ✓ Valid
-  Errors:   ✓ Valid
-
 Validation successful!
 ```
 
@@ -204,7 +193,7 @@ Generate from a specific file:
 graphql-docs generate -s ./schema.graphql -o ./docs
 ```
 
-Generate from a URL:
+Generate from a URL (requires `allowRemoteSchema: true` in config):
 
 ```bash
 graphql-docs generate -s https://api.example.com/graphql -o ./docs

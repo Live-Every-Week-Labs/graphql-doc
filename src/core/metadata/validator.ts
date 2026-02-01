@@ -19,19 +19,3 @@ export const ExampleFileEntrySchema = z.object({
 });
 
 export const ExampleFileSchema = z.union([ExampleFileEntrySchema, z.array(ExampleFileEntrySchema)]);
-
-export const ErrorDefinitionSchema = z.object({
-  code: z.string(),
-  message: z.string(),
-  description: z.string(),
-  resolution: z.string().optional(),
-  type: z.string().optional(),
-  httpStatus: z.number().optional(),
-});
-
-export const ErrorFileSchema = z.object({
-  category: z.string(),
-  operations: z.array(z.string()),
-  errors: z.array(ErrorDefinitionSchema),
-  commonPatterns: z.record(z.any()).optional(),
-});

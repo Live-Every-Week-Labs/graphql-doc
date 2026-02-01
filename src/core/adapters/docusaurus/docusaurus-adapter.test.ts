@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DocusaurusAdapter } from './docusaurus-adapter';
 import { DocModel, Operation, Section } from '../../transformer/types';
-import * as fs from 'fs';
 import * as path from 'path';
 
-vi.mock('fs');
+const fsMock = vi.hoisted(() => ({
+  existsSync: vi.fn(),
+  readFileSync: vi.fn(),
+}));
+
+vi.mock('fs', () => fsMock);
 vi.mock('../../renderer/mdx-renderer', () => {
   return {
     MdxRenderer: class {
@@ -27,7 +31,6 @@ describe('DocusaurusAdapter', () => {
     referencedTypes: [],
     isDeprecated: false,
     examples: [],
-    errors: [],
   };
 
   const mockModel: DocModel = {
@@ -61,11 +64,12 @@ describe('DocusaurusAdapter', () => {
   };
 
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
+    fsMock.existsSync.mockReturnValue(false);
+    fsMock.readFileSync.mockReturnValue('');
   });
 
   it('generates sidebars.js when no existing sidebar file', () => {
-    vi.mocked(fs.existsSync).mockReturnValue(false);
     const adapter = new DocusaurusAdapter();
     const files = adapter.adapt(mockModel);
 
@@ -75,7 +79,7 @@ describe('DocusaurusAdapter', () => {
   });
 
   it('generates sidebars.api.js when sidebar file exists', () => {
-    vi.mocked(fs.existsSync).mockReturnValue(true);
+    fsMock.existsSync.mockReturnValue(true);
     const adapter = new DocusaurusAdapter();
     const files = adapter.adapt(mockModel);
 
@@ -123,7 +127,6 @@ describe('DocusaurusAdapter', () => {
   });
 
   it('generates shared data files and imports by default', () => {
-    vi.mocked(fs.existsSync).mockReturnValue(false);
     const adapter = new DocusaurusAdapter();
     const files = adapter.adapt(mockModel);
 
@@ -138,8 +141,8 @@ describe('DocusaurusAdapter', () => {
 
   it('prepends intro docs to the sidebar when configured', () => {
     const introPath = path.join(process.cwd(), 'docs', 'intro', 'overview.mdx');
-    vi.mocked(fs.existsSync).mockImplementation((value) => value === introPath);
-    vi.mocked(fs.readFileSync).mockReturnValue(
+    fsMock.existsSync.mockImplementation((value) => value === introPath);
+    fsMock.readFileSync.mockReturnValue(
       '---\ntitle: Overview\nsidebar_label: Overview\n---\n\n# Overview'
     );
 
@@ -159,11 +162,12 @@ describe('DocusaurusAdapter', () => {
 
   describe('Single-Page Mode', () => {
     beforeEach(() => {
-      vi.resetAllMocks();
+      vi.clearAllMocks();
+      fsMock.existsSync.mockReturnValue(false);
+      fsMock.readFileSync.mockReturnValue('');
     });
 
     it('generates api-reference.mdx file', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -173,7 +177,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('generates correct front matter for single-page', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -186,7 +189,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('generates Table of Contents with anchor links', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -202,7 +204,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('generates section headers with anchor IDs', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -211,7 +212,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('generates subsection headers with composite anchor IDs', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -220,7 +220,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('includes examples export for scroll sync panels', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -229,7 +228,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('generates sidebar with hash links', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -240,7 +238,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('does not generate category files in single-page mode', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -249,7 +246,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('does not generate individual operation mdx files in single-page mode', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -260,7 +256,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('includes API Reference main heading', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 
@@ -269,7 +264,6 @@ describe('DocusaurusAdapter', () => {
     });
 
     it('skips subsection header for root subsection (empty name)', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);
 

@@ -44,7 +44,6 @@ export type ValidationErrorCode =
 export interface ValidationSummary {
   schemaValid: boolean;
   examplesValid: boolean;
-  errorsValid: boolean;
   directivesValid: boolean;
 }
 
@@ -74,7 +73,7 @@ export interface SchemaValidationResult {
 }
 
 /**
- * Metadata validation result (for examples or errors)
+ * Metadata validation result (for examples)
  */
 export interface MetadataValidationResult {
   valid: boolean;

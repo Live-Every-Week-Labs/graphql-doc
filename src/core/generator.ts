@@ -3,7 +3,6 @@ import { Config } from './config/schema';
 import { SchemaLoader } from './parser/schema-loader';
 import { SchemaParser } from './parser/schema-parser';
 import { loadExamples } from './metadata/example-loader';
-import { loadErrors } from './metadata/error-loader';
 import { Transformer } from './transformer/transformer';
 import { DocusaurusAdapter } from './adapters/docusaurus/docusaurus-adapter';
 
@@ -15,7 +14,10 @@ export class Generator {
   async generate(schemaPointer: string) {
     console.log(`Loading schema from ${schemaPointer}...`);
     const schemaLoader = new SchemaLoader();
-    const schema = await schemaLoader.load({ schemaPointer });
+    const schema = await schemaLoader.load({
+      schemaPointer,
+      allowRemoteSchema: this.config.allowRemoteSchema,
+    });
 
     console.log('Parsing schema...');
     const parser = new SchemaParser();
@@ -24,19 +26,17 @@ export class Generator {
     console.log('Loading metadata...');
     // Ensure directories exist or handle empty gracefully?
     // The loaders use glob, so if dir doesn't exist it might just return empty or throw.
-    // processConfigDefaults ensures examplesDir and errorsDir are set.
+    // processConfigDefaults ensures examplesDir is set.
     const examplesPattern = path.join(this.config.examplesDir!, '**/*.json');
-    const errorsPattern = path.join(this.config.errorsDir!, '**/*.json');
 
     const examples = await loadExamples(examplesPattern);
-    const errors = await loadErrors(errorsPattern);
 
     console.log('Transforming data...');
     const transformer = new Transformer(types, {
       ...this.config.typeExpansion,
       excludeDocGroups: this.config.excludeDocGroups,
     });
-    const docModel = transformer.transform(operations, examples, errors);
+    const docModel = transformer.transform(operations, examples);
 
     console.log('Generating documentation...');
     const adapter = new DocusaurusAdapter(this.config);

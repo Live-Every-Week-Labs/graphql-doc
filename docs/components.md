@@ -126,11 +126,11 @@ prism: {
 
 ## Component API Highlights
 
-- `OperationView({ operation, typesByName, typeLinkBase, defaultExpandedLevels, maxDepth, headingLevel, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
+- `OperationView({ operation, typesByName, typeLinkBase, defaultExpandedLevels, maxDepth, headingLevel, typeLinkMode })` (defaults: 0/0, typeLinkMode: `none`)
 - `TypeDefinitionView({ type, typesByName, typeLinkBase, headingLevel, typeLinkMode })`
 - `TypeViewer({ type, typeLinkBase, typeLinkMode, depth, maxDepth, defaultExpandedLevels })`
-- `FieldTable({ fields, typeLinkBase, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
-- `ArgumentsTable({ arguments, typeLinkBase, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/3, typeLinkMode: `none`)
+- `FieldTable({ fields, typeLinkBase, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/0, typeLinkMode: `none`)
+- `ArgumentsTable({ arguments, typeLinkBase, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/0, typeLinkMode: `none`)
 - `ExamplesPanel({ examples, operationName })`
 - `CodeExample({ example })`
 - `TwoColumnContent({ examplesByOperation, renderExamples })`

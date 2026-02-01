@@ -24,13 +24,17 @@ describe('MdxRenderer', () => {
     referencedTypes: [],
     isDeprecated: false,
     examples: [],
-    errors: [],
   };
 
   it('renders a basic operation', () => {
     const output = renderer.renderOperation(mockOperation);
     expect(output).toContain('export const operation');
     expect(output).toContain('<OperationView');
+    expect(output).toContain('"description": "Retrieves a user by ID."');
+  });
+
+  it('renders raw description when unsafeDescriptionMdx is enabled', () => {
+    const output = renderer.renderOperation(mockOperation, { unsafeDescriptionMdx: true });
     expect(output).toContain('Retrieves a user by ID.');
   });
 

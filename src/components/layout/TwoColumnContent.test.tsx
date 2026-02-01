@@ -63,7 +63,7 @@ describe('TwoColumnContent', () => {
     );
 
     const emptyPanel = container.querySelector('.gql-docs-examples');
-    expect(emptyPanel?.children.length).toBe(0);
+    expect(emptyPanel).toBeNull();
 
     rerender(
       <TwoColumnContent examplesByOperation={{ getUser: [mockExampleSuccess] }}>
@@ -86,6 +86,6 @@ describe('TwoColumnContent', () => {
     );
 
     const sidePanel = container.querySelector('.gql-docs-examples');
-    expect(sidePanel?.children.length).toBe(0);
+    expect(sidePanel).toBeNull();
   });
 });

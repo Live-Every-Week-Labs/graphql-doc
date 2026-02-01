@@ -6,7 +6,8 @@ export const ConfigSchema = z.object({
   singlePage: z.boolean().default(false),
   metadataDir: z.string().default('./docs-metadata'),
   examplesDir: z.string().optional(),
-  errorsDir: z.string().optional(),
+  allowRemoteSchema: z.boolean().default(false),
+  unsafeMdxDescriptions: z.boolean().default(false),
   includeDeprecated: z.boolean().default(true),
   typeLinkMode: z.enum(['none', 'deep', 'all']).default('none'),
   excludeDocGroups: z
@@ -47,7 +48,7 @@ export const ConfigSchema = z.object({
   typeExpansion: z
     .object({
       maxDepth: z.number().default(5),
-      defaultLevels: z.number().default(2),
+      defaultLevels: z.number().default(0),
       showCircularReferences: z.boolean().default(true),
     })
     .default({}),

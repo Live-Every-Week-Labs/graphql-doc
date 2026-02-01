@@ -1,5 +1,10 @@
 import React from 'react';
-import { ExpandedField, ExpandedArgument, ExpandedType } from '../../core/transformer/types';
+import {
+  ExpandedField,
+  ExpandedArgument,
+  ExpandedType,
+  ExpandedObject,
+} from '../../core/transformer/types';
 import { useExpansion } from '../context/ExpansionProvider';
 import { useTypeRegistry } from '../context/TypeRegistryProvider';
 import { slugify } from '../../core/utils/string-utils';
@@ -30,7 +35,7 @@ interface PropertyTableProps {
   pathPrefix?: string;
 }
 
-const MAX_INLINE_DEPTH = 3;
+const MAX_INLINE_DEPTH = 5;
 const MAX_ENUM_VALUES = 25;
 
 const formatInlineValue = (value: unknown) => {
@@ -59,20 +64,24 @@ const unwrapType = (type: ExpandedType) => {
   return { baseType: current, isList };
 };
 
-const isObjectLike = (type: ExpandedType): type is ExpandedType & { fields: ExpandedField[] } =>
+const isObjectLike = (type: ExpandedType): type is ExpandedObject =>
   type.kind === 'OBJECT' || type.kind === 'INTERFACE' || type.kind === 'INPUT_OBJECT';
 
 const getTypeLink = (type: ExpandedType) => {
-  if (type.kind === 'TYPE_REF' || type.kind === 'CIRCULAR_REF') {
-    return type.link;
+  switch (type.kind) {
+    case 'TYPE_REF':
+    case 'CIRCULAR_REF':
+      return type.link;
+    case 'SCALAR':
+    case 'ENUM':
+    case 'OBJECT':
+    case 'INTERFACE':
+    case 'INPUT_OBJECT':
+    case 'UNION':
+      return `#${slugify(type.name)}`;
+    default:
+      return undefined;
   }
-  if ('name' in type && type.name) {
-    return `#${slugify(type.name)}`;
-  }
-  if ('ref' in type && type.ref) {
-    return `#${slugify(type.ref)}`;
-  }
-  return undefined;
 };
 
 const renderTypeLabel = (
@@ -221,13 +230,14 @@ export const PropertyTable = React.memo(function PropertyTable({
       {properties.map((prop) => {
         const { baseType } = unwrapType(prop.type);
         const resolvedBaseType = resolveType(baseType);
+        const objectLike = isObjectLike(resolvedBaseType);
         const expandable =
-          isObjectLike(resolvedBaseType) &&
+          objectLike &&
           ((resolvedBaseType.fields && resolvedBaseType.fields.length > 0) ||
             resolvedBaseType.isCollapsible);
         const path = `${pathPrefix}.${prop.name}`;
         const expanded = expandable ? isExpanded(path, depth, defaultExpandedLevels) : false;
-        const childCount = resolvedBaseType.fields?.length ?? 0;
+        const childCount = objectLike ? resolvedBaseType.fields.length : 0;
         const canInlineExpand = expandable && depth < inlineDepthLimit && childCount > 0;
         const toggleLabel = expanded
           ? 'Hide properties'
@@ -348,7 +358,7 @@ export const PropertyTable = React.memo(function PropertyTable({
               </a>
             )}
 
-            {expandable && canInlineExpand && expanded && (
+            {objectLike && canInlineExpand && expanded && (
               <div className="gql-field-children">
                 <PropertyTable
                   properties={resolvedBaseType.fields}

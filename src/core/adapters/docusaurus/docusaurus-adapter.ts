@@ -15,6 +15,13 @@ export interface DocusaurusAdapterConfig {
   singlePage?: boolean;
   outputPath?: string;
   typeLinkMode?: 'none' | 'deep' | 'all';
+  typeExpansion?: {
+    maxDepth?: number;
+    defaultLevels?: number;
+  };
+  unsafeMdxDescriptions?: boolean;
+  generateSidebar?: boolean;
+  sidebarFile?: string;
   sidebarCategoryIndex?: boolean;
   sidebarSectionLabels?: {
     operations?: string;
@@ -348,29 +355,44 @@ export class DocusaurusAdapter {
 
     files.push(...this.generateTypeFiles(model.types));
 
-    // Generate sidebars.js or sidebars.api.js
-    let sidebarItems = this.sidebarGenerator.generate(model);
-    if (introDocs.sidebarItems.length > 0) {
-      sidebarItems = [
-        ...introDocs.sidebarItems,
-        { type: 'html', value: '<hr class="gql-sidebar-divider" />', defaultStyle: true },
-        ...sidebarItems,
-      ];
-    }
-    const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
+    if (this.config.generateSidebar !== false) {
+      // Generate sidebars.js or sidebars.api.js
+      let sidebarItems = this.sidebarGenerator.generate(model);
+      if (introDocs.sidebarItems.length > 0) {
+        sidebarItems = [
+          ...introDocs.sidebarItems,
+          { type: 'html', value: '<hr class="gql-sidebar-divider" />', defaultStyle: true },
+          ...sidebarItems,
+        ];
+      }
 
-    if (fs.existsSync(sidebarsPath)) {
-      files.push({
-        path: 'sidebars.api.js',
-        content: `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`,
-        type: 'js',
-      });
-    } else {
-      files.push({
-        path: 'sidebars.js',
-        content: `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`,
-        type: 'js',
-      });
+      const customSidebarFile = this.config.sidebarFile;
+      if (customSidebarFile) {
+        const useArrayExport = customSidebarFile.endsWith('.api.js');
+        const content = useArrayExport
+          ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
+          : `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`;
+        files.push({
+          path: customSidebarFile,
+          content,
+          type: 'js',
+        });
+      } else {
+        const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
+        if (fs.existsSync(sidebarsPath)) {
+          files.push({
+            path: 'sidebars.api.js',
+            content: `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`,
+            type: 'js',
+          });
+        } else {
+          files.push({
+            path: 'sidebars.js',
+            content: `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`,
+            type: 'js',
+          });
+        }
+      }
     }
 
     return files;
@@ -455,29 +477,44 @@ export class DocusaurusAdapter {
       type: 'mdx',
     });
 
-    // Generate sidebar with hash links
-    let sidebarItems = this.sidebarGenerator.generateSinglePageSidebar(model, docId);
-    if (introDocs.sidebarItems.length > 0) {
-      sidebarItems = [
-        ...introDocs.sidebarItems,
-        { type: 'html', value: '<hr class="gql-sidebar-divider" />', defaultStyle: true },
-        ...sidebarItems,
-      ];
-    }
-    const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
+    if (this.config.generateSidebar !== false) {
+      // Generate sidebar with hash links
+      let sidebarItems = this.sidebarGenerator.generateSinglePageSidebar(model, docId);
+      if (introDocs.sidebarItems.length > 0) {
+        sidebarItems = [
+          ...introDocs.sidebarItems,
+          { type: 'html', value: '<hr class="gql-sidebar-divider" />', defaultStyle: true },
+          ...sidebarItems,
+        ];
+      }
 
-    if (fs.existsSync(sidebarsPath)) {
-      files.push({
-        path: 'sidebars.api.js',
-        content: `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`,
-        type: 'js',
-      });
-    } else {
-      files.push({
-        path: 'sidebars.js',
-        content: `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`,
-        type: 'js',
-      });
+      const customSidebarFile = this.config.sidebarFile;
+      if (customSidebarFile) {
+        const useArrayExport = customSidebarFile.endsWith('.api.js');
+        const content = useArrayExport
+          ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
+          : `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`;
+        files.push({
+          path: customSidebarFile,
+          content,
+          type: 'js',
+        });
+      } else {
+        const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
+        if (fs.existsSync(sidebarsPath)) {
+          files.push({
+            path: 'sidebars.api.js',
+            content: `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`,
+            type: 'js',
+          });
+        } else {
+          files.push({
+            path: 'sidebars.js',
+            content: `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`,
+            type: 'js',
+          });
+        }
+      }
     }
 
     return files;
@@ -590,6 +627,9 @@ export class DocusaurusAdapter {
       exportConst: false,
       headingLevel: 4,
       dataReference: this.getOperationDataReference(op),
+      defaultExpandedLevels: this.config.typeExpansion?.defaultLevels,
+      maxDepth: this.config.typeExpansion?.maxDepth,
+      unsafeDescriptionMdx: this.config.unsafeMdxDescriptions,
       typeLinkMode: this.getTypeLinkMode(),
     });
   }
@@ -622,6 +662,9 @@ export class DocusaurusAdapter {
       headingLevel: 1,
       typeLinkBase,
       dataReference: this.getOperationDataReference(op),
+      defaultExpandedLevels: this.config.typeExpansion?.defaultLevels,
+      maxDepth: this.config.typeExpansion?.maxDepth,
+      unsafeDescriptionMdx: this.config.unsafeMdxDescriptions,
       typeLinkMode: this.getTypeLinkMode(),
     });
     const parts = [
@@ -653,13 +696,16 @@ export class DocusaurusAdapter {
     return lines.join('\n');
   }
 
-  private generateCategoryJson(label: string, position: number): string {
+  private generateCategoryJson(label: string, position?: number): string {
     const category: Record<string, unknown> = {
       label,
-      position,
       collapsible: true,
       collapsed: true,
     };
+
+    if (typeof position === 'number') {
+      category.position = position;
+    }
 
     if (this.config.sidebarCategoryIndex) {
       category.link = {
@@ -759,6 +805,8 @@ export class DocusaurusAdapter {
       headingLevel: 1,
       typeLinkBase: '..',
       dataReference: 'name' in type && type.name ? this.getTypeDataReference(type.name) : undefined,
+      defaultExpandedLevels: this.config.typeExpansion?.defaultLevels,
+      maxDepth: this.config.typeExpansion?.maxDepth,
       typeLinkMode: this.getTypeLinkMode(),
     });
     const parts = [frontMatter, ...(imports.length > 0 ? [imports.join('\n')] : []), content];
@@ -845,6 +893,8 @@ export class DocusaurusAdapter {
             exportConst: false,
             headingLevel: 4,
             dataReference: typeName ? this.getTypeDataReference(typeName) : undefined,
+            defaultExpandedLevels: this.config.typeExpansion?.defaultLevels,
+            maxDepth: this.config.typeExpansion?.maxDepth,
             typeLinkMode: this.getTypeLinkMode(),
           })
         );

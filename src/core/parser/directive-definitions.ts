@@ -11,7 +11,7 @@ export const DIRECTIVE_DEFINITIONS = `
     """
     Display order within documentation (lower numbers first)
     """
-    order: Int!
+    order: Int
 
     """
     Optional subsection within the main section

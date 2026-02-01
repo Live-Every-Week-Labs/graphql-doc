@@ -60,25 +60,21 @@ describe('Generator', () => {
     await fs.ensureDir(outputDir);
     await fs.ensureDir(metadataDir);
     await fs.ensureDir(path.join(metadataDir, 'examples'));
-    await fs.ensureDir(path.join(metadataDir, 'errors'));
 
     config = {
       outputDir,
       framework: 'docusaurus',
       metadataDir,
       examplesDir: path.join(metadataDir, 'examples'),
-      errorsDir: path.join(metadataDir, 'errors'),
+      allowRemoteSchema: false,
+      unsafeMdxDescriptions: false,
       typeLinkMode: 'none',
-      outputMode: 'multi-page',
+      generateSidebar: true,
       typeExpansion: {
-        enabled: true,
         maxDepth: 2,
+        defaultLevels: 3,
+        showCircularReferences: true,
       },
-      singleFile: {
-        filename: 'api.mdx',
-      },
-      customDirectives: [],
-      groupingStrategy: 'directive',
     };
   });
 
@@ -169,28 +165,6 @@ describe('Generator', () => {
               httpStatus: 200,
               body: { data: { getUser: { id: '1', name: 'Test' } } },
             },
-          },
-        ],
-      });
-
-      const generator = new Generator(config);
-      await generator.generate('schema.graphql');
-
-      // Verify generation completed
-      expect(await fs.pathExists(path.join(outputDir, 'sidebars.js'))).toBe(true);
-    });
-
-    it('loads and merges error metadata', async () => {
-      // Create error file
-      const errorFile = path.join(metadataDir, 'errors', 'common.json');
-      await fs.writeJson(errorFile, {
-        category: 'Common',
-        operations: ['*'],
-        errors: [
-          {
-            code: 'UNAUTHORIZED',
-            message: 'Not authorized',
-            description: 'Authentication required',
           },
         ],
       });

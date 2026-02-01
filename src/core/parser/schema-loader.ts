@@ -12,6 +12,10 @@ export interface SchemaLoaderOptions {
    * Optional headers for URL loading
    */
   headers?: Record<string, string>;
+  /**
+   * Allow loading schema from remote URLs (http/https). Defaults to false.
+   */
+  allowRemoteSchema?: boolean;
 }
 
 export class SchemaLoader {
@@ -21,6 +25,12 @@ export class SchemaLoader {
    */
   async load(options: SchemaLoaderOptions): Promise<GraphQLSchema> {
     try {
+      const isRemote = /^https?:\/\//i.test(options.schemaPointer);
+      if (isRemote && !options.allowRemoteSchema) {
+        throw new Error(
+          'Remote schema loading is disabled. Set allowRemoteSchema: true in config to enable.'
+        );
+      }
       const schema = await loadSchema(options.schemaPointer, {
         loaders: [new GraphQLFileLoader(), new UrlLoader()],
         headers: options.headers,

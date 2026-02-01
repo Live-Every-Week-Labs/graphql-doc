@@ -4,7 +4,7 @@ This directory contains comprehensive GraphQL schemas used for testing and demon
 
 - **Complex Types**: Interfaces, Unions, Enums, and custom Scalars.
 - **Directives**: Extensive use of `@docGroup`, `@docPriority`, and `@docTags` for organization.
-- **Metadata**: Associated JSON files for rich examples and error definitions.
+- **Metadata**: Associated JSON files for rich examples.
 
 ## Available Schemas
 

@@ -80,9 +80,6 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
   if (config.examplesDir && !path.isAbsolute(config.examplesDir)) {
     config.examplesDir = path.resolve(targetDir, config.examplesDir);
   }
-  if (config.errorsDir && !path.isAbsolute(config.errorsDir)) {
-    config.errorsDir = path.resolve(targetDir, config.errorsDir);
-  }
   if (!path.isAbsolute(config.metadataDir)) {
     config.metadataDir = path.resolve(targetDir, config.metadataDir);
   }
@@ -100,9 +97,11 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
   const schemaPointer = await resolveSchemaPointer(options, targetDir);
 
   // Resolve schema path relative to targetDir if not absolute
-  const resolvedSchemaPath = path.isAbsolute(schemaPointer)
-    ? schemaPointer
-    : path.resolve(targetDir, schemaPointer);
+  const isRemoteSchema = /^https?:\/\//i.test(schemaPointer);
+  const resolvedSchemaPath =
+    isRemoteSchema || path.isAbsolute(schemaPointer)
+      ? schemaPointer
+      : path.resolve(targetDir, schemaPointer);
 
   // Generate documentation
   const generateSpinner = ora('Generating documentation...').start();

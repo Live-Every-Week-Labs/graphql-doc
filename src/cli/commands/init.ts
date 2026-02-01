@@ -81,25 +81,6 @@ const SAMPLE_MUTATION_EXAMPLE = {
   ],
 };
 
-const SAMPLE_ERRORS = {
-  category: 'Common',
-  operations: ['*'],
-  errors: [
-    {
-      code: 'UNAUTHORIZED',
-      message: 'Authentication required',
-      description: 'The request requires authentication. Please provide a valid API key or token.',
-      resolution: 'Include a valid authentication token in the Authorization header.',
-    },
-    {
-      code: 'NOT_FOUND',
-      message: 'Resource not found',
-      description: 'The requested resource could not be found.',
-      resolution: 'Verify the ID or identifier is correct.',
-    },
-  ],
-};
-
 async function promptForConfig(): Promise<InitConfig> {
   const schemaPath = await input({
     message: 'Path to your GraphQL schema:',
@@ -112,7 +93,7 @@ async function promptForConfig(): Promise<InitConfig> {
   });
 
   const metadataDir = await input({
-    message: 'Directory for examples and error metadata:',
+    message: 'Directory for examples metadata:',
     default: DEFAULT_CONFIG.metadataDir,
   });
 
@@ -212,11 +193,8 @@ export async function runInit(options: InitOptions): Promise<void> {
     const metadataDir = path.join(targetDir, config.metadataDir);
     const queriesDir = path.join(metadataDir, 'examples', 'queries');
     const mutationsDir = path.join(metadataDir, 'examples', 'mutations');
-    const errorsDir = path.join(metadataDir, 'errors');
-
     await fs.ensureDir(queriesDir);
     await fs.ensureDir(mutationsDir);
-    await fs.ensureDir(errorsDir);
 
     // Create sample files
     const queryExamplePath = path.join(queriesDir, 'example-query.json');
@@ -226,10 +204,6 @@ export async function runInit(options: InitOptions): Promise<void> {
     const mutationExamplePath = path.join(mutationsDir, 'example-mutation.json');
     await fs.writeJson(mutationExamplePath, SAMPLE_MUTATION_EXAMPLE, { spaces: 2 });
     createdFiles.push(path.relative(targetDir, mutationExamplePath));
-
-    const errorsPath = path.join(errorsDir, 'common-errors.json');
-    await fs.writeJson(errorsPath, SAMPLE_ERRORS, { spaces: 2 });
-    createdFiles.push(path.relative(targetDir, errorsPath));
 
     spinner.succeed('Project files created successfully!');
 

@@ -3,7 +3,7 @@ import {
   Argument as BaseArgument,
   OperationDirectives,
 } from '../parser/types';
-import { Example, ErrorDefinition } from '../metadata/types';
+import { Example } from '../metadata/types';
 
 export type ExpandedTypeKind =
   | 'SCALAR'
@@ -94,7 +94,6 @@ export interface Operation extends Omit<BaseOperation, 'arguments' | 'returnType
   arguments: ExpandedArgument[];
   returnType: ExpandedType;
   examples: Example[];
-  errors: ErrorDefinition[];
 }
 
 export interface Subsection {

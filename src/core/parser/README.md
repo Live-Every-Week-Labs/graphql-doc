@@ -8,7 +8,7 @@ The `src/core/parser` module is responsible for loading GraphQL schemas, extract
 
 **File:** `schema-loader.ts`
 
-- Loads GraphQL schemas from various sources (local `.graphql` files, URLs via introspection).
+- Loads GraphQL schemas from local `.graphql` files. Remote URLs (introspection) require `allowRemoteSchema: true`.
 - Uses `@graphql-tools/load` to normalize inputs into a standard `GraphQLSchema` object.
 
 ### 2. SchemaParser

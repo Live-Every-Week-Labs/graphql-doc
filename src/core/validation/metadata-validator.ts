@@ -2,11 +2,11 @@ import { glob } from 'glob';
 import fs from 'fs-extra';
 import path from 'path';
 import { z } from 'zod';
-import { ExampleFileEntrySchema, ErrorFileSchema } from '../metadata/validator.js';
+import { ExampleFileEntrySchema } from '../metadata/validator.js';
 import { ValidationError, MetadataValidationResult, ValidationErrorCode } from './types.js';
 
 /**
- * Validates metadata files (examples and errors) against their schemas
+ * Validates metadata files (examples) against their schemas
  */
 export class MetadataValidator {
   /**
@@ -21,17 +21,6 @@ export class MetadataValidator {
       'example',
       (content) => [content.operation],
       { allowArray: true }
-    );
-  }
-
-  /**
-   * Validate error files matching a glob pattern
-   * @param pattern Glob pattern for error files (e.g., "docs-metadata/errors/**\/*.json")
-   * @returns Validation result with errors, warnings, and referenced operations
-   */
-  async validateErrors(pattern: string): Promise<MetadataValidationResult> {
-    return this.validateFiles(pattern, ErrorFileSchema, 'error', (content) =>
-      content.operations.filter((op: string) => op !== '*')
     );
   }
 
@@ -70,7 +59,7 @@ export class MetadataValidator {
   private async validateFiles<T extends z.ZodSchema>(
     pattern: string,
     schema: T,
-    fileType: 'example' | 'error',
+    fileType: 'example',
     extractOperations: (content: z.infer<T>) => string[],
     options?: { allowArray?: boolean }
   ): Promise<MetadataValidationResult> {
@@ -120,7 +109,7 @@ export class MetadataValidator {
   private async validateFile<T extends z.ZodSchema>(
     filePath: string,
     schema: T,
-    fileType: 'example' | 'error',
+    fileType: 'example',
     extractOperations: (content: z.infer<T>) => string[],
     referencedOperations: string[],
     options?: { allowArray?: boolean }

@@ -15,19 +15,3 @@ export interface ExampleFile {
   operationType: 'query' | 'mutation' | 'subscription';
   examples: Example[];
 }
-
-export interface ErrorDefinition {
-  code: string;
-  message: string;
-  description: string;
-  resolution?: string;
-  type?: string;
-  httpStatus?: number;
-}
-
-export interface ErrorFile {
-  category: string;
-  operations: string[];
-  errors: ErrorDefinition[];
-  commonPatterns?: Record<string, any>;
-}

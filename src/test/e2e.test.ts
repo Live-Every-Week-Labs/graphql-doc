@@ -109,9 +109,14 @@ describe('End-to-End Generator Test', () => {
       path.join(outputDir, 'user-management/profiles/get-user.mdx'),
       'utf-8'
     );
-    expect(getUserContent).toContain('Get a user by their unique ID'); // Operation description
-    expect(getUserContent).toContain('The ID of the user to retrieve'); // Argument description
     expect(getUserContent).toContain("import typesByName from '../../_data/types.json'");
+
+    const operationsJsonContent = fs.readFileSync(
+      path.join(outputDir, '_data/operations.json'),
+      'utf-8'
+    );
+    expect(operationsJsonContent).toContain('Get a user by their unique ID');
+    expect(operationsJsonContent).toContain('The ID of the user to retrieve');
 
     const typesJsonContent = fs.readFileSync(path.join(outputDir, '_data/types.json'), 'utf-8');
     expect(typesJsonContent).toContain('Represents a registered user in the system');
@@ -121,7 +126,7 @@ describe('End-to-End Generator Test', () => {
       path.join(outputDir, 'content/posts/create-post.mdx'),
       'utf-8'
     );
-    expect(createPostContent).toContain('Create a new blog post');
-    expect(createPostContent).toContain('Title of the post');
+    expect(operationsJsonContent).toContain('Create a new blog post');
+    expect(operationsJsonContent).toContain('Title of the post');
   });
 });

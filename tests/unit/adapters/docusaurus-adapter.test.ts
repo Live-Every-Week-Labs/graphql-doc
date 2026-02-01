@@ -16,7 +16,6 @@ function createMockOperation(overrides: Partial<Operation> = {}): Operation {
     referencedTypes: [],
     isDeprecated: false,
     examples: [],
-    errors: [],
     ...overrides,
   };
 }
@@ -38,6 +37,7 @@ function createMockDocModel(operations: Operation[]): DocModel {
         ],
       },
     ],
+    types: [],
   };
 }
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Transformer } from './transformer';
 import { Operation as BaseOperation, TypeDefinition } from '../parser/types';
-import { ExampleFile, ErrorFile } from '../metadata/types';
+import { ExampleFile } from '../metadata/types';
 
 describe('Transformer', () => {
   const mockTypes: TypeDefinition[] = [
@@ -49,7 +49,7 @@ describe('Transformer', () => {
 
   it('groups and sorts operations', () => {
     const transformer = new Transformer(mockTypes);
-    const result = transformer.transform(mockOperations, [], []);
+    const result = transformer.transform(mockOperations, []);
 
     expect(result.sections).toHaveLength(2);
     expect(result.sections[0].name).toBe('Users');
@@ -65,7 +65,7 @@ describe('Transformer', () => {
 
   it('excludes operations in configured doc groups', () => {
     const transformer = new Transformer(mockTypes, { excludeDocGroups: ['System'] });
-    const result = transformer.transform(mockOperations, [], []);
+    const result = transformer.transform(mockOperations, []);
 
     expect(result.sections).toHaveLength(1);
     expect(result.sections[0].name).toBe('Users');
@@ -92,22 +92,8 @@ describe('Transformer', () => {
       },
     ];
 
-    const errorFiles: ErrorFile[] = [
-      {
-        operations: ['*'],
-        errors: [
-          {
-            code: 'INTERNAL_ERROR',
-            message: 'Something went wrong',
-            description: '',
-          },
-        ],
-        category: 'General',
-      },
-    ];
-
     const transformer = new Transformer(mockTypes);
-    const result = transformer.transform(mockOperations, exampleFiles, errorFiles);
+    const result = transformer.transform(mockOperations, exampleFiles);
 
     const usersSection = result.sections.find((s) => s.name === 'Users');
     const getUserOp = usersSection?.subsections[0].operations.find((op) => op.name === 'getUser');
@@ -115,8 +101,6 @@ describe('Transformer', () => {
     expect(getUserOp).toBeDefined();
     expect(getUserOp?.examples).toHaveLength(1);
     expect(getUserOp?.examples[0].name).toBe('Basic Usage');
-    expect(getUserOp?.errors).toHaveLength(1);
-    expect(getUserOp?.errors[0].code).toBe('INTERNAL_ERROR');
   });
 
   it('handles subsections', () => {
@@ -157,7 +141,7 @@ describe('Transformer', () => {
     ];
 
     const transformer = new Transformer(mockTypes);
-    const result = transformer.transform(opsWithSubsections, [], []);
+    const result = transformer.transform(opsWithSubsections, []);
 
     const section = result.sections[0];
     expect(section.subsections).toHaveLength(3);

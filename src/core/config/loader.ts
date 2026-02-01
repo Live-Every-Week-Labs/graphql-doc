@@ -58,16 +58,12 @@ export async function loadGeneratorConfig(
 }
 
 function processConfigDefaults(config: Config): Config {
-  // Smart defaults: If examples/errors dirs are not explicitly set,
-  // assume they are subdirectories of the metadataDir.
+  // Smart defaults: If examples dir is not explicitly set,
+  // assume it is a subdirectory of the metadataDir.
   // This allows users to just set `metadataDir` and get a standard structure.
 
   if (!config.examplesDir) {
     config.examplesDir = path.join(config.metadataDir, 'examples');
-  }
-
-  if (!config.errorsDir) {
-    config.errorsDir = path.join(config.metadataDir, 'errors');
   }
 
   return config;

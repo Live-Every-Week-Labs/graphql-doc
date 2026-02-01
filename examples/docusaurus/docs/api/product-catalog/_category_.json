@@ -1,6 +1,6 @@
 {
   "label": "Product Catalog",
-  "position": 2,
   "collapsible": true,
-  "collapsed": true
+  "collapsed": true,
+  "position": 2
 }

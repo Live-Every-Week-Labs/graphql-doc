@@ -16,7 +16,7 @@ export const ArgumentsTable = React.memo(function ArgumentsTable({
   typeLinkBase,
   typeLinkMode,
   depth = 0,
-  maxDepth = 3,
+  maxDepth = 5,
   defaultExpandedLevels = 0,
 }: ArgumentsTableProps) {
   return (

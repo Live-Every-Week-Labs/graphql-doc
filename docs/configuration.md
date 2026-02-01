@@ -16,19 +16,20 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 
 ### Core Options
 
-| Option       | Type      | Default      | Description                                                |
-| :----------- | :-------- | :----------- | :--------------------------------------------------------- |
-| `outputDir`  | `string`  | `./docs/api` | Directory where generated documentation will be written    |
-| `framework`  | `string`  | `docusaurus` | Output framework. Currently only `docusaurus` is supported |
-| `singlePage` | `boolean` | `false`      | Generate a single page instead of multiple files           |
+| Option                  | Type      | Default      | Description                                                |
+| :---------------------- | :-------- | :----------- | :--------------------------------------------------------- |
+| `outputDir`             | `string`  | `./docs/api` | Directory where generated documentation will be written    |
+| `framework`             | `string`  | `docusaurus` | Output framework. Currently only `docusaurus` is supported |
+| `singlePage`            | `boolean` | `false`      | Generate a single page instead of multiple files           |
+| `allowRemoteSchema`     | `boolean` | `false`      | Allow loading schemas from remote URLs (http/https)        |
+| `unsafeMdxDescriptions` | `boolean` | `false`      | Render schema descriptions as raw MDX (unsafe by default)  |
 
 ### Metadata Options
 
-| Option        | Type     | Default                  | Description                                      |
-| :------------ | :------- | :----------------------- | :----------------------------------------------- |
-| `metadataDir` | `string` | `./docs-metadata`        | Base directory for examples and error metadata   |
-| `examplesDir` | `string` | `{metadataDir}/examples` | Directory containing example JSON files          |
-| `errorsDir`   | `string` | `{metadataDir}/errors`   | Directory containing error definition JSON files |
+| Option        | Type     | Default                  | Description                             |
+| :------------ | :------- | :----------------------- | :-------------------------------------- |
+| `metadataDir` | `string` | `./docs-metadata`        | Base directory for example metadata     |
+| `examplesDir` | `string` | `{metadataDir}/examples` | Directory containing example JSON files |
 
 ### Content Options
 
@@ -127,6 +128,17 @@ Control whether type names render as clickable links in generated docs:
 - `deep`: Only link type names when inline expansion is no longer possible.
 - `all`: Link all type name references.
 
+### Unsafe MDX Descriptions
+
+By default, schema descriptions are rendered as plain text to avoid MDX injection risks.
+If your schema descriptions are trusted and you want to render them as raw MDX, set:
+
+```yaml
+extensions:
+  graphql-docs:
+    unsafeMdxDescriptions: true
+```
+
 ### Excluding Doc Groups
 
 Skip entire doc groups by name. Useful for pre-release or internal-only operations.
@@ -192,8 +204,8 @@ Control how nested types are expanded in the documentation:
 
 | Option                                 | Type      | Default | Description                                                                                    |
 | :------------------------------------- | :-------- | :------ | :--------------------------------------------------------------------------------------------- |
-| `typeExpansion.maxDepth`               | `number`  | `5`     | Hard limit on recursion depth. Types at this depth have empty fields                           |
-| `typeExpansion.defaultLevels`          | `number`  | `2`     | Soft limit for UI expansion. Types beyond this depth are marked as collapsible                 |
+| `typeExpansion.maxDepth`               | `number`  | `5`     | Hard limit on inline expansion depth. Deeper references render as type links.                  |
+| `typeExpansion.defaultLevels`          | `number`  | `0`     | Soft limit for UI expansion. Types beyond this depth are marked as collapsible                 |
 | `typeExpansion.showCircularReferences` | `boolean` | `true`  | When true, circular references show a "(circular)" indicator. When false, shown as plain links |
 
 ## Example Configurations
@@ -212,7 +224,7 @@ extensions:
     generateSidebar: true
     typeExpansion:
       maxDepth: 5
-      defaultLevels: 2
+      defaultLevels: 0
 ```
 
 ### Using `graphql-docs.config.js`
@@ -227,7 +239,7 @@ module.exports = {
   generateSidebar: true,
   typeExpansion: {
     maxDepth: 5,
-    defaultLevels: 2,
+    defaultLevels: 0,
     showCircularReferences: true,
   },
 };

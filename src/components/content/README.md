@@ -11,7 +11,7 @@ The `TypeViewer` is a recursive component that renders `ExpandedType` objects. I
 **Features:**
 
 - List-based rendering with inline expansion for object fields.
-- Depth-limited expansion (defaults to 3 levels inline).
+- Depth-limited expansion (defaults to 5 levels inline).
 - Handles circular references and type links gracefully.
 - Proper visualization of Lists (e.g., `[Type]`).
 - Themed styling using `graphql-docs.css`.
@@ -28,7 +28,7 @@ const myType: ExpandedType = { ... };
   type={myType}
   depth={0}
   defaultExpandedLevels={0}
-  maxDepth={3}
+  maxDepth={5}
 />
 ```
 
@@ -39,7 +39,7 @@ const myType: ExpandedType = { ... };
 - `typeLinkMode` (`'none' | 'deep' | 'all'`): Controls when type names render as links.
 - `depth` (`number`): Current recursion depth (default: 0).
 - `defaultExpandedLevels` (`number`): How many levels deep to expand initially (default: 0).
-- `maxDepth` (`number`): Maximum recursion depth before truncating (default: 3).
+- `maxDepth` (`number`): Maximum recursion depth before truncating (default: 5).
 
 ### `FieldTable`
 
@@ -64,7 +64,7 @@ const fields: ExpandedField[] = [ ... ];
 <FieldTable
   fields={fields}
   depth={1}
-  maxDepth={3}
+  maxDepth={5}
   defaultExpandedLevels={0}
 />
 ```
@@ -94,7 +94,7 @@ const args: ExpandedArgument[] = [ ... ];
 <ArgumentsTable
   arguments={args}
   depth={0}
-  maxDepth={3}
+  maxDepth={5}
   defaultExpandedLevels={0}
 />
 ```

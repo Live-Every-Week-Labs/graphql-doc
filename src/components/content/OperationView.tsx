@@ -32,7 +32,7 @@ export const OperationView = React.memo(function OperationView({
   operation,
   typeLinkBase,
   defaultExpandedLevels = 0,
-  maxDepth = 3,
+  maxDepth = 5,
   headingLevel = 2,
   typesByName,
   typeLinkMode = 'none',

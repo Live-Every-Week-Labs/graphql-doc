@@ -36,7 +36,7 @@ import { useExpansion } from '@graphql-docs/generator/components';
 
 function TypeNode({ path, depth }) {
   const { isExpanded, toggleExpand } = useExpansion();
-  const defaultLevels = 2; // Typically passed from config
+  const defaultLevels = 3; // Typically passed from config
 
   const expanded = isExpanded(path, depth, defaultLevels);
 

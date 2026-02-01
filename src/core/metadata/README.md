@@ -1,13 +1,12 @@
 # Metadata Module
 
-This module handles the loading, validation, and management of external metadata for the documentation generator. It allows users to define examples and error references in separate JSON files, keeping the GraphQL schema clean.
+This module handles the loading and validation of external metadata for the documentation generator. It allows users to define examples in separate JSON files, keeping the GraphQL schema clean.
 
 ## Components
 
 ### Loaders
 
 - **`example-loader.ts`**: Loads example files using glob patterns.
-- **`error-loader.ts`**: Loads error definition files using glob patterns.
 
 ### Validation
 
@@ -19,10 +18,9 @@ This module handles the loading, validation, and management of external metadata
 The loaders are designed to be used by the `Transformer` module to merge external metadata with the parsed GraphQL schema.
 
 ```typescript
-import { loadExamples, loadErrors } from './metadata';
+import { loadExamples } from './metadata';
 
 const examples = await loadExamples('docs-metadata/examples/**/*.json');
-const errors = await loadErrors('docs-metadata/errors/**/*.json');
 ```
 
 ## File Formats
@@ -30,7 +28,3 @@ const errors = await loadErrors('docs-metadata/errors/**/*.json');
 ### Example Files
 
 Defined in `ExampleFileSchema`. Contains examples for a specific operation.
-
-### Error Files
-
-Defined in `ErrorFileSchema`. Contains error definitions that can be mapped to specific operations or globally (`*`).

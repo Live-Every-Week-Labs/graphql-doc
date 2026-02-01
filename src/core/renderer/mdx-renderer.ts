@@ -55,9 +55,12 @@ interface RenderOptions {
   exportConst?: boolean;
   headingLevel?: number;
   includeDescription?: boolean;
+  unsafeDescriptionMdx?: boolean;
   typeLinkBase?: string;
   typeLinkMode?: 'none' | 'deep' | 'all';
   dataReference?: string;
+  defaultExpandedLevels?: number;
+  maxDepth?: number;
 }
 
 export class MdxRenderer {
@@ -83,6 +86,8 @@ export class MdxRenderer {
     const exportKeyword = options.exportConst === false ? 'const' : 'export const';
     const typeLinkBase = options.typeLinkBase ? JSON.stringify(options.typeLinkBase) : undefined;
     const typeLinkMode = options.typeLinkMode ? JSON.stringify(options.typeLinkMode) : undefined;
+    const hasDefaultExpandedLevels = options.defaultExpandedLevels !== undefined;
+    const hasMaxDepth = options.maxDepth !== undefined;
 
     return this.operationTemplate({
       operation: op,
@@ -90,6 +95,11 @@ export class MdxRenderer {
       exportKeyword,
       headingLevel: options.headingLevel,
       includeDescription: options.includeDescription !== false,
+      unsafeDescriptionMdx: options.unsafeDescriptionMdx === true,
+      defaultExpandedLevels: options.defaultExpandedLevels,
+      maxDepth: options.maxDepth,
+      hasDefaultExpandedLevels,
+      hasMaxDepth,
       typeLinkBase,
       typeLinkMode,
       dataReference: options.dataReference,
@@ -101,12 +111,18 @@ export class MdxRenderer {
     const exportKeyword = options.exportConst === false ? 'const' : 'export const';
     const typeLinkBase = options.typeLinkBase ? JSON.stringify(options.typeLinkBase) : undefined;
     const typeLinkMode = options.typeLinkMode ? JSON.stringify(options.typeLinkMode) : undefined;
+    const hasDefaultExpandedLevels = options.defaultExpandedLevels !== undefined;
+    const hasMaxDepth = options.maxDepth !== undefined;
 
     return this.typeDefinitionTemplate({
       type,
       exportName,
       exportKeyword,
       headingLevel: options.headingLevel,
+      defaultExpandedLevels: options.defaultExpandedLevels,
+      maxDepth: options.maxDepth,
+      hasDefaultExpandedLevels,
+      hasMaxDepth,
       typeLinkBase,
       typeLinkMode,
       dataReference: options.dataReference,

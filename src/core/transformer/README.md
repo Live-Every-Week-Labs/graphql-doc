@@ -4,7 +4,7 @@ The Transformer module is responsible for converting the parsed GraphQL schema a
 
 ## Responsibilities
 
-1.  **Metadata Merging**: Combines parsed operations with examples and error definitions from external JSON files.
+1.  **Metadata Merging**: Combines parsed operations with examples from external JSON files.
 2.  **Type Normalization**: Produces reference-based type trees so each schema type is defined once and reused by reference.
 3.  **Grouping & Sorting**: Organizes operations into sections and subsections based on `@docGroup` directives and sorts them using `@docPriority`.
 4.  **Group Exclusions**: Skips operations in excluded doc groups (configurable).
@@ -19,10 +19,10 @@ The main class that orchestrates the transformation process.
 ```typescript
 const transformer = new Transformer(types, {
   maxDepth: 5,
-  defaultLevels: 2,
+  defaultLevels: 0,
   showCircularReferences: true,
 });
-const docModel = transformer.transform(operations, exampleFiles, errorFiles);
+const docModel = transformer.transform(operations, exampleFiles);
 ```
 
 ### `TypeExpander`
