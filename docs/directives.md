@@ -1,6 +1,6 @@
 # Custom Directives Guide
 
-The GraphQL Documentation Generator provides three custom directives to control how your operations are organized and displayed in the generated documentation.
+The GraphQL Documentation Generator provides custom directives to control how your operations are organized and displayed in the generated documentation.
 
 ## Overview
 
@@ -9,6 +9,7 @@ The GraphQL Documentation Generator provides three custom directives to control 
 | `@docGroup`    | Group operations into logical sections    |
 | `@docPriority` | Control ordering within a section         |
 | `@docTags`     | Add tags for filtering and categorization |
+| `@docIgnore`   | Exclude fields/types from generated docs  |
 
 ## @docGroup
 
@@ -177,6 +178,55 @@ Tags are included in the generated MDX front matter and can be used for:
 - Categorizing operations by capability (read/write)
 - Marking access levels (public, admin-only)
 - Any custom categorization you need
+
+---
+
+## @docIgnore
+
+Exclude items from generated documentation. This is useful for hiding fields, arguments, or entire
+types without changing your schema.
+
+### Syntax
+
+```graphql
+directive @docIgnore on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE | OBJECT | INPUT_OBJECT | ENUM | INTERFACE | UNION | SCALAR
+```
+
+### Usage Examples
+
+Hide a field on an object type:
+
+```graphql
+type Transaction {
+  id: ID!
+  device_id: String @docIgnore
+}
+```
+
+Hide an argument on an operation:
+
+```graphql
+type Query {
+  transactions(includeDevice: Boolean @docIgnore): [Transaction!]!
+}
+```
+
+Hide an enum value:
+
+```graphql
+enum Environment {
+  PROD
+  STAGING @docIgnore
+}
+```
+
+Hide an entire type:
+
+```graphql
+type InternalDebug @docIgnore {
+  traceId: String
+}
+```
 
 ---
 

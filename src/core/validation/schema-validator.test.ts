@@ -286,6 +286,29 @@ describe('SchemaValidator', () => {
       expect(result.errors).toHaveLength(0);
     });
 
+    it('passes with @docIgnore directive', async () => {
+      const schemaPath = path.join(testDir, 'schema.graphql');
+      await fs.writeFile(
+        schemaPath,
+        `
+        directive @docIgnore on FIELD_DEFINITION
+
+        type Query {
+          users: [User] @docIgnore
+        }
+
+        type User {
+          id: ID!
+        }
+        `
+      );
+
+      const result = await validator.validate(schemaPath);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
     it('fails when @docTags is missing required tags argument', async () => {
       const schemaPath = path.join(testDir, 'schema.graphql');
       await fs.writeFile(

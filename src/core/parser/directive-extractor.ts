@@ -16,6 +16,7 @@ const DocPrioritySchema = z.object({
 const DocTagsSchema = z.object({
   tags: z.array(z.string()),
 });
+const DocIgnoreSchema = z.object({}).strict();
 
 export class DirectiveExtractor {
   extract(node: FieldDefinitionNode | ASTNode): OperationDirectives {
@@ -54,6 +55,15 @@ export class DirectiveExtractor {
             directives.docTags = result.data as DocTags;
           } else {
             console.warn(`Invalid @docTags usage: ${result.error.message}`);
+          }
+          break;
+        }
+        case 'docIgnore': {
+          const result = DocIgnoreSchema.safeParse(args);
+          if (result.success) {
+            directives.docIgnore = true;
+          } else {
+            console.warn(`Invalid @docIgnore usage: ${result.error.message}`);
           }
           break;
         }

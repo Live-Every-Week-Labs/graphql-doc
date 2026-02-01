@@ -8,6 +8,7 @@ The Transformer module is responsible for converting the parsed GraphQL schema a
 2.  **Type Normalization**: Produces reference-based type trees so each schema type is defined once and reused by reference.
 3.  **Grouping & Sorting**: Organizes operations into sections and subsections based on `@docGroup` directives and sorts them using `@docPriority`.
 4.  **Group Exclusions**: Skips operations in excluded doc groups (configurable).
+5.  **Directive Filtering**: Honors `@docIgnore` on operations, arguments, fields, enum values, and types.
 
 ## Key Components
 

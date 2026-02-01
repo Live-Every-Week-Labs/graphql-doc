@@ -107,4 +107,60 @@ describe('TypeExpander', () => {
       }
     });
   });
+
+  it('filters fields and enum values marked with @docIgnore', () => {
+    const types: TypeDefinition[] = [
+      { kind: 'SCALAR', name: 'String' },
+      {
+        kind: 'ENUM',
+        name: 'Role',
+        enumValues: [
+          { name: 'ADMIN', isDeprecated: false },
+          {
+            name: 'INTERNAL',
+            isDeprecated: false,
+            directives: { docIgnore: true },
+          },
+        ],
+      },
+      {
+        kind: 'OBJECT',
+        name: 'User',
+        fields: [
+          { name: 'id', type: 'String!', isRequired: true, isList: false, isDeprecated: false },
+          {
+            name: 'device_id',
+            type: 'String',
+            isRequired: false,
+            isList: false,
+            isDeprecated: false,
+            directives: { docIgnore: true },
+          },
+        ],
+      },
+    ];
+
+    const expander = new TypeExpander(types);
+    const user = expander.expandDefinition('User');
+    expect(user.kind).toBe('OBJECT');
+    if (user.kind === 'OBJECT') {
+      expect(user.fields.some((f) => f.name === 'device_id')).toBe(false);
+    }
+
+    const role = expander.expandDefinition('Role');
+    expect(role.kind).toBe('ENUM');
+    if (role.kind === 'ENUM') {
+      expect(role.values.some((v) => v.name === 'INTERNAL')).toBe(false);
+    }
+  });
+
+  it('treats @docIgnore types as scalars in references', () => {
+    const types: TypeDefinition[] = [
+      { kind: 'SCALAR', name: 'String' },
+      { kind: 'OBJECT', name: 'Hidden', fields: [], directives: { docIgnore: true } },
+    ];
+    const expander = new TypeExpander(types);
+    const result = expander.expand('Hidden');
+    expect(result).toEqual({ kind: 'SCALAR', name: 'Hidden' });
+  });
 });

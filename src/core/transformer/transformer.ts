@@ -45,13 +45,16 @@ export class Transformer {
   private expandOperation(
     op: BaseOperation & { examples: Example[]; errors: ErrorDefinition[] }
   ): Operation {
-    const args: ExpandedArgument[] = op.arguments.map((arg) => ({
-      name: arg.name,
-      description: arg.description,
-      isRequired: arg.isRequired,
-      defaultValue: arg.defaultValue,
-      type: this.expander.expand(arg.type),
-    }));
+    const args: ExpandedArgument[] = op.arguments
+      .filter((arg) => !arg.directives?.docIgnore)
+      .map((arg) => ({
+        name: arg.name,
+        description: arg.description,
+        isRequired: arg.isRequired,
+        defaultValue: arg.defaultValue,
+        type: this.expander.expand(arg.type),
+        directives: arg.directives,
+      }));
 
     const returnType = this.expander.expand(op.returnType);
 
@@ -72,6 +75,9 @@ export class Transformer {
     const sectionsMap = new Map<string, Section>();
 
     for (const op of operations) {
+      if (op.directives.docIgnore) {
+        continue;
+      }
       const groupName = op.directives.docGroup?.name || 'Uncategorized';
       if (this.excludedDocGroups.has(groupName)) {
         continue;
@@ -143,6 +149,7 @@ export class Transformer {
   private expandTypes() {
     return this.typeDefinitions
       .filter((type) => !type.name.startsWith('__'))
+      .filter((type) => !type.directives?.docIgnore)
       .map((type) => this.expander.expandDefinition(type.name))
       .sort((a, b) => a.name.localeCompare(b.name));
   }

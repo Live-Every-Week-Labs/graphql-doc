@@ -97,6 +97,7 @@ export class SchemaParser {
       type: arg.type.toString(),
       isRequired: isNonNullType(arg.type),
       defaultValue: arg.defaultValue,
+      directives: arg.astNode ? this.directiveExtractor.extract(arg.astNode) : undefined,
     };
   }
 }

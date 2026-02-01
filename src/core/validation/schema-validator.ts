@@ -26,9 +26,10 @@ const DocPriorityArgsSchema = z.object({
 const DocTagsArgsSchema = z.object({
   tags: z.array(z.string()),
 });
+const DocIgnoreArgsSchema = z.object({}).strict();
 
 // Known custom directives
-const KNOWN_DOC_DIRECTIVES = ['docGroup', 'docPriority', 'docTags'];
+const KNOWN_DOC_DIRECTIVES = ['docGroup', 'docPriority', 'docTags', 'docIgnore'];
 
 /**
  * Validates a GraphQL schema file for syntax and custom directive usage
@@ -206,6 +207,9 @@ export class SchemaValidator {
         break;
       case 'docTags':
         schema = DocTagsArgsSchema;
+        break;
+      case 'docIgnore':
+        schema = DocIgnoreArgsSchema;
         break;
       default:
         return { errors, warnings };

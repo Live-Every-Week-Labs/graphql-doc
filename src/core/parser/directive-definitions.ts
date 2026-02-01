@@ -38,4 +38,18 @@ export const DIRECTIVE_DEFINITIONS = `
     """
     tags: [String!]!
   ) on FIELD_DEFINITION
+
+  """
+  Exclude this item from generated documentation.
+  """
+  directive @docIgnore on FIELD_DEFINITION
+    | ARGUMENT_DEFINITION
+    | INPUT_FIELD_DEFINITION
+    | ENUM_VALUE
+    | OBJECT
+    | INPUT_OBJECT
+    | ENUM
+    | INTERFACE
+    | UNION
+    | SCALAR
 `;

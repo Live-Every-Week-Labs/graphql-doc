@@ -12,7 +12,7 @@ This module provides validation services for GraphQL schemas and metadata files.
 
 - **`schema-validator.ts`**: Validates GraphQL schema files.
   - Checks SDL syntax validity
-  - Validates custom directive usage (`@docGroup`, `@docPriority`, `@docTags`)
+- Validates custom directive usage (`@docGroup`, `@docPriority`, `@docTags`, `@docIgnore`)
   - Extracts operation names for cross-validation
 
 - **`metadata-validator.ts`**: Validates metadata JSON files.

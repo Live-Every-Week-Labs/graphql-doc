@@ -44,23 +44,27 @@ export class TypeExpander {
         name: typeDef.name,
         description: typeDef.description,
         values:
-          typeDef.enumValues?.map((v) => ({
-            name: v.name,
-            description: v.description,
-            isDeprecated: v.isDeprecated,
-            deprecationReason: v.deprecationReason,
-          })) || [],
+          typeDef.enumValues
+            ?.filter((v) => !v.directives?.docIgnore)
+            .map((v) => ({
+              name: v.name,
+              description: v.description,
+              isDeprecated: v.isDeprecated,
+              deprecationReason: v.deprecationReason,
+            })) || [],
       };
     }
 
     if (typeDef.kind === 'UNION') {
+      const filteredPossibleTypes =
+        typeDef.possibleTypes?.filter((pt) => !this.typeMap.get(pt)?.directives?.docIgnore) || [];
       return {
         kind: 'UNION',
         name: typeDef.name,
         description: typeDef.description,
-        possibleTypes:
-          typeDef.possibleTypes?.map((pt) => this.expandTypeReference(pt, new Set([typeName]))) ||
-          [],
+        possibleTypes: filteredPossibleTypes.map((pt) =>
+          this.expandTypeReference(pt, new Set([typeName]))
+        ),
       };
     }
 
@@ -73,15 +77,17 @@ export class TypeExpander {
       visited.add(typeName);
 
       const fields =
-        typeDef.fields?.map((f) => ({
-          name: f.name,
-          description: f.description,
-          type: this.expandTypeReference(f.type, visited),
-          isRequired: f.isRequired,
-          isList: f.isList,
-          isDeprecated: f.isDeprecated,
-          deprecationReason: f.deprecationReason,
-        })) || [];
+        typeDef.fields
+          ?.filter((f) => !f.directives?.docIgnore)
+          .map((f) => ({
+            name: f.name,
+            description: f.description,
+            type: this.expandTypeReference(f.type, visited),
+            isRequired: f.isRequired,
+            isList: f.isList,
+            isDeprecated: f.isDeprecated,
+            deprecationReason: f.deprecationReason,
+          })) || [];
 
       return {
         kind: typeDef.kind,
@@ -137,6 +143,12 @@ export class TypeExpander {
 
     const typeDef = this.typeMap.get(typeName);
     if (!typeDef) {
+      return {
+        kind: 'SCALAR',
+        name: typeName,
+      };
+    }
+    if (typeDef.directives?.docIgnore) {
       return {
         kind: 'SCALAR',
         name: typeName,

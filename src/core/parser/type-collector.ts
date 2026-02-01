@@ -64,6 +64,7 @@ export class TypeCollector {
       name: type.name,
       kind: 'SCALAR',
       description: type.description || undefined,
+      directives: type.astNode ? this.directiveExtractor.extract(type.astNode) : undefined,
     });
   }
 
@@ -146,6 +147,7 @@ export class TypeCollector {
       kind: 'UNION',
       description: type.description || undefined,
       possibleTypes: [],
+      directives: type.astNode ? this.directiveExtractor.extract(type.astNode) : undefined,
     });
 
     const types = type.getTypes();

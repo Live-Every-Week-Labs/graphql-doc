@@ -18,6 +18,7 @@ export interface OperationDirectives {
   docGroup?: DocGroup;
   docPriority?: DocPriority;
   docTags?: DocTags;
+  docIgnore?: boolean;
 }
 
 export interface Argument {
@@ -26,6 +27,7 @@ export interface Argument {
   type: string;
   isRequired: boolean;
   defaultValue?: any;
+  directives?: OperationDirectives;
 }
 
 export interface Operation {

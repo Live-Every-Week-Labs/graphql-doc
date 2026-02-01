@@ -55,6 +55,20 @@ describe('DirectiveExtractor', () => {
     });
   });
 
+  it('should extract @docIgnore directive', () => {
+    const sdl = `
+      type Query {
+        users: [User] @docIgnore
+      }
+    `;
+    const ast = parse(sdl);
+    const field = (ast.definitions[0] as ObjectTypeDefinitionNode).fields![0];
+
+    const directives = extractor.extract(field);
+
+    expect(directives.docIgnore).toBe(true);
+  });
+
   it('should handle multiple directives', () => {
     const sdl = `
       type Query {

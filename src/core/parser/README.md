@@ -28,6 +28,7 @@ The `src/core/parser` module is responsible for loading GraphQL schemas, extract
   - `@docGroup`: Categorization and ordering.
   - `@docPriority`: Sorting priority.
   - `@docTags`: Tagging operations.
+  - `@docIgnore`: Exclude fields/types from generated docs.
 - **Validation:** Uses Zod schemas to ensure directive arguments are type-safe and valid. Logs warnings for invalid usage.
 
 ### 4. TypeCollector
