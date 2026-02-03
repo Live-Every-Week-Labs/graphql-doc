@@ -2,21 +2,25 @@
   "$schema": "../../src/schemas/config-schema.json",
   "outputDir": "./docs/api",
   "framework": "docusaurus",
-  "singlePage": false,
   "metadataDir": "../../test_schemas/ecommerce",
   "includeDeprecated": true,
-  "generateSidebar": true,
-  "sidebarFile": "./sidebars-api.js",
-  "introDocs": [
-    {
-      "source": "./docs/api-intro/overview.mdx",
-      "outputPath": "intro/overview.mdx"
-    },
-    {
-      "source": "./docs/api-intro/errors.mdx",
-      "outputPath": "intro/errors.mdx"
+  "adapters": {
+    "docusaurus": {
+      "singlePage": false,
+      "generateSidebar": true,
+      "sidebarFile": "./sidebars-api.js",
+      "introDocs": [
+        {
+          "source": "./docs/api-intro/overview.mdx",
+          "outputPath": "intro/overview.mdx"
+        },
+        {
+          "source": "./docs/api-intro/errors.mdx",
+          "outputPath": "intro/errors.mdx"
+        }
+      ]
     }
-  ],
+  },
   "typeExpansion": {
     "maxDepth": 6,
     "defaultLevels": 0,

@@ -9,6 +9,7 @@ describe('loadGeneratorConfig', () => {
     const config = await loadGeneratorConfig();
     expect(config.outputDir).toBe('./docs/api');
     expect(config.framework).toBe('docusaurus');
+    expect(config.adapters.docusaurus).toBeDefined();
   });
 
   describe('custom config path', () => {
@@ -24,7 +25,11 @@ describe('loadGeneratorConfig', () => {
         JSON.stringify({
           outputDir: './custom-output',
           framework: 'docusaurus',
-          singlePage: true,
+          adapters: {
+            docusaurus: {
+              singlePage: true,
+            },
+          },
         })
       );
     });
@@ -37,7 +42,22 @@ describe('loadGeneratorConfig', () => {
     it('loads config from custom path', async () => {
       const config = await loadGeneratorConfig(process.cwd(), configPath);
       expect(config.outputDir).toBe('./custom-output');
-      expect(config.singlePage).toBe(true);
+      expect(config.adapters.docusaurus.singlePage).toBe(true);
+    });
+
+    it('maps legacy Docusaurus keys into adapters', async () => {
+      const legacyPath = path.join(tempDir, 'legacy-config.json');
+      fs.writeFileSync(
+        legacyPath,
+        JSON.stringify({
+          outputDir: './legacy-output',
+          singlePage: true,
+        })
+      );
+
+      const config = await loadGeneratorConfig(process.cwd(), legacyPath);
+      expect(config.outputDir).toBe('./legacy-output');
+      expect(config.adapters.docusaurus.singlePage).toBe(true);
     });
 
     it('throws error when config file not found', async () => {

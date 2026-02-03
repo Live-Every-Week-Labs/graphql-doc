@@ -68,6 +68,8 @@ extensions:
     outputDir: './docs/api'
     framework: 'docusaurus'
     metadataDir: './docs-metadata'
+    adapters:
+      docusaurus: {}
 ```
 
 ## Development

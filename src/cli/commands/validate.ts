@@ -1,7 +1,7 @@
 import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
-import { loadGeneratorConfig } from '../../core/config/loader.js';
+import { loadGeneratorConfig, resolveConfigPaths } from '../../core/config/loader.js';
 import {
   SchemaValidator,
   MetadataValidator,
@@ -77,14 +77,14 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
     process.exit(1);
   }
 
+  config = resolveConfigPaths(config, targetDir);
+
   // Determine schema path
   const schemaPath = options.schema ?? 'schema.graphql';
   const resolvedSchemaPath = path.isAbsolute(schemaPath)
     ? schemaPath
     : path.resolve(targetDir, schemaPath);
-  const schemaExtensions = (config.schemaExtensions ?? []).map((extension) =>
-    path.isAbsolute(extension) ? extension : path.resolve(targetDir, extension)
-  );
+  const schemaExtensions = config.schemaExtensions ?? [];
   const schemaPointers = schemaExtensions.length
     ? [...schemaExtensions, resolvedSchemaPath]
     : resolvedSchemaPath;
@@ -117,7 +117,10 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
 
   // ===== Examples Validation =====
   const examplesDir = config.examplesDir ?? path.join(config.metadataDir, 'examples');
-  const examplesPattern = path.join(targetDir, examplesDir, '**/*.json');
+  const examplesPattern = path.join(examplesDir, '**/*.json');
+  const examplesDirDisplay = path.isAbsolute(examplesDir)
+    ? path.relative(targetDir, examplesDir) || examplesDir
+    : examplesDir;
 
   const examplesSpinner = ora('Validating example files...').start();
 
@@ -143,7 +146,7 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
     // From examples - each example file references one operation
     for (const op of examplesResult.referencedOperations) {
       const existing = referencedOps.get(op) || [];
-      existing.push(`${examplesDir}/**/*.json`);
+      existing.push(`${examplesDirDisplay}/**/*.json`);
       referencedOps.set(op, existing);
     }
 

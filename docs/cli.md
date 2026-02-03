@@ -217,6 +217,8 @@ extensions:
     outputDir: ./docs/api
     framework: docusaurus
     metadataDir: ./docs-metadata
+    adapters:
+      docusaurus: {}
     schemaExtensions:
       - ./schema/framework-stubs.graphql
 ```

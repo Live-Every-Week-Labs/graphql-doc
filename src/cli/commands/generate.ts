@@ -2,7 +2,7 @@ import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
 import { loadConfig } from 'graphql-config';
-import { loadGeneratorConfig } from '../../core/config/loader.js';
+import { loadGeneratorConfig, resolveConfigPaths } from '../../core/config/loader.js';
 import { Generator } from '../../core/generator.js';
 
 export interface GenerateOptions {
@@ -80,30 +80,7 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
     config.outputDir = options.output;
   }
 
-  // Resolve paths relative to targetDir
-  if (!path.isAbsolute(config.outputDir)) {
-    config.outputDir = path.resolve(targetDir, config.outputDir);
-  }
-  if (config.examplesDir && !path.isAbsolute(config.examplesDir)) {
-    config.examplesDir = path.resolve(targetDir, config.examplesDir);
-  }
-  if (!path.isAbsolute(config.metadataDir)) {
-    config.metadataDir = path.resolve(targetDir, config.metadataDir);
-  }
-  if (config.schemaExtensions && config.schemaExtensions.length > 0) {
-    config.schemaExtensions = config.schemaExtensions.map((extension) =>
-      path.isAbsolute(extension) ? extension : path.resolve(targetDir, extension)
-    );
-  }
-  if (config.introDocs && config.introDocs.length > 0) {
-    config.introDocs = config.introDocs.map((doc) => {
-      if (typeof doc === 'string') {
-        return path.isAbsolute(doc) ? doc : path.resolve(targetDir, doc);
-      }
-      const source = path.isAbsolute(doc.source) ? doc.source : path.resolve(targetDir, doc.source);
-      return { ...doc, source };
-    });
-  }
+  config = resolveConfigPaths(config, targetDir);
 
   // Resolve schema pointer
   const schemaPointer = await resolveSchemaPointer(options, targetDir);

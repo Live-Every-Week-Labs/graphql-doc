@@ -4,7 +4,7 @@ import { SchemaLoader } from './parser/schema-loader';
 import { SchemaParser } from './parser/schema-parser';
 import { loadExamples } from './metadata/example-loader';
 import { Transformer } from './transformer/transformer';
-import { DocusaurusAdapter } from './adapters/docusaurus/docusaurus-adapter';
+import { createAdapter } from './adapters';
 
 import { FileWriter } from './file-writer';
 
@@ -41,7 +41,7 @@ export class Generator {
     const docModel = transformer.transform(operations, examples);
 
     console.log('Generating documentation...');
-    const adapter = new DocusaurusAdapter(this.config);
+    const adapter = createAdapter(this.config);
     const files = adapter.adapt(docModel);
 
     console.log('Writing files...');

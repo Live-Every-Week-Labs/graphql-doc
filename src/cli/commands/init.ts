@@ -119,6 +119,8 @@ extensions:
     outputDir: ${config.outputDir}
     framework: ${config.framework}
     metadataDir: ${config.metadataDir}
+    adapters:
+      docusaurus: {}
 `;
 }
 

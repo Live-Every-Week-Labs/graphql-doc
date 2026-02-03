@@ -6,6 +6,60 @@ import { Config, ConfigSchema } from './schema.js';
 
 const MODULE_NAME = 'graphql-docs';
 
+const LEGACY_DOCUSAURUS_KEYS = [
+  'singlePage',
+  'docsRoot',
+  'docIdPrefix',
+  'unsafeMdxDescriptions',
+  'typeLinkMode',
+  'generateSidebar',
+  'sidebarFile',
+  'sidebarCategoryIndex',
+  'sidebarMerge',
+  'sidebarTarget',
+  'sidebarInsertPosition',
+  'sidebarInsertReference',
+  'sidebarSectionLabels',
+  'introDocs',
+];
+
+function normalizeConfigInput(input: unknown): unknown {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return input;
+  }
+
+  const raw = input as Record<string, unknown>;
+  const adaptersRaw = raw.adapters;
+  const adapters =
+    adaptersRaw && typeof adaptersRaw === 'object' && !Array.isArray(adaptersRaw)
+      ? { ...(adaptersRaw as Record<string, unknown>) }
+      : {};
+  const docusaurusRaw = adapters.docusaurus;
+  const docusaurus =
+    docusaurusRaw && typeof docusaurusRaw === 'object' && !Array.isArray(docusaurusRaw)
+      ? { ...(docusaurusRaw as Record<string, unknown>) }
+      : {};
+
+  let moved = false;
+  for (const key of LEGACY_DOCUSAURUS_KEYS) {
+    if (raw[key] !== undefined && docusaurus[key] === undefined) {
+      docusaurus[key] = raw[key];
+      moved = true;
+    }
+  }
+
+  if (moved || adapters?.docusaurus !== undefined) {
+    adapters.docusaurus = docusaurus;
+  }
+
+  const normalized: Record<string, unknown> = { ...raw, adapters };
+  for (const key of LEGACY_DOCUSAURUS_KEYS) {
+    delete normalized[key];
+  }
+
+  return normalized;
+}
+
 export async function loadGeneratorConfig(
   rootPath: string = process.cwd(),
   configPath?: string
@@ -24,7 +78,8 @@ export async function loadGeneratorConfig(
     const result = await explorer.load(resolvedPath);
 
     if (result && result.config) {
-      return processConfigDefaults(ConfigSchema.parse(result.config));
+      const normalized = normalizeConfigInput(result.config);
+      return processConfigDefaults(ConfigSchema.parse(normalized));
     }
 
     throw new Error(`Failed to load config from: ${resolvedPath}`);
@@ -37,7 +92,8 @@ export async function loadGeneratorConfig(
       const extensionConfig = gqlConfig.getDefault().extension(MODULE_NAME);
 
       if (extensionConfig) {
-        return processConfigDefaults(ConfigSchema.parse(extensionConfig));
+        const normalized = normalizeConfigInput(extensionConfig);
+        return processConfigDefaults(ConfigSchema.parse(normalized));
       }
     }
   } catch (error) {
@@ -50,7 +106,8 @@ export async function loadGeneratorConfig(
   const result = await explorer.search(rootPath);
 
   if (result && result.config) {
-    return processConfigDefaults(ConfigSchema.parse(result.config));
+    const normalized = normalizeConfigInput(result.config);
+    return processConfigDefaults(ConfigSchema.parse(normalized));
   }
 
   // 3. Return default config
@@ -67,4 +124,39 @@ function processConfigDefaults(config: Config): Config {
   }
 
   return config;
+}
+
+export function resolveConfigPaths(config: Config, rootPath: string): Config {
+  const resolvePath = (value: string) =>
+    path.isAbsolute(value) ? value : path.resolve(rootPath, value);
+
+  const resolvedAdapters = { ...(config.adapters ?? {}) };
+  const docusaurus = resolvedAdapters.docusaurus ? { ...resolvedAdapters.docusaurus } : undefined;
+
+  if (docusaurus?.docsRoot) {
+    docusaurus.docsRoot = resolvePath(docusaurus.docsRoot);
+  }
+
+  if (docusaurus?.introDocs && docusaurus.introDocs.length > 0) {
+    docusaurus.introDocs = docusaurus.introDocs.map((doc) => {
+      if (typeof doc === 'string') {
+        return resolvePath(doc);
+      }
+      const source = resolvePath(doc.source);
+      return { ...doc, source };
+    });
+  }
+
+  if (docusaurus) {
+    resolvedAdapters.docusaurus = docusaurus;
+  }
+
+  return {
+    ...config,
+    outputDir: resolvePath(config.outputDir),
+    metadataDir: resolvePath(config.metadataDir),
+    examplesDir: config.examplesDir ? resolvePath(config.examplesDir) : undefined,
+    schemaExtensions: (config.schemaExtensions ?? []).map(resolvePath),
+    adapters: resolvedAdapters,
+  };
 }

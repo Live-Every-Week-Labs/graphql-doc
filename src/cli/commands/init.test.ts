@@ -42,6 +42,8 @@ describe('init command', () => {
       expect(content).toContain('outputDir: ./docs/api');
       expect(content).toContain('framework: docusaurus');
       expect(content).toContain('metadataDir: ./docs-metadata');
+      expect(content).toContain('adapters:');
+      expect(content).toContain('docusaurus: {}');
     });
 
     it('creates docs-metadata directory structure', async () => {

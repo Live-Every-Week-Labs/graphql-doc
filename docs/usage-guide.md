@@ -98,6 +98,8 @@ extensions:
     outputDir: ./docs/api
     framework: docusaurus
     metadataDir: ./docs-metadata
+    adapters:
+      docusaurus: {}
     schemaExtensions:
       - ./schema/framework-stubs.graphql
 ````
@@ -122,18 +124,20 @@ For MVP, error documentation is handled in two places:
 ```yaml
 extensions:
   graphql-docs:
-    singlePage: false
-    typeLinkMode: deep
+    adapters:
+      docusaurus:
+        singlePage: false
+        typeLinkMode: deep
+        introDocs:
+          - ./docs/api-overview.mdx
+          - source: ./docs/authentication.mdx
+            outputPath: intro/authentication.mdx
+        sidebarSectionLabels:
+          operations: Operations
+          types: Types
     excludeDocGroups:
       - Internal
       - Experimental
-    introDocs:
-      - ./docs/api-overview.mdx
-      - source: ./docs/authentication.mdx
-        outputPath: intro/authentication.mdx
-    sidebarSectionLabels:
-      operations: Operations
-      types: Types
 ```
 
 ## Integration with Docusaurus
@@ -159,8 +163,10 @@ module.exports = {
 # .graphqlrc
 extensions:
   graphql-docs:
-    sidebarMerge: false
-    sidebarFile: ./sidebars.api.js
+    adapters:
+      docusaurus:
+        sidebarMerge: false
+        sidebarFile: ./sidebars.api.js
 ```
 
 ## Organizing Your Documentation

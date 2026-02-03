@@ -16,16 +16,12 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 
 ### Core Options
 
-| Option                  | Type       | Default      | Description                                                           |
-| :---------------------- | :--------- | :----------- | :-------------------------------------------------------------------- |
-| `outputDir`             | `string`   | `./docs/api` | Directory where generated documentation will be written               |
-| `docsRoot`              | `string`   | `./docs`     | Docusaurus docs root (used to prefix sidebar doc ids)                 |
-| `docIdPrefix`           | `string`   |              | Override doc id prefix for sidebars (e.g. `api`)                      |
-| `framework`             | `string`   | `docusaurus` | Output framework. Currently only `docusaurus` is supported            |
-| `singlePage`            | `boolean`  | `false`      | Generate a single page instead of multiple files                      |
-| `schemaExtensions`      | `string[]` | `[]`         | Extra SDL files merged into the schema (framework scalars/directives) |
-| `allowRemoteSchema`     | `boolean`  | `false`      | Allow loading schemas from remote URLs (http/https)                   |
-| `unsafeMdxDescriptions` | `boolean`  | `false`      | Render schema descriptions as raw MDX (unsafe by default)             |
+| Option              | Type       | Default      | Description                                                           |
+| :------------------ | :--------- | :----------- | :-------------------------------------------------------------------- |
+| `outputDir`         | `string`   | `./docs/api` | Directory where generated documentation will be written               |
+| `framework`         | `string`   | `docusaurus` | Adapter key to use (currently only `docusaurus` is supported)         |
+| `schemaExtensions`  | `string[]` | `[]`         | Extra SDL files merged into the schema (framework scalars/directives) |
+| `allowRemoteSchema` | `boolean`  | `false`      | Allow loading schemas from remote URLs (http/https)                   |
 
 ### Metadata Options
 
@@ -56,42 +52,58 @@ You can include descriptions in the extension SDL to show up in the generated ty
 | :------------------ | :------------------- | :------ | :----------------------------------------------- |
 | `includeDeprecated` | `boolean`            | `true`  | Include deprecated operations in documentation   |
 | `skipTypes`         | `string[]`           | `[]`    | List of type names to exclude from documentation |
-| `typeLinkMode`      | `string`             | `none`  | Controls when type names render as links         |
 | `excludeDocGroups`  | `string \| string[]` | `[]`    | Doc group names to exclude from generated docs   |
+| `typeExpansion`     | `object`             | `{}`    | Settings for type expansion depth and behavior   |
 
-### Sidebar Options
+### Docusaurus Adapter Options
 
-| Option                   | Type      | Default            | Description                                                                               |
-| :----------------------- | :-------- | :----------------- | :---------------------------------------------------------------------------------------- |
-| `generateSidebar`        | `boolean` | `true`             | Generate Docusaurus sidebar configuration                                                 |
-| `sidebarFile`            | `string`  | auto               | Custom sidebar path. `.api.js` writes an array export; otherwise merges/exports an object |
-| `sidebarMerge`           | `boolean` | `true`             | Merge into an existing sidebar file when present                                          |
-| `sidebarTarget`          | `string`  | `apiSidebar`       | Sidebar key to update when merging                                                        |
-| `sidebarInsertPosition`  | `string`  | `replace`          | How to insert items (`replace`, `append`, `prepend`, `before`, `after`)                   |
-| `sidebarInsertReference` | `string`  |                    | Label/id/value to insert before/after when using `before`/`after`                         |
-| `sidebarCategoryIndex`   | `boolean` | `false`            | When true, category labels link to a generated index page                                 |
-| `introDocs`              | `array`   | `[]`               | MD/MDX docs to prepend to the API sidebar                                                 |
-| `sidebarSectionLabels`   | `object`  | `Operations/Types` | Labels for sidebar section headers (operations/types)                                     |
+Adapter-specific settings live under `adapters.<framework>`. For Docusaurus, use `adapters.docusaurus`.
 
-When `sidebarMerge` is enabled and the target sidebar file exists, the generator appends a small
-injection block that updates the target key (`sidebarTarget`). This preserves any other sidebars in
-the file and lets you control placement with `sidebarInsertPosition`.
+| Option                                      | Type      | Default  | Description                                               |
+| :------------------------------------------ | :-------- | :------- | :-------------------------------------------------------- |
+| `adapters.docusaurus.singlePage`            | `boolean` | `false`  | Generate a single page instead of multiple files          |
+| `adapters.docusaurus.docsRoot`              | `string`  | `./docs` | Docusaurus docs root used for sidebar doc id prefixing    |
+| `adapters.docusaurus.docIdPrefix`           | `string`  |          | Override doc id prefix for sidebars (e.g. `api`)          |
+| `adapters.docusaurus.unsafeMdxDescriptions` | `boolean` | `false`  | Render schema descriptions as raw MDX (unsafe by default) |
+| `adapters.docusaurus.typeLinkMode`          | `string`  | `none`   | Controls when type names render as links                  |
+| `adapters.docusaurus.generateSidebar`       | `boolean` | `true`   | Generate Docusaurus sidebar configuration                 |
+
+### Docusaurus Sidebar Options
+
+| Option                                       | Type      | Default            | Description                                                                               |
+| :------------------------------------------- | :-------- | :----------------- | :---------------------------------------------------------------------------------------- |
+| `adapters.docusaurus.sidebarFile`            | `string`  | auto               | Custom sidebar path. `.api.js` writes an array export; otherwise merges/exports an object |
+| `adapters.docusaurus.sidebarMerge`           | `boolean` | `true`             | Merge into an existing sidebar file when present                                          |
+| `adapters.docusaurus.sidebarTarget`          | `string`  | `apiSidebar`       | Sidebar key to update when merging                                                        |
+| `adapters.docusaurus.sidebarInsertPosition`  | `string`  | `replace`          | How to insert items (`replace`, `append`, `prepend`, `before`, `after`)                   |
+| `adapters.docusaurus.sidebarInsertReference` | `string`  |                    | Label/id/value to insert before/after when using `before`/`after`                         |
+| `adapters.docusaurus.sidebarCategoryIndex`   | `boolean` | `false`            | When true, category labels link to a generated index page                                 |
+| `adapters.docusaurus.introDocs`              | `array`   | `[]`               | MD/MDX docs to prepend to the API sidebar                                                 |
+| `adapters.docusaurus.sidebarSectionLabels`   | `object`  | `Operations/Types` | Labels for sidebar section headers (operations/types)                                     |
+
+When `adapters.docusaurus.sidebarMerge` is enabled and the target sidebar file exists, the
+generator appends a small injection block that updates the target key
+(`adapters.docusaurus.sidebarTarget`). This preserves any other sidebars in the file and lets you
+control placement with `adapters.docusaurus.sidebarInsertPosition`.
 
 For `before`/`after`, the generator searches for a matching item by `label`, `id`, or `value`.
 If no match is found, it falls back to appending.
 
-If `sidebarFile` ends with `.api.js`, the generator writes a standalone array export and skips
-merging. This is useful when you want to import the generated sidebar into another file.
+If `adapters.docusaurus.sidebarFile` ends with `.api.js`, the generator writes a standalone array
+export and skips merging. This is useful when you want to import the generated sidebar into another
+file.
 
-If you want to target a sidebar outside the output directory, pass an absolute `sidebarFile` path.
+If you want to target a sidebar outside the output directory, pass an absolute
+`adapters.docusaurus.sidebarFile` path.
 
 If your `outputDir` lives under the Docusaurus docs root (default `./docs`), the generator will
 automatically prefix sidebar document ids (for example, `api/...` when `outputDir` is `./docs/api`).
-Override this with `docIdPrefix` if your docs root is different.
+Override this with `adapters.docusaurus.docIdPrefix` if your docs root is different.
 
 ### Single-Page Mode
 
-When `singlePage: true` is set, the generator produces a single `api-reference.mdx` file instead of multiple files per operation. This mode includes:
+When `adapters.docusaurus.singlePage: true` is set, the generator produces a single
+`api-reference.mdx` file instead of multiple files per operation. This mode includes:
 
 - **Front matter** with `id: api-reference`, `title: API Reference`, `sidebar_label: API Reference`
 - **Table of Contents** with nested anchor links to all sections, subsections, and operations
@@ -146,7 +158,9 @@ schema: schema.graphql
 extensions:
   graphql-docs:
     outputDir: ./docs/api
-    singlePage: true
+    adapters:
+      docusaurus:
+        singlePage: true
 ```
 
 ### External Data Mode
@@ -159,9 +173,9 @@ individual MDX files small and avoids repeating the same definitions across file
 
 Control whether type names render as clickable links in generated docs:
 
-| Option         | Type     | Default | Description                                   |
-| :------------- | :------- | :------ | :-------------------------------------------- |
-| `typeLinkMode` | `string` | `none`  | `none`, `deep`, or `all` (see details below). |
+| Option                             | Type     | Default | Description                                   |
+| :--------------------------------- | :------- | :------ | :-------------------------------------------- |
+| `adapters.docusaurus.typeLinkMode` | `string` | `none`  | `none`, `deep`, or `all` (see details below). |
 
 - `none`: No type name links (default).
 - `deep`: Only link type names when inline expansion is no longer possible.
@@ -175,7 +189,9 @@ If your schema descriptions are trusted and you want to render them as raw MDX, 
 ```yaml
 extensions:
   graphql-docs:
-    unsafeMdxDescriptions: true
+    adapters:
+      docusaurus:
+        unsafeMdxDescriptions: true
 ```
 
 ### Excluding Doc Groups
@@ -196,9 +212,9 @@ You can also pass a single string (it will be normalized to an array).
 
 Control whether clicking a sidebar category label navigates to an index page or just expands/collapses:
 
-| Option                 | Type      | Default | Description                                                         |
-| :--------------------- | :-------- | :------ | :------------------------------------------------------------------ |
-| `sidebarCategoryIndex` | `boolean` | `false` | When true, generates a `generated-index` page for category headers. |
+| Option                                     | Type      | Default | Description                                                         |
+| :----------------------------------------- | :-------- | :------ | :------------------------------------------------------------------ |
+| `adapters.docusaurus.sidebarCategoryIndex` | `boolean` | `false` | When true, generates a `generated-index` page for category headers. |
 
 ### Sidebar Section Labels
 
@@ -207,9 +223,11 @@ Customize the header labels shown above the operations and types sections:
 ```yaml
 extensions:
   graphql-docs:
-    sidebarSectionLabels:
-      operations: Operations
-      types: Types
+    adapters:
+      docusaurus:
+        sidebarSectionLabels:
+          operations: Operations
+          types: Types
 ```
 
 ### Intro Docs
@@ -220,11 +238,13 @@ for the API docs (via sidebar order).
 ```yaml
 extensions:
   graphql-docs:
-    introDocs:
-      - ./docs/api-overview.mdx
-      - source: ./docs/authentication.mdx
-        label: Authentication
-        outputPath: intro/authentication.mdx
+    adapters:
+      docusaurus:
+        introDocs:
+          - ./docs/api-overview.mdx
+          - source: ./docs/authentication.mdx
+            label: Authentication
+            outputPath: intro/authentication.mdx
 ```
 
 Each entry can be either a string path or an object:
@@ -260,7 +280,9 @@ extensions:
     framework: docusaurus
     metadataDir: ./docs-metadata
     includeDeprecated: true
-    generateSidebar: true
+    adapters:
+      docusaurus:
+        generateSidebar: true
     typeExpansion:
       maxDepth: 5
       defaultLevels: 0
@@ -275,7 +297,11 @@ module.exports = {
   metadataDir: './docs-metadata',
   includeDeprecated: true,
   skipTypes: ['InternalType', 'DebugInfo'],
-  generateSidebar: true,
+  adapters: {
+    docusaurus: {
+      generateSidebar: true,
+    },
+  },
   typeExpansion: {
     maxDepth: 5,
     defaultLevels: 0,

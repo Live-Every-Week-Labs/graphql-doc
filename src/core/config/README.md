@@ -12,28 +12,19 @@ The `src/core/config` module handles configuration loading and validation for th
 - Sets default values for optional fields.
 - **Key Options:**
   - `outputDir`: Where to generate docs (default: `./docs/api`).
-  - `framework`: Output format (default: `docusaurus`).
-  - `singlePage`: Toggle single-page vs multi-page (default: `false`).
+  - `framework`: Adapter key to use (default: `docusaurus`).
   - `metadataDir`: Path to external metadata (default: `./docs-metadata`).
   - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).
-  - `docsRoot`: Docusaurus docs root used for sidebar id prefixing (default: `./docs`).
-  - `docIdPrefix`: Override doc id prefix (optional).
   - `schemaExtensions`: Extra SDL files merged into the schema for framework scalars/directives (default: `[]`).
   - `allowRemoteSchema`: Allow loading schema from remote URLs (default: `false`).
-  - `unsafeMdxDescriptions`: Render schema descriptions as raw MDX (default: `false`).
-  - `typeLinkMode`: Controls type name links (`none`, `deep`, `all`, default: `none`).
   - `excludeDocGroups`: Doc group names to exclude from output (string or array, default: `[]`).
-  - `sidebarCategoryIndex`: When true, category labels link to a generated index page (default: `false`).
-  - `sidebarMerge`: Merge into an existing sidebar file when present (default: `true`).
-  - `sidebarTarget`: Sidebar key to update when merging (default: `apiSidebar`).
-  - `sidebarInsertPosition`: Insert behavior (`replace`, `append`, `prepend`, `before`, `after`, default: `replace`).
-  - `sidebarInsertReference`: Label/id/value to insert before/after (optional).
-  - `sidebarSectionLabels`: Sidebar section header labels (default: `Operations`/`Types`).
-  - `introDocs`: MD/MDX files to prepend to the API sidebar (default: `[]`).
   - `typeExpansion`: Settings for type depth and circular references.
     - `maxDepth`: Hard limit on inline expansion depth (default: `5`). Deeper references render as type links.
     - `defaultLevels`: Soft limit for UI expansion (default: `0`). Types beyond this depth are marked as collapsible.
     - `showCircularReferences`: Show circular reference indicators (default: `true`).
+  - `adapters.docusaurus`: Docusaurus-only options, including:
+    - `singlePage`, `docsRoot`, `docIdPrefix`, `unsafeMdxDescriptions`, `typeLinkMode`
+    - Sidebar controls (`generateSidebar`, `sidebar*`) and `introDocs`
 
 ### 2. Config Loader
 
@@ -49,12 +40,16 @@ The `src/core/config` module handles configuration loading and validation for th
 - **Smart Defaults:**
   - If `examplesDir` is not explicitly provided, it automatically defaults to a subdirectory within the configured `metadataDir`.
   - Example: If `metadataDir` is `./api-data`, examples will be looked for in `./api-data/examples`.
+  - Legacy Docusaurus keys (e.g. `singlePage`, `sidebar*`) are mapped into `adapters.docusaurus`.
+
+- **Path Resolution Helper:**
+  - `resolveConfigPaths` normalizes relative paths (output, metadata, schema extensions, and Docusaurus intro docs) against a root directory.
 
 ## Usage
 
 ```typescript
-import { loadGeneratorConfig } from './core/config/loader';
+import { loadGeneratorConfig, resolveConfigPaths } from './core/config/loader';
 
-const config = await loadGeneratorConfig();
+const config = resolveConfigPaths(await loadGeneratorConfig(), process.cwd());
 console.log(config.outputDir);
 ```

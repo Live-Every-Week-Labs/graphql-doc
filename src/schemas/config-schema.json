@@ -8,25 +8,13 @@
     },
     "framework": {
       "type": "string",
-      "enum": ["docusaurus"],
       "default": "docusaurus"
-    },
-    "singlePage": {
-      "type": "boolean",
-      "default": false
     },
     "metadataDir": {
       "type": "string",
       "default": "./docs-metadata"
     },
     "examplesDir": {
-      "type": "string"
-    },
-    "docsRoot": {
-      "type": "string",
-      "default": "./docs"
-    },
-    "docIdPrefix": {
       "type": "string"
     },
     "schemaExtensions": {
@@ -43,18 +31,9 @@
       "type": "boolean",
       "default": false
     },
-    "unsafeMdxDescriptions": {
-      "type": "boolean",
-      "default": false
-    },
     "includeDeprecated": {
       "type": "boolean",
       "default": true
-    },
-    "typeLinkMode": {
-      "type": "string",
-      "enum": ["none", "deep", "all"],
-      "default": "none"
     },
     "excludeDocGroups": {
       "oneOf": [
@@ -66,72 +45,12 @@
       ],
       "default": []
     },
-    "sidebarCategoryIndex": {
-      "type": "boolean",
-      "default": false
-    },
-    "sidebarMerge": {
-      "type": "boolean",
-      "default": true
-    },
-    "sidebarTarget": {
-      "type": "string",
-      "default": "apiSidebar"
-    },
-    "sidebarInsertPosition": {
-      "type": "string",
-      "enum": ["replace", "append", "prepend", "before", "after"],
-      "default": "replace"
-    },
-    "sidebarInsertReference": {
-      "type": "string"
-    },
-    "sidebarSectionLabels": {
-      "type": "object",
-      "properties": {
-        "operations": { "type": "string" },
-        "types": { "type": "string" }
-      },
-      "default": {
-        "operations": "Operations",
-        "types": "Types"
-      }
-    },
-    "introDocs": {
-      "type": "array",
-      "items": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "source": { "type": "string" },
-              "outputPath": { "type": "string" },
-              "id": { "type": "string" },
-              "label": { "type": "string" },
-              "title": { "type": "string" }
-            },
-            "required": ["source"]
-          }
-        ]
-      },
-      "default": []
-    },
     "skipTypes": {
       "type": "array",
       "items": {
         "type": "string"
       },
       "default": []
-    },
-    "generateSidebar": {
-      "type": "boolean",
-      "default": true
-    },
-    "sidebarFile": {
-      "type": "string"
     },
     "typeExpansion": {
       "type": "object",
@@ -150,6 +69,101 @@
         }
       },
       "default": {}
+    },
+    "adapters": {
+      "type": "object",
+      "properties": {
+        "docusaurus": {
+          "type": "object",
+          "properties": {
+            "singlePage": {
+              "type": "boolean",
+              "default": false
+            },
+            "docsRoot": {
+              "type": "string",
+              "default": "./docs"
+            },
+            "docIdPrefix": {
+              "type": "string"
+            },
+            "unsafeMdxDescriptions": {
+              "type": "boolean",
+              "default": false
+            },
+            "typeLinkMode": {
+              "type": "string",
+              "enum": ["none", "deep", "all"],
+              "default": "none"
+            },
+            "generateSidebar": {
+              "type": "boolean",
+              "default": true
+            },
+            "sidebarFile": {
+              "type": "string"
+            },
+            "sidebarCategoryIndex": {
+              "type": "boolean",
+              "default": false
+            },
+            "sidebarMerge": {
+              "type": "boolean",
+              "default": true
+            },
+            "sidebarTarget": {
+              "type": "string",
+              "default": "apiSidebar"
+            },
+            "sidebarInsertPosition": {
+              "type": "string",
+              "enum": ["replace", "append", "prepend", "before", "after"],
+              "default": "replace"
+            },
+            "sidebarInsertReference": {
+              "type": "string"
+            },
+            "sidebarSectionLabels": {
+              "type": "object",
+              "properties": {
+                "operations": { "type": "string" },
+                "types": { "type": "string" }
+              },
+              "default": {
+                "operations": "Operations",
+                "types": "Types"
+              }
+            },
+            "introDocs": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "source": { "type": "string" },
+                      "outputPath": { "type": "string" },
+                      "id": { "type": "string" },
+                      "label": { "type": "string" },
+                      "title": { "type": "string" }
+                    },
+                    "required": ["source"]
+                  }
+                ]
+              },
+              "default": []
+            }
+          },
+          "default": {}
+        }
+      },
+      "additionalProperties": true,
+      "default": {
+        "docusaurus": {}
+      }
     }
   }
 }

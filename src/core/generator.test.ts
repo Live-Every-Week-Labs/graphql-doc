@@ -67,13 +67,17 @@ describe('Generator', () => {
       metadataDir,
       examplesDir: path.join(metadataDir, 'examples'),
       allowRemoteSchema: false,
-      unsafeMdxDescriptions: false,
-      typeLinkMode: 'none',
-      generateSidebar: true,
       typeExpansion: {
         maxDepth: 2,
         defaultLevels: 3,
         showCircularReferences: true,
+      },
+      adapters: {
+        docusaurus: {
+          unsafeMdxDescriptions: false,
+          typeLinkMode: 'none',
+          generateSidebar: true,
+        },
       },
     };
   });
