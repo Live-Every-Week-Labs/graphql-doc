@@ -19,3 +19,40 @@
     letter-spacing: 0.01em;
     text-transform: none;
 }
+
+/* Docusaurus layout overrides scoped to GraphQL Docs pages. */
+body.gql-docs-page main[class^='docMainContainer'] .container,
+body.gql-docs-page main[class*='docMainContainer_'] .container,
+.gql-docs-page main[class^='docMainContainer'] .container,
+.gql-docs-page main[class*='docMainContainer_'] .container,
+.gql-docs-container {
+    max-width: 1800px;
+}
+
+@media (min-width: 997px) {
+    body.gql-docs-page main[class^='docMainContainer'] [class^='docItemCol'],
+    body.gql-docs-page main[class^='docMainContainer'] [class*='docItemCol_'],
+    body.gql-docs-page main[class*='docMainContainer_'] [class^='docItemCol'],
+    body.gql-docs-page main[class*='docMainContainer_'] [class*='docItemCol_'],
+    .gql-docs-page main[class^='docMainContainer'] [class^='docItemCol'],
+    .gql-docs-page main[class^='docMainContainer'] [class*='docItemCol_'],
+    .gql-docs-page main[class*='docMainContainer_'] [class^='docItemCol'],
+    .gql-docs-page main[class*='docMainContainer_'] [class*='docItemCol_'],
+    .gql-docs-col {
+        max-width: 100% !important;
+        flex-basis: 100% !important;
+    }
+
+    body.gql-docs-page .gql-docs-col,
+    .gql-docs-page .gql-docs-col {
+        max-width: 100% !important;
+        flex-basis: 100% !important;
+    }
+}
+
+body.gql-docs-page main[class^='docMainContainer'] .theme-doc-markdown,
+body.gql-docs-page main[class*='docMainContainer_'] .theme-doc-markdown,
+.gql-docs-page main[class^='docMainContainer'] .theme-doc-markdown,
+.gql-docs-page main[class*='docMainContainer_'] .theme-doc-markdown {
+    max-width: 100%;
+}

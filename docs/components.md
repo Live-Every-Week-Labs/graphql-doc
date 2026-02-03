@@ -56,6 +56,10 @@ Wrap MDX content with `TwoColumnContent` to enable the right-side examples panel
 
 `examplesByOperation` keys use the **operation name** (not slug).
 
+In Docusaurus, wrap API pages in a `gql-docs-page` element (see the swizzle snippet below)
+so the adapter’s layout overrides only affect API docs. `TwoColumnContent` also attempts to
+apply this class to `body` when it mounts; to disable that behavior, set `bodyClassName={false}`.
+
 ## Docusaurus Integration
 
 1. **Swizzle DocItem Layout**
@@ -80,11 +84,13 @@ export default function LayoutWrapper(props) {
   }
 
   return (
-    <Layout {...props}>
-      <TwoColumnContent examplesByOperation={examplesByOperation}>
-        {props.children}
-      </TwoColumnContent>
-    </Layout>
+    <div className="gql-docs-page">
+      <Layout {...props}>
+        <TwoColumnContent examplesByOperation={examplesByOperation}>
+          {props.children}
+        </TwoColumnContent>
+      </Layout>
+    </div>
   );
 }
 ```
@@ -139,7 +145,7 @@ prism: {
 - `ArgumentsTable({ arguments, typeLinkBase, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/0, typeLinkMode: `none`)
 - `ExamplesPanel({ examples, operationName })`
 - `CodeExample({ example })`
-- `TwoColumnContent({ examplesByOperation, renderExamples })`
+- `TwoColumnContent({ examplesByOperation, renderExamples, bodyClassName })`
 
 `typeLinkBase` is used to build links to generated type pages (e.g. `types/enums/*`, `types/inputs/*`, `types/types/*`). When omitted, link targets fall back to the inline `#type` anchors produced by the transformer.
 

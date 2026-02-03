@@ -88,4 +88,26 @@ describe('TwoColumnContent', () => {
     const sidePanel = container.querySelector('.gql-docs-examples');
     expect(sidePanel).toBeNull();
   });
+
+  it('adds and removes the body class for API layouts', () => {
+    const { unmount } = render(
+      <TwoColumnContent>
+        <OperationView operation={operationWithoutExamples} />
+      </TwoColumnContent>
+    );
+
+    expect(document.body.classList.contains('gql-docs-page')).toBe(true);
+    unmount();
+    expect(document.body.classList.contains('gql-docs-page')).toBe(false);
+  });
+
+  it('skips body class when disabled', () => {
+    render(
+      <TwoColumnContent bodyClassName={false}>
+        <OperationView operation={operationWithoutExamples} />
+      </TwoColumnContent>
+    );
+
+    expect(document.body.classList.contains('gql-docs-page')).toBe(false);
+  });
 });

@@ -15,7 +15,11 @@ The system supports Light and Dark modes.
 
 ## `docusaurus.css`
 
-Optional Docusaurus-only helpers (sidebar dividers and section headers). Import this alongside the core styles only when using the Docusaurus adapter.
+Optional Docusaurus-only helpers (sidebar dividers, section headers, and layout overrides). Import this alongside the core styles only when using the Docusaurus adapter.
+
+When API docs are wrapped in `.gql-docs-page` (recommended in the Docusaurus swizzle),
+the layout overrides are scoped to those pages. `TwoColumnContent` also attempts to add
+`gql-docs-page` to `body` on mount as a fallback.
 
 ### Customization
 
@@ -49,6 +53,7 @@ These classes live in `docusaurus.css` and are used by the Docusaurus adapter:
 
 - `.gql-sidebar-divider`: Lightweight horizontal divider.
 - `.gql-sidebar-section-title`: Section header label for grouped sidebar items.
+- `body.gql-docs-page ...`: Scoped layout overrides for the doc content column width.
 
 ### Layout & Examples
 
