@@ -82,6 +82,12 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
   const resolvedSchemaPath = path.isAbsolute(schemaPath)
     ? schemaPath
     : path.resolve(targetDir, schemaPath);
+  const schemaExtensions = (config.schemaExtensions ?? []).map((extension) =>
+    path.isAbsolute(extension) ? extension : path.resolve(targetDir, extension)
+  );
+  const schemaPointers = schemaExtensions.length
+    ? [...schemaExtensions, resolvedSchemaPath]
+    : resolvedSchemaPath;
 
   // Initialize validators
   const schemaValidator = new SchemaValidator();
@@ -97,7 +103,7 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
   // ===== Schema Validation =====
   const schemaSpinner = ora('Validating schema...').start();
 
-  const schemaResult = await schemaValidator.validate(resolvedSchemaPath);
+  const schemaResult = await schemaValidator.validate(schemaPointers);
   operationNames = schemaResult.operationNames;
 
   if (schemaResult.errors.length > 0) {

@@ -13,7 +13,10 @@ const TYPES_DATA_FILE = path.posix.join(DATA_DIR, 'types.json');
 
 export interface DocusaurusAdapterConfig {
   singlePage?: boolean;
+  outputDir?: string;
   outputPath?: string;
+  docsRoot?: string;
+  docIdPrefix?: string;
   typeLinkMode?: 'none' | 'deep' | 'all';
   typeExpansion?: {
     maxDepth?: number;
@@ -23,6 +26,10 @@ export interface DocusaurusAdapterConfig {
   generateSidebar?: boolean;
   sidebarFile?: string;
   sidebarCategoryIndex?: boolean;
+  sidebarMerge?: boolean;
+  sidebarTarget?: string;
+  sidebarInsertPosition?: 'replace' | 'append' | 'prepend' | 'before' | 'after';
+  sidebarInsertReference?: string;
   sidebarSectionLabels?: {
     operations?: string;
     types?: string;
@@ -43,14 +50,17 @@ export class DocusaurusAdapter {
   private renderer: MdxRenderer;
   private sidebarGenerator: SidebarGenerator;
   private config: DocusaurusAdapterConfig;
+  private docIdPrefix: string;
 
   constructor(config: DocusaurusAdapterConfig = {}) {
     this.renderer = new MdxRenderer();
+    this.config = config;
+    this.docIdPrefix = this.resolveDocIdPrefix();
     this.sidebarGenerator = new SidebarGenerator({
       categoryIndex: config.sidebarCategoryIndex,
       sectionLabels: config.sidebarSectionLabels,
+      docIdPrefix: this.docIdPrefix,
     });
-    this.config = config;
   }
 
   private getIntroDocs(): Array<{
@@ -62,6 +72,35 @@ export class DocusaurusAdapter {
   }> {
     const introDocs = this.config.introDocs ?? [];
     return introDocs.map((doc) => (typeof doc === 'string' ? { source: doc } : doc));
+  }
+
+  private resolveDocIdPrefix(): string {
+    if (this.config.docIdPrefix) {
+      return this.config.docIdPrefix.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+    }
+
+    const docsRoot = this.config.docsRoot ?? './docs';
+    const outputRoot = this.config.outputDir ?? this.config.outputPath ?? process.cwd();
+    const resolvedDocsRoot = path.resolve(docsRoot);
+    const resolvedOutputRoot = path.resolve(outputRoot);
+
+    if (resolvedOutputRoot === resolvedDocsRoot) {
+      return '';
+    }
+
+    if (resolvedOutputRoot.startsWith(resolvedDocsRoot + path.sep)) {
+      const rel = path.relative(resolvedDocsRoot, resolvedOutputRoot).replace(/\\/g, '/');
+      return rel;
+    }
+
+    return '';
+  }
+
+  private withDocIdPrefix(id: string): string {
+    if (!this.docIdPrefix) {
+      return id;
+    }
+    return `${this.docIdPrefix}/${id}`;
   }
 
   private parseFrontMatter(content: string): {
@@ -133,6 +172,84 @@ export class DocusaurusAdapter {
     return `${frontMatterLines.join('\n')}\n\n${content}`;
   }
 
+  private mergeSidebarContent(
+    content: string,
+    sidebarItems: SidebarItem[],
+    options: {
+      targetKey: string;
+      insertPosition: 'replace' | 'append' | 'prepend' | 'before' | 'after';
+      insertReference?: string;
+    }
+  ): string | null {
+    const markerStart = '// <graphql-docs-sidebar>';
+    const markerEnd = '// </graphql-docs-sidebar>';
+    const cleaned = content.replace(
+      new RegExp(`${markerStart}[\\s\\S]*?${markerEnd}\\n?`, 'g'),
+      ''
+    );
+
+    let mergedContent = cleaned;
+    let targetExpr: string | null = null;
+
+    if (cleaned.includes('module.exports')) {
+      targetExpr = 'module.exports';
+    } else {
+      const exportMatch = cleaned.match(/export\\s+default\\s+([A-Za-z0-9_$]+)\\s*;?/);
+      if (exportMatch) {
+        targetExpr = exportMatch[1];
+      } else if (cleaned.match(/export\\s+default\\s*\\{/)) {
+        const replacement = cleaned.replace(/export\\s+default\\s*\\{/, 'const __gqlSidebars = {');
+        mergedContent = replacement;
+        if (!replacement.includes('export default __gqlSidebars')) {
+          mergedContent = `${replacement}\n\nexport default __gqlSidebars;\n`;
+        }
+        targetExpr = '__gqlSidebars';
+      }
+    }
+
+    if (!targetExpr) {
+      return null;
+    }
+
+    const itemsLiteral = JSON.stringify(sidebarItems, null, 2);
+    const mergeOptions = {
+      mode: options.insertPosition,
+      reference: options.insertReference ?? '',
+    };
+    const targetKeyLiteral = JSON.stringify(options.targetKey);
+    const mergeBlock = [
+      markerStart,
+      `const __gqlDocsItems = ${itemsLiteral};`,
+      `const __gqlDocsTargetKey = ${targetKeyLiteral};`,
+      `const __gqlDocsMerge = (items, insert, opts) => {`,
+      `  const list = Array.isArray(items) ? items.slice() : [];`,
+      `  const mode = opts?.mode ?? 'replace';`,
+      `  if (mode === 'replace') return insert;`,
+      `  if (mode === 'append') return [...list, ...insert];`,
+      `  if (mode === 'prepend') return [...insert, ...list];`,
+      `  const reference = opts?.reference;`,
+      `  if (!reference) return [...list, ...insert];`,
+      `  const findIndex = (item) => {`,
+      `    if (typeof item === 'string') return item === reference;`,
+      `    if (item && typeof item === 'object') {`,
+      `      return item.label === reference || item.id === reference || item.value === reference;`,
+      `    }`,
+      `    return false;`,
+      `  };`,
+      `  const index = list.findIndex(findIndex);`,
+      `  if (index === -1) return [...list, ...insert];`,
+      `  const insertIndex = mode === 'before' ? index : index + 1;`,
+      `  return [...list.slice(0, insertIndex), ...insert, ...list.slice(insertIndex)];`,
+      `};`,
+      `${targetExpr}[__gqlDocsTargetKey] = __gqlDocsMerge(` +
+        `${targetExpr}[__gqlDocsTargetKey], __gqlDocsItems, ${JSON.stringify(mergeOptions)});`,
+      markerEnd,
+      '',
+    ].join('\n');
+
+    return `${mergedContent.replace(/\s*$/, '')}\n\n${mergeBlock}`;
+  }
+
   private buildIntroDocs(): {
     files: GeneratedFile[];
     sidebarItems: SidebarItem[];
@@ -157,8 +274,9 @@ export class DocusaurusAdapter {
       const outputPath = outputPathRaw.endsWith(sourceExt)
         ? outputPathRaw
         : `${outputPathRaw}${sourceExt}`;
-      const docId =
+      const rawId =
         doc.id ?? frontMatter?.id ?? outputPath.replace(/\.[^/.]+$/, '').replace(/\\/g, '/');
+      const docId = this.withDocIdPrefix(rawId);
       const label =
         doc.label ?? frontMatter?.sidebar_label ?? frontMatter?.title ?? docId.split('/').pop()!;
 
@@ -356,7 +474,7 @@ export class DocusaurusAdapter {
     files.push(...this.generateTypeFiles(model.types));
 
     if (this.config.generateSidebar !== false) {
-      // Generate sidebars.js or sidebars.api.js
+      // Generate or merge sidebars configuration.
       let sidebarItems = this.sidebarGenerator.generate(model);
       if (introDocs.sidebarItems.length > 0) {
         sidebarItems = [
@@ -367,30 +485,84 @@ export class DocusaurusAdapter {
       }
 
       const customSidebarFile = this.config.sidebarFile;
-      if (customSidebarFile) {
-        const useArrayExport = customSidebarFile.endsWith('.api.js');
-        const content = useArrayExport
-          ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
-          : `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`;
+      const targetKey = this.config.sidebarTarget ?? 'apiSidebar';
+      const insertPosition = this.config.sidebarInsertPosition ?? 'replace';
+      const insertReference = this.config.sidebarInsertReference;
+      const shouldMerge = this.config.sidebarMerge !== false;
+      const outputRoot = this.config.outputDir ?? this.config.outputPath ?? process.cwd();
+
+      const writeSidebarFile = (filePath: string, content: string, absolutePath?: string) => {
         files.push({
-          path: customSidebarFile,
+          path: filePath,
           content,
           type: 'js',
+          ...(absolutePath ? { absolutePath } : {}),
         });
+      };
+
+      if (customSidebarFile) {
+        const useArrayExport = customSidebarFile.endsWith('.api.js');
+        const isAbsolute = path.isAbsolute(customSidebarFile);
+        const resolvedSidebarPath = isAbsolute
+          ? customSidebarFile
+          : path.join(outputRoot, customSidebarFile);
+
+        if (shouldMerge && !useArrayExport && fs.existsSync(resolvedSidebarPath)) {
+          const existing = fs.readFileSync(resolvedSidebarPath, 'utf-8');
+          const merged = this.mergeSidebarContent(existing, sidebarItems, {
+            targetKey,
+            insertPosition,
+            insertReference,
+          });
+          if (merged) {
+            writeSidebarFile(
+              customSidebarFile,
+              merged,
+              isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
+                ? resolvedSidebarPath
+                : undefined
+            );
+            return files;
+          }
+        }
+
+        const content = useArrayExport
+          ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
+          : `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`;
+        writeSidebarFile(
+          customSidebarFile,
+          content,
+          isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
+            ? resolvedSidebarPath
+            : undefined
+        );
       } else {
-        const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
-        if (fs.existsSync(sidebarsPath)) {
-          files.push({
-            path: 'sidebars.api.js',
-            content: `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`,
-            type: 'js',
+        const sidebarsPath = path.join(outputRoot, 'sidebars.js');
+        if (shouldMerge && fs.existsSync(sidebarsPath)) {
+          const existing = fs.readFileSync(sidebarsPath, 'utf-8');
+          const merged = this.mergeSidebarContent(existing, sidebarItems, {
+            targetKey,
+            insertPosition,
+            insertReference,
           });
+          if (merged) {
+            writeSidebarFile('sidebars.js', merged);
+          } else {
+            writeSidebarFile(
+              'sidebars.js',
+              `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`
+            );
+          }
+        } else if (fs.existsSync(sidebarsPath)) {
+          writeSidebarFile(
+            'sidebars.api.js',
+            `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
+          );
         } else {
-          files.push({
-            path: 'sidebars.js',
-            content: `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`,
-            type: 'js',
-          });
+          writeSidebarFile(
+            'sidebars.js',
+            `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`
+          );
         }
       }
     }
@@ -439,6 +611,7 @@ export class DocusaurusAdapter {
       operationEntries.map(({ op }) => ({ name: op.name, operationType: op.operationType }))
     );
     const imports = [
+      `import { OperationView, TypeDefinitionView } from '@graphql-docs/generator/components';`,
       `import operationsByType from '${this.getRelativeImportPath(
         `${docId}.mdx`,
         OPERATIONS_DATA_FILE
@@ -489,30 +662,94 @@ export class DocusaurusAdapter {
       }
 
       const customSidebarFile = this.config.sidebarFile;
-      if (customSidebarFile) {
-        const useArrayExport = customSidebarFile.endsWith('.api.js');
-        const content = useArrayExport
-          ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
-          : `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`;
+      const targetKey = this.config.sidebarTarget ?? 'apiSidebar';
+      const insertPosition = this.config.sidebarInsertPosition ?? 'replace';
+      const insertReference = this.config.sidebarInsertReference;
+      const shouldMerge = this.config.sidebarMerge !== false;
+      const outputRoot = this.config.outputDir ?? this.config.outputPath ?? process.cwd();
+
+      const writeSidebarFile = (filePath: string, content: string, absolutePath?: string) => {
         files.push({
-          path: customSidebarFile,
+          path: filePath,
           content,
           type: 'js',
+          ...(absolutePath ? { absolutePath } : {}),
         });
-      } else {
-        const sidebarsPath = path.join(this.config.outputPath || process.cwd(), 'sidebars.js');
-        if (fs.existsSync(sidebarsPath)) {
-          files.push({
-            path: 'sidebars.api.js',
-            content: `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`,
-            type: 'js',
+      };
+
+      if (customSidebarFile) {
+        const useArrayExport = customSidebarFile.endsWith('.api.js');
+        const isAbsolute = path.isAbsolute(customSidebarFile);
+        const resolvedSidebarPath = isAbsolute
+          ? customSidebarFile
+          : path.join(outputRoot, customSidebarFile);
+
+        if (shouldMerge && !useArrayExport && fs.existsSync(resolvedSidebarPath)) {
+          const existing = fs.readFileSync(resolvedSidebarPath, 'utf-8');
+          const merged = this.mergeSidebarContent(existing, sidebarItems, {
+            targetKey,
+            insertPosition,
+            insertReference,
           });
+          if (merged) {
+            writeSidebarFile(
+              customSidebarFile,
+              merged,
+              isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
+                ? resolvedSidebarPath
+                : undefined
+            );
+          } else {
+            const content = useArrayExport
+              ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
+              : `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`;
+            writeSidebarFile(
+              customSidebarFile,
+              content,
+              isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
+                ? resolvedSidebarPath
+                : undefined
+            );
+          }
         } else {
-          files.push({
-            path: 'sidebars.js',
-            content: `module.exports = ${JSON.stringify({ apiSidebar: sidebarItems }, null, 2)};`,
-            type: 'js',
+          const content = useArrayExport
+            ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
+            : `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`;
+          writeSidebarFile(
+            customSidebarFile,
+            content,
+            isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
+              ? resolvedSidebarPath
+              : undefined
+          );
+        }
+      } else {
+        const sidebarsPath = path.join(outputRoot, 'sidebars.js');
+        if (shouldMerge && fs.existsSync(sidebarsPath)) {
+          const existing = fs.readFileSync(sidebarsPath, 'utf-8');
+          const merged = this.mergeSidebarContent(existing, sidebarItems, {
+            targetKey,
+            insertPosition,
+            insertReference,
           });
+          if (merged) {
+            writeSidebarFile('sidebars.js', merged);
+          } else {
+            writeSidebarFile(
+              'sidebars.js',
+              `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`
+            );
+          }
+        } else if (fs.existsSync(sidebarsPath)) {
+          writeSidebarFile(
+            'sidebars.api.js',
+            `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
+          );
+        } else {
+          writeSidebarFile(
+            'sidebars.js',
+            `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`
+          );
         }
       }
     }
@@ -644,6 +881,7 @@ export class DocusaurusAdapter {
     const frontMatter = this.generateFrontMatter(op);
     const imports = options.mdxPath
       ? [
+          `import { OperationView } from '@graphql-docs/generator/components';`,
           `import operationsByType from '${this.getRelativeImportPath(
             options.mdxPath,
             OPERATIONS_DATA_FILE
@@ -794,6 +1032,7 @@ export class DocusaurusAdapter {
     const frontMatter = this.generateTypeFrontMatter(type);
     const imports = options.mdxPath
       ? [
+          `import { TypeDefinitionView } from '@graphql-docs/generator/components';`,
           `import typesByName from '${this.getRelativeImportPath(
             options.mdxPath,
             TYPES_DATA_FILE

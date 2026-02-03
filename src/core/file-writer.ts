@@ -10,15 +10,17 @@ export class FileWriter {
     const normalizedOutputDir = path.normalize(path.resolve(this.outputDir));
 
     for (const file of files) {
-      const filePath = path.join(this.outputDir, file.path);
+      const filePath = file.absolutePath ?? path.join(this.outputDir, file.path);
       const normalizedPath = path.normalize(path.resolve(filePath));
 
-      // Validate path stays within output directory
-      if (
-        !normalizedPath.startsWith(normalizedOutputDir + path.sep) &&
-        normalizedPath !== normalizedOutputDir
-      ) {
-        throw new Error(`Path traversal attempt detected: ${file.path}`);
+      if (!file.absolutePath) {
+        // Validate path stays within output directory
+        if (
+          !normalizedPath.startsWith(normalizedOutputDir + path.sep) &&
+          normalizedPath !== normalizedOutputDir
+        ) {
+          throw new Error(`Path traversal attempt detected: ${file.path}`);
+        }
       }
 
       await fs.ensureDir(path.dirname(filePath));

@@ -15,7 +15,10 @@ export interface GenerateOptions {
 /**
  * Resolve schema pointer from options or graphql-config
  */
-async function resolveSchemaPointer(options: GenerateOptions, targetDir: string): Promise<string> {
+async function resolveSchemaPointer(
+  options: GenerateOptions,
+  targetDir: string
+): Promise<string | string[]> {
   // 1. CLI option takes priority
   if (options.schema) {
     return options.schema;
@@ -31,11 +34,15 @@ async function resolveSchemaPointer(options: GenerateOptions, targetDir: string)
       if (typeof schemaFromConfig === 'string') {
         console.log(chalk.dim(`Using schema from .graphqlrc: ${schemaFromConfig}`));
         return schemaFromConfig;
-      } else if (Array.isArray(schemaFromConfig) && schemaFromConfig.length > 0) {
-        const firstSchema = schemaFromConfig[0];
-        if (typeof firstSchema === 'string') {
-          console.log(chalk.dim(`Using schema from .graphqlrc: ${firstSchema}`));
-          return firstSchema;
+      }
+
+      if (Array.isArray(schemaFromConfig)) {
+        const stringSchemas = schemaFromConfig.filter(
+          (pointer): pointer is string => typeof pointer === 'string'
+        );
+        if (stringSchemas.length > 0) {
+          console.log(chalk.dim(`Using schema from .graphqlrc: ${stringSchemas.join(', ')}`));
+          return stringSchemas;
         }
       }
     }
@@ -83,6 +90,11 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
   if (!path.isAbsolute(config.metadataDir)) {
     config.metadataDir = path.resolve(targetDir, config.metadataDir);
   }
+  if (config.schemaExtensions && config.schemaExtensions.length > 0) {
+    config.schemaExtensions = config.schemaExtensions.map((extension) =>
+      path.isAbsolute(extension) ? extension : path.resolve(targetDir, extension)
+    );
+  }
   if (config.introDocs && config.introDocs.length > 0) {
     config.introDocs = config.introDocs.map((doc) => {
       if (typeof doc === 'string') {
@@ -95,13 +107,13 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
 
   // Resolve schema pointer
   const schemaPointer = await resolveSchemaPointer(options, targetDir);
-
-  // Resolve schema path relative to targetDir if not absolute
-  const isRemoteSchema = /^https?:\/\//i.test(schemaPointer);
-  const resolvedSchemaPath =
-    isRemoteSchema || path.isAbsolute(schemaPointer)
-      ? schemaPointer
-      : path.resolve(targetDir, schemaPointer);
+  const resolvePointer = (pointer: string) => {
+    const isRemoteSchema = /^https?:\/\//i.test(pointer);
+    return isRemoteSchema || path.isAbsolute(pointer) ? pointer : path.resolve(targetDir, pointer);
+  };
+  const resolvedSchemaPath = Array.isArray(schemaPointer)
+    ? schemaPointer.map(resolvePointer)
+    : resolvePointer(schemaPointer);
 
   // Generate documentation
   const generateSpinner = ora('Generating documentation...').start();

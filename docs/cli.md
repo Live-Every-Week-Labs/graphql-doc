@@ -147,7 +147,6 @@ GraphQL Docs Validator
 
 ✔ Schema syntax valid (5 operations found)
 ✔ Example files valid (3 operations documented)
-✔ Error files valid
 ✔ Cross-validation passed
 
 Summary:
@@ -218,4 +217,9 @@ extensions:
     outputDir: ./docs/api
     framework: docusaurus
     metadataDir: ./docs-metadata
+    schemaExtensions:
+      - ./schema/framework-stubs.graphql
 ```
+
+`schema` in `.graphqlrc` can be a single file or an array of SDL files. When using multiple files,
+the generator loads them together and merges any `schemaExtensions`.

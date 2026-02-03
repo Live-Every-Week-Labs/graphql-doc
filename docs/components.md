@@ -34,6 +34,7 @@ The generator emits MDX that imports shared JSON maps and renders components:
 api: true
 ---
 
+import { OperationView } from '@graphql-docs/generator/components';
 import operationsByType from '../_data/operations.json';
 import typesByName from '../_data/types.json';
 
@@ -88,7 +89,12 @@ export default function LayoutWrapper(props) {
 }
 ```
 
-2. **Register MDX Components**
+2. **(Optional) Register MDX Components**
+
+The Docusaurus adapter now emits explicit imports for `OperationView` and
+`TypeDefinitionView` in generated MDX, so the core pages will work without
+theme overrides. Use this step only if you want to reference the component
+library in your own MDX docs or override the defaults.
 
 `src/theme/MDXComponents.tsx`:
 

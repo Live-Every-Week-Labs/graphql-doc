@@ -11,11 +11,13 @@ import { FileWriter } from './file-writer';
 export class Generator {
   constructor(private config: Config) {}
 
-  async generate(schemaPointer: string) {
-    console.log(`Loading schema from ${schemaPointer}...`);
+  async generate(schemaPointer: string | string[]) {
+    const schemaLabel = Array.isArray(schemaPointer) ? schemaPointer.join(', ') : schemaPointer;
+    console.log(`Loading schema from ${schemaLabel}...`);
     const schemaLoader = new SchemaLoader();
     const schema = await schemaLoader.load({
       schemaPointer,
+      schemaExtensions: this.config.schemaExtensions,
       allowRemoteSchema: this.config.allowRemoteSchema,
     });
 

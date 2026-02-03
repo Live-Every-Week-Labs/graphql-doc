@@ -13,7 +13,7 @@ The `DocusaurusAdapter` converts the internal model into a file structure and co
 3.  **Content Generation**: Uses `MdxRenderer` to generate component-based MDX.
 4.  **Shared Data Files**: Emits `_data/operations.json` and `_data/types.json` so MDX files import shared maps instead of inlining payloads.
 5.  **Navigation**: Generates `_category_.json` files to control the Docusaurus sidebar structure and ordering.
-6.  **Sidebar Generation**: Automatically generates a `sidebars.js` file (or `sidebars.api.js` if one already exists) to provide a complete navigation structure for the API documentation.
+6.  **Sidebar Generation**: Merges into an existing `sidebars.js` by default (updates `apiSidebar`) or generates a new `sidebars.js` if none exists. Can be configured to emit a separate file instead.
 7.  **Intro Docs & Section Headers**: Prepends configurable intro docs and optional section headers to the API sidebar.
 
 ### Usage
@@ -37,9 +37,11 @@ const files = adapter.adapt(docModel);
 The adapter intelligently handles existing `sidebars.js` files:
 
 - **No existing sidebar**: Generates `sidebars.js` exporting the API sidebar.
-- **Existing sidebar**: Generates `sidebars.api.js` exporting only the API sidebar items.
+- **Existing sidebar (default)**: Merges into `sidebars.js` and updates the `apiSidebar` key.
+- **Separate file**: Set `sidebarMerge: false` (or `sidebarFile: './sidebars.api.js'`) to emit a
+  standalone sidebar array you can import manually.
 
-Users can then import the generated sidebar into their main configuration:
+If you generate a separate file, import it into your main configuration:
 
 ```javascript
 // sidebars.js

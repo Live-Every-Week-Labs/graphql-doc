@@ -40,86 +40,78 @@ export class SchemaValidator {
    * @param schemaPath Path to the GraphQL schema file
    * @returns Validation result with errors, warnings, and operation names
    */
-  async validate(schemaPath: string): Promise<SchemaValidationResult> {
+  async validate(schemaPath: string | string[]): Promise<SchemaValidationResult> {
     const errors: ValidationError[] = [];
     const warnings: ValidationError[] = [];
-    const operationNames: string[] = [];
+    const operationNames = new Set<string>();
 
-    // Check if file exists
-    if (!(await fs.pathExists(schemaPath))) {
-      errors.push({
-        file: schemaPath,
-        message: `Schema file not found: ${schemaPath}`,
-        severity: 'error',
-        code: 'SCHEMA_NOT_FOUND',
-      });
-      return {
-        valid: false,
-        errors,
-        warnings,
-        operationNames,
-      };
-    }
+    const schemaPaths = Array.isArray(schemaPath) ? schemaPath : [schemaPath];
 
-    // Read schema file
-    let sdl: string;
-    try {
-      sdl = await fs.readFile(schemaPath, 'utf-8');
-    } catch (error) {
-      errors.push({
-        file: schemaPath,
-        message: `Failed to read schema file: ${(error as Error).message}`,
-        severity: 'error',
-        code: 'SCHEMA_LOAD_ERROR',
-      });
-      return {
-        valid: false,
-        errors,
-        warnings,
-        operationNames,
-      };
-    }
+    for (const pathEntry of schemaPaths) {
+      // Check if file exists
+      if (!(await fs.pathExists(pathEntry))) {
+        errors.push({
+          file: pathEntry,
+          message: `Schema file not found: ${pathEntry}`,
+          severity: 'error',
+          code: 'SCHEMA_NOT_FOUND',
+        });
+        continue;
+      }
 
-    // Parse SDL to AST
-    let document: DocumentNode;
-    try {
-      document = parse(sdl);
-    } catch (error) {
-      const gqlError = error as GraphQLError;
-      errors.push({
-        file: schemaPath,
-        line: gqlError.locations?.[0]?.line,
-        column: gqlError.locations?.[0]?.column,
-        message: gqlError.message,
-        severity: 'error',
-        code: 'SCHEMA_PARSE_ERROR',
-      });
-      return {
-        valid: false,
-        errors,
-        warnings,
-        operationNames,
-      };
-    }
+      // Read schema file
+      let sdl: string;
+      try {
+        sdl = await fs.readFile(pathEntry, 'utf-8');
+      } catch (error) {
+        errors.push({
+          file: pathEntry,
+          message: `Failed to read schema file: ${(error as Error).message}`,
+          severity: 'error',
+          code: 'SCHEMA_LOAD_ERROR',
+        });
+        continue;
+      }
 
-    // Extract operation types and validate directives
-    for (const definition of document.definitions) {
-      if (definition.kind === 'ObjectTypeDefinition' || definition.kind === 'ObjectTypeExtension') {
-        const typeDef = definition as ObjectTypeDefinitionNode | ObjectTypeExtensionNode;
-        const typeName = typeDef.name.value;
+      // Parse SDL to AST
+      let document: DocumentNode;
+      try {
+        document = parse(sdl);
+      } catch (error) {
+        const gqlError = error as GraphQLError;
+        errors.push({
+          file: pathEntry,
+          line: gqlError.locations?.[0]?.line,
+          column: gqlError.locations?.[0]?.column,
+          message: gqlError.message,
+          severity: 'error',
+          code: 'SCHEMA_PARSE_ERROR',
+        });
+        continue;
+      }
 
-        // Check if this is a root operation type
-        const isRootType = ['Query', 'Mutation', 'Subscription'].includes(typeName);
+      // Extract operation types and validate directives
+      for (const definition of document.definitions) {
+        if (
+          definition.kind === 'ObjectTypeDefinition' ||
+          definition.kind === 'ObjectTypeExtension'
+        ) {
+          const typeDef = definition as ObjectTypeDefinitionNode | ObjectTypeExtensionNode;
+          const typeName = typeDef.name.value;
 
-        if (isRootType && typeDef.fields) {
-          for (const field of typeDef.fields) {
-            // Collect operation names
-            operationNames.push(field.name.value);
+          // Check if this is a root operation type
+          const isRootType = ['Query', 'Mutation', 'Subscription'].includes(typeName);
 
-            // Validate directives on this field
-            const directiveErrors = this.validateFieldDirectives(field, schemaPath);
-            errors.push(...directiveErrors.errors);
-            warnings.push(...directiveErrors.warnings);
+          if (isRootType && typeDef.fields) {
+            for (const field of typeDef.fields) {
+              // Collect operation names
+              operationNames.add(field.name.value);
+
+              // Validate directives on this field
+              const directiveErrors = this.validateFieldDirectives(field, pathEntry);
+              errors.push(...directiveErrors.errors);
+              warnings.push(...directiveErrors.warnings);
+            }
           }
         }
       }
@@ -129,7 +121,7 @@ export class SchemaValidator {
       valid: errors.length === 0,
       errors,
       warnings,
-      operationNames,
+      operationNames: Array.from(operationNames),
     };
   }
 

@@ -6,6 +6,16 @@ export const ConfigSchema = z.object({
   singlePage: z.boolean().default(false),
   metadataDir: z.string().default('./docs-metadata'),
   examplesDir: z.string().optional(),
+  docsRoot: z.string().default('./docs'),
+  docIdPrefix: z.string().optional(),
+  schemaExtensions: z
+    .preprocess((value) => {
+      if (typeof value === 'string') {
+        return [value];
+      }
+      return value;
+    }, z.array(z.string()))
+    .default([]),
   allowRemoteSchema: z.boolean().default(false),
   unsafeMdxDescriptions: z.boolean().default(false),
   includeDeprecated: z.boolean().default(true),
@@ -19,6 +29,12 @@ export const ConfigSchema = z.object({
     }, z.array(z.string()))
     .default([]),
   sidebarCategoryIndex: z.boolean().default(false),
+  sidebarMerge: z.boolean().default(true),
+  sidebarTarget: z.string().default('apiSidebar'),
+  sidebarInsertPosition: z
+    .enum(['replace', 'append', 'prepend', 'before', 'after'])
+    .default('replace'),
+  sidebarInsertReference: z.string().optional(),
   sidebarSectionLabels: z
     .object({
       operations: z.string().optional(),

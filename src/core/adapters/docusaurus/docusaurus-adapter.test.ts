@@ -78,17 +78,22 @@ describe('DocusaurusAdapter', () => {
     expect(sidebarFile?.content).toContain('apiSidebar');
   });
 
-  it('generates sidebars.api.js when sidebar file exists', () => {
+  it('merges into sidebars.js when sidebar file exists', () => {
     fsMock.existsSync.mockReturnValue(true);
+    fsMock.readFileSync.mockReturnValue(
+      'const sidebars = { apiSidebar: [], docs: [] };\nmodule.exports = sidebars;\n'
+    );
     const adapter = new DocusaurusAdapter();
     const files = adapter.adapt(mockModel);
 
-    const sidebarFile = files.find((f) => f.path === 'sidebars.api.js');
+    const sidebarFile = files.find((f) => f.path === 'sidebars.js');
     expect(sidebarFile).toBeDefined();
-    expect(sidebarFile?.content).not.toContain('apiSidebar'); // Should be just the array
+    expect(sidebarFile?.content).toContain('// <graphql-docs-sidebar>');
+    expect(sidebarFile?.content).toContain('__gqlDocsTargetKey');
+    expect(sidebarFile?.content).toContain('module.exports[__gqlDocsTargetKey]');
 
-    const mainSidebar = files.find((f) => f.path === 'sidebars.js');
-    expect(mainSidebar).toBeUndefined();
+    const apiSidebarFile = files.find((f) => f.path === 'sidebars.api.js');
+    expect(apiSidebarFile).toBeUndefined();
   });
 
   it('generates correct front matter', () => {
@@ -134,6 +139,9 @@ describe('DocusaurusAdapter', () => {
     expect(files.find((f) => f.path === '_data/types.json')).toBeDefined();
 
     const mdxFile = files.find((f) => f.path === 'users/get-user.mdx');
+    expect(mdxFile?.content).toContain(
+      "import { OperationView } from '@graphql-docs/generator/components'"
+    );
     expect(mdxFile?.content).toContain("import operationsByType from '../_data/operations.json'");
     expect(mdxFile?.content).toContain("import typesByName from '../_data/types.json'");
     expect(mdxFile?.content).toContain('export const examplesByOperation');

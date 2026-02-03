@@ -7,7 +7,11 @@ export interface SchemaLoaderOptions {
   /**
    * Path to the schema file or URL
    */
-  schemaPointer: string;
+  schemaPointer: string | string[];
+  /**
+   * Extra SDL files to merge into the schema (framework scalars/directives).
+   */
+  schemaExtensions?: string[];
   /**
    * Optional headers for URL loading
    */
@@ -25,13 +29,19 @@ export class SchemaLoader {
    */
   async load(options: SchemaLoaderOptions): Promise<GraphQLSchema> {
     try {
-      const isRemote = /^https?:\/\//i.test(options.schemaPointer);
-      if (isRemote && !options.allowRemoteSchema) {
+      const basePointers = Array.isArray(options.schemaPointer)
+        ? options.schemaPointer
+        : [options.schemaPointer];
+      const extensionPointers = options.schemaExtensions ?? [];
+      const pointers = [...extensionPointers, ...basePointers];
+
+      const hasRemote = pointers.some((pointer) => /^https?:\/\//i.test(pointer));
+      if (hasRemote && !options.allowRemoteSchema) {
         throw new Error(
           'Remote schema loading is disabled. Set allowRemoteSchema: true in config to enable.'
         );
       }
-      const schema = await loadSchema(options.schemaPointer, {
+      const schema = await loadSchema(pointers, {
         loaders: [new GraphQLFileLoader(), new UrlLoader()],
         headers: options.headers,
       });

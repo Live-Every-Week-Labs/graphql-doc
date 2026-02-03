@@ -98,6 +98,8 @@ extensions:
     outputDir: ./docs/api
     framework: docusaurus
     metadataDir: ./docs-metadata
+    schemaExtensions:
+      - ./schema/framework-stubs.graphql
 ````
 
 Then simply run:
@@ -138,9 +140,10 @@ extensions:
 
 1. Generate the documentation into your Docusaurus `docs` folder or a subdirectory.
 
-2. The generator will create `sidebars.js` (or `sidebars.api.js` if `sidebars.js` exists).
+2. If you already have `sidebars.js`, the generator will merge into it by default (updating
+   `apiSidebar` and preserving any other sidebars).
 
-3. If `sidebars.api.js` is generated, import it into your main `sidebars.js`:
+3. If you prefer a separate sidebar file, disable merging and import the result:
 
 ```javascript
 // sidebars.js
@@ -150,6 +153,14 @@ module.exports = {
   ...apiSidebar,
   myOtherSidebar: [ ... ],
 };
+```
+
+```yaml
+# .graphqlrc
+extensions:
+  graphql-docs:
+    sidebarMerge: false
+    sidebarFile: ./sidebars.api.js
 ```
 
 ## Organizing Your Documentation

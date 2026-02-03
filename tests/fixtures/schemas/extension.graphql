@@ -1,0 +1,5 @@
+"""Framework scalar used by schema."""
+scalar CustomDate
+
+"""Framework directive used by schema."""
+directive @customDirective on FIELD_DEFINITION | OBJECT

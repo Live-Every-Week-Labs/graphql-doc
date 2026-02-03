@@ -24,6 +24,7 @@ export interface SidebarGeneratorConfig {
     operations?: string;
     types?: string;
   };
+  docIdPrefix?: string;
 }
 
 export class SidebarGenerator {
@@ -31,6 +32,18 @@ export class SidebarGenerator {
 
   constructor(config: SidebarGeneratorConfig = {}) {
     this.config = config;
+  }
+
+  private getDocIdPrefix(): string {
+    const prefix = this.config.docIdPrefix;
+    if (!prefix) return '';
+    return prefix.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+  }
+
+  private withDocIdPrefix(id: string): string {
+    const prefix = this.getDocIdPrefix();
+    if (!prefix) return id;
+    return `${prefix}/${id}`;
   }
 
   generate(model: DocModel): SidebarItem[] {
@@ -237,7 +250,7 @@ export class SidebarGenerator {
     const opSlug = slugify(operation.name);
     return {
       type: 'doc',
-      id: `${parentPath}/${opSlug}`,
+      id: this.withDocIdPrefix(`${parentPath}/${opSlug}`),
       label: operation.name,
     };
   }
@@ -278,7 +291,7 @@ export class SidebarGenerator {
       label,
       items: types.map((type) => ({
         type: 'doc',
-        id: `${parentPath}/${slugify((type as { name: string }).name)}`,
+        id: this.withDocIdPrefix(`${parentPath}/${slugify((type as { name: string }).name)}`),
         label: (type as { name: string }).name,
       })),
       collapsible: true,

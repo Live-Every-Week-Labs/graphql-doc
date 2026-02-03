@@ -16,11 +16,18 @@ The `src/core/config` module handles configuration loading and validation for th
   - `singlePage`: Toggle single-page vs multi-page (default: `false`).
   - `metadataDir`: Path to external metadata (default: `./docs-metadata`).
   - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).
+  - `docsRoot`: Docusaurus docs root used for sidebar id prefixing (default: `./docs`).
+  - `docIdPrefix`: Override doc id prefix (optional).
+  - `schemaExtensions`: Extra SDL files merged into the schema for framework scalars/directives (default: `[]`).
   - `allowRemoteSchema`: Allow loading schema from remote URLs (default: `false`).
   - `unsafeMdxDescriptions`: Render schema descriptions as raw MDX (default: `false`).
   - `typeLinkMode`: Controls type name links (`none`, `deep`, `all`, default: `none`).
   - `excludeDocGroups`: Doc group names to exclude from output (string or array, default: `[]`).
   - `sidebarCategoryIndex`: When true, category labels link to a generated index page (default: `false`).
+  - `sidebarMerge`: Merge into an existing sidebar file when present (default: `true`).
+  - `sidebarTarget`: Sidebar key to update when merging (default: `apiSidebar`).
+  - `sidebarInsertPosition`: Insert behavior (`replace`, `append`, `prepend`, `before`, `after`, default: `replace`).
+  - `sidebarInsertReference`: Label/id/value to insert before/after (optional).
   - `sidebarSectionLabels`: Sidebar section header labels (default: `Operations`/`Types`).
   - `introDocs`: MD/MDX files to prepend to the API sidebar (default: `[]`).
   - `typeExpansion`: Settings for type depth and circular references.
