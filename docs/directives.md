@@ -4,12 +4,12 @@ The GraphQL Documentation Generator provides custom directives to control how yo
 
 ## Overview
 
-| Directive      | Purpose                                   |
-| :------------- | :---------------------------------------- |
-| `@docGroup`    | Group operations into logical sections    |
-| `@docPriority` | Control ordering within a section         |
-| `@docTags`     | Add tags for filtering and categorization |
-| `@docIgnore`   | Exclude fields/types from generated docs  |
+| Directive      | Purpose                                             |
+| :------------- | :-------------------------------------------------- |
+| `@docGroup`    | Group operations into logical sections              |
+| `@docPriority` | Control ordering within a section                   |
+| `@docTags`     | Add tags for filtering and categorization           |
+| `@docIgnore`   | Exclude operations/fields/types from generated docs |
 
 ## @docGroup
 
@@ -202,8 +202,8 @@ Tags are included in the generated MDX front matter and can be used for:
 
 ## @docIgnore
 
-Exclude items from generated documentation. This is useful for hiding fields, arguments, or entire
-types without changing your schema.
+Exclude items from generated documentation. This is useful for hiding operations, fields, arguments,
+or entire types without changing your schema.
 
 ### Syntax
 
@@ -219,6 +219,14 @@ Hide a field on an object type:
 type Transaction {
   id: ID!
   device_id: String @docIgnore
+}
+```
+
+Hide an operation (query/mutation/subscription):
+
+```graphql
+type Query {
+  internalMetrics: Metrics @docIgnore
 }
 ```
 
