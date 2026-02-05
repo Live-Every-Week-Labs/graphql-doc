@@ -2,11 +2,13 @@ import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
 import { loadGeneratorConfig, resolveConfigPaths } from '../../core/config/loader.js';
+import { getExamplePatterns } from '../../core/metadata/example-sources.js';
+import { loadExamples } from '../../core/metadata/example-loader.js';
 import {
   SchemaValidator,
   MetadataValidator,
   ValidationError,
-  ValidationResult,
+  validateOperationExampleCoverage,
 } from '../../core/validation/index.js';
 
 export interface ValidateOptions {
@@ -14,20 +16,6 @@ export interface ValidateOptions {
   config?: string;
   strict?: boolean;
   targetDir?: string; // For testing - defaults to process.cwd()
-}
-
-/**
- * Format a validation error for display
- */
-function formatError(error: ValidationError): string {
-  let location = '';
-  if (error.line !== undefined) {
-    location =
-      error.column !== undefined
-        ? ` (line ${error.line}, col ${error.column})`
-        : ` (line ${error.line})`;
-  }
-  return `${error.file}${location}: ${error.message}`;
 }
 
 /**
@@ -116,21 +104,22 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
   allWarnings.push(...schemaResult.warnings);
 
   // ===== Examples Validation =====
-  const examplesDir = config.examplesDir ?? path.join(config.metadataDir, 'examples');
-  const examplesPattern = path.join(examplesDir, '**/*.json');
-  const examplesDirDisplay = path.isAbsolute(examplesDir)
-    ? path.relative(targetDir, examplesDir) || examplesDir
-    : examplesDir;
+  const examplePatterns = getExamplePatterns(config);
+  const examplesSourceDisplay = examplePatterns
+    .map((pattern) =>
+      path.isAbsolute(pattern) ? path.relative(targetDir, pattern) || pattern : pattern
+    )
+    .join(', ');
 
   const examplesSpinner = ora('Validating example files...').start();
 
-  const examplesResult = await metadataValidator.validateExamples(examplesPattern);
+  const examplesResult = await metadataValidator.validateExamples(examplePatterns);
 
   if (examplesResult.errors.length > 0) {
     examplesSpinner.fail('Example files validation failed');
     allErrors.push(...examplesResult.errors);
   } else {
-    const fileCount = examplesResult.referencedOperations.length;
+    const fileCount = new Set(examplesResult.referencedOperations).size;
     examplesSpinner.succeed(`Example files valid (${fileCount} operations documented)`);
     examplesValid = true;
   }
@@ -146,7 +135,7 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
     // From examples - each example file references one operation
     for (const op of examplesResult.referencedOperations) {
       const existing = referencedOps.get(op) || [];
-      existing.push(`${examplesDirDisplay}/**/*.json`);
+      existing.push(examplesSourceDisplay);
       referencedOps.set(op, existing);
     }
 
@@ -163,6 +152,34 @@ export async function runValidate(options: ValidateOptions): Promise<void> {
       allWarnings.push(...crossValidationWarnings);
     } else {
       crossValidationSpinner.succeed('Cross-validation passed');
+    }
+  }
+
+  // ===== Example Coverage Validation =====
+  if (config.requireExamplesForDocumentedOperations && schemaValid && examplesValid) {
+    const coverageSpinner = ora('Validating required example coverage...').start();
+
+    try {
+      const examples = await loadExamples(examplePatterns);
+      const coverageErrors = validateOperationExampleCoverage(schemaResult.operations, examples, {
+        excludeDocGroups: config.excludeDocGroups,
+        examplesLocation: examplesSourceDisplay,
+      });
+
+      if (coverageErrors.length > 0) {
+        coverageSpinner.fail(`Missing examples for ${coverageErrors.length} operation(s)`);
+        allErrors.push(...coverageErrors);
+      } else {
+        coverageSpinner.succeed('Required example coverage passed');
+      }
+    } catch (error) {
+      coverageSpinner.fail('Required example coverage check failed');
+      allErrors.push({
+        file: examplesSourceDisplay || 'examples',
+        message: `Failed to validate required example coverage: ${(error as Error).message}`,
+        severity: 'error',
+        code: 'INVALID_JSON',
+      });
     }
   }
 

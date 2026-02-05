@@ -35,6 +35,7 @@ export type ValidationErrorCode =
   | 'INVALID_FIELD_TYPE'
   | 'INVALID_OPERATION_TYPE'
   | 'INVALID_RESPONSE'
+  | 'MISSING_OPERATION_EXAMPLE'
   // Cross-validation errors
   | 'UNKNOWN_OPERATION';
 
@@ -70,6 +71,8 @@ export interface SchemaValidationResult {
   warnings: ValidationError[];
   /** Operation names found in the schema (for cross-validation) */
   operationNames: string[];
+  /** Root operation metadata used for higher-level validation checks */
+  operations: SchemaOperationMetadata[];
 }
 
 /**
@@ -81,4 +84,14 @@ export interface MetadataValidationResult {
   warnings: ValidationError[];
   /** Operation names referenced in metadata files */
   referencedOperations: string[];
+}
+
+export interface SchemaOperationMetadata {
+  name: string;
+  directives: {
+    docIgnore?: boolean;
+    docGroup?: {
+      name: string;
+    };
+  };
 }

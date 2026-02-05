@@ -164,6 +164,35 @@ describe('SchemaValidator', () => {
       expect(result.errors).toHaveLength(0);
     });
 
+    it('captures docGroup and docIgnore metadata for operations', async () => {
+      const schemaPath = path.join(testDir, 'schema.graphql');
+      await fs.writeFile(
+        schemaPath,
+        `
+        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docIgnore on FIELD_DEFINITION
+
+        type Query {
+          users: [User] @docGroup(name: "Users")
+          internalHealth: String @docIgnore
+        }
+
+        type User {
+          id: ID!
+        }
+        `
+      );
+
+      const result = await validator.validate(schemaPath);
+      const users = result.operations.find((operation) => operation.name === 'users');
+      const internalHealth = result.operations.find(
+        (operation) => operation.name === 'internalHealth'
+      );
+
+      expect(users?.directives.docGroup?.name).toBe('Users');
+      expect(internalHealth?.directives.docIgnore).toBe(true);
+    });
+
     it('fails when @docGroup is missing required name argument', async () => {
       const schemaPath = path.join(testDir, 'schema.graphql');
       await fs.writeFile(

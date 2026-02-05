@@ -245,6 +245,29 @@ describe('validate command', () => {
       expect(mockExit).toHaveBeenCalledWith(1);
       mockExit.mockRestore();
     });
+
+    it('fails when required example coverage is enabled and documented operations are missing examples', async () => {
+      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
+
+      const configPath = path.join(testDir, 'require-examples.json');
+      await fs.writeJson(configPath, {
+        outputDir: './docs',
+        framework: 'docusaurus',
+        metadataDir: './docs-metadata',
+        requireExamplesForDocumentedOperations: true,
+      });
+
+      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+        throw new Error('process.exit called');
+      });
+
+      await expect(
+        runValidate({ config: 'require-examples.json', targetDir: testDir })
+      ).rejects.toThrow('process.exit called');
+
+      expect(mockExit).toHaveBeenCalledWith(1);
+      mockExit.mockRestore();
+    });
   });
 
   describe('cross-validation', () => {
@@ -403,6 +426,56 @@ describe('validate command', () => {
 
       await expect(
         runValidate({ config: 'custom-config.json', targetDir: testDir })
+      ).rejects.toThrow('process.exit called');
+
+      expect(mockExit).toHaveBeenCalledWith(0);
+      mockExit.mockRestore();
+    });
+
+    it('supports exampleFiles arrays from config', async () => {
+      const schemaPath = path.join(testDir, 'schema.graphql');
+      await fs.writeFile(
+        schemaPath,
+        `
+        type Query {
+          getUser: String
+        }
+        `
+      );
+
+      await fs.ensureDir(path.join(testDir, 'metadata-a'));
+      await fs.ensureDir(path.join(testDir, 'metadata-b'));
+
+      await fs.writeJson(path.join(testDir, 'metadata-a', 'queries.json'), {
+        operation: 'getUser',
+        operationType: 'query',
+        examples: [
+          {
+            name: 'Example',
+            query: 'query { getUser }',
+            response: {
+              type: 'success',
+              httpStatus: 200,
+              body: {},
+            },
+          },
+        ],
+      });
+
+      const configPath = path.join(testDir, 'custom-examples-config.json');
+      await fs.writeJson(configPath, {
+        outputDir: './docs',
+        framework: 'docusaurus',
+        metadataDir: './docs-metadata',
+        exampleFiles: ['./metadata-a/*.json', './metadata-b/*.json'],
+      });
+
+      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+        throw new Error('process.exit called');
+      });
+
+      await expect(
+        runValidate({ config: 'custom-examples-config.json', targetDir: testDir })
       ).rejects.toThrow('process.exit called');
 
       expect(mockExit).toHaveBeenCalledWith(0);

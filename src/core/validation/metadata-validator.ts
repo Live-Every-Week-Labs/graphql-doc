@@ -11,12 +11,12 @@ import { ValidationError, MetadataValidationResult, ValidationErrorCode } from '
 export class MetadataValidator {
   /**
    * Validate example files matching a glob pattern
-   * @param pattern Glob pattern for example files (e.g., "docs-metadata/examples/**\/*.json")
+   * @param patterns Glob pattern(s) for example files (e.g., "docs-metadata/examples/**\/*.json")
    * @returns Validation result with errors, warnings, and referenced operations
    */
-  async validateExamples(pattern: string): Promise<MetadataValidationResult> {
+  async validateExamples(patterns: string | string[]): Promise<MetadataValidationResult> {
     return this.validateFiles(
-      pattern,
+      patterns,
       ExampleFileEntrySchema,
       'example',
       (content) => [content.operation],
@@ -57,7 +57,7 @@ export class MetadataValidator {
    * Generic file validation
    */
   private async validateFiles<T extends z.ZodSchema>(
-    pattern: string,
+    patterns: string | string[],
     schema: T,
     fileType: 'example',
     extractOperations: (content: z.infer<T>) => string[],
@@ -67,19 +67,25 @@ export class MetadataValidator {
     const warnings: ValidationError[] = [];
     const referencedOperations: string[] = [];
 
-    // Find files matching pattern
-    let files: string[];
-    try {
-      files = await glob(pattern);
-    } catch (error) {
-      errors.push({
-        file: pattern,
-        message: `Failed to search for ${fileType} files: ${(error as Error).message}`,
-        severity: 'error',
-        code: 'INVALID_JSON',
-      });
-      return { valid: false, errors, warnings, referencedOperations };
+    // Find files matching pattern(s)
+    const patternList = Array.isArray(patterns) ? patterns : [patterns];
+    const allFiles: string[] = [];
+
+    for (const pattern of patternList) {
+      try {
+        const matchedFiles = await glob(pattern);
+        allFiles.push(...matchedFiles);
+      } catch (error) {
+        errors.push({
+          file: pattern,
+          message: `Failed to search for ${fileType} files: ${(error as Error).message}`,
+          severity: 'error',
+          code: 'INVALID_JSON',
+        });
+      }
     }
+
+    const files = Array.from(new Set(allFiles));
 
     // Validate each file
     for (const file of files) {

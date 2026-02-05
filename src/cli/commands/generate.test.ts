@@ -176,6 +176,56 @@ describe('generate command', () => {
 
       expect(await fs.pathExists(customOutput)).toBe(true);
     });
+
+    it('supports exampleFiles arrays in config', async () => {
+      const customConfigPath = path.join(testDir, 'custom-example-sources.json');
+      const customOutput = path.join(testDir, 'config-output');
+      const metadataA = path.join(testDir, 'metadata-a');
+      const metadataB = path.join(testDir, 'metadata-b');
+
+      await fs.ensureDir(metadataA);
+      await fs.ensureDir(metadataB);
+
+      await fs.writeJson(path.join(metadataA, 'query.json'), {
+        operation: 'getUser',
+        operationType: 'query',
+        examples: [
+          {
+            name: 'Get User',
+            query: 'query { getUser(id: "1") { id name } }',
+            response: { type: 'success', body: { data: { getUser: { id: '1', name: 'Test' } } } },
+          },
+        ],
+      });
+
+      await fs.writeJson(path.join(metadataB, 'mutation.json'), {
+        operation: 'createUser',
+        operationType: 'mutation',
+        examples: [
+          {
+            name: 'Create User',
+            query: 'mutation { createUser(name: "Test") { id } }',
+            response: { type: 'success', body: { data: { createUser: { id: '1' } } } },
+          },
+        ],
+      });
+
+      await fs.writeJson(customConfigPath, {
+        outputDir: customOutput,
+        framework: 'docusaurus',
+        metadataDir: './docs-metadata',
+        exampleFiles: ['./metadata-a/*.json', './metadata-b/*.json'],
+      });
+
+      await runGenerate({
+        schema: 'schema.graphql',
+        config: 'custom-example-sources.json',
+        targetDir: testDir,
+      });
+
+      expect(await fs.pathExists(customOutput)).toBe(true);
+      expect(await fs.pathExists(path.join(customOutput, 'sidebars.js'))).toBe(true);
+    });
   });
 
   describe('schema from graphql-config', () => {
@@ -246,6 +296,31 @@ describe('generate command', () => {
       await expect(
         runGenerate({
           config: 'invalid.json',
+          targetDir: testDir,
+        })
+      ).rejects.toThrow('process.exit called');
+
+      expect(mockExit).toHaveBeenCalledWith(1);
+      mockExit.mockRestore();
+    });
+
+    it('exits with code 1 when required example coverage is enabled and examples are missing', async () => {
+      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+        throw new Error('process.exit called');
+      });
+
+      const configPath = path.join(testDir, 'require-examples.json');
+      await fs.writeJson(configPath, {
+        outputDir: './docs/api',
+        framework: 'docusaurus',
+        metadataDir: './docs-metadata',
+        requireExamplesForDocumentedOperations: true,
+      });
+
+      await expect(
+        runGenerate({
+          config: 'require-examples.json',
+          schema: 'schema.graphql',
           targetDir: testDir,
         })
       ).rejects.toThrow('process.exit called');

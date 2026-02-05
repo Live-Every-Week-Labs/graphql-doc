@@ -68,6 +68,14 @@ export const ConfigSchema = z.object({
   framework: z.string().default('docusaurus'),
   metadataDir: z.string().default('./docs-metadata'),
   examplesDir: z.string().optional(),
+  exampleFiles: z
+    .preprocess((value) => {
+      if (typeof value === 'string') {
+        return [value];
+      }
+      return value;
+    }, z.array(z.string()))
+    .optional(),
   schemaExtensions: z
     .preprocess((value) => {
       if (typeof value === 'string') {
@@ -78,6 +86,7 @@ export const ConfigSchema = z.object({
     .default([]),
   allowRemoteSchema: z.boolean().default(false),
   includeDeprecated: z.boolean().default(true),
+  requireExamplesForDocumentedOperations: z.boolean().default(false),
   excludeDocGroups: z
     .preprocess((value) => {
       if (typeof value === 'string') {

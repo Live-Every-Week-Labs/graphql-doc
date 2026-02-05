@@ -289,6 +289,47 @@ describe('MetadataValidator', () => {
       expect(result.referencedOperations).toContain('getUser');
       expect(result.referencedOperations).toContain('createUser');
     });
+
+    it('accepts multiple example patterns', async () => {
+      const queriesDir = path.join(testDir, 'examples', 'queries');
+      const mutationsDir = path.join(testDir, 'examples', 'mutations');
+      await fs.ensureDir(queriesDir);
+      await fs.ensureDir(mutationsDir);
+
+      await fs.writeJson(path.join(queriesDir, 'get-user.json'), {
+        operation: 'getUser',
+        operationType: 'query',
+        examples: [
+          {
+            name: 'Example',
+            query: 'query { getUser }',
+            response: { type: 'success', httpStatus: 200, body: {} },
+          },
+        ],
+      });
+
+      await fs.writeJson(path.join(mutationsDir, 'create-user.json'), {
+        operation: 'createUser',
+        operationType: 'mutation',
+        examples: [
+          {
+            name: 'Example',
+            query: 'mutation { createUser }',
+            response: { type: 'success', httpStatus: 200, body: {} },
+          },
+        ],
+      });
+
+      const result = await validator.validateExamples([
+        path.join(queriesDir, '*.json'),
+        path.join(mutationsDir, '*.json'),
+      ]);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+      expect(result.referencedOperations).toContain('getUser');
+      expect(result.referencedOperations).toContain('createUser');
+    });
   });
 
   describe('crossValidateOperations', () => {

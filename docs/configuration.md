@@ -25,10 +25,25 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 
 ### Metadata Options
 
-| Option        | Type     | Default                  | Description                             |
-| :------------ | :------- | :----------------------- | :-------------------------------------- |
-| `metadataDir` | `string` | `./docs-metadata`        | Base directory for example metadata     |
-| `examplesDir` | `string` | `{metadataDir}/examples` | Directory containing example JSON files |
+| Option         | Type                 | Default                  | Description                                                            |
+| :------------- | :------------------- | :----------------------- | :--------------------------------------------------------------------- |
+| `metadataDir`  | `string`             | `./docs-metadata`        | Base directory for example metadata                                    |
+| `examplesDir`  | `string`             | `{metadataDir}/examples` | Directory containing example JSON files when `exampleFiles` is not set |
+| `exampleFiles` | `string \| string[]` |                          | One or more JSON file paths or glob patterns for examples              |
+
+### Example Source Configuration
+
+Use `examplesDir` when your examples live in a single directory tree. Use `exampleFiles` when you
+want explicit files, multiple directories, or mixed glob patterns.
+
+```yaml
+extensions:
+  graphql-docs:
+    exampleFiles:
+      - ./docs-metadata/examples/queries/*.json
+      - ./docs-metadata/examples/mutations/*.json
+      - ./docs-metadata/examples/shared/common.json
+```
 
 ### Schema Extensions
 
@@ -48,12 +63,13 @@ You can include descriptions in the extension SDL to show up in the generated ty
 
 ### Content Options
 
-| Option              | Type                 | Default | Description                                      |
-| :------------------ | :------------------- | :------ | :----------------------------------------------- |
-| `includeDeprecated` | `boolean`            | `true`  | Include deprecated operations in documentation   |
-| `skipTypes`         | `string[]`           | `[]`    | List of type names to exclude from documentation |
-| `excludeDocGroups`  | `string \| string[]` | `[]`    | Doc group names to exclude from generated docs   |
-| `typeExpansion`     | `object`             | `{}`    | Settings for type expansion depth and behavior   |
+| Option                                   | Type                 | Default | Description                                      |
+| :--------------------------------------- | :------------------- | :------ | :----------------------------------------------- |
+| `includeDeprecated`                      | `boolean`            | `true`  | Include deprecated operations in documentation   |
+| `skipTypes`                              | `string[]`           | `[]`    | List of type names to exclude from documentation |
+| `excludeDocGroups`                       | `string \| string[]` | `[]`    | Doc group names to exclude from generated docs   |
+| `requireExamplesForDocumentedOperations` | `boolean`            | `false` | Fail when a documented operation has no examples |
+| `typeExpansion`                          | `object`             | `{}`    | Settings for type expansion depth and behavior   |
 
 ### LLM Docs Options
 
@@ -227,6 +243,18 @@ extensions:
 ```
 
 You can also pass a single string (it will be normalized to an array).
+
+### Required Example Coverage
+
+Enable `requireExamplesForDocumentedOperations` to fail `generate` and `validate` when an
+operation that will be included in docs has no examples. Operations hidden via `@docIgnore` and
+groups excluded by `excludeDocGroups` are ignored by this check.
+
+```yaml
+extensions:
+  graphql-docs:
+    requireExamplesForDocumentedOperations: true
+```
 
 ### Sidebar Category Index Pages
 

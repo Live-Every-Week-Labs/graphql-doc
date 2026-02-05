@@ -115,11 +115,9 @@ export async function loadGeneratorConfig(
 }
 
 function processConfigDefaults(config: Config): Config {
-  // Smart defaults: If examples dir is not explicitly set,
-  // assume it is a subdirectory of the metadataDir.
-  // This allows users to just set `metadataDir` and get a standard structure.
-
-  if (!config.examplesDir) {
+  // Smart defaults: If explicit example file sources are not configured
+  // and examplesDir is missing, assume examples live under metadataDir/examples.
+  if (!config.exampleFiles?.length && !config.examplesDir) {
     config.examplesDir = path.join(config.metadataDir, 'examples');
   }
 
@@ -161,6 +159,7 @@ export function resolveConfigPaths(config: Config, rootPath: string): Config {
     outputDir: resolvePath(config.outputDir),
     metadataDir: resolvePath(config.metadataDir),
     examplesDir: config.examplesDir ? resolvePath(config.examplesDir) : undefined,
+    exampleFiles: config.exampleFiles?.map(resolvePath),
     schemaExtensions: (config.schemaExtensions ?? []).map(resolvePath),
     adapters: resolvedAdapters,
     llmDocs: llmDocs ?? config.llmDocs,

@@ -141,4 +141,48 @@ describe('loadExamples', () => {
       'Invalid example file error.json: Read error'
     );
   });
+
+  it('should load examples from multiple patterns and de-duplicate files', async () => {
+    const mockGlob = glob as unknown as ReturnType<typeof vi.fn>;
+    const mockReadJson = fs.readJson as unknown as ReturnType<typeof vi.fn>;
+    mockGlob
+      .mockResolvedValueOnce(['queries/get-user.json', 'shared/common.json'])
+      .mockResolvedValueOnce(['mutations/create-user.json', 'shared/common.json']);
+    mockReadJson
+      .mockResolvedValueOnce({
+        operation: 'getUser',
+        operationType: 'query',
+        examples: [
+          { name: 'Get', query: 'query { getUser }', response: { type: 'success', body: {} } },
+        ],
+      })
+      .mockResolvedValueOnce({
+        operation: 'createUser',
+        operationType: 'mutation',
+        examples: [
+          {
+            name: 'Create',
+            query: 'mutation { createUser }',
+            response: { type: 'success', body: {} },
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        operation: 'commonOperation',
+        operationType: 'query',
+        examples: [
+          {
+            name: 'Common',
+            query: 'query { commonOperation }',
+            response: { type: 'success', body: {} },
+          },
+        ],
+      });
+
+    const result = await loadExamples(['queries/*.json', 'mutations/*.json']);
+
+    expect(result).toHaveLength(3);
+    expect(mockGlob).toHaveBeenCalledTimes(2);
+    expect(mockReadJson).toHaveBeenCalledTimes(3);
+  });
 });

@@ -20,7 +20,10 @@ The loaders are designed to be used by the `Transformer` module to merge externa
 ```typescript
 import { loadExamples } from './metadata';
 
-const examples = await loadExamples('docs-metadata/examples/**/*.json');
+const examples = await loadExamples([
+  'docs-metadata/examples/queries/**/*.json',
+  'docs-metadata/examples/mutations/**/*.json',
+]);
 ```
 
 ## File Formats

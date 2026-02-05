@@ -1,11 +1,12 @@
-import path from 'path';
 import { Config } from './config/schema';
 import { SchemaLoader } from './parser/schema-loader';
 import { SchemaParser } from './parser/schema-parser';
+import { getExamplePatterns } from './metadata/example-sources';
 import { loadExamples } from './metadata/example-loader';
 import { Transformer } from './transformer/transformer';
 import { createAdapter } from './adapters';
 import { LlmDocsGenerator } from './llm-docs/generator';
+import { validateOperationExampleCoverage } from './validation/operation-example-validator';
 
 import { FileWriter } from './file-writer';
 
@@ -27,12 +28,20 @@ export class Generator {
     const { operations, types } = parser.parse(schema);
 
     console.log('Loading metadata...');
-    // Ensure directories exist or handle empty gracefully?
-    // The loaders use glob, so if dir doesn't exist it might just return empty or throw.
-    // processConfigDefaults ensures examplesDir is set.
-    const examplesPattern = path.join(this.config.examplesDir!, '**/*.json');
+    const examplePatterns = getExamplePatterns(this.config);
+    const examples = await loadExamples(examplePatterns);
 
-    const examples = await loadExamples(examplesPattern);
+    if (this.config.requireExamplesForDocumentedOperations) {
+      const coverageErrors = validateOperationExampleCoverage(operations, examples, {
+        excludeDocGroups: this.config.excludeDocGroups,
+        examplesLocation: examplePatterns.join(', '),
+      });
+
+      if (coverageErrors.length > 0) {
+        const details = coverageErrors.map((error) => `- ${error.message}`).join('\n');
+        throw new Error(`Missing required operation examples:\n${details}`);
+      }
+    }
 
     console.log('Transforming data...');
     const transformer = new Transformer(types, {

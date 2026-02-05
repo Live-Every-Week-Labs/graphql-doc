@@ -189,6 +189,61 @@ describe('Generator', () => {
       expect(await fs.pathExists(path.join(outputDir, 'sidebars.js'))).toBe(true);
     });
 
+    it('supports loading examples from explicit exampleFiles', async () => {
+      const queryExamplesPath = path.join(metadataDir, 'query-examples.json');
+      const mutationExamplesPath = path.join(metadataDir, 'mutation-examples.json');
+
+      await fs.writeJson(queryExamplesPath, {
+        operation: 'getUser',
+        operationType: 'query',
+        examples: [
+          {
+            name: 'Get User Example',
+            query: 'query { getUser(id: "1") { id name } }',
+            response: {
+              type: 'success',
+              body: { data: { getUser: { id: '1', name: 'Alice' } } },
+            },
+          },
+        ],
+      });
+
+      await fs.writeJson(mutationExamplesPath, {
+        operation: 'createUser',
+        operationType: 'mutation',
+        examples: [
+          {
+            name: 'Create User Example',
+            query: 'mutation { createUser(name: "Alice", email: "alice@example.com") { id } }',
+            response: {
+              type: 'success',
+              body: { data: { createUser: { id: '1' } } },
+            },
+          },
+        ],
+      });
+
+      const generator = new Generator({
+        ...config,
+        examplesDir: undefined,
+        exampleFiles: [queryExamplesPath, mutationExamplesPath],
+      });
+      await generator.generate('schema.graphql');
+
+      expect(await fs.pathExists(path.join(outputDir, 'sidebars.js'))).toBe(true);
+    });
+
+    it('fails when required example coverage is enabled and examples are missing', async () => {
+      const generator = new Generator({
+        ...config,
+        requireExamplesForDocumentedOperations: true,
+      });
+
+      await expect(generator.generate('schema.graphql')).rejects.toThrow(
+        'Missing required operation examples'
+      );
+    });
+
     it('creates correct directory structure', async () => {
       const generator = new Generator(config);
       await generator.generate('schema.graphql');

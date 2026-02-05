@@ -72,5 +72,44 @@ describe('loadGeneratorConfig', () => {
       const config = await loadGeneratorConfig(tempDir, relativePath);
       expect(config.outputDir).toBe('./custom-output');
     });
+
+    it('supports exampleFiles as an array and requireExamplesForDocumentedOperations', async () => {
+      const configWithExamplesPath = path.join(tempDir, 'example-files-config.json');
+      fs.writeFileSync(
+        configWithExamplesPath,
+        JSON.stringify({
+          outputDir: './docs',
+          framework: 'docusaurus',
+          metadataDir: './docs-metadata',
+          exampleFiles: ['./metadata/examples/queries.json', './metadata/examples/mutations.json'],
+          requireExamplesForDocumentedOperations: true,
+        })
+      );
+
+      const config = await loadGeneratorConfig(process.cwd(), configWithExamplesPath);
+      expect(config.exampleFiles).toEqual([
+        './metadata/examples/queries.json',
+        './metadata/examples/mutations.json',
+      ]);
+      expect(config.examplesDir).toBeUndefined();
+      expect(config.requireExamplesForDocumentedOperations).toBe(true);
+    });
+
+    it('normalizes single exampleFiles value to an array', async () => {
+      const singleSourcePath = path.join(tempDir, 'example-files-single.json');
+      fs.writeFileSync(
+        singleSourcePath,
+        JSON.stringify({
+          outputDir: './docs',
+          framework: 'docusaurus',
+          metadataDir: './docs-metadata',
+          exampleFiles: './metadata/examples/all.json',
+        })
+      );
+
+      const config = await loadGeneratorConfig(process.cwd(), singleSourcePath);
+      expect(config.exampleFiles).toEqual(['./metadata/examples/all.json']);
+      expect(config.examplesDir).toBeUndefined();
+    });
   });
 });

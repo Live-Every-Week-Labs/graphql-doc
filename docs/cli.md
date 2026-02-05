@@ -139,8 +139,13 @@ The `validate` command performs the following checks:
    - Each example has required fields (`name`, `query`, `response`)
    - `operationType` is one of: `query`, `mutation`, `subscription`
    - Response `type` is one of: `success`, `failure`, `error`
+   - Sources come from `exampleFiles` when configured, otherwise `{examplesDir}/**/*.json`
 
-3. **Cross-Validation**
+3. **Required Example Coverage (Optional)**
+   - When `requireExamplesForDocumentedOperations: true`, every documented operation must have at least one example
+   - Operations hidden by `@docIgnore` or excluded via `excludeDocGroups` are skipped
+
+4. **Cross-Validation**
    - Operations referenced in example files exist in the schema (warning)
 
 **Sample Output:**

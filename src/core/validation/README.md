@@ -30,7 +30,10 @@ const schemaResult = await schemaValidator.validate('schema.graphql');
 
 // Validate metadata
 const metadataValidator = new MetadataValidator();
-const examplesResult = await metadataValidator.validateExamples('docs-metadata/examples/**/*.json');
+const examplesResult = await metadataValidator.validateExamples([
+  'docs-metadata/examples/queries/**/*.json',
+  'docs-metadata/examples/mutations/**/*.json',
+]);
 
 // Cross-validate operations
 const warnings = metadataValidator.crossValidateOperations(

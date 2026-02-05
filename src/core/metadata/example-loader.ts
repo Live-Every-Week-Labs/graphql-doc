@@ -3,8 +3,10 @@ import fs from 'fs-extra';
 import { ExampleFileSchema } from './validator';
 import { ExampleFile } from './types';
 
-export async function loadExamples(pattern: string): Promise<ExampleFile[]> {
-  const files = await glob(pattern);
+export async function loadExamples(patterns: string | string[]): Promise<ExampleFile[]> {
+  const patternList = Array.isArray(patterns) ? patterns : [patterns];
+  const fileGroups = await Promise.all(patternList.map((pattern) => glob(pattern)));
+  const files = Array.from(new Set(fileGroups.flat()));
   const results: ExampleFile[] = [];
 
   for (const file of files) {

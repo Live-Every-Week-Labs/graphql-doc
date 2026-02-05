@@ -10,7 +10,12 @@ import {
   valueFromASTUntyped,
 } from 'graphql';
 import { z } from 'zod';
-import { ValidationError, SchemaValidationResult, ValidationErrorCode } from './types.js';
+import {
+  ValidationError,
+  SchemaValidationResult,
+  ValidationErrorCode,
+  SchemaOperationMetadata,
+} from './types.js';
 
 // Zod schemas for directive validation (matching directive-definitions.ts requirements)
 const DocGroupArgsSchema = z.object({
@@ -45,6 +50,7 @@ export class SchemaValidator {
     const errors: ValidationError[] = [];
     const warnings: ValidationError[] = [];
     const operationNames = new Set<string>();
+    const operationMetadata = new Map<string, SchemaOperationMetadata>();
 
     const schemaPaths = Array.isArray(schemaPath) ? schemaPath : [schemaPath];
 
@@ -107,6 +113,10 @@ export class SchemaValidator {
             for (const field of typeDef.fields) {
               // Collect operation names
               operationNames.add(field.name.value);
+              operationMetadata.set(field.name.value, {
+                name: field.name.value,
+                directives: this.extractOperationMetadata(field),
+              });
 
               // Validate directives on this field
               const directiveErrors = this.validateFieldDirectives(field, pathEntry);
@@ -123,6 +133,7 @@ export class SchemaValidator {
       errors,
       warnings,
       operationNames: Array.from(operationNames),
+      operations: Array.from(operationMetadata.values()),
     };
   }
 
@@ -234,5 +245,31 @@ export class SchemaValidator {
     }
 
     return { errors, warnings };
+  }
+
+  private extractOperationMetadata(
+    field: FieldDefinitionNode
+  ): SchemaOperationMetadata['directives'] {
+    const directives: SchemaOperationMetadata['directives'] = {};
+
+    if (!field.directives || field.directives.length === 0) {
+      return directives;
+    }
+
+    for (const directive of field.directives) {
+      const name = directive.name.value;
+      if (name === 'docIgnore') {
+        directives.docIgnore = true;
+      }
+
+      if (name === 'docGroup') {
+        const args = this.extractDirectiveArgs(directive);
+        if (typeof args.name === 'string') {
+          directives.docGroup = { name: args.name };
+        }
+      }
+    }
+
+    return directives;
   }
 }

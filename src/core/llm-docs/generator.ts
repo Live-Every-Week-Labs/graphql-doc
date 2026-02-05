@@ -107,12 +107,19 @@ const getNamedTypeFromExpanded = (input: ExpandedType): string | undefined => {
   return undefined;
 };
 
-const isObjectLike = (input?: ExpandedType) =>
+type ObjectLikeExpandedType = Extract<
+  ExpandedType,
+  { kind: 'OBJECT' | 'INTERFACE' | 'INPUT_OBJECT' }
+>;
+type EnumExpandedType = Extract<ExpandedType, { kind: 'ENUM' }>;
+type UnionExpandedType = Extract<ExpandedType, { kind: 'UNION' }>;
+
+const isObjectLike = (input?: ExpandedType): input is ObjectLikeExpandedType =>
   input?.kind === 'OBJECT' || input?.kind === 'INTERFACE' || input?.kind === 'INPUT_OBJECT';
 
-const isEnumType = (input?: ExpandedType) => input?.kind === 'ENUM';
+const isEnumType = (input?: ExpandedType): input is EnumExpandedType => input?.kind === 'ENUM';
 
-const isUnionType = (input?: ExpandedType) => input?.kind === 'UNION';
+const isUnionType = (input?: ExpandedType): input is UnionExpandedType => input?.kind === 'UNION';
 
 const extractTypeName = (typeString?: string) => {
   if (!typeString) return undefined;

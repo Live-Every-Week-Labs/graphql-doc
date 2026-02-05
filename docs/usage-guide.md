@@ -206,6 +206,16 @@ type Query {
 
 Place JSON files in your metadata directories to add examples to your operations.
 
+If you want to organize examples across multiple files/directories, configure `exampleFiles`:
+
+```yaml
+extensions:
+  graphql-docs:
+    exampleFiles:
+      - ./docs-metadata/examples/queries/*.json
+      - ./docs-metadata/examples/mutations/*.json
+```
+
 ### Example Files
 
 Create files in `docs-metadata/examples/`:

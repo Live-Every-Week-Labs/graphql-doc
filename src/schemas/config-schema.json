@@ -17,6 +17,15 @@
     "examplesDir": {
       "type": "string"
     },
+    "exampleFiles": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ]
+    },
     "schemaExtensions": {
       "oneOf": [
         { "type": "string" },
@@ -34,6 +43,10 @@
     "includeDeprecated": {
       "type": "boolean",
       "default": true
+    },
+    "requireExamplesForDocumentedOperations": {
+      "type": "boolean",
+      "default": false
     },
     "excludeDocGroups": {
       "oneOf": [

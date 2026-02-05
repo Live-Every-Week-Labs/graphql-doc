@@ -18,6 +18,8 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - 🤖 **LLM-Optimized Markdown**: Generate raw, token-efficient docs and `llms.txt` for AI assistants.
 - 🔍 **Custom Directives**: Use `@docGroup`, `@docPriority`, and `@docTags` to organize your schema.
 - 📄 **External Metadata**: Keep your schema clean by loading examples from external JSON files.
+- 🗂️ **Flexible Example Sources**: Load examples from one or many JSON files/glob patterns.
+- 🧪 **Example Coverage Guardrail**: Optionally fail builds when documented operations are missing examples.
 - 🧱 **Shared Data Mode**: Generates shared JSON maps for operations/types to avoid repeated inline payloads.
 - 📚 **Intro Docs**: Prepend MD/MDX docs to the API sidebar as a landing section.
 - 🧭 **Sidebar Controls**: Configurable category index pages and section header labels.
