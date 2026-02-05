@@ -22,6 +22,7 @@ export interface DocusaurusAdapterConfig {
     maxDepth?: number;
     defaultLevels?: number;
   };
+  llmDocsBasePath?: string;
   unsafeMdxDescriptions?: boolean;
   generateSidebar?: boolean;
   sidebarFile?: string;
@@ -868,6 +869,7 @@ export class DocusaurusAdapter {
       maxDepth: this.config.typeExpansion?.maxDepth,
       unsafeDescriptionMdx: this.config.unsafeMdxDescriptions,
       typeLinkMode: this.getTypeLinkMode(),
+      llmDocsBasePath: this.config.llmDocsBasePath,
     });
   }
 
@@ -904,6 +906,7 @@ export class DocusaurusAdapter {
       maxDepth: this.config.typeExpansion?.maxDepth,
       unsafeDescriptionMdx: this.config.unsafeMdxDescriptions,
       typeLinkMode: this.getTypeLinkMode(),
+      llmDocsBasePath: this.config.llmDocsBasePath,
     });
     const parts = [
       frontMatter,
@@ -917,7 +920,7 @@ export class DocusaurusAdapter {
   private generateFrontMatter(op: Operation): string {
     const id = slugify(op.name);
     const title = escapeYamlValue(op.name);
-    const sidebarLabel = escapeYamlValue(op.name);
+    const sidebarLabel = escapeYamlValue(op.directives.docGroup?.sidebarTitle ?? op.name);
 
     const lines = ['---', `id: ${id}`, `title: ${title}`, `sidebar_label: ${sidebarLabel}`];
 

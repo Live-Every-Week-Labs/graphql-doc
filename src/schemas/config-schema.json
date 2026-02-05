@@ -142,6 +142,9 @@
               "enum": ["none", "deep", "all"],
               "default": "none"
             },
+            "llmDocsBasePath": {
+              "type": "string"
+            },
             "generateSidebar": {
               "type": "boolean",
               "default": true

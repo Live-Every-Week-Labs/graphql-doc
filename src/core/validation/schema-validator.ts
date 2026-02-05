@@ -17,6 +17,7 @@ const DocGroupArgsSchema = z.object({
   name: z.string(),
   order: z.number().int().optional(),
   subsection: z.string().optional(),
+  sidebarTitle: z.string().optional(),
 });
 
 const DocPriorityArgsSchema = z.object({

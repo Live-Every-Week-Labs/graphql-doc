@@ -138,7 +138,7 @@ prism: {
 
 ## Component API Highlights
 
-- `OperationView({ operation, typesByName, typeLinkBase, defaultExpandedLevels, maxDepth, headingLevel, typeLinkMode })` (defaults: 0/0, typeLinkMode: `none`)
+- `OperationView({ operation, typesByName, typeLinkBase, defaultExpandedLevels, maxDepth, headingLevel, typeLinkMode, llmDocsBasePath, llmDocsDownloadLabel })` (defaults: 0/0, typeLinkMode: `none`)
 - `TypeDefinitionView({ type, typesByName, typeLinkBase, headingLevel, typeLinkMode })`
 - `TypeViewer({ type, typeLinkBase, typeLinkMode, depth, maxDepth, defaultExpandedLevels })`
 - `FieldTable({ fields, typeLinkBase, depth, maxDepth, defaultExpandedLevels, typeLinkMode })` (defaults: 0/0, typeLinkMode: `none`)

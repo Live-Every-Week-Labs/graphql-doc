@@ -189,9 +189,10 @@ export class SidebarGenerator {
 
   private generateSinglePageOperationItem(operation: Operation, docId: string): SidebarItem {
     const opSlug = slugify(operation.name);
+    const label = operation.directives.docGroup?.sidebarTitle ?? operation.name;
     return {
       type: 'link',
-      label: operation.name,
+      label,
       href: `${docId}#${opSlug}`,
     };
   }
@@ -248,10 +249,11 @@ export class SidebarGenerator {
 
   private generateOperationItem(operation: Operation, parentPath: string): SidebarItem {
     const opSlug = slugify(operation.name);
+    const label = operation.directives.docGroup?.sidebarTitle ?? operation.name;
     return {
       type: 'doc',
       id: this.withDocIdPrefix(`${parentPath}/${opSlug}`),
-      label: operation.name,
+      label,
     };
   }
 

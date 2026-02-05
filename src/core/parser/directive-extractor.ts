@@ -7,6 +7,7 @@ const DocGroupSchema = z.object({
   name: z.string(),
   order: z.number().optional(),
   subsection: z.string().optional(),
+  sidebarTitle: z.string().optional(),
 });
 
 const DocPrioritySchema = z.object({

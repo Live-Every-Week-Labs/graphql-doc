@@ -78,14 +78,15 @@ The generator writes `llms.txt` alongside the `llm-docs` folder (e.g., `./static
 
 Adapter-specific settings live under `adapters.<framework>`. For Docusaurus, use `adapters.docusaurus`.
 
-| Option                                      | Type      | Default  | Description                                               |
-| :------------------------------------------ | :-------- | :------- | :-------------------------------------------------------- |
-| `adapters.docusaurus.singlePage`            | `boolean` | `false`  | Generate a single page instead of multiple files          |
-| `adapters.docusaurus.docsRoot`              | `string`  | `./docs` | Docusaurus docs root used for sidebar doc id prefixing    |
-| `adapters.docusaurus.docIdPrefix`           | `string`  |          | Override doc id prefix for sidebars (e.g. `api`)          |
-| `adapters.docusaurus.unsafeMdxDescriptions` | `boolean` | `false`  | Render schema descriptions as raw MDX (unsafe by default) |
-| `adapters.docusaurus.typeLinkMode`          | `string`  | `none`   | Controls when type names render as links                  |
-| `adapters.docusaurus.generateSidebar`       | `boolean` | `true`   | Generate Docusaurus sidebar configuration                 |
+| Option                                      | Type      | Default  | Description                                                   |
+| :------------------------------------------ | :-------- | :------- | :------------------------------------------------------------ |
+| `adapters.docusaurus.singlePage`            | `boolean` | `false`  | Generate a single page instead of multiple files              |
+| `adapters.docusaurus.docsRoot`              | `string`  | `./docs` | Docusaurus docs root used for sidebar doc id prefixing        |
+| `adapters.docusaurus.docIdPrefix`           | `string`  |          | Override doc id prefix for sidebars (e.g. `api`)              |
+| `adapters.docusaurus.unsafeMdxDescriptions` | `boolean` | `false`  | Render schema descriptions as raw MDX (unsafe by default)     |
+| `adapters.docusaurus.typeLinkMode`          | `string`  | `none`   | Controls when type names render as links                      |
+| `adapters.docusaurus.llmDocsBasePath`       | `string`  |          | Base path for LLM Markdown download button (e.g. `/llm-docs`) |
+| `adapters.docusaurus.generateSidebar`       | `boolean` | `true`   | Generate Docusaurus sidebar configuration                     |
 
 ### Docusaurus Sidebar Options
 

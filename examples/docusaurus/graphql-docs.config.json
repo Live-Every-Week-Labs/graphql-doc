@@ -13,6 +13,7 @@
       "singlePage": false,
       "generateSidebar": true,
       "sidebarFile": "./sidebars-api.js",
+      "llmDocsBasePath": "/llm-docs",
       "introDocs": [
         {
           "source": "./docs/api-intro/overview.mdx",

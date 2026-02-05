@@ -4,6 +4,7 @@ export interface DocGroup {
   name: string;
   order?: number;
   subsection?: string;
+  sidebarTitle?: string;
 }
 
 export interface DocPriority {

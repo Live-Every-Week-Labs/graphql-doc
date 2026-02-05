@@ -61,6 +61,7 @@ interface RenderOptions {
   dataReference?: string;
   defaultExpandedLevels?: number;
   maxDepth?: number;
+  llmDocsBasePath?: string;
 }
 
 export class MdxRenderer {
@@ -86,6 +87,9 @@ export class MdxRenderer {
     const exportKeyword = options.exportConst === false ? 'const' : 'export const';
     const typeLinkBase = options.typeLinkBase ? JSON.stringify(options.typeLinkBase) : undefined;
     const typeLinkMode = options.typeLinkMode ? JSON.stringify(options.typeLinkMode) : undefined;
+    const llmDocsBasePath = options.llmDocsBasePath
+      ? JSON.stringify(options.llmDocsBasePath)
+      : undefined;
     const hasDefaultExpandedLevels = options.defaultExpandedLevels !== undefined;
     const hasMaxDepth = options.maxDepth !== undefined;
 
@@ -102,6 +106,7 @@ export class MdxRenderer {
       hasMaxDepth,
       typeLinkBase,
       typeLinkMode,
+      llmDocsBasePath,
       dataReference: options.dataReference,
     });
   }

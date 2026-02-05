@@ -23,6 +23,23 @@ describe('DirectiveExtractor', () => {
     });
   });
 
+  it('should extract sidebarTitle from @docGroup', () => {
+    const sdl = `
+      type Query {
+        users: [User] @docGroup(name: "Users", sidebarTitle: "List Users")
+      }
+    `;
+    const ast = parse(sdl);
+    const field = (ast.definitions[0] as ObjectTypeDefinitionNode).fields![0];
+
+    const directives = extractor.extract(field);
+
+    expect(directives.docGroup).toEqual({
+      name: 'Users',
+      sidebarTitle: 'List Users',
+    });
+  });
+
   it('should extract @docPriority directive', () => {
     const sdl = `
       type Query {

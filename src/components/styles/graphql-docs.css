@@ -782,6 +782,28 @@ a.gql-type:hover {
     box-shadow: var(--gql-focus-ring);
 }
 
+.gql-llm-download {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--gql-border-color);
+    background: transparent;
+    color: var(--gql-description-color);
+    padding: 4px 8px;
+    border-radius: 999px;
+    text-decoration: none;
+}
+
+.gql-llm-download:hover {
+    color: var(--gql-field-color);
+    background: var(--gql-hover-bg);
+}
+
+.gql-llm-download:focus-visible {
+    outline: none;
+    box-shadow: var(--gql-focus-ring);
+}
+
 .gql-code-block {
     margin: 0;
     padding: 12px;

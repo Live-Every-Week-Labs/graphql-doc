@@ -18,6 +18,7 @@ const DocusaurusAdapterSchema = z
     docIdPrefix: z.string().optional(),
     unsafeMdxDescriptions: z.boolean().default(false),
     typeLinkMode: z.enum(['none', 'deep', 'all']).default('none'),
+    llmDocsBasePath: z.string().optional(),
     generateSidebar: z.boolean().default(true),
     sidebarFile: z.string().optional(),
     sidebarCategoryIndex: z.boolean().default(false),

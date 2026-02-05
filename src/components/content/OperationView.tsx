@@ -15,6 +15,8 @@ interface OperationViewProps {
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   typesByName?: Record<string, ExpandedType>;
   typeLinkMode?: 'none' | 'deep' | 'all';
+  llmDocsBasePath?: string;
+  llmDocsDownloadLabel?: string;
   children?: React.ReactNode;
 }
 
@@ -36,12 +38,19 @@ export const OperationView = React.memo(function OperationView({
   headingLevel = 2,
   typesByName,
   typeLinkMode = 'none',
+  llmDocsBasePath,
+  llmDocsDownloadLabel = 'Download Markdown',
   children,
 }: OperationViewProps) {
   const slug = slugify(operation.name);
   const HeadingTag = `h${Math.min(6, Math.max(1, headingLevel))}` as keyof JSX.IntrinsicElements;
   const tags = operation.directives?.docTags?.tags ?? [];
   const typeLabel = operation.operationType.toUpperCase();
+  const groupName = operation.directives?.docGroup?.name || 'General';
+  const groupSlug = slugify(groupName);
+  const llmDocsHref = llmDocsBasePath
+    ? `${llmDocsBasePath.replace(/\/$/, '')}/${groupSlug}.md`
+    : undefined;
 
   return (
     <TypeRegistryProvider typesByName={typesByName}>
@@ -54,6 +63,16 @@ export const OperationView = React.memo(function OperationView({
                   <HeadingTag id={slug} className="gql-operation-title">
                     {operation.name}
                   </HeadingTag>
+                  {llmDocsHref && (
+                    <a
+                      className="gql-llm-download"
+                      href={llmDocsHref}
+                      download={`${groupSlug}.md`}
+                      aria-label={`Download Markdown for ${groupName}`}
+                    >
+                      {llmDocsDownloadLabel}
+                    </a>
+                  )}
                   <span className={`gql-badge gql-badge-neutral gql-op-type`}>{typeLabel}</span>
                   {tags.map((tag) => (
                     <span key={tag} className="gql-tag">

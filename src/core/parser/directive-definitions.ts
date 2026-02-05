@@ -17,6 +17,11 @@ export const DIRECTIVE_DEFINITIONS = `
     Optional subsection within the main section
     """
     subsection: String
+
+    """
+    Optional sidebar label override for this operation
+    """
+    sidebarTitle: String
   ) on FIELD_DEFINITION
 
   """

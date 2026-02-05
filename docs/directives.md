@@ -18,16 +18,22 @@ Groups operations into logical sections for documentation organization.
 ### Syntax
 
 ```graphql
-directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+directive @docGroup(
+  name: String!
+  order: Int
+  subsection: String
+  sidebarTitle: String
+) on FIELD_DEFINITION
 ```
 
 ### Arguments
 
-| Argument     | Type      | Required | Description                                 |
-| :----------- | :-------- | :------- | :------------------------------------------ |
-| `name`       | `String!` | Yes      | The name of the documentation section       |
-| `order`      | `Int`     | No       | Display order (lower numbers first)         |
-| `subsection` | `String`  | No       | Optional subsection within the main section |
+| Argument       | Type      | Required | Description                                        |
+| :------------- | :-------- | :------- | :------------------------------------------------- |
+| `name`         | `String!` | Yes      | The name of the documentation section              |
+| `order`        | `Int`     | No       | Display order (lower numbers first)                |
+| `subsection`   | `String`  | No       | Optional subsection within the main section        |
+| `sidebarTitle` | `String`  | No       | Optional sidebar label override for this operation |
 
 ### Sorting Behavior
 
@@ -41,7 +47,7 @@ Sections are sorted using a two-tier system:
 ```graphql
 type Query {
   # Ordered sections (appear first, sorted by order)
-  getUser: User @docGroup(name: "User Management", order: 1)
+  getUser: User @docGroup(name: "User Management", order: 1, sidebarTitle: "Get User")
   getPayment: Payment @docGroup(name: "Payments", order: 2)
 
   # Unordered sections (appear after, sorted alphabetically)
@@ -79,15 +85,28 @@ type Mutation {
 
 This generates a structure like:
 
-```
+````
+
+### Sidebar Label Override
+
+Use `sidebarTitle` to override just the sidebar label while keeping the page title and heading
+as the operation name:
+
+```graphql
+type Query {
+  users: [User] @docGroup(name: "Users", sidebarTitle: "List Users")
+}
+````
+
 User Management/
 ├── Retrieval/
-│   ├── getUser
-│   └── searchUsers
+│ ├── getUser
+│ └── searchUsers
 └── Modification/
-    ├── createUser
-    └── updateUser
-```
+├── createUser
+└── updateUser
+
+````
 
 ### Uncategorized Operations
 
@@ -103,7 +122,7 @@ extensions:
     excludeDocGroups:
       - Internal
       - Experimental
-```
+````
 
 ---
 
