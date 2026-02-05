@@ -47,7 +47,7 @@ cp node_modules/@graphql-docs/generator/directives.graphql ./graphql-docs-direct
 
 There are several ways to include the directives in your schema:
 
-### Method 1: GraphQL Config (Recommended for AppSync)
+### Method 1: GraphQL Config (Recommended for Tooling/Build Steps)
 
 If you use `.graphqlrc` or similar config files:
 
@@ -67,9 +67,13 @@ module.exports = {
 };
 ```
 
+> Note: GraphQL config helps tooling/build steps assemble a full schema, but AppSync itself
+> still requires a **single combined schema file** at deploy time. Make sure your pipeline
+> outputs a merged schema (see AppSync examples below).
+
 ### Method 2: Direct Import in Schema File
 
-If you have a single schema file, use the `extend schema` directive:
+If you have a single schema file, import or paste the directive definitions at the top:
 
 ```graphql
 # schema.graphql
@@ -115,14 +119,17 @@ For AWS AppSync deployments, include the directives file in your CDK/CloudFormat
 
 ```typescript
 import * as appsync from 'aws-cdk-lib/aws-appsync';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
+import path from 'path';
 
 const directivesContent = readFileSync('./graphql-docs-directives.graphql', 'utf-8');
 const schemaContent = readFileSync('./schema.graphql', 'utf-8');
+const combinedSchemaPath = path.join(__dirname, 'schema-with-directives.graphql');
+writeFileSync(combinedSchemaPath, `${directivesContent}\n${schemaContent}`);
 
 const api = new appsync.GraphqlApi(this, 'Api', {
   name: 'my-api',
-  schema: appsync.SchemaFile.fromAsset('./schema.graphql'), // Will need both files
+  schema: appsync.SchemaFile.fromAsset(combinedSchemaPath),
 });
 ```
 
@@ -159,7 +166,7 @@ Resources:
     Type: AWS::AppSync::GraphQLSchema
     Properties:
       ApiId: !GetAtt GraphQLApi.ApiId
-      DefinitionS3Location: ./schema-with-directives.graphql # Combined file
+      DefinitionS3Location: ./schema-with-directives.graphql # Combined file (directives + schema)
 ```
 
 ## Directive Definitions
