@@ -72,6 +72,15 @@ describe('Generator', () => {
         defaultLevels: 3,
         showCircularReferences: true,
       },
+      llmDocs: {
+        enabled: false,
+        outputDir: path.join(testDir, 'llm-docs'),
+        strategy: 'chunked',
+        includeExamples: true,
+        generateManifest: true,
+        singleFileName: 'api-reference.md',
+        maxTypeDepth: 3,
+      },
       adapters: {
         docusaurus: {
           unsafeMdxDescriptions: false,

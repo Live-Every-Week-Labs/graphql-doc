@@ -10,6 +10,10 @@ export interface GenerateOptions {
   output?: string;
   config?: string;
   targetDir?: string; // For testing - defaults to process.cwd()
+  llmDocs?: boolean;
+  llmDocsStrategy?: 'single' | 'chunked';
+  llmDocsDepth?: string;
+  llmExamples?: boolean;
 }
 
 /**
@@ -78,6 +82,29 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
   // Override config with CLI options
   if (options.output) {
     config.outputDir = options.output;
+  }
+
+  if (options.llmDocs !== undefined) {
+    config.llmDocs.enabled = options.llmDocs;
+  }
+
+  if (options.llmDocsStrategy) {
+    if (options.llmDocsStrategy !== 'single' && options.llmDocsStrategy !== 'chunked') {
+      throw new Error('llm-docs-strategy must be "single" or "chunked"');
+    }
+    config.llmDocs.strategy = options.llmDocsStrategy;
+  }
+
+  if (options.llmDocsDepth) {
+    const depth = Number(options.llmDocsDepth);
+    if (Number.isNaN(depth) || depth < 1 || depth > 5) {
+      throw new Error('llm-docs-depth must be a number between 1 and 5');
+    }
+    config.llmDocs.maxTypeDepth = depth as 1 | 2 | 3 | 4 | 5;
+  }
+
+  if (options.llmExamples === false) {
+    config.llmDocs.includeExamples = false;
   }
 
   config = resolveConfigPaths(config, targetDir);

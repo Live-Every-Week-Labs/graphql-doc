@@ -22,6 +22,9 @@ The `src/core/config` module handles configuration loading and validation for th
     - `maxDepth`: Hard limit on inline expansion depth (default: `5`). Deeper references render as type links.
     - `defaultLevels`: Soft limit for UI expansion (default: `0`). Types beyond this depth are marked as collapsible.
     - `showCircularReferences`: Show circular reference indicators (default: `true`).
+  - `llmDocs`: LLM-optimized Markdown output settings.
+    - `enabled`, `outputDir`, `strategy`, `includeExamples`, `generateManifest`
+    - `singleFileName`, `maxTypeDepth`, `baseUrl`, `apiName`, `apiDescription`
   - `adapters.docusaurus`: Docusaurus-only options, including:
     - `singlePage`, `docsRoot`, `docIdPrefix`, `unsafeMdxDescriptions`, `typeLinkMode`
     - Sidebar controls (`generateSidebar`, `sidebar*`) and `introDocs`
@@ -43,7 +46,7 @@ The `src/core/config` module handles configuration loading and validation for th
   - Legacy Docusaurus keys (e.g. `singlePage`, `sidebar*`) are mapped into `adapters.docusaurus`.
 
 - **Path Resolution Helper:**
-  - `resolveConfigPaths` normalizes relative paths (output, metadata, schema extensions, and Docusaurus intro docs) against a root directory.
+  - `resolveConfigPaths` normalizes relative paths (output, metadata, schema extensions, LLM docs output, and Docusaurus intro docs) against a root directory.
 
 ## Usage
 

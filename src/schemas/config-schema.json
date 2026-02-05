@@ -70,6 +70,52 @@
       },
       "default": {}
     },
+    "llmDocs": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "outputDir": {
+          "type": "string",
+          "default": "llm-docs"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["single", "chunked"],
+          "default": "chunked"
+        },
+        "includeExamples": {
+          "type": "boolean",
+          "default": true
+        },
+        "generateManifest": {
+          "type": "boolean",
+          "default": true
+        },
+        "singleFileName": {
+          "type": "string",
+          "default": "api-reference.md"
+        },
+        "maxTypeDepth": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 3
+        },
+        "baseUrl": {
+          "type": "string"
+        },
+        "apiName": {
+          "type": "string"
+        },
+        "apiDescription": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
     "adapters": {
       "type": "object",
       "properties": {

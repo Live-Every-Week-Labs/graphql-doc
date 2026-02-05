@@ -3,7 +3,7 @@ import type { DocModel } from '../transformer/types';
 export interface GeneratedFile {
   path: string;
   content: string;
-  type: 'mdx' | 'json' | 'js';
+  type: 'mdx' | 'md' | 'json' | 'js';
   absolutePath?: string;
 }
 

@@ -47,6 +47,21 @@ const AdaptersSchema = z
   .passthrough()
   .default({ docusaurus: {} });
 
+const LlmDocsSchema = z
+  .object({
+    enabled: z.boolean().default(true),
+    outputDir: z.string().default('llm-docs'),
+    strategy: z.enum(['single', 'chunked']).default('chunked'),
+    includeExamples: z.boolean().default(true),
+    generateManifest: z.boolean().default(true),
+    singleFileName: z.string().default('api-reference.md'),
+    maxTypeDepth: z.number().min(1).max(5).default(3),
+    baseUrl: z.string().optional(),
+    apiName: z.string().optional(),
+    apiDescription: z.string().optional(),
+  })
+  .default({});
+
 export const ConfigSchema = z.object({
   outputDir: z.string().default('./docs/api'),
   framework: z.string().default('docusaurus'),
@@ -79,7 +94,9 @@ export const ConfigSchema = z.object({
     })
     .default({}),
   adapters: AdaptersSchema,
+  llmDocs: LlmDocsSchema,
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
 export type DocusaurusAdapterConfig = z.infer<typeof DocusaurusAdapterSchema>;
+export type LlmDocsConfig = z.infer<typeof LlmDocsSchema>;

@@ -691,3 +691,719 @@ module.exports = {
     }
   ]
 };
+
+// <graphql-docs-sidebar>
+const __gqlDocsItems = [
+  {
+    "type": "doc",
+    "id": "api/intro/overview",
+    "label": "Overview"
+  },
+  {
+    "type": "doc",
+    "id": "api/intro/errors",
+    "label": "Errors"
+  },
+  {
+    "type": "html",
+    "value": "<hr class=\"gql-sidebar-divider\" />",
+    "defaultStyle": true
+  },
+  {
+    "type": "html",
+    "value": "<div class=\"gql-sidebar-section-title\">Operations</div>",
+    "defaultStyle": true
+  },
+  {
+    "type": "category",
+    "label": "User Management",
+    "items": [
+      {
+        "type": "category",
+        "label": "Mutations",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/user-management/mutations/create-user",
+            "label": "createUser"
+          },
+          {
+            "type": "doc",
+            "id": "api/user-management/mutations/update-profile",
+            "label": "updateProfile"
+          },
+          {
+            "type": "doc",
+            "id": "api/user-management/mutations/add-address",
+            "label": "addAddress"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      },
+      {
+        "type": "category",
+        "label": "Queries",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/user-management/queries/me",
+            "label": "me"
+          },
+          {
+            "type": "doc",
+            "id": "api/user-management/queries/user",
+            "label": "user"
+          },
+          {
+            "type": "doc",
+            "id": "api/user-management/queries/users",
+            "label": "users"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      }
+    ],
+    "collapsible": true,
+    "collapsed": true
+  },
+  {
+    "type": "category",
+    "label": "Product Catalog",
+    "items": [
+      {
+        "type": "category",
+        "label": "Categories",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/product-catalog/categories/category",
+            "label": "category"
+          },
+          {
+            "type": "doc",
+            "id": "api/product-catalog/categories/categories",
+            "label": "categories"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      },
+      {
+        "type": "category",
+        "label": "Mutations",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/product-catalog/mutations/create-product",
+            "label": "createProduct"
+          },
+          {
+            "type": "doc",
+            "id": "api/product-catalog/mutations/update-product",
+            "label": "updateProduct"
+          },
+          {
+            "type": "doc",
+            "id": "api/product-catalog/mutations/delete-product",
+            "label": "deleteProduct"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      },
+      {
+        "type": "category",
+        "label": "Queries",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/product-catalog/queries/product",
+            "label": "product"
+          },
+          {
+            "type": "doc",
+            "id": "api/product-catalog/queries/products",
+            "label": "products"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      },
+      {
+        "type": "category",
+        "label": "Search",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/product-catalog/search/search",
+            "label": "search"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      }
+    ],
+    "collapsible": true,
+    "collapsed": true
+  },
+  {
+    "type": "category",
+    "label": "Orders & Checkout",
+    "items": [
+      {
+        "type": "category",
+        "label": "Cart",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/orders-checkout/cart/cart",
+            "label": "cart"
+          },
+          {
+            "type": "doc",
+            "id": "api/orders-checkout/cart/add-to-cart",
+            "label": "addToCart"
+          },
+          {
+            "type": "doc",
+            "id": "api/orders-checkout/cart/update-cart-item",
+            "label": "updateCartItem"
+          },
+          {
+            "type": "doc",
+            "id": "api/orders-checkout/cart/remove-from-cart",
+            "label": "removeFromCart"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      },
+      {
+        "type": "category",
+        "label": "Checkout",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/orders-checkout/checkout/place-order",
+            "label": "placeOrder"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      },
+      {
+        "type": "category",
+        "label": "Queries",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/orders-checkout/queries/order",
+            "label": "order"
+          },
+          {
+            "type": "doc",
+            "id": "api/orders-checkout/queries/my-orders",
+            "label": "myOrders"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      },
+      {
+        "type": "category",
+        "label": "Subscriptions",
+        "items": [
+          {
+            "type": "doc",
+            "id": "api/orders-checkout/subscriptions/order-status-changed",
+            "label": "orderStatusChanged"
+          }
+        ],
+        "collapsible": true,
+        "collapsed": true
+      }
+    ],
+    "collapsible": true,
+    "collapsed": true
+  },
+  {
+    "type": "category",
+    "label": "Reviews & Ratings",
+    "items": [
+      {
+        "type": "doc",
+        "id": "api/reviews-ratings/review",
+        "label": "review"
+      },
+      {
+        "type": "doc",
+        "id": "api/reviews-ratings/create-review",
+        "label": "createReview"
+      },
+      {
+        "type": "doc",
+        "id": "api/reviews-ratings/mark-review-helpful",
+        "label": "markReviewHelpful"
+      }
+    ],
+    "collapsible": true,
+    "collapsed": true
+  },
+  {
+    "type": "category",
+    "label": "Notifications",
+    "items": [
+      {
+        "type": "doc",
+        "id": "api/notifications/notification-received",
+        "label": "notificationReceived"
+      }
+    ],
+    "collapsible": true,
+    "collapsed": true
+  },
+  {
+    "type": "html",
+    "value": "<hr class=\"gql-sidebar-divider\" />",
+    "defaultStyle": true
+  },
+  {
+    "type": "html",
+    "value": "<div class=\"gql-sidebar-section-title\">Types</div>",
+    "defaultStyle": true
+  },
+  {
+    "type": "category",
+    "label": "Enums",
+    "items": [
+      {
+        "type": "doc",
+        "id": "api/types/enums/currency",
+        "label": "Currency"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/enums/notification-type",
+        "label": "NotificationType"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/enums/order-status",
+        "label": "OrderStatus"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/enums/payment-method",
+        "label": "PaymentMethod"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/enums/product-sort-field",
+        "label": "ProductSortField"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/enums/product-status",
+        "label": "ProductStatus"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/enums/sort-direction",
+        "label": "SortDirection"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/enums/user-role",
+        "label": "UserRole"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/enums/user-status",
+        "label": "UserStatus"
+      }
+    ],
+    "collapsible": true,
+    "collapsed": true
+  },
+  {
+    "type": "category",
+    "label": "Inputs",
+    "items": [
+      {
+        "type": "doc",
+        "id": "api/types/inputs/address-input",
+        "label": "AddressInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/add-to-cart-input",
+        "label": "AddToCartInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/create-product-input",
+        "label": "CreateProductInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/create-review-input",
+        "label": "CreateReviewInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/create-user-input",
+        "label": "CreateUserInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/order-filter-input",
+        "label": "OrderFilterInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/order-item-customization-input",
+        "label": "OrderItemCustomizationInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/place-order-input",
+        "label": "PlaceOrderInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/product-filter-input",
+        "label": "ProductFilterInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/product-specification-input",
+        "label": "ProductSpecificationInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/product-variant-input",
+        "label": "ProductVariantInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/seoinput",
+        "label": "SEOInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/update-cart-item-input",
+        "label": "UpdateCartItemInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/update-product-input",
+        "label": "UpdateProductInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/user-profile-input",
+        "label": "UserProfileInput"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/inputs/variant-option-input",
+        "label": "VariantOptionInput"
+      }
+    ],
+    "collapsible": true,
+    "collapsed": true
+  },
+  {
+    "type": "category",
+    "label": "Types",
+    "items": [
+      {
+        "type": "doc",
+        "id": "api/types/types/address",
+        "label": "Address"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/address-book",
+        "label": "AddressBook"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/boolean",
+        "label": "Boolean"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/cart",
+        "label": "Cart"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/cart-item",
+        "label": "CartItem"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/category",
+        "label": "Category"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/checkout-error",
+        "label": "CheckoutError"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/checkout-result",
+        "label": "CheckoutResult"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/coupon",
+        "label": "Coupon"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/date-time",
+        "label": "DateTime"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/float",
+        "label": "Float"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/int",
+        "label": "Int"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/inventory-info",
+        "label": "InventoryInfo"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/labeled-address",
+        "label": "LabeledAddress"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/moderatable",
+        "label": "Moderatable"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/money",
+        "label": "Money"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/notification",
+        "label": "Notification"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/notification-target",
+        "label": "NotificationTarget"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/order",
+        "label": "Order"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/order-connection",
+        "label": "OrderConnection"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/order-edge",
+        "label": "OrderEdge"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/order-event",
+        "label": "OrderEvent"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/order-item",
+        "label": "OrderItem"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/order-item-customization",
+        "label": "OrderItemCustomization"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/page-info",
+        "label": "PageInfo"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/payment-info",
+        "label": "PaymentInfo"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/payment-pending",
+        "label": "PaymentPending"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/product",
+        "label": "Product"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/product-connection",
+        "label": "ProductConnection"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/product-edge",
+        "label": "ProductEdge"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/product-image",
+        "label": "ProductImage"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/product-specification",
+        "label": "ProductSpecification"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/product-variant",
+        "label": "ProductVariant"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/region",
+        "label": "Region"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/review",
+        "label": "Review"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/review-connection",
+        "label": "ReviewConnection"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/review-edge",
+        "label": "ReviewEdge"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/review-image",
+        "label": "ReviewImage"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/review-reply",
+        "label": "ReviewReply"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/search-result",
+        "label": "SearchResult"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/seometadata",
+        "label": "SEOMetadata"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/shipping-info",
+        "label": "ShippingInfo"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/shipping-method",
+        "label": "ShippingMethod"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/soft-deletable",
+        "label": "SoftDeletable"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/string",
+        "label": "String"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/timestamped",
+        "label": "Timestamped"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/user",
+        "label": "User"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/user-profile",
+        "label": "UserProfile"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/uuid",
+        "label": "UUID"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/variant-option",
+        "label": "VariantOption"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/warehouse",
+        "label": "Warehouse"
+      },
+      {
+        "type": "doc",
+        "id": "api/types/types/warehouse-stock",
+        "label": "WarehouseStock"
+      }
+    ],
+    "collapsible": true,
+    "collapsed": true
+  }
+];
+const __gqlDocsTargetKey = "apiSidebar";
+const __gqlDocsMerge = (items, insert, opts) => {
+  const list = Array.isArray(items) ? items.slice() : [];
+  const mode = opts?.mode ?? 'replace';
+  if (mode === 'replace') return insert;
+  if (mode === 'append') return [...list, ...insert];
+  if (mode === 'prepend') return [...insert, ...list];
+  const reference = opts?.reference;
+  if (!reference) return [...list, ...insert];
+  const findIndex = (item) => {
+    if (typeof item === 'string') return item === reference;
+    if (item && typeof item === 'object') {
+      return item.label === reference || item.id === reference || item.value === reference;
+    }
+    return false;
+  };
+  const index = list.findIndex(findIndex);
+  if (index === -1) return [...list, ...insert];
+  const insertIndex = mode === 'before' ? index : index + 1;
+  return [...list.slice(0, insertIndex), ...insert, ...list.slice(insertIndex)];
+};
+module.exports[__gqlDocsTargetKey] = __gqlDocsMerge(module.exports[__gqlDocsTargetKey], __gqlDocsItems, {"mode":"replace","reference":""});
+// </graphql-docs-sidebar>

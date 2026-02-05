@@ -1,0 +1,13 @@
+# GraphQL API
+
+This is the LLM-optimized documentation for the GraphQL API GraphQL API.
+For human-readable documentation, visit: http://localhost:3000
+
+## Docs
+
+- [API Overview](http://localhost:3000/llm-docs/index.md): Quick reference with all operation signatures - createUser, updateProfile, addAddress, me, user, users, category, categories, …
+- [User Management](http://localhost:3000/llm-docs/user-management.md) - createUser, updateProfile, addAddress, me, user, users
+- [Product Catalog](http://localhost:3000/llm-docs/product-catalog.md) - category, categories, createProduct, updateProduct, deleteProduct, product, products, search
+- [Orders & Checkout](http://localhost:3000/llm-docs/orders-checkout.md) - cart, addToCart, updateCartItem, removeFromCart, placeOrder, order, myOrders, orderStatusChanged
+- [Reviews & Ratings](http://localhost:3000/llm-docs/reviews-ratings.md) - review, createReview, markReviewHelpful
+- [Notifications](http://localhost:3000/llm-docs/notifications.md) - notificationReceived

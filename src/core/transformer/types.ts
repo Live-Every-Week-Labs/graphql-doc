@@ -79,6 +79,7 @@ export interface ExpandedField {
   name: string;
   description?: string;
   type: ExpandedType;
+  typeString?: string;
   isRequired: boolean;
   isList: boolean;
   isDeprecated: boolean;
@@ -88,11 +89,13 @@ export interface ExpandedField {
 
 export interface ExpandedArgument extends Omit<BaseArgument, 'type'> {
   type: ExpandedType;
+  typeString?: string;
 }
 
 export interface Operation extends Omit<BaseOperation, 'arguments' | 'returnType'> {
   arguments: ExpandedArgument[];
   returnType: ExpandedType;
+  returnTypeString?: string;
   examples: Example[];
 }
 

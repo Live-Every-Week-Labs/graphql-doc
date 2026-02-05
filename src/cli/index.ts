@@ -15,6 +15,10 @@ program
   .option('-s, --schema <path>', 'Path to GraphQL schema')
   .option('-o, --output <path>', 'Output directory')
   .option('-c, --config <path>', 'Path to config file')
+  .option('--llm-docs', 'Enable LLM docs generation')
+  .option('--llm-docs-strategy <strategy>', 'LLM docs strategy: single or chunked')
+  .option('--llm-docs-depth <depth>', 'Max type expansion depth for LLM docs (1-5)')
+  .option('--no-llm-examples', 'Exclude examples from LLM docs')
   .action(async (options) => {
     try {
       const { runGenerate } = await import('./commands/generate.js');

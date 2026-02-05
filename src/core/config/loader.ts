@@ -132,6 +132,7 @@ export function resolveConfigPaths(config: Config, rootPath: string): Config {
 
   const resolvedAdapters = { ...(config.adapters ?? {}) };
   const docusaurus = resolvedAdapters.docusaurus ? { ...resolvedAdapters.docusaurus } : undefined;
+  const llmDocs = config.llmDocs ? { ...config.llmDocs } : undefined;
 
   if (docusaurus?.docsRoot) {
     docusaurus.docsRoot = resolvePath(docusaurus.docsRoot);
@@ -151,6 +152,10 @@ export function resolveConfigPaths(config: Config, rootPath: string): Config {
     resolvedAdapters.docusaurus = docusaurus;
   }
 
+  if (llmDocs?.outputDir) {
+    llmDocs.outputDir = resolvePath(llmDocs.outputDir);
+  }
+
   return {
     ...config,
     outputDir: resolvePath(config.outputDir),
@@ -158,5 +163,6 @@ export function resolveConfigPaths(config: Config, rootPath: string): Config {
     examplesDir: config.examplesDir ? resolvePath(config.examplesDir) : undefined,
     schemaExtensions: (config.schemaExtensions ?? []).map(resolvePath),
     adapters: resolvedAdapters,
+    llmDocs: llmDocs ?? config.llmDocs,
   };
 }

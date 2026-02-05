@@ -83,6 +83,7 @@ export class TypeExpander {
             name: f.name,
             description: f.description,
             type: this.expandTypeReference(f.type, visited),
+            typeString: f.type,
             isRequired: f.isRequired,
             isList: f.isList,
             isDeprecated: f.isDeprecated,

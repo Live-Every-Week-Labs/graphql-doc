@@ -15,6 +15,7 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 
 - **Operation-First**: Documentation is organized by operations (queries, mutations) rather than types.
 - 🧩 **Docusaurus Integration**: Generates MDX files compatible with Docusaurus sidebars.
+- 🤖 **LLM-Optimized Markdown**: Generate raw, token-efficient docs and `llms.txt` for AI assistants.
 - 🔍 **Custom Directives**: Use `@docGroup`, `@docPriority`, and `@docTags` to organize your schema.
 - 📄 **External Metadata**: Keep your schema clean by loading examples from external JSON files.
 - 🧱 **Shared Data Mode**: Generates shared JSON maps for operations/types to avoid repeated inline payloads.

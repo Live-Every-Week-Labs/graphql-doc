@@ -16,6 +16,26 @@ npm run start
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
+## LLM Docs Output
+
+This example config writes LLM-optimized Markdown to `./static/llm-docs` and `./static/llms.txt`.
+When the site is running, the raw files are available at:
+
+- `/llm-docs/index.md`
+- `/llm-docs/<group>.md`
+- `/llms.txt`
+
+## Markdown Redirect Middleware (Dev Server)
+
+The sample site includes a small dev-server middleware that checks for
+`Accept: text/markdown` and redirects docs page requests to the raw LLM Markdown files.
+Example:
+
+```bash
+curl -H "Accept: text/markdown" -I \
+  http://localhost:3000/docs/api/user-management/queries/me
+```
+
 ## Build
 
 ```bash

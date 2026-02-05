@@ -76,7 +76,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "User"
     },
     "user": {
       "name": "user",
@@ -92,6 +93,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID!",
           "directives": {}
         }
       ],
@@ -169,7 +171,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "User"
     },
     "users": {
       "name": "users",
@@ -185,6 +188,7 @@
             "name": "String",
             "link": "#string"
           },
+          "typeString": "String",
           "directives": {}
         },
         {
@@ -196,6 +200,7 @@
             "name": "UserRole",
             "link": "#user-role"
           },
+          "typeString": "UserRole",
           "directives": {}
         },
         {
@@ -207,6 +212,7 @@
             "name": "UserStatus",
             "link": "#user-status"
           },
+          "typeString": "UserStatus",
           "directives": {}
         },
         {
@@ -219,6 +225,7 @@
             "name": "Int",
             "link": "#int"
           },
+          "typeString": "Int",
           "directives": {}
         },
         {
@@ -230,6 +237,7 @@
             "name": "String",
             "link": "#string"
           },
+          "typeString": "String",
           "directives": {}
         }
       ],
@@ -257,7 +265,8 @@
       "referencedTypes": ["User", "String", "UserRole", "UserStatus", "Int"],
       "isDeprecated": true,
       "deprecationReason": "Use `usersSearch` instead for better filtering options",
-      "examples": []
+      "examples": [],
+      "returnTypeString": "[User!]!"
     },
     "category": {
       "name": "category",
@@ -273,6 +282,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID",
           "directives": {}
         },
         {
@@ -284,6 +294,7 @@
             "name": "String",
             "link": "#string"
           },
+          "typeString": "String",
           "directives": {}
         }
       ],
@@ -307,7 +318,8 @@
       },
       "referencedTypes": ["Category", "UUID", "String"],
       "isDeprecated": false,
-      "examples": []
+      "examples": [],
+      "returnTypeString": "Category"
     },
     "categories": {
       "name": "categories",
@@ -419,7 +431,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "[Category!]!"
     },
     "product": {
       "name": "product",
@@ -435,6 +448,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID",
           "directives": {}
         },
         {
@@ -446,6 +460,7 @@
             "name": "String",
             "link": "#string"
           },
+          "typeString": "String",
           "directives": {}
         }
       ],
@@ -553,7 +568,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Product"
     },
     "products": {
       "name": "products",
@@ -569,6 +585,7 @@
             "name": "ProductFilterInput",
             "link": "#product-filter-input"
           },
+          "typeString": "ProductFilterInput",
           "directives": {}
         },
         {
@@ -581,6 +598,7 @@
             "name": "ProductSortField",
             "link": "#product-sort-field"
           },
+          "typeString": "ProductSortField",
           "directives": {}
         },
         {
@@ -593,6 +611,7 @@
             "name": "SortDirection",
             "link": "#sort-direction"
           },
+          "typeString": "SortDirection",
           "directives": {}
         },
         {
@@ -605,6 +624,7 @@
             "name": "Int",
             "link": "#int"
           },
+          "typeString": "Int",
           "directives": {}
         },
         {
@@ -616,6 +636,7 @@
             "name": "String",
             "link": "#string"
           },
+          "typeString": "String",
           "directives": {}
         }
       ],
@@ -722,7 +743,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "ProductConnection!"
     },
     "search": {
       "name": "search",
@@ -738,6 +760,7 @@
             "name": "String",
             "link": "#string"
           },
+          "typeString": "String!",
           "directives": {}
         },
         {
@@ -750,6 +773,7 @@
             "name": "Int",
             "link": "#int"
           },
+          "typeString": "Int",
           "directives": {}
         }
       ],
@@ -776,7 +800,8 @@
       },
       "referencedTypes": ["SearchResult", "String", "Int"],
       "isDeprecated": false,
-      "examples": []
+      "examples": [],
+      "returnTypeString": "[SearchResult!]!"
     },
     "cart": {
       "name": "cart",
@@ -897,7 +922,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Cart"
     },
     "order": {
       "name": "order",
@@ -913,6 +939,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID!",
           "directives": {}
         }
       ],
@@ -1024,7 +1051,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Order"
     },
     "myOrders": {
       "name": "myOrders",
@@ -1040,6 +1068,7 @@
             "name": "OrderFilterInput",
             "link": "#order-filter-input"
           },
+          "typeString": "OrderFilterInput",
           "directives": {}
         },
         {
@@ -1052,6 +1081,7 @@
             "name": "SortDirection",
             "link": "#sort-direction"
           },
+          "typeString": "SortDirection",
           "directives": {}
         },
         {
@@ -1064,6 +1094,7 @@
             "name": "Int",
             "link": "#int"
           },
+          "typeString": "Int",
           "directives": {}
         },
         {
@@ -1075,6 +1106,7 @@
             "name": "String",
             "link": "#string"
           },
+          "typeString": "String",
           "directives": {}
         }
       ],
@@ -1190,7 +1222,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "OrderConnection!"
     },
     "review": {
       "name": "review",
@@ -1206,6 +1239,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID!",
           "directives": {}
         }
       ],
@@ -1285,7 +1319,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Review"
     }
   },
   "mutation": {
@@ -1303,6 +1338,7 @@
             "name": "CreateUserInput",
             "link": "#create-user-input"
           },
+          "typeString": "CreateUserInput!",
           "directives": {}
         }
       ],
@@ -1488,7 +1524,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "User!"
     },
     "updateProfile": {
       "name": "updateProfile",
@@ -1504,6 +1541,7 @@
             "name": "UserProfileInput",
             "link": "#user-profile-input"
           },
+          "typeString": "UserProfileInput!",
           "directives": {}
         }
       ],
@@ -1635,7 +1673,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "User!"
     },
     "addAddress": {
       "name": "addAddress",
@@ -1651,6 +1690,7 @@
             "name": "AddressInput",
             "link": "#address-input"
           },
+          "typeString": "AddressInput!",
           "directives": {}
         }
       ],
@@ -1806,7 +1846,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "LabeledAddress!"
     },
     "createProduct": {
       "name": "createProduct",
@@ -1822,6 +1863,7 @@
             "name": "CreateProductInput",
             "link": "#create-product-input"
           },
+          "typeString": "CreateProductInput!",
           "directives": {}
         }
       ],
@@ -2053,7 +2095,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Product!"
     },
     "updateProduct": {
       "name": "updateProduct",
@@ -2069,6 +2112,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID!",
           "directives": {}
         },
         {
@@ -2080,6 +2124,7 @@
             "name": "UpdateProductInput",
             "link": "#update-product-input"
           },
+          "typeString": "UpdateProductInput!",
           "directives": {}
         }
       ],
@@ -2219,7 +2264,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Product!"
     },
     "deleteProduct": {
       "name": "deleteProduct",
@@ -2235,6 +2281,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID!",
           "directives": {}
         }
       ],
@@ -2327,7 +2374,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Boolean!"
     },
     "addToCart": {
       "name": "addToCart",
@@ -2343,6 +2391,7 @@
             "name": "AddToCartInput",
             "link": "#add-to-cart-input"
           },
+          "typeString": "AddToCartInput!",
           "directives": {}
         }
       ],
@@ -2486,7 +2535,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Cart!"
     },
     "updateCartItem": {
       "name": "updateCartItem",
@@ -2502,6 +2552,7 @@
             "name": "UpdateCartItemInput",
             "link": "#update-cart-item-input"
           },
+          "typeString": "UpdateCartItemInput!",
           "directives": {}
         }
       ],
@@ -2612,7 +2663,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Cart!"
     },
     "removeFromCart": {
       "name": "removeFromCart",
@@ -2628,6 +2680,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID!",
           "directives": {}
         }
       ],
@@ -2720,7 +2773,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Cart!"
     },
     "placeOrder": {
       "name": "placeOrder",
@@ -2736,6 +2790,7 @@
             "name": "PlaceOrderInput",
             "link": "#place-order-input"
           },
+          "typeString": "PlaceOrderInput!",
           "directives": {}
         }
       ],
@@ -2963,7 +3018,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "CheckoutResult!"
     },
     "createReview": {
       "name": "createReview",
@@ -2979,6 +3035,7 @@
             "name": "CreateReviewInput",
             "link": "#create-review-input"
           },
+          "typeString": "CreateReviewInput!",
           "directives": {}
         }
       ],
@@ -3186,7 +3243,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Review!"
     },
     "markReviewHelpful": {
       "name": "markReviewHelpful",
@@ -3202,6 +3260,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID!",
           "directives": {}
         },
         {
@@ -3213,6 +3272,7 @@
             "name": "Boolean",
             "link": "#boolean"
           },
+          "typeString": "Boolean!",
           "directives": {}
         }
       ],
@@ -3330,7 +3390,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Review!"
     }
   },
   "subscription": {
@@ -3348,6 +3409,7 @@
             "name": "UUID",
             "link": "#uuid"
           },
+          "typeString": "UUID!",
           "directives": {}
         }
       ],
@@ -3449,7 +3511,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Order!"
     },
     "notificationReceived": {
       "name": "notificationReceived",
@@ -3601,7 +3664,8 @@
             }
           }
         }
-      ]
+      ],
+      "returnTypeString": "Notification!"
     }
   }
 }

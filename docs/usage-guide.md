@@ -169,6 +169,26 @@ extensions:
         sidebarFile: ./sidebars.api.js
 ```
 
+## LLM Docs Output
+
+To expose raw, LLM-optimized Markdown in Docusaurus, write the LLM docs into `static/llm-docs`.
+The generator will also emit `llms.txt` at `static/llms.txt`.
+
+```yaml
+# .graphqlrc
+extensions:
+  graphql-docs:
+    llmDocs:
+      outputDir: ./static/llm-docs
+      baseUrl: https://docs.example.com
+```
+
+When the site is running, the raw files are available at:
+
+- `/llm-docs/index.md`
+- `/llm-docs/<group>.md`
+- `/llms.txt`
+
 ## Organizing Your Documentation
 
 Use custom directives in your schema to control how operations are grouped and ordered. See the [Directives Guide](./directives.md) for details.

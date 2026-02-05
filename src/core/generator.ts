@@ -5,6 +5,7 @@ import { SchemaParser } from './parser/schema-parser';
 import { loadExamples } from './metadata/example-loader';
 import { Transformer } from './transformer/transformer';
 import { createAdapter } from './adapters';
+import { LlmDocsGenerator } from './llm-docs/generator';
 
 import { FileWriter } from './file-writer';
 
@@ -47,6 +48,21 @@ export class Generator {
     console.log('Writing files...');
     const fileWriter = new FileWriter(this.config.outputDir);
     await fileWriter.write(files);
+
+    if (this.config.llmDocs?.enabled) {
+      console.log('Generating LLM-optimized docs...');
+      const llmGenerator = new LlmDocsGenerator(this.config.llmDocs);
+      const { files: llmFiles, warnings } = llmGenerator.generate(docModel);
+
+      const llmWriter = new FileWriter(this.config.llmDocs.outputDir);
+      await llmWriter.write(llmFiles);
+
+      if (warnings.length > 0) {
+        for (const warning of warnings) {
+          console.warn(warning);
+        }
+      }
+    }
 
     console.log('Documentation generated successfully!');
   }

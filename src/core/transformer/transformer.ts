@@ -47,6 +47,7 @@ export class Transformer {
         isRequired: arg.isRequired,
         defaultValue: arg.defaultValue,
         type: this.expander.expand(arg.type),
+        typeString: arg.type,
         directives: arg.directives,
       }));
 
@@ -62,6 +63,7 @@ export class Transformer {
       ...op,
       arguments: args,
       returnType,
+      returnTypeString: op.returnType,
     };
   }
 

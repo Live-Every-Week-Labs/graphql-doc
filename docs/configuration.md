@@ -55,6 +55,25 @@ You can include descriptions in the extension SDL to show up in the generated ty
 | `excludeDocGroups`  | `string \| string[]` | `[]`    | Doc group names to exclude from generated docs   |
 | `typeExpansion`     | `object`             | `{}`    | Settings for type expansion depth and behavior   |
 
+### LLM Docs Options
+
+LLM docs generation produces raw Markdown optimized for LLM ingestion. For Docusaurus, set
+`llmDocs.outputDir` to `./static/llm-docs` so the files are served as raw Markdown (no HTML).
+The generator writes `llms.txt` alongside the `llm-docs` folder (e.g., `./static/llms.txt`).
+
+| Option                     | Type                | Default            | Description                                        |
+| :------------------------- | :------------------ | :----------------- | :------------------------------------------------- |
+| `llmDocs.enabled`          | `boolean`           | `true`             | Enable/disable LLM docs generation                 |
+| `llmDocs.outputDir`        | `string`            | `llm-docs`         | Output directory for raw Markdown files            |
+| `llmDocs.strategy`         | `single \| chunked` | `chunked`          | Generate a single file or one file per `@docGroup` |
+| `llmDocs.includeExamples`  | `boolean`           | `true`             | Include example queries/responses when available   |
+| `llmDocs.generateManifest` | `boolean`           | `true`             | Generate `llms.txt` at the output root             |
+| `llmDocs.singleFileName`   | `string`            | `api-reference.md` | Filename for single-file strategy                  |
+| `llmDocs.maxTypeDepth`     | `1-5`               | `3`                | Maximum nested type expansion depth                |
+| `llmDocs.baseUrl`          | `string`            |                    | Base URL used for absolute links in `llms.txt`     |
+| `llmDocs.apiName`          | `string`            |                    | API name/title used in headers and manifests       |
+| `llmDocs.apiDescription`   | `string`            |                    | API description used in `index.md` and `llms.txt`  |
+
 ### Docusaurus Adapter Options
 
 Adapter-specific settings live under `adapters.<framework>`. For Docusaurus, use `adapters.docusaurus`.
@@ -283,6 +302,9 @@ extensions:
     adapters:
       docusaurus:
         generateSidebar: true
+    llmDocs:
+      outputDir: ./static/llm-docs
+      baseUrl: https://docs.example.com
     typeExpansion:
       maxDepth: 5
       defaultLevels: 0
@@ -301,6 +323,10 @@ module.exports = {
     docusaurus: {
       generateSidebar: true,
     },
+  },
+  llmDocs: {
+    outputDir: './static/llm-docs',
+    baseUrl: 'https://docs.example.com',
   },
   typeExpansion: {
     maxDepth: 5,
