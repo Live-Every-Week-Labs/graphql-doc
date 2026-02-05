@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
+import { DIRECTIVE_DEFINITIONS } from '../../core/parser/directive-definitions.js';
 
 export interface InitOptions {
   force?: boolean;
@@ -207,6 +208,25 @@ export async function runInit(options: InitOptions): Promise<void> {
     await fs.writeJson(mutationExamplePath, SAMPLE_MUTATION_EXAMPLE, { spaces: 2 });
     createdFiles.push(path.relative(targetDir, mutationExamplePath));
 
+    // Create directives file
+    const directivesPath = path.join(targetDir, 'graphql-docs-directives.graphql');
+    const directivesContent = `# GraphQL Documentation Generator Directives
+#
+# These directives are used by @graphql-docs/generator to organize and control
+# documentation generation. They have no runtime behavior and are safe to include
+# in your production schema.
+#
+# Include this file in your schema before deploying to AppSync or other GraphQL servers.
+# For example, in your .graphqlrc:
+#   schema:
+#     - ./schema.graphql
+#     - ./graphql-docs-directives.graphql
+
+${DIRECTIVE_DEFINITIONS}
+`;
+    await fs.writeFile(directivesPath, directivesContent);
+    createdFiles.push('graphql-docs-directives.graphql');
+
     spinner.succeed('Project files created successfully!');
 
     // Show success message
@@ -219,8 +239,13 @@ export async function runInit(options: InitOptions): Promise<void> {
 
     console.log(chalk.white('\n  Next steps:'));
     console.log(chalk.dim(`    1. Place your GraphQL schema at: ${config.schemaPath}`));
-    console.log(chalk.dim(`    2. Customize the example files in ${config.metadataDir}/`));
-    console.log(chalk.dim('    3. Run: graphql-docs generate\n'));
+    console.log(
+      chalk.dim(
+        `    2. Import graphql-docs-directives.graphql in your schema (required for AppSync/production)`
+      )
+    );
+    console.log(chalk.dim(`    3. Customize the example files in ${config.metadataDir}/`));
+    console.log(chalk.dim('    4. Run: graphql-docs generate\n'));
   } catch (error) {
     spinner.fail('Failed to create project files');
     console.error(chalk.red(`\nError: ${(error as Error).message}\n`));

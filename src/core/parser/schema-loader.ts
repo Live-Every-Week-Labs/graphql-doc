@@ -2,6 +2,7 @@ import { loadSchema } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { UrlLoader } from '@graphql-tools/url-loader';
 import { GraphQLSchema } from 'graphql';
+import { DIRECTIVE_DEFINITIONS } from './directive-definitions.js';
 
 export interface SchemaLoaderOptions {
   /**
@@ -26,6 +27,9 @@ export class SchemaLoader {
   /**
    * Loads a GraphQL schema from a file or URL.
    * Supports .graphql, .gql files and introspection from URLs.
+   *
+   * Automatically injects @docGroup, @docPriority, @docTags, and @docIgnore
+   * directive definitions for documentation processing.
    */
   async load(options: SchemaLoaderOptions): Promise<GraphQLSchema> {
     try {
@@ -44,6 +48,7 @@ export class SchemaLoader {
       const schema = await loadSchema(pointers, {
         loaders: [new GraphQLFileLoader(), new UrlLoader()],
         headers: options.headers,
+        typeDefs: DIRECTIVE_DEFINITIONS,
       });
 
       return schema;

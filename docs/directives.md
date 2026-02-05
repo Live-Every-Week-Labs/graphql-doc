@@ -2,6 +2,8 @@
 
 The GraphQL Documentation Generator provides custom directives to control how your operations are organized and displayed in the generated documentation.
 
+> **⚠️ Important for AppSync/Production Deployments:** These directives must be included in your schema before deploying to production servers. See the [Directive Setup Guide](./directives-setup.md) for detailed instructions.
+
 ## Overview
 
 | Directive      | Purpose                                             |

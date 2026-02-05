@@ -66,6 +66,7 @@ The init command creates the following files and directories:
 
 ```
 .graphqlrc                                    # GraphQL configuration file
+graphql-docs-directives.graphql               # Directive definitions for your schema
 docs-metadata/
 ├── examples/
 │   ├── queries/
@@ -73,6 +74,8 @@ docs-metadata/
 │   └── mutations/
 │       └── example-mutation.json            # Sample mutation example
 ```
+
+> **Important:** You must include `graphql-docs-directives.graphql` in your schema before deploying to production (AppSync, Apollo Server, etc.). See the [Directive Setup Guide](./directives-setup.md) for detailed instructions.
 
 **Interactive Prompts:**
 

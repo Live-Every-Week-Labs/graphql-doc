@@ -47,7 +47,13 @@ npx graphql-docs init
 npx graphql-docs init --yes
 ```
 
-This creates a `.graphqlrc` config file and a `docs-metadata/` directory with sample files.
+This creates:
+
+- `.graphqlrc` - Configuration file
+- `docs-metadata/` - Sample metadata files
+- `graphql-docs-directives.graphql` - Directive definitions for your schema
+
+> **Important for AppSync/Production:** You must include `graphql-docs-directives.graphql` in your schema before deploying to production. See the [Directive Setup Guide](./docs/directives-setup.md) for instructions.
 
 ### 2. Generate Documentation
 

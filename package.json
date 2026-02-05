@@ -38,6 +38,7 @@
   "files": [
     "dist",
     "templates",
+    "directives.graphql",
     "README.md",
     "LICENSE"
   ],
