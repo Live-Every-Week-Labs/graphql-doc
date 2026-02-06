@@ -9,6 +9,7 @@ import { Transformer } from './transformer/transformer';
 import { createAdapter } from './adapters';
 import { LlmDocsGenerator } from './llm-docs/generator';
 import { validateOperationExampleCoverage } from './validation/operation-example-validator';
+import { generateAgentSkillArtifacts } from './skills/agent-skill-generator';
 
 import { FileWriter } from './file-writer';
 
@@ -31,6 +32,41 @@ export class Generator {
 
     console.log(`Cleaning output directory: ${resolvedOutputDir}`);
     await fs.emptyDir(resolvedOutputDir);
+  }
+
+  private async cleanAgentSkillArtifactsIfEnabled() {
+    if (!this.config.agentSkill?.enabled) {
+      return;
+    }
+
+    const skillOutputDir =
+      this.config.agentSkill.outputDir ??
+      path.join(this.config.outputDir, 'agent-skills', this.config.agentSkill.name);
+    const resolvedSkillOutputDir = path.resolve(skillOutputDir);
+    const rootDir = path.parse(resolvedSkillOutputDir).root;
+
+    if (resolvedSkillOutputDir === rootDir) {
+      throw new Error(
+        `Refusing to clean agentSkill.outputDir because it resolves to filesystem root: ${resolvedSkillOutputDir}`
+      );
+    }
+
+    if (!(await fs.pathExists(resolvedSkillOutputDir))) {
+      return;
+    }
+
+    console.log(`Refreshing agent skill artifacts in: ${resolvedSkillOutputDir}`);
+
+    await fs.remove(path.join(resolvedSkillOutputDir, 'SKILL.md'));
+    await fs.remove(path.join(resolvedSkillOutputDir, 'scripts'));
+    await fs.remove(path.join(resolvedSkillOutputDir, '_data'));
+
+    const entries = await fs.readdir(resolvedSkillOutputDir);
+    await Promise.all(
+      entries
+        .filter((entry) => entry.toLowerCase().endsWith('.zip'))
+        .map((entry) => fs.remove(path.join(resolvedSkillOutputDir, entry)))
+    );
   }
 
   async generate(schemaPointer: string | string[]) {
@@ -70,12 +106,22 @@ export class Generator {
     });
     const docModel = transformer.transform(operations, examples);
 
+    const skillArtifacts = await generateAgentSkillArtifacts(docModel, this.config);
+    const adapterConfig =
+      skillArtifacts.introDoc !== undefined
+        ? {
+            ...this.config,
+            introDocs: [...this.config.introDocs, skillArtifacts.introDoc],
+          }
+        : this.config;
+
     console.log('Generating documentation...');
-    const adapter = createAdapter(this.config);
-    const files = adapter.adapt(docModel);
+    const adapter = createAdapter(adapterConfig);
+    const files = [...skillArtifacts.files, ...adapter.adapt(docModel)];
 
     console.log('Writing files...');
     await this.cleanOutputDirIfEnabled();
+    await this.cleanAgentSkillArtifactsIfEnabled();
     const fileWriter = new FileWriter(this.config.outputDir);
     await fileWriter.write(files);
 

@@ -14,6 +14,29 @@
       "type": "string",
       "default": "docusaurus"
     },
+    "introDocs": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "source": { "type": "string" },
+              "content": { "type": "string" },
+              "outputPath": { "type": "string" },
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "title": { "type": "string" }
+            },
+            "anyOf": [{ "required": ["source"] }, { "required": ["content"] }]
+          }
+        ]
+      },
+      "default": []
+    },
     "metadataDir": {
       "type": "string",
       "default": "./docs-metadata"
@@ -83,6 +106,68 @@
         "showCircularReferences": {
           "type": "boolean",
           "default": true
+        }
+      },
+      "default": {}
+    },
+    "agentSkill": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "name": {
+          "type": "string",
+          "default": "graphql-api-skill"
+        },
+        "description": {
+          "type": "string"
+        },
+        "outputDir": {
+          "type": "string"
+        },
+        "includeExamples": {
+          "type": "boolean",
+          "default": true
+        },
+        "pythonScriptName": {
+          "type": "string",
+          "default": "graphql_docs_skill.py"
+        },
+        "introDoc": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "outputPath": {
+              "type": "string",
+              "default": "intro/ai-agent-skill.mdx"
+            },
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string",
+              "default": "AI Agent Skill"
+            },
+            "title": {
+              "type": "string",
+              "default": "AI Agent Skill"
+            },
+            "description": {
+              "type": "string"
+            },
+            "downloadUrl": {
+              "type": "string"
+            },
+            "downloadLabel": {
+              "type": "string"
+            }
+          },
+          "default": {}
         }
       },
       "default": {}
@@ -211,12 +296,13 @@
                     "type": "object",
                     "properties": {
                       "source": { "type": "string" },
+                      "content": { "type": "string" },
                       "outputPath": { "type": "string" },
                       "id": { "type": "string" },
                       "label": { "type": "string" },
                       "title": { "type": "string" }
                     },
-                    "required": ["source"]
+                    "anyOf": [{ "required": ["source"] }, { "required": ["content"] }]
                   }
                 ]
               },

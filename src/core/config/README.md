@@ -14,6 +14,7 @@ The `src/core/config` module handles configuration loading and validation for th
   - `outputDir`: Where to generate docs (default: `./docs/api`).
   - `cleanOutputDir`: Remove existing files in `outputDir` before generation (default: `false`).
   - `framework`: Adapter key to use (default: `docusaurus`).
+  - `introDocs`: Framework-agnostic intro docs prepended before generated API pages.
   - `metadataDir`: Path to external metadata (default: `./docs-metadata`).
   - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).
   - `exampleFiles`: Explicit example file paths/globs (string or array). Overrides `examplesDir` lookup.
@@ -28,9 +29,12 @@ The `src/core/config` module handles configuration loading and validation for th
   - `llmDocs`: LLM-optimized Markdown output settings.
     - `enabled`, `outputDir`, `strategy`, `includeExamples`, `generateManifest`
     - `singleFileName`, `maxTypeDepth`, `baseUrl`, `apiName`, `apiDescription`
+  - `agentSkill`: AI skill artifact generation settings.
+    - `enabled`, `name`, `description`, `outputDir`, `includeExamples`, `pythonScriptName`
+    - `introDoc.enabled`, `introDoc.outputPath`, `introDoc.id`, `introDoc.title`, `introDoc.description`, `introDoc.downloadUrl`, `introDoc.downloadLabel`
   - `adapters.docusaurus`: Docusaurus-only options, including:
     - `singlePage`, `docsRoot`, `docIdPrefix`, `unsafeMdxDescriptions`, `typeLinkMode`
-    - Sidebar controls (`generateSidebar`, `sidebar*`) and `introDocs`
+    - Sidebar controls (`generateSidebar`, `sidebar*`)
 
 ### 2. Config Loader
 
@@ -49,7 +53,7 @@ The `src/core/config` module handles configuration loading and validation for th
   - Legacy Docusaurus keys (e.g. `singlePage`, `sidebar*`) are mapped into `adapters.docusaurus`.
 
 - **Path Resolution Helper:**
-  - `resolveConfigPaths` normalizes relative paths (output, metadata, examples, explicit example files, schema extensions, LLM docs output, and Docusaurus intro docs) against a root directory.
+  - `resolveConfigPaths` normalizes relative paths (output, metadata, examples, explicit example files, schema extensions, LLM docs output, intro docs, and agent skill output) against a root directory.
 
 ## Usage
 

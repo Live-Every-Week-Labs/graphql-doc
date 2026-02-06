@@ -22,6 +22,7 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - 🧪 **Example Coverage Guardrail**: Optionally fail builds when documented operations are missing examples.
 - 🧱 **Shared Data Mode**: Generates shared JSON maps for operations/types to avoid repeated inline payloads.
 - 📚 **Intro Docs**: Prepend MD/MDX docs to the API sidebar as a landing section.
+- 🤖 **AI Skill Artifacts**: Optionally generate `SKILL.md` + helper script and an intro page with download links.
 - 🧭 **Sidebar Controls**: Configurable category index pages and section header labels.
 - 🔗 **Type Link Modes**: Control when type names render as links (`none`, `deep`, `all`).
 - 🧩 **Single-Page Mode**: Generate a single MDX file with hash-based navigation.
@@ -77,6 +78,10 @@ extensions:
     outputDir: './docs/api'
     framework: 'docusaurus'
     metadataDir: './docs-metadata'
+    introDocs:
+      - ./docs/api-overview.mdx
+    agentSkill:
+      enabled: true
     adapters:
       docusaurus: {}
 ```

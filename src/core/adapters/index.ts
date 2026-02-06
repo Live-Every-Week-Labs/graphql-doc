@@ -20,6 +20,9 @@ export function createAdapter(config: Config): Adapter {
       const docusaurusConfig = {
         ...config.adapters?.docusaurus,
       };
+      const rootIntroDocs = config.introDocs ?? [];
+      const adapterIntroDocs = docusaurusConfig.introDocs ?? [];
+      docusaurusConfig.introDocs = [...rootIntroDocs, ...adapterIntroDocs];
       if (!docusaurusConfig.llmDocsBasePath && config.llmDocs?.enabled) {
         docusaurusConfig.llmDocsBasePath = inferLlmDocsBasePath(config.llmDocs.outputDir);
       }

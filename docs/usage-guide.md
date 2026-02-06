@@ -62,13 +62,14 @@ Options:
 
 Generate documentation from your GraphQL schema.
 
-````bash
+```bash
 graphql-docs generate [options]
 
 Options:
   -s, --schema <path>   Path to GraphQL schema file or URL
   -o, --output <path>   Output directory
   -c, --config <path>   Path to config file
+```
 
 ### `validate`
 
@@ -81,9 +82,7 @@ Options:
   -s, --schema <path>   Path to GraphQL schema file or URL
   -c, --config <path>   Path to config file
   --strict              Treat warnings as errors
-````
-
-````
+```
 
 ## Using a Config File
 
@@ -102,7 +101,7 @@ extensions:
       docusaurus: {}
     schemaExtensions:
       - ./schema/framework-stubs.graphql
-````
+```
 
 Then simply run:
 
@@ -124,14 +123,19 @@ For MVP, error documentation is handled in two places:
 ```yaml
 extensions:
   graphql-docs:
+    introDocs:
+      - ./docs/api-overview.mdx
+      - source: ./docs/authentication.mdx
+        outputPath: intro/authentication.mdx
+    agentSkill:
+      enabled: true
+      introDoc:
+        enabled: true
+        outputPath: intro/ai-agent-skill.mdx
     adapters:
       docusaurus:
         singlePage: false
         typeLinkMode: deep
-        introDocs:
-          - ./docs/api-overview.mdx
-          - source: ./docs/authentication.mdx
-            outputPath: intro/authentication.mdx
         sidebarSectionLabels:
           operations: Operations
           types: Types
@@ -214,6 +218,14 @@ extensions:
     exampleFiles:
       - ./docs-metadata/examples/queries/*.json
       - ./docs-metadata/examples/mutations/*.json
+```
+
+If you want to fail CI when a documented operation has no examples, enable:
+
+```yaml
+extensions:
+  graphql-docs:
+    requireExamplesForDocumentedOperations: true
 ```
 
 ### Example Files

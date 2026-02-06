@@ -7,6 +7,7 @@ function createConfig(overrides: Partial<Config> = {}): Config {
     outputDir: './docs/api',
     cleanOutputDir: false,
     framework: 'docusaurus',
+    introDocs: [],
     metadataDir: './docs-metadata',
     examplesDir: './docs-metadata/examples',
     exampleFiles: undefined,
@@ -20,6 +21,18 @@ function createConfig(overrides: Partial<Config> = {}): Config {
       maxDepth: 5,
       defaultLevels: 0,
       showCircularReferences: true,
+    },
+    agentSkill: {
+      enabled: false,
+      name: 'graphql-api-skill',
+      includeExamples: true,
+      pythonScriptName: 'graphql_docs_skill.py',
+      introDoc: {
+        enabled: true,
+        outputPath: 'intro/ai-agent-skill.mdx',
+        label: 'AI Agent Skill',
+        title: 'AI Agent Skill',
+      },
     },
     adapters: {
       docusaurus: {},

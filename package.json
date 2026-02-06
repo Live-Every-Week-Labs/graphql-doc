@@ -79,6 +79,7 @@
     "graphql": "^16.12.0",
     "graphql-config": "^5.0.0",
     "handlebars": "^4.7.8",
+    "jszip": "^3.10.1",
     "ora": "^8.2.0",
     "zod": "^3.22.0"
   },

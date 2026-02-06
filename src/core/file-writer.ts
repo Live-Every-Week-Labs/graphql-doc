@@ -24,7 +24,7 @@ export class FileWriter {
       }
 
       await fs.ensureDir(path.dirname(filePath));
-      await fs.writeFile(filePath, file.content);
+      await fs.writeFile(filePath, file.binaryContent ?? file.content);
       console.log(`Written: ${file.path}`);
     }
   }

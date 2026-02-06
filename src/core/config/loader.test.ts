@@ -111,5 +111,67 @@ describe('loadGeneratorConfig', () => {
       expect(config.exampleFiles).toEqual(['./metadata/examples/all.json']);
       expect(config.examplesDir).toBeUndefined();
     });
+
+    it('keeps root-level introDocs in root config', async () => {
+      const introDocsPath = path.join(tempDir, 'intro-docs-config.json');
+      fs.writeFileSync(
+        introDocsPath,
+        JSON.stringify({
+          outputDir: './docs',
+          framework: 'docusaurus',
+          introDocs: ['./docs/intro/overview.mdx'],
+        })
+      );
+
+      const config = await loadGeneratorConfig(process.cwd(), introDocsPath);
+      expect(config.introDocs).toEqual(['./docs/intro/overview.mdx']);
+      expect(config.adapters.docusaurus.introDocs).toEqual([]);
+    });
+
+    it('sets a default agentSkill outputDir when enabled', async () => {
+      const agentSkillPath = path.join(tempDir, 'agent-skill-config.json');
+      fs.writeFileSync(
+        agentSkillPath,
+        JSON.stringify({
+          outputDir: './docs/api',
+          framework: 'docusaurus',
+          agentSkill: {
+            enabled: true,
+            name: 'docs-skill',
+          },
+        })
+      );
+
+      const config = await loadGeneratorConfig(process.cwd(), agentSkillPath);
+      expect(config.agentSkill.enabled).toBe(true);
+      expect(config.agentSkill.outputDir).toBe(
+        path.join('./docs/api', 'agent-skills', 'docs-skill')
+      );
+    });
+
+    it('loads agentSkill intro doc title and description', async () => {
+      const agentSkillIntroPath = path.join(tempDir, 'agent-skill-intro-config.json');
+      fs.writeFileSync(
+        agentSkillIntroPath,
+        JSON.stringify({
+          outputDir: './docs/api',
+          framework: 'docusaurus',
+          agentSkill: {
+            enabled: true,
+            name: 'docs-skill',
+            introDoc: {
+              title: 'Integration Skill',
+              description: 'Download and install this skill package.',
+            },
+          },
+        })
+      );
+
+      const config = await loadGeneratorConfig(process.cwd(), agentSkillIntroPath);
+      expect(config.agentSkill.introDoc.title).toBe('Integration Skill');
+      expect(config.agentSkill.introDoc.description).toBe(
+        'Download and install this skill package.'
+      );
+    });
   });
 });

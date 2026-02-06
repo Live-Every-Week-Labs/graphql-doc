@@ -20,7 +20,6 @@ const LEGACY_DOCUSAURUS_KEYS = [
   'sidebarInsertPosition',
   'sidebarInsertReference',
   'sidebarSectionLabels',
-  'introDocs',
 ];
 
 function normalizeConfigInput(input: unknown): unknown {
@@ -121,6 +120,14 @@ function processConfigDefaults(config: Config): Config {
     config.examplesDir = path.join(config.metadataDir, 'examples');
   }
 
+  if (config.agentSkill?.enabled && !config.agentSkill.outputDir) {
+    config.agentSkill.outputDir = path.join(
+      config.outputDir,
+      'agent-skills',
+      config.agentSkill.name
+    );
+  }
+
   return config;
 }
 
@@ -131,19 +138,32 @@ export function resolveConfigPaths(config: Config, rootPath: string): Config {
   const resolvedAdapters = { ...(config.adapters ?? {}) };
   const docusaurus = resolvedAdapters.docusaurus ? { ...resolvedAdapters.docusaurus } : undefined;
   const llmDocs = config.llmDocs ? { ...config.llmDocs } : undefined;
+  const agentSkill = config.agentSkill ? { ...config.agentSkill } : undefined;
+
+  const resolveIntroDocs = (introDocs: Config['introDocs']) => {
+    if (!introDocs || introDocs.length === 0) {
+      return introDocs;
+    }
+
+    return introDocs.map((doc) => {
+      if (typeof doc === 'string') {
+        return resolvePath(doc);
+      }
+
+      if (doc.source) {
+        return { ...doc, source: resolvePath(doc.source) };
+      }
+
+      return doc;
+    });
+  };
 
   if (docusaurus?.docsRoot) {
     docusaurus.docsRoot = resolvePath(docusaurus.docsRoot);
   }
 
   if (docusaurus?.introDocs && docusaurus.introDocs.length > 0) {
-    docusaurus.introDocs = docusaurus.introDocs.map((doc) => {
-      if (typeof doc === 'string') {
-        return resolvePath(doc);
-      }
-      const source = resolvePath(doc.source);
-      return { ...doc, source };
-    });
+    docusaurus.introDocs = resolveIntroDocs(docusaurus.introDocs);
   }
 
   if (docusaurus) {
@@ -154,13 +174,19 @@ export function resolveConfigPaths(config: Config, rootPath: string): Config {
     llmDocs.outputDir = resolvePath(llmDocs.outputDir);
   }
 
+  if (agentSkill?.outputDir) {
+    agentSkill.outputDir = resolvePath(agentSkill.outputDir);
+  }
+
   return {
     ...config,
     outputDir: resolvePath(config.outputDir),
+    introDocs: resolveIntroDocs(config.introDocs),
     metadataDir: resolvePath(config.metadataDir),
     examplesDir: config.examplesDir ? resolvePath(config.examplesDir) : undefined,
     exampleFiles: config.exampleFiles?.map(resolvePath),
     schemaExtensions: (config.schemaExtensions ?? []).map(resolvePath),
+    agentSkill: agentSkill ?? config.agentSkill,
     adapters: resolvedAdapters,
     llmDocs: llmDocs ?? config.llmDocs,
   };

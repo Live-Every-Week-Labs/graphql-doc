@@ -21,6 +21,7 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 | `outputDir`         | `string`   | `./docs/api` | Directory where generated documentation will be written                |
 | `cleanOutputDir`    | `boolean`  | `false`      | Remove existing files in `outputDir` before writing new generated docs |
 | `framework`         | `string`   | `docusaurus` | Adapter key to use (currently only `docusaurus` is supported)          |
+| `introDocs`         | `array`    | `[]`         | Intro docs prepended before API content (framework-agnostic)           |
 | `schemaExtensions`  | `string[]` | `[]`         | Extra SDL files merged into the schema (framework scalars/directives)  |
 | `allowRemoteSchema` | `boolean`  | `false`      | Allow loading schemas from remote URLs (http/https)                    |
 
@@ -118,7 +119,6 @@ Adapter-specific settings live under `adapters.<framework>`. For Docusaurus, use
 | `adapters.docusaurus.sidebarInsertPosition`  | `string`  | `replace`          | How to insert items (`replace`, `append`, `prepend`, `before`, `after`)                   |
 | `adapters.docusaurus.sidebarInsertReference` | `string`  |                    | Label/id/value to insert before/after when using `before`/`after`                         |
 | `adapters.docusaurus.sidebarCategoryIndex`   | `boolean` | `false`            | When true, category labels link to a generated index page                                 |
-| `adapters.docusaurus.introDocs`              | `array`   | `[]`               | MD/MDX docs to prepend to the API sidebar                                                 |
 | `adapters.docusaurus.sidebarSectionLabels`   | `object`  | `Operations/Types` | Labels for sidebar section headers (operations/types)                                     |
 
 When `adapters.docusaurus.sidebarMerge` is enabled and the target sidebar file exists, the
@@ -284,30 +284,76 @@ extensions:
 
 ### Intro Docs
 
-Provide MD/MDX files that appear at the top of the API sidebar. The first doc becomes the landing page
-for the API docs (via sidebar order).
+Provide intro pages at the top of generated API docs. This is configured at the root level so it can
+be reused across adapters.
 
 ```yaml
 extensions:
   graphql-docs:
-    adapters:
-      docusaurus:
-        introDocs:
-          - ./docs/api-overview.mdx
-          - source: ./docs/authentication.mdx
-            label: Authentication
-            outputPath: intro/authentication.mdx
+    introDocs:
+      - ./docs/api-overview.mdx
+      - source: ./docs/authentication.mdx
+        label: Authentication
+        outputPath: intro/authentication.mdx
+      - content: |
+          # API Changelog
+
+          Keep this section focused on breaking changes.
+        outputPath: intro/changelog.mdx
+        label: Changelog
 ```
 
 Each entry can be either a string path or an object:
 
-| Field        | Type     | Description                                       |
-| :----------- | :------- | :------------------------------------------------ |
-| `source`     | `string` | Path to the source `.md` or `.mdx` file.          |
-| `outputPath` | `string` | Optional path under the output directory.         |
-| `id`         | `string` | Optional frontmatter id (inserted if missing).    |
-| `label`      | `string` | Optional sidebar label (inserted if missing).     |
-| `title`      | `string` | Optional frontmatter title (inserted if missing). |
+| Field        | Type     | Description                                                 |
+| :----------- | :------- | :---------------------------------------------------------- |
+| `source`     | `string` | Path to the source `.md` or `.mdx` file.                    |
+| `content`    | `string` | Inline markdown/MDX content (use this instead of `source`). |
+| `outputPath` | `string` | Optional path under the output directory.                   |
+| `id`         | `string` | Optional frontmatter id (inserted if missing).              |
+| `label`      | `string` | Optional sidebar label (inserted if missing).               |
+| `title`      | `string` | Optional frontmatter title (inserted if missing).           |
+
+`source` or `content` is required for object entries.
+
+### AI Agent Skill Output
+
+Enable `agentSkill` to generate skill artifacts for AI agents from the same docs JSON used by the UI.
+When `agentSkill.introDoc.enabled` is true, a generated intro page is also added through `introDocs`.
+
+| Option                              | Type      | Default                    | Description                                                                      |
+| :---------------------------------- | :-------- | :------------------------- | :------------------------------------------------------------------------------- |
+| `agentSkill.enabled`                | `boolean` | `false`                    | Enable AI agent skill artifact generation                                        |
+| `agentSkill.name`                   | `string`  | `graphql-api-skill`        | Skill name used in `SKILL.md` metadata                                           |
+| `agentSkill.description`            | `string`  |                            | Optional custom skill description                                                |
+| `agentSkill.outputDir`              | `string`  | auto                       | Output directory for `SKILL.md`, helper script, and generated `.zip` package     |
+| `agentSkill.includeExamples`        | `boolean` | `true`                     | Include examples in helper script responses by default                           |
+| `agentSkill.pythonScriptName`       | `string`  | `graphql_docs_skill.py`    | Helper script filename under `scripts/`                                          |
+| `agentSkill.introDoc.enabled`       | `boolean` | `true`                     | Generate an intro markdown page with a download button and setup links           |
+| `agentSkill.introDoc.outputPath`    | `string`  | `intro/ai-agent-skill.mdx` | Intro doc path under `outputDir`                                                 |
+| `agentSkill.introDoc.id`            | `string`  |                            | Optional frontmatter `id` override                                               |
+| `agentSkill.introDoc.title`         | `string`  | `AI Agent Skill`           | Page title and sidebar title for the generated intro doc                         |
+| `agentSkill.introDoc.description`   | `string`  |                            | Optional brief description shown under the intro page title                      |
+| `agentSkill.introDoc.downloadUrl`   | `string`  |                            | Optional absolute/relative URL override for the download button                  |
+| `agentSkill.introDoc.downloadLabel` | `string`  |                            | Optional custom download button label (default: `Download Skill Package (.zip)`) |
+
+```yaml
+extensions:
+  graphql-docs:
+    outputDir: ./docs/api
+    introDocs:
+      - ./docs/api-overview.mdx
+    agentSkill:
+      enabled: true
+      name: docs-agent-skill
+      outputDir: ./docs/api/agent-skills/docs-agent-skill
+      includeExamples: true
+      introDoc:
+        enabled: true
+        outputPath: intro/ai-agent-skill.mdx
+        title: AI Agent Skill
+        description: Download the packaged skill and install it in your preferred AI tool.
+```
 
 ### Type Expansion Options
 

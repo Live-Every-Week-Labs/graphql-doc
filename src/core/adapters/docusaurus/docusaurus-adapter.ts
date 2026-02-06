@@ -38,7 +38,8 @@ export interface DocusaurusAdapterConfig {
   introDocs?: Array<
     | string
     | {
-        source: string;
+        source?: string;
+        content?: string;
         outputPath?: string;
         id?: string;
         label?: string;
@@ -65,7 +66,8 @@ export class DocusaurusAdapter {
   }
 
   private getIntroDocs(): Array<{
-    source: string;
+    source?: string;
+    content?: string;
     outputPath?: string;
     id?: string;
     label?: string;
@@ -264,15 +266,25 @@ export class DocusaurusAdapter {
     const sidebarItems: SidebarItem[] = [];
 
     for (const doc of introDocs) {
-      const sourcePath = doc.source;
-      if (!fs.existsSync(sourcePath)) {
-        throw new Error(`Intro doc not found: ${sourcePath}`);
+      let rawContent = doc.content;
+      if (!rawContent) {
+        const sourcePath = doc.source;
+        if (!sourcePath) {
+          throw new Error('Intro doc entries must include either "source" or "content".');
+        }
+        if (!fs.existsSync(sourcePath)) {
+          throw new Error(`Intro doc not found: ${sourcePath}`);
+        }
+        rawContent = fs.readFileSync(sourcePath, 'utf-8');
       }
-      const rawContent = fs.readFileSync(sourcePath, 'utf-8');
       const { frontMatter } = this.parseFrontMatter(rawContent);
-      const sourceExt = path.extname(sourcePath) || '.mdx';
-      const outputPathRaw = doc.outputPath ?? path.basename(sourcePath);
-      const outputPath = outputPathRaw.endsWith(sourceExt)
+      const sourceExt = doc.source ? path.extname(doc.source) || '.mdx' : '.mdx';
+      const outputPathRaw =
+        doc.outputPath ??
+        (doc.source
+          ? path.basename(doc.source)
+          : `${slugify(doc.id ?? doc.label ?? doc.title ?? 'intro') || 'intro'}.mdx`);
+      const outputPath = path.extname(outputPathRaw)
         ? outputPathRaw
         : `${outputPathRaw}${sourceExt}`;
       const rawId =

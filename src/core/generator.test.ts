@@ -65,6 +65,7 @@ describe('Generator', () => {
       outputDir,
       cleanOutputDir: false,
       framework: 'docusaurus',
+      introDocs: [],
       metadataDir,
       examplesDir: path.join(metadataDir, 'examples'),
       allowRemoteSchema: false,
@@ -87,6 +88,18 @@ describe('Generator', () => {
           unsafeMdxDescriptions: false,
           typeLinkMode: 'none',
           generateSidebar: true,
+        },
+      },
+      agentSkill: {
+        enabled: false,
+        name: 'graphql-api-skill',
+        includeExamples: true,
+        pythonScriptName: 'graphql_docs_skill.py',
+        introDoc: {
+          enabled: true,
+          outputPath: 'intro/ai-agent-skill.mdx',
+          label: 'AI Agent Skill',
+          title: 'AI Agent Skill',
         },
       },
     };
@@ -232,6 +245,92 @@ describe('Generator', () => {
       await generator.generate('schema.graphql');
 
       expect(await fs.pathExists(path.join(outputDir, 'sidebars.js'))).toBe(true);
+    });
+
+    it('generates agent skill files and intro doc when enabled', async () => {
+      const generator = new Generator({
+        ...config,
+        agentSkill: {
+          ...config.agentSkill,
+          enabled: true,
+        },
+      });
+
+      await generator.generate('schema.graphql');
+
+      expect(
+        await fs.pathExists(path.join(outputDir, 'agent-skills', 'graphql-api-skill', 'SKILL.md'))
+      ).toBe(true);
+      expect(
+        await fs.pathExists(
+          path.join(
+            outputDir,
+            'agent-skills',
+            'graphql-api-skill',
+            'scripts',
+            'graphql_docs_skill.py'
+          )
+        )
+      ).toBe(true);
+      expect(
+        await fs.pathExists(
+          path.join(outputDir, 'agent-skills', 'graphql-api-skill', '_data', 'operations.json')
+        )
+      ).toBe(true);
+      expect(
+        await fs.pathExists(
+          path.join(outputDir, 'agent-skills', 'graphql-api-skill', '_data', 'types.json')
+        )
+      ).toBe(true);
+      expect(
+        await fs.pathExists(
+          path.join(outputDir, 'agent-skills', 'graphql-api-skill', 'graphql-api-skill.zip')
+        )
+      ).toBe(true);
+      expect(await fs.pathExists(path.join(outputDir, 'intro', 'ai-agent-skill.mdx'))).toBe(true);
+
+      const sidebarContent = await fs.readFile(path.join(outputDir, 'sidebars.js'), 'utf-8');
+      expect(sidebarContent).toContain('intro/ai-agent-skill');
+
+      const introContent = await fs.readFile(
+        path.join(outputDir, 'intro', 'ai-agent-skill.mdx'),
+        'utf-8'
+      );
+      expect(introContent).toContain('Download Skill Package (.zip)');
+    });
+
+    it('refreshes stale agent skill files and zip artifacts on each run', async () => {
+      const skillDir = path.join(outputDir, 'agent-skills', 'graphql-api-skill');
+      await fs.ensureDir(path.join(skillDir, 'scripts'));
+      await fs.ensureDir(path.join(skillDir, '_data'));
+      await fs.writeFile(path.join(skillDir, 'SKILL.md'), 'old skill');
+      await fs.writeFile(path.join(skillDir, 'scripts', 'old_script.py'), 'old script');
+      await fs.writeFile(path.join(skillDir, '_data', 'old.json'), 'old data');
+      await fs.writeFile(path.join(skillDir, 'legacy-skill.zip'), 'old zip');
+      await fs.writeFile(path.join(skillDir, 'keep.txt'), 'keep');
+
+      const generator = new Generator({
+        ...config,
+        agentSkill: {
+          ...config.agentSkill,
+          enabled: true,
+        },
+      });
+
+      await generator.generate('schema.graphql');
+
+      expect(await fs.pathExists(path.join(skillDir, 'SKILL.md'))).toBe(true);
+      expect(await fs.pathExists(path.join(skillDir, 'scripts', 'graphql_docs_skill.py'))).toBe(
+        true
+      );
+      expect(await fs.pathExists(path.join(skillDir, '_data', 'operations.json'))).toBe(true);
+      expect(await fs.pathExists(path.join(skillDir, '_data', 'types.json'))).toBe(true);
+      expect(await fs.pathExists(path.join(skillDir, 'graphql-api-skill.zip'))).toBe(true);
+
+      expect(await fs.pathExists(path.join(skillDir, 'scripts', 'old_script.py'))).toBe(false);
+      expect(await fs.pathExists(path.join(skillDir, '_data', 'old.json'))).toBe(false);
+      expect(await fs.pathExists(path.join(skillDir, 'legacy-skill.zip'))).toBe(false);
+      expect(await fs.pathExists(path.join(skillDir, 'keep.txt'))).toBe(true);
     });
 
     it('fails when required example coverage is enabled and examples are missing', async () => {

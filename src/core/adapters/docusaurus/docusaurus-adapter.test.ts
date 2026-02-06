@@ -168,6 +168,28 @@ describe('DocusaurusAdapter', () => {
     expect(sidebarFile?.content).toContain('gql-sidebar-divider');
   });
 
+  it('supports inline intro docs without a source file', () => {
+    const adapter = new DocusaurusAdapter({
+      introDocs: [
+        {
+          content: '# Inline Intro\n\nGenerated intro content.',
+          outputPath: 'intro/inline-intro.mdx',
+          id: 'intro/inline-intro',
+          label: 'Inline Intro',
+          title: 'Inline Intro',
+        },
+      ],
+    });
+    const files = adapter.adapt(mockModel);
+
+    const introFile = files.find((f) => f.path === 'intro/inline-intro.mdx');
+    expect(introFile).toBeDefined();
+    expect(introFile?.content).toContain('# Inline Intro');
+
+    const sidebarFile = files.find((f) => f.path === 'sidebars.js');
+    expect(sidebarFile?.content).toContain('intro/inline-intro');
+  });
+
   describe('Single-Page Mode', () => {
     beforeEach(() => {
       vi.clearAllMocks();

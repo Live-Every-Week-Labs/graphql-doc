@@ -1,15 +1,44 @@
 import { z } from 'zod';
 
-const IntroDocSchema = z.union([
-  z.string(),
-  z.object({
-    source: z.string(),
+const IntroDocObjectSchema = z
+  .object({
+    source: z.string().optional(),
+    content: z.string().optional(),
     outputPath: z.string().optional(),
     id: z.string().optional(),
     label: z.string().optional(),
     title: z.string().optional(),
-  }),
-]);
+  })
+  .refine((value) => Boolean(value.source || value.content), {
+    message: 'Intro docs must include either "source" or "content".',
+  });
+
+const IntroDocSchema = z.union([z.string(), IntroDocObjectSchema]);
+
+const AgentSkillIntroDocSchema = z
+  .object({
+    enabled: z.boolean().default(true),
+    outputPath: z.string().default('intro/ai-agent-skill.mdx'),
+    id: z.string().optional(),
+    label: z.string().default('AI Agent Skill'),
+    title: z.string().default('AI Agent Skill'),
+    description: z.string().optional(),
+    downloadUrl: z.string().optional(),
+    downloadLabel: z.string().optional(),
+  })
+  .default({});
+
+const AgentSkillSchema = z
+  .object({
+    enabled: z.boolean().default(false),
+    name: z.string().min(1).default('graphql-api-skill'),
+    description: z.string().optional(),
+    outputDir: z.string().optional(),
+    includeExamples: z.boolean().default(true),
+    pythonScriptName: z.string().default('graphql_docs_skill.py'),
+    introDoc: AgentSkillIntroDocSchema,
+  })
+  .default({});
 
 const DocusaurusAdapterSchema = z
   .object({
@@ -67,6 +96,7 @@ export const ConfigSchema = z.object({
   outputDir: z.string().default('./docs/api'),
   cleanOutputDir: z.boolean().default(false),
   framework: z.string().default('docusaurus'),
+  introDocs: z.array(IntroDocSchema).default([]),
   metadataDir: z.string().default('./docs-metadata'),
   examplesDir: z.string().optional(),
   exampleFiles: z
@@ -104,10 +134,14 @@ export const ConfigSchema = z.object({
       showCircularReferences: z.boolean().default(true),
     })
     .default({}),
+  agentSkill: AgentSkillSchema,
   adapters: AdaptersSchema,
   llmDocs: LlmDocsSchema,
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
+export type IntroDocConfig = z.infer<typeof IntroDocSchema>;
+export type IntroDocConfigObject = z.infer<typeof IntroDocObjectSchema>;
+export type AgentSkillConfig = z.infer<typeof AgentSkillSchema>;
 export type DocusaurusAdapterConfig = z.infer<typeof DocusaurusAdapterSchema>;
 export type LlmDocsConfig = z.infer<typeof LlmDocsSchema>;
