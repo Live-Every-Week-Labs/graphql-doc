@@ -154,6 +154,23 @@ describe('generate command', () => {
       expect(await fs.pathExists(customOutput)).toBe(true);
       expect(await fs.pathExists(path.join(customOutput, 'sidebars.js'))).toBe(true);
     });
+
+    it('removes stale files with --clean-output option', async () => {
+      const customOutput = path.join(testDir, 'custom-output');
+      await fs.ensureDir(customOutput);
+      const staleFile = path.join(customOutput, 'stale.mdx');
+      await fs.writeFile(staleFile, 'stale');
+
+      await runGenerate({
+        schema: 'schema.graphql',
+        output: customOutput,
+        cleanOutput: true,
+        targetDir: testDir,
+      });
+
+      expect(await fs.pathExists(staleFile)).toBe(false);
+      expect(await fs.pathExists(path.join(customOutput, 'sidebars.js'))).toBe(true);
+    });
   });
 
   describe('with custom config', () => {

@@ -65,6 +65,7 @@ const LlmDocsSchema = z
 
 export const ConfigSchema = z.object({
   outputDir: z.string().default('./docs/api'),
+  cleanOutputDir: z.boolean().default(false),
   framework: z.string().default('docusaurus'),
   metadataDir: z.string().default('./docs-metadata'),
   examplesDir: z.string().optional(),

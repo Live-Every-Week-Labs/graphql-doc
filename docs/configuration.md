@@ -16,12 +16,16 @@ The generator uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) f
 
 ### Core Options
 
-| Option              | Type       | Default      | Description                                                           |
-| :------------------ | :--------- | :----------- | :-------------------------------------------------------------------- |
-| `outputDir`         | `string`   | `./docs/api` | Directory where generated documentation will be written               |
-| `framework`         | `string`   | `docusaurus` | Adapter key to use (currently only `docusaurus` is supported)         |
-| `schemaExtensions`  | `string[]` | `[]`         | Extra SDL files merged into the schema (framework scalars/directives) |
-| `allowRemoteSchema` | `boolean`  | `false`      | Allow loading schemas from remote URLs (http/https)                   |
+| Option              | Type       | Default      | Description                                                            |
+| :------------------ | :--------- | :----------- | :--------------------------------------------------------------------- |
+| `outputDir`         | `string`   | `./docs/api` | Directory where generated documentation will be written                |
+| `cleanOutputDir`    | `boolean`  | `false`      | Remove existing files in `outputDir` before writing new generated docs |
+| `framework`         | `string`   | `docusaurus` | Adapter key to use (currently only `docusaurus` is supported)          |
+| `schemaExtensions`  | `string[]` | `[]`         | Extra SDL files merged into the schema (framework scalars/directives)  |
+| `allowRemoteSchema` | `boolean`  | `false`      | Allow loading schemas from remote URLs (http/https)                    |
+
+Set `cleanOutputDir: true` when `outputDir` is dedicated to generated docs. Keep it `false` if the
+directory also contains hand-written files you want to preserve.
 
 ### Metadata Options
 

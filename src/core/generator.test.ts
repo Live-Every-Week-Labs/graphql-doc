@@ -63,6 +63,7 @@ describe('Generator', () => {
 
     config = {
       outputDir,
+      cleanOutputDir: false,
       framework: 'docusaurus',
       metadataDir,
       examplesDir: path.join(metadataDir, 'examples'),
@@ -257,6 +258,26 @@ describe('Generator', () => {
 
       // Should have sidebars.js
       expect(contents).toContain('sidebars.js');
+    });
+
+    it('preserves unrelated files when cleanOutputDir is disabled', async () => {
+      const staleFile = path.join(outputDir, 'stale.mdx');
+      await fs.writeFile(staleFile, 'stale content');
+
+      const generator = new Generator({ ...config, cleanOutputDir: false });
+      await generator.generate('schema.graphql');
+
+      expect(await fs.pathExists(staleFile)).toBe(true);
+    });
+
+    it('removes stale files when cleanOutputDir is enabled', async () => {
+      const staleFile = path.join(outputDir, 'stale.mdx');
+      await fs.writeFile(staleFile, 'stale content');
+
+      const generator = new Generator({ ...config, cleanOutputDir: true });
+      await generator.generate('schema.graphql');
+
+      expect(await fs.pathExists(staleFile)).toBe(false);
     });
   });
 

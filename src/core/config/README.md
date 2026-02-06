@@ -12,6 +12,7 @@ The `src/core/config` module handles configuration loading and validation for th
 - Sets default values for optional fields.
 - **Key Options:**
   - `outputDir`: Where to generate docs (default: `./docs/api`).
+  - `cleanOutputDir`: Remove existing files in `outputDir` before generation (default: `false`).
   - `framework`: Adapter key to use (default: `docusaurus`).
   - `metadataDir`: Path to external metadata (default: `./docs-metadata`).
   - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).

@@ -1,4 +1,6 @@
 import { Config } from './config/schema';
+import fs from 'fs-extra';
+import path from 'path';
 import { SchemaLoader } from './parser/schema-loader';
 import { SchemaParser } from './parser/schema-parser';
 import { getExamplePatterns } from './metadata/example-sources';
@@ -12,6 +14,24 @@ import { FileWriter } from './file-writer';
 
 export class Generator {
   constructor(private config: Config) {}
+
+  private async cleanOutputDirIfEnabled() {
+    if (!this.config.cleanOutputDir) {
+      return;
+    }
+
+    const resolvedOutputDir = path.resolve(this.config.outputDir);
+    const rootDir = path.parse(resolvedOutputDir).root;
+
+    if (resolvedOutputDir === rootDir) {
+      throw new Error(
+        `Refusing to clean outputDir because it resolves to filesystem root: ${resolvedOutputDir}`
+      );
+    }
+
+    console.log(`Cleaning output directory: ${resolvedOutputDir}`);
+    await fs.emptyDir(resolvedOutputDir);
+  }
 
   async generate(schemaPointer: string | string[]) {
     const schemaLabel = Array.isArray(schemaPointer) ? schemaPointer.join(', ') : schemaPointer;
@@ -55,6 +75,7 @@ export class Generator {
     const files = adapter.adapt(docModel);
 
     console.log('Writing files...');
+    await this.cleanOutputDirIfEnabled();
     const fileWriter = new FileWriter(this.config.outputDir);
     await fileWriter.write(files);
 

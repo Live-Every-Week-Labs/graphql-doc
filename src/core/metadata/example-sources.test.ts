@@ -5,6 +5,7 @@ import { getExamplePatterns, getExampleSources, toExampleGlobPattern } from './e
 function createConfig(overrides: Partial<Config> = {}): Config {
   return {
     outputDir: './docs/api',
+    cleanOutputDir: false,
     framework: 'docusaurus',
     metadataDir: './docs-metadata',
     examplesDir: './docs-metadata/examples',

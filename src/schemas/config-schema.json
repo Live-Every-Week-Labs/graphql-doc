@@ -6,6 +6,10 @@
       "type": "string",
       "default": "./docs/api"
     },
+    "cleanOutputDir": {
+      "type": "boolean",
+      "default": false
+    },
     "framework": {
       "type": "string",
       "default": "docusaurus"

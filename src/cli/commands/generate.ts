@@ -9,6 +9,7 @@ export interface GenerateOptions {
   schema?: string;
   output?: string;
   config?: string;
+  cleanOutput?: boolean;
   targetDir?: string; // For testing - defaults to process.cwd()
   llmDocs?: boolean;
   llmDocsStrategy?: 'single' | 'chunked';
@@ -82,6 +83,10 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
   // Override config with CLI options
   if (options.output) {
     config.outputDir = options.output;
+  }
+
+  if (options.cleanOutput !== undefined) {
+    config.cleanOutputDir = options.cleanOutput;
   }
 
   if (options.llmDocs !== undefined) {

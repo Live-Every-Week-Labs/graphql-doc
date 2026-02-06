@@ -174,6 +174,7 @@ Generates documentation from a GraphQL schema.
 - `-s, --schema <path>`: Path to the GraphQL schema file or URL.
 - `-o, --output <path>`: Directory where the generated documentation will be written.
 - `-c, --config <path>`: Path to a configuration file (e.g., `.graphqlrc`, `graphql-docs.config.js`).
+- `--clean-output`: Remove existing files in the output directory before generating.
 - `--llm-docs`: Enable LLM-optimized Markdown output.
 - `--no-llm-docs`: Disable LLM-optimized Markdown output.
 - `--llm-docs-strategy <strategy>`: LLM docs strategy (`single` or `chunked`).

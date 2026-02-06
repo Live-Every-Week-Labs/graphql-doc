@@ -15,6 +15,7 @@ program
   .option('-s, --schema <path>', 'Path to GraphQL schema')
   .option('-o, --output <path>', 'Output directory')
   .option('-c, --config <path>', 'Path to config file')
+  .option('--clean-output', 'Remove existing files in output directory before generating')
   .option('--llm-docs', 'Enable LLM docs generation')
   .option('--llm-docs-strategy <strategy>', 'LLM docs strategy: single or chunked')
   .option('--llm-docs-depth <depth>', 'Max type expansion depth for LLM docs (1-5)')
