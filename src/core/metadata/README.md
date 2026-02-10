@@ -7,6 +7,7 @@ This module handles the loading and validation of external metadata for the docu
 ### Loaders
 
 - **`example-loader.ts`**: Loads example files using glob patterns.
+- **`example-sources.ts`**: Provides utilities for resolving example file sources and converting them to glob patterns.
 
 ### Validation
 

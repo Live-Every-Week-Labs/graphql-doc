@@ -1,9 +1,11 @@
-import { GraphQLType } from 'graphql';
-
 export interface DocGroup {
   name: string;
   order?: number;
   subsection?: string;
+  displayLabel?: string;
+  /**
+   * @deprecated Use displayLabel instead.
+   */
   sidebarTitle?: string;
 }
 
@@ -27,7 +29,7 @@ export interface Argument {
   description?: string;
   type: string;
   isRequired: boolean;
-  defaultValue?: any;
+  defaultValue?: unknown;
   directives?: OperationDirectives;
 }
 

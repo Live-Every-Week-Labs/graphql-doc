@@ -1,0 +1,15 @@
+{{#if dataReference}}
+{{exportKeyword}} {{exportName}} = {{expr dataReference}};
+{{else}}
+{{exportKeyword}} {{exportName}} = {{json operation}};
+{{/if}}
+
+<OperationView operation={ {{exportName}} } typesByName={typesByName}{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}{{#if hasDefaultExpandedLevels}} defaultExpandedLevels={ {{defaultExpandedLevels}} }{{/if}}{{#if hasMaxDepth}} maxDepth={ {{maxDepth}} }{{/if}}{{#if typeLinkBase}} typeLinkBase={{expr typeLinkBase}}{{/if}}{{#if typeLinkMode}} typeLinkMode={{expr typeLinkMode}}{{/if}}{{#if llmDocsBasePath}} llmDocsBasePath={{expr llmDocsBasePath}}{{/if}}>
+{{#if includeDescription}}
+{{#if operation.description}}
+{{#if unsafeDescriptionMdx}}
+{{unsafeMdx operation.description}}
+{{/if}}
+{{/if}}
+{{/if}}
+</OperationView>

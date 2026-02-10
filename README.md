@@ -7,8 +7,13 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - [Usage Guide](./docs/usage-guide.md)
 - [CLI Reference](./docs/cli.md)
 - [Configuration Guide](./docs/configuration.md)
+- [Config Schema Autocomplete](./docs/config-schema.md)
+- [Migration Guide](./docs/migration-guide.md)
 - [Custom Directives](./docs/directives.md)
+- [LLM Docs Guide](./docs/llm-docs.md)
+- [Agent Skills Guide](./docs/agent-skills.md)
 - [Components Guide](./docs/components.md)
+- [Architecture Guide](./docs/architecture.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 
 ## Features
@@ -75,15 +80,16 @@ Create a `.graphqlrc` or `graphql-docs.config.js` file in your project root:
 schema: './schema.graphql'
 extensions:
   graphql-docs:
+    configVersion: 1
     outputDir: './docs/api'
     framework: 'docusaurus'
     metadataDir: './docs-metadata'
-    introDocs:
-      - ./docs/api-overview.mdx
     agentSkill:
       enabled: true
     adapters:
-      docusaurus: {}
+      docusaurus:
+        introDocs:
+          - ./docs/api-overview.mdx
 ```
 
 ## Development

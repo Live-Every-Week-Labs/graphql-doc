@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
+import chalk from 'chalk';
 import { version } from '../index.js';
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 
 const program = new Command();
 
@@ -16,6 +21,10 @@ program
   .option('-o, --output <path>', 'Output directory')
   .option('-c, --config <path>', 'Path to config file')
   .option('--clean-output', 'Remove existing files in output directory before generating')
+  .option('--dry-run', 'Preview generated files without writing them to disk')
+  .option('--watch', 'Watch schema/example/config files and regenerate on change')
+  .option('--verbose', 'Enable verbose logging')
+  .option('--quiet', 'Suppress non-error output')
   .option('--llm-docs', 'Enable LLM docs generation')
   .option('--llm-docs-strategy <strategy>', 'LLM docs strategy: single or chunked')
   .option('--llm-docs-depth <depth>', 'Max type expansion depth for LLM docs (1-5)')
@@ -25,7 +34,7 @@ program
       const { runGenerate } = await import('./commands/generate.js');
       await runGenerate(options);
     } catch (error) {
-      console.error('Error generating documentation:', error);
+      console.error(chalk.red(`Error: ${getErrorMessage(error)}`));
       process.exit(1);
     }
   });
@@ -40,7 +49,7 @@ program
       const { runInit } = await import('./commands/init.js');
       await runInit(options);
     } catch (error) {
-      console.error('Error initializing project:', error);
+      console.error(chalk.red(`Error: ${getErrorMessage(error)}`));
       process.exit(1);
     }
   });
@@ -51,12 +60,17 @@ program
   .option('-s, --schema <path>', 'Path to GraphQL schema')
   .option('-c, --config <path>', 'Path to config file')
   .option('--strict', 'Treat warnings as errors')
+  .option('--json', 'Emit machine-readable JSON output')
+  .option('--verbose', 'Enable verbose logging')
+  .option('--quiet', 'Suppress non-error output')
   .action(async (options) => {
     try {
       const { runValidate } = await import('./commands/validate.js');
       await runValidate(options);
     } catch (error) {
-      console.error('Error validating:', error);
+      if (!options.json) {
+        console.error(chalk.red(`Error: ${getErrorMessage(error)}`));
+      }
       process.exit(1);
     }
   });

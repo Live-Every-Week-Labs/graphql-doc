@@ -11,10 +11,10 @@ The `src/core/config` module handles configuration loading and validation for th
 - Defines the configuration structure using **Zod**.
 - Sets default values for optional fields.
 - **Key Options:**
+  - `configVersion`: Config schema version used for migration/compat checks (default: `1`).
   - `outputDir`: Where to generate docs (default: `./docs/api`).
   - `cleanOutputDir`: Remove existing files in `outputDir` before generation (default: `false`).
   - `framework`: Adapter key to use (default: `docusaurus`).
-  - `introDocs`: Framework-agnostic intro docs prepended before generated API pages.
   - `metadataDir`: Path to external metadata (default: `./docs-metadata`).
   - `examplesDir`: Path to examples (default: `${metadataDir}/examples`).
   - `exampleFiles`: Explicit example file paths/globs (string or array). Overrides `examplesDir` lookup.
@@ -35,6 +35,7 @@ The `src/core/config` module handles configuration loading and validation for th
   - `adapters.docusaurus`: Docusaurus-only options, including:
     - `singlePage`, `docsRoot`, `docIdPrefix`, `unsafeMdxDescriptions`, `typeLinkMode`
     - Sidebar controls (`generateSidebar`, `sidebar*`)
+    - `introDocs` for Docusaurus intro/landing pages
 
 ### 2. Config Loader
 
@@ -51,9 +52,11 @@ The `src/core/config` module handles configuration loading and validation for th
   - If `exampleFiles` is not set and `examplesDir` is not explicitly provided, it automatically defaults to a subdirectory within the configured `metadataDir`.
   - Example: If `metadataDir` is `./api-data`, examples will be looked for in `./api-data/examples`.
   - Legacy Docusaurus keys (e.g. `singlePage`, `sidebar*`) are mapped into `adapters.docusaurus`.
+  - Legacy root `introDocs` is migrated to `adapters.docusaurus.introDocs`.
+  - Missing `configVersion` is auto-migrated to the current version with warnings.
 
 - **Path Resolution Helper:**
-  - `resolveConfigPaths` normalizes relative paths (output, metadata, examples, explicit example files, schema extensions, LLM docs output, intro docs, and agent skill output) against a root directory.
+  - `resolveConfigPaths` normalizes relative paths (output, metadata, examples, explicit example files, schema extensions, LLM docs output, adapter intro docs, and agent skill output) against a root directory.
 
 ## Usage
 

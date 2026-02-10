@@ -59,7 +59,7 @@ describe('End-to-End Generator Test', () => {
     expect(sectionNames).toContain('System');
 
     // 4. Adapt (Docusaurus)
-    const adapter = new DocusaurusAdapter({ outputPath: outputDir });
+    const adapter = new DocusaurusAdapter({ outputDir: outputDir });
     const files = adapter.adapt(docModel);
 
     // Write files to disk
@@ -122,10 +122,6 @@ describe('End-to-End Generator Test', () => {
     expect(typesJsonContent).toContain('Represents a registered user in the system');
     expect(typesJsonContent).toContain('Unique username chosen by the user');
 
-    const createPostContent = fs.readFileSync(
-      path.join(outputDir, 'content/posts/create-post.mdx'),
-      'utf-8'
-    );
     expect(operationsJsonContent).toContain('Create a new blog post');
     expect(operationsJsonContent).toContain('Title of the post');
   });

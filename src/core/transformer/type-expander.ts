@@ -1,17 +1,12 @@
-import { TypeDefinition } from '../parser/types';
-import { ExpandedType } from './types';
-import { slugify } from '../utils/string-utils';
+import { TypeDefinition } from '../parser/types.js';
+import { ExpandedType } from './types.js';
+import { slugify } from '../utils/string-utils.js';
 
 export class TypeExpander {
   private typeMap: Map<string, TypeDefinition>;
   private showCircularReferences: boolean;
 
-  constructor(
-    types: TypeDefinition[],
-    _maxDepth: number = 5,
-    _defaultLevels: number = 3,
-    showCircularReferences: boolean = true
-  ) {
+  constructor(types: TypeDefinition[], showCircularReferences: boolean = true) {
     this.typeMap = new Map(types.map((t) => [t.name, t]));
     this.showCircularReferences = showCircularReferences;
   }

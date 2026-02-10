@@ -4,6 +4,7 @@ import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
 import { DIRECTIVE_DEFINITIONS } from '../../core/parser/directive-definitions.js';
+import { getErrorMessage } from '../../core/utils/index.js';
 
 export interface InitOptions {
   force?: boolean;
@@ -155,9 +156,9 @@ export async function runInit(options: InitOptions): Promise<void> {
     console.log();
 
     if (options.yes) {
-      console.log(chalk.red('Cannot overwrite existing files in non-interactive mode.'));
-      console.log(chalk.red('Use --force to overwrite existing files.\n'));
-      process.exit(1);
+      throw new Error(
+        'Cannot overwrite existing files in non-interactive mode. Use --force to overwrite existing files.'
+      );
     }
 
     const shouldOverwrite = await confirm({
@@ -167,7 +168,7 @@ export async function runInit(options: InitOptions): Promise<void> {
 
     if (!shouldOverwrite) {
       console.log(chalk.yellow('\nInitialization cancelled.\n'));
-      process.exit(0);
+      return;
     }
   }
 
@@ -248,7 +249,6 @@ ${DIRECTIVE_DEFINITIONS}
     console.log(chalk.dim('    4. Run: graphql-docs generate\n'));
   } catch (error) {
     spinner.fail('Failed to create project files');
-    console.error(chalk.red(`\nError: ${(error as Error).message}\n`));
-    process.exit(1);
+    throw new Error(`Failed to create project files: ${getErrorMessage(error)}`);
   }
 }

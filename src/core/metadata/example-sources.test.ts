@@ -1,53 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { Config } from '../config/schema.js';
 import { getExamplePatterns, getExampleSources, toExampleGlobPattern } from './example-sources.js';
+import { createTestConfig } from '../../test/test-utils.js';
 
-function createConfig(overrides: Partial<Config> = {}): Config {
-  return {
-    outputDir: './docs/api',
-    cleanOutputDir: false,
-    framework: 'docusaurus',
-    introDocs: [],
-    metadataDir: './docs-metadata',
-    examplesDir: './docs-metadata/examples',
-    exampleFiles: undefined,
-    schemaExtensions: [],
-    allowRemoteSchema: false,
-    includeDeprecated: true,
-    requireExamplesForDocumentedOperations: false,
-    excludeDocGroups: [],
-    skipTypes: [],
-    typeExpansion: {
-      maxDepth: 5,
-      defaultLevels: 0,
-      showCircularReferences: true,
-    },
-    agentSkill: {
-      enabled: false,
-      name: 'graphql-api-skill',
-      includeExamples: true,
-      pythonScriptName: 'graphql_docs_skill.py',
-      introDoc: {
-        enabled: true,
-        outputPath: 'intro/ai-agent-skill.mdx',
-        label: 'AI Agent Skill',
-        title: 'AI Agent Skill',
-      },
-    },
-    adapters: {
-      docusaurus: {},
-    },
-    llmDocs: {
-      enabled: true,
-      outputDir: 'llm-docs',
-      strategy: 'chunked',
-      includeExamples: true,
-      generateManifest: true,
-      singleFileName: 'api-reference.md',
-      maxTypeDepth: 3,
-    },
-    ...overrides,
-  };
+function createConfig(overrides: Parameters<typeof createTestConfig>[0] = {}) {
+  return createTestConfig(overrides);
 }
 
 describe('example-sources', () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DocusaurusAdapter } from './docusaurus-adapter';
-import { DocModel, Operation, Section } from '../../transformer/types';
+import { DocModel, Operation } from '../../transformer/types';
 import * as path from 'path';
 
 const fsMock = vi.hoisted(() => ({
@@ -9,7 +9,7 @@ const fsMock = vi.hoisted(() => ({
 }));
 
 vi.mock('fs', () => fsMock);
-vi.mock('../../renderer/mdx-renderer', () => {
+vi.mock('./mdx-renderer', () => {
   return {
     MdxRenderer: class {
       renderOperation = vi.fn().mockReturnValue('Mocked Content');

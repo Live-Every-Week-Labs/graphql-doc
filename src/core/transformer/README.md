@@ -47,6 +47,7 @@ interface DocModel {
 
 interface Section {
   name: string;
+  order: number | undefined;
   subsections: Subsection[];
 }
 

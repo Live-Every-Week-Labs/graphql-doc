@@ -1,5 +1,6 @@
 import { ExampleFile } from '../metadata/types.js';
 import { ValidationError } from './types.js';
+import { DEFAULT_GROUP_NAME } from '../utils/index.js';
 
 interface OperationExampleCoverageOptions {
   excludeDocGroups?: string[];
@@ -24,7 +25,7 @@ export function isOperationDocumented(
     return false;
   }
 
-  const groupName = operation.directives.docGroup?.name ?? 'Uncategorized';
+  const groupName = operation.directives.docGroup?.name ?? DEFAULT_GROUP_NAME;
   if (excludedDocGroups.has(groupName)) {
     return false;
   }

@@ -123,10 +123,7 @@ For MVP, error documentation is handled in two places:
 ```yaml
 extensions:
   graphql-docs:
-    introDocs:
-      - ./docs/api-overview.mdx
-      - source: ./docs/authentication.mdx
-        outputPath: intro/authentication.mdx
+    configVersion: 1
     agentSkill:
       enabled: true
       introDoc:
@@ -134,6 +131,10 @@ extensions:
         outputPath: intro/ai-agent-skill.mdx
     adapters:
       docusaurus:
+        introDocs:
+          - ./docs/api-overview.mdx
+          - source: ./docs/authentication.mdx
+            outputPath: intro/authentication.mdx
         singlePage: false
         typeLinkMode: deep
         sidebarSectionLabels:

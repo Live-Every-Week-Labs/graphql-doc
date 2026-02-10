@@ -1,7 +1,12 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "Auto-generated from Zod schema. Do not edit manually. Run: npm run generate:schema",
   "type": "object",
   "properties": {
+    "configVersion": {
+      "type": "number",
+      "const": 1,
+      "default": 1
+    },
     "outputDir": {
       "type": "string",
       "default": "./docs/api"
@@ -14,29 +19,6 @@
       "type": "string",
       "default": "docusaurus"
     },
-    "introDocs": {
-      "type": "array",
-      "items": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "source": { "type": "string" },
-              "content": { "type": "string" },
-              "outputPath": { "type": "string" },
-              "id": { "type": "string" },
-              "label": { "type": "string" },
-              "title": { "type": "string" }
-            },
-            "anyOf": [{ "required": ["source"] }, { "required": ["content"] }]
-          }
-        ]
-      },
-      "default": []
-    },
     "metadataDir": {
       "type": "string",
       "default": "./docs-metadata"
@@ -45,47 +27,27 @@
       "type": "string"
     },
     "exampleFiles": {
-      "oneOf": [
-        { "type": "string" },
-        {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      ]
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "schemaExtensions": {
-      "oneOf": [
-        { "type": "string" },
-        {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
       "default": []
     },
     "allowRemoteSchema": {
       "type": "boolean",
       "default": false
     },
-    "includeDeprecated": {
-      "type": "boolean",
-      "default": true
-    },
     "requireExamplesForDocumentedOperations": {
       "type": "boolean",
       "default": false
     },
     "excludeDocGroups": {
-      "oneOf": [
-        { "type": "string" },
-        {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      ],
-      "default": []
-    },
-    "skipTypes": {
       "type": "array",
       "items": {
         "type": "string"
@@ -108,6 +70,7 @@
           "default": true
         }
       },
+      "additionalProperties": false,
       "default": {}
     },
     "agentSkill": {
@@ -119,6 +82,8 @@
         },
         "name": {
           "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_-]+$",
           "default": "graphql-api-skill"
         },
         "description": {
@@ -133,6 +98,7 @@
         },
         "pythonScriptName": {
           "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+\\.py$",
           "default": "graphql_docs_skill.py"
         },
         "introDoc": {
@@ -167,55 +133,11 @@
               "type": "string"
             }
           },
+          "additionalProperties": false,
           "default": {}
         }
       },
-      "default": {}
-    },
-    "llmDocs": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": true
-        },
-        "outputDir": {
-          "type": "string",
-          "default": "llm-docs"
-        },
-        "strategy": {
-          "type": "string",
-          "enum": ["single", "chunked"],
-          "default": "chunked"
-        },
-        "includeExamples": {
-          "type": "boolean",
-          "default": true
-        },
-        "generateManifest": {
-          "type": "boolean",
-          "default": true
-        },
-        "singleFileName": {
-          "type": "string",
-          "default": "api-reference.md"
-        },
-        "maxTypeDepth": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 5,
-          "default": 3
-        },
-        "baseUrl": {
-          "type": "string"
-        },
-        "apiName": {
-          "type": "string"
-        },
-        "apiDescription": {
-          "type": "string"
-        }
-      },
+      "additionalProperties": false,
       "default": {}
     },
     "adapters": {
@@ -277,9 +199,14 @@
             "sidebarSectionLabels": {
               "type": "object",
               "properties": {
-                "operations": { "type": "string" },
-                "types": { "type": "string" }
+                "operations": {
+                  "type": "string"
+                },
+                "types": {
+                  "type": "string"
+                }
               },
+              "additionalProperties": false,
               "default": {
                 "operations": "Operations",
                 "types": "Types"
@@ -288,34 +215,96 @@
             "introDocs": {
               "type": "array",
               "items": {
-                "oneOf": [
+                "anyOf": [
                   {
                     "type": "string"
                   },
                   {
                     "type": "object",
                     "properties": {
-                      "source": { "type": "string" },
-                      "content": { "type": "string" },
-                      "outputPath": { "type": "string" },
-                      "id": { "type": "string" },
-                      "label": { "type": "string" },
-                      "title": { "type": "string" }
+                      "source": {
+                        "type": "string"
+                      },
+                      "content": {
+                        "type": "string"
+                      },
+                      "outputPath": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      }
                     },
-                    "anyOf": [{ "required": ["source"] }, { "required": ["content"] }]
+                    "additionalProperties": false
                   }
                 ]
               },
               "default": []
             }
           },
+          "additionalProperties": false,
           "default": {}
         }
       },
-      "additionalProperties": true,
+      "additionalProperties": false,
       "default": {
         "docusaurus": {}
       }
+    },
+    "llmDocs": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "outputDir": {
+          "type": "string",
+          "default": "llm-docs"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["single", "chunked"],
+          "default": "chunked"
+        },
+        "includeExamples": {
+          "type": "boolean",
+          "default": true
+        },
+        "generateManifest": {
+          "type": "boolean",
+          "default": true
+        },
+        "singleFileName": {
+          "type": "string",
+          "default": "api-reference.md"
+        },
+        "maxTypeDepth": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 3
+        },
+        "baseUrl": {
+          "type": "string"
+        },
+        "apiName": {
+          "type": "string"
+        },
+        "apiDescription": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "default": {}
     }
-  }
+  },
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#"
 }

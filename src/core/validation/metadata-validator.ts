@@ -4,6 +4,7 @@ import path from 'path';
 import { z } from 'zod';
 import { ExampleFileEntrySchema } from '../metadata/validator.js';
 import { ValidationError, MetadataValidationResult, ValidationErrorCode } from './types.js';
+import { getErrorMessage } from '../utils/index.js';
 
 /**
  * Validates metadata files (examples) against their schemas
@@ -78,7 +79,7 @@ export class MetadataValidator {
       } catch (error) {
         errors.push({
           file: pattern,
-          message: `Failed to search for ${fileType} files: ${(error as Error).message}`,
+          message: `Failed to search for ${fileType} files: ${getErrorMessage(error)}`,
           severity: 'error',
           code: 'INVALID_JSON',
         });

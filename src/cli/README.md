@@ -21,6 +21,12 @@ The `generate` command is the main entry point for generating documentation. It:
 3. Instantiates the `Generator` class from `src/core/generator.ts`.
 4. Calls `generator.generate()` with the resolved schema path.
 
+Additional generate capabilities:
+
+- `--dry-run` previews planned writes without touching disk.
+- `--watch` keeps the process running and regenerates on file changes.
+- `--verbose` / `--quiet` control command output verbosity.
+
 **Schema Resolution Priority:**
 
 1. `-s, --schema` CLI option (highest priority)
@@ -33,7 +39,8 @@ The `init` command scaffolds a new graphql-docs project. It:
 
 1. Creates a `.graphqlrc` configuration file.
 2. Creates the `docs-metadata/` directory structure.
-3. Adds sample example and error JSON files.
+3. Adds sample example JSON files.
+4. Creates a `graphql-docs-directives.graphql` file with directive definitions.
 
 Supports interactive prompts or `--yes` for defaults.
 
@@ -43,8 +50,13 @@ The `validate` command checks schema and metadata without generating docs. It:
 
 1. Validates GraphQL schema syntax and custom directives.
 2. Validates example JSON files against their schema.
-3. Validates error JSON files against their schema.
-4. Cross-validates that referenced operations exist in the schema.
+3. Cross-validates that referenced operations exist in the schema.
+4. Validates required example coverage if configured.
+
+Additional validate capabilities:
+
+- `--json` emits machine-readable output for CI pipelines.
+- `--verbose` / `--quiet` control command output verbosity.
 
 Uses validators from `src/core/validation/`. Useful for CI/CD pipelines.
 

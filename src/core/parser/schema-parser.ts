@@ -1,29 +1,40 @@
 import {
   GraphQLSchema,
   GraphQLObjectType,
-  isObjectType,
   GraphQLField,
   GraphQLArgument,
-  GraphQLInputType,
-  GraphQLOutputType,
   isNonNullType,
-  isListType,
-  getNamedType,
 } from 'graphql';
-import { DirectiveExtractor } from './directive-extractor.js';
+import { DirectiveExtractor, DirectiveWarning } from './directive-extractor.js';
 import { TypeCollector } from './type-collector.js';
 import { Operation, Argument, TypeDefinition } from './types.js';
+
+export interface ParserWarning {
+  code: 'INVALID_DIRECTIVE_USAGE';
+  directive: DirectiveWarning['directive'];
+  message: string;
+}
 
 export class SchemaParser {
   private directiveExtractor: DirectiveExtractor;
   private typeCollector: TypeCollector;
+  private warnings: ParserWarning[] = [];
 
   constructor() {
-    this.directiveExtractor = new DirectiveExtractor();
-    this.typeCollector = new TypeCollector();
+    this.directiveExtractor = new DirectiveExtractor(this.handleDirectiveWarning);
+    this.typeCollector = new TypeCollector(this.handleDirectiveWarning);
   }
 
-  parse(schema: GraphQLSchema): { operations: Operation[]; types: TypeDefinition[] } {
+  parse(schema: GraphQLSchema): {
+    operations: Operation[];
+    types: TypeDefinition[];
+    warnings: ParserWarning[];
+  } {
+    // Reset parser state for each parse call.
+    this.warnings = [];
+    this.directiveExtractor = new DirectiveExtractor(this.handleDirectiveWarning);
+    this.typeCollector = new TypeCollector(this.handleDirectiveWarning);
+
     const operations: Operation[] = [];
 
     const queryType = schema.getQueryType();
@@ -44,8 +55,17 @@ export class SchemaParser {
     return {
       operations,
       types: this.typeCollector.getTypes(),
+      warnings: this.warnings,
     };
   }
+
+  private handleDirectiveWarning = (warning: DirectiveWarning) => {
+    this.warnings.push({
+      code: 'INVALID_DIRECTIVE_USAGE',
+      directive: warning.directive,
+      message: `Invalid @${warning.directive} usage: ${warning.message}`,
+    });
+  };
 
   private extractOperations(
     type: GraphQLObjectType,
@@ -63,7 +83,7 @@ export class SchemaParser {
 
   private createOperation(
     name: string,
-    field: GraphQLField<any, any>,
+    field: GraphQLField<unknown, unknown>,
     operationType: 'query' | 'mutation' | 'subscription'
   ): Operation {
     const directives = this.directiveExtractor.extract(field.astNode!);

@@ -16,23 +16,13 @@ import {
   ValidationErrorCode,
   SchemaOperationMetadata,
 } from './types.js';
-
-// Zod schemas for directive validation (matching directive-definitions.ts requirements)
-const DocGroupArgsSchema = z.object({
-  name: z.string(),
-  order: z.number().int().optional(),
-  subsection: z.string().optional(),
-  sidebarTitle: z.string().optional(),
-});
-
-const DocPriorityArgsSchema = z.object({
-  level: z.number().int(),
-});
-
-const DocTagsArgsSchema = z.object({
-  tags: z.array(z.string()),
-});
-const DocIgnoreArgsSchema = z.object({}).strict();
+import {
+  DocGroupSchema as DocGroupArgsSchema,
+  DocPrioritySchema as DocPriorityArgsSchema,
+  DocTagsSchema as DocTagsArgsSchema,
+  DocIgnoreSchema as DocIgnoreArgsSchema,
+} from '../parser/directive-schemas.js';
+import { formatPathForMessage, getErrorMessage } from '../utils/index.js';
 
 // Known custom directives
 const KNOWN_DOC_DIRECTIVES = ['docGroup', 'docPriority', 'docTags', 'docIgnore'];
@@ -59,7 +49,7 @@ export class SchemaValidator {
       if (!(await fs.pathExists(pathEntry))) {
         errors.push({
           file: pathEntry,
-          message: `Schema file not found: ${pathEntry}`,
+          message: `Schema file not found: ${formatPathForMessage(pathEntry)}`,
           severity: 'error',
           code: 'SCHEMA_NOT_FOUND',
         });
@@ -73,7 +63,7 @@ export class SchemaValidator {
       } catch (error) {
         errors.push({
           file: pathEntry,
-          message: `Failed to read schema file: ${(error as Error).message}`,
+          message: `Failed to read schema file: ${getErrorMessage(error)}`,
           severity: 'error',
           code: 'SCHEMA_LOAD_ERROR',
         });

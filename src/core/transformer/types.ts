@@ -1,9 +1,5 @@
-import {
-  Operation as BaseOperation,
-  Argument as BaseArgument,
-  OperationDirectives,
-} from '../parser/types';
-import { Example } from '../metadata/types';
+import { Operation as BaseOperation, Argument as BaseArgument } from '../parser/types.js';
+import { Example } from '../metadata/types.js';
 
 export type ExpandedTypeKind =
   | 'SCALAR'
@@ -18,12 +14,20 @@ export type ExpandedTypeKind =
 export interface CircularRef {
   kind: 'CIRCULAR_REF';
   ref: string; // Name of the referenced type
-  link: string; // Anchor link to the first occurrence
+  /**
+   * Link target produced by the active adapter.
+   * By default this is an anchor-like fragment (for example, `#user`).
+   */
+  link: string;
 }
 
 export interface TypeRef {
   kind: 'TYPE_REF';
   name: string;
+  /**
+   * Link target produced by the active adapter.
+   * By default this is an anchor-like fragment (for example, `#user`).
+   */
   link: string;
 }
 

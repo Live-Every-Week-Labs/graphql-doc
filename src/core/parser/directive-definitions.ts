@@ -19,7 +19,12 @@ export const DIRECTIVE_DEFINITIONS = `
     subsection: String
 
     """
-    Optional sidebar label override for this operation
+    Optional generic display label override for this operation
+    """
+    displayLabel: String
+
+    """
+    Optional sidebar label override for this operation (deprecated: use displayLabel)
     """
     sidebarTitle: String
   ) on FIELD_DEFINITION

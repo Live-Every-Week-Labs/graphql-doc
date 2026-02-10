@@ -1,7 +1,7 @@
 import { glob } from 'glob';
 import fs from 'fs-extra';
-import { ExampleFileSchema } from './validator';
-import { ExampleFile } from './types';
+import { ExampleFileSchema } from './validator.js';
+import { ExampleFile } from './types.js';
 
 export async function loadExamples(patterns: string | string[]): Promise<ExampleFile[]> {
   const patternList = Array.isArray(patterns) ? patterns : [patterns];
@@ -20,11 +20,6 @@ export async function loadExamples(patterns: string | string[]): Promise<Example
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`Failed to load example file: ${file}: ${message}`);
-      // We might want to rethrow or collect errors depending on desired behavior.
-      // For now, logging and skipping is a safe default for a loader.
-      // Alternatively, we could throw to fail the build.
-      // Let's throw to ensure data integrity.
       throw new Error(`Invalid example file ${file}: ${message}`);
     }
   }

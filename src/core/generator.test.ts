@@ -5,6 +5,8 @@ import os from 'os';
 import { buildSchema } from 'graphql';
 import { Generator } from './generator.js';
 import { Config } from './config/schema.js';
+import { createTestConfig } from '../test/test-utils.js';
+import type { Logger } from './logger.js';
 
 // Test schema content
 const TEST_SCHEMA = `
@@ -61,14 +63,10 @@ describe('Generator', () => {
     await fs.ensureDir(metadataDir);
     await fs.ensureDir(path.join(metadataDir, 'examples'));
 
-    config = {
+    config = createTestConfig({
       outputDir,
-      cleanOutputDir: false,
-      framework: 'docusaurus',
-      introDocs: [],
       metadataDir,
       examplesDir: path.join(metadataDir, 'examples'),
-      allowRemoteSchema: false,
       typeExpansion: {
         maxDepth: 2,
         defaultLevels: 3,
@@ -83,26 +81,7 @@ describe('Generator', () => {
         singleFileName: 'api-reference.md',
         maxTypeDepth: 3,
       },
-      adapters: {
-        docusaurus: {
-          unsafeMdxDescriptions: false,
-          typeLinkMode: 'none',
-          generateSidebar: true,
-        },
-      },
-      agentSkill: {
-        enabled: false,
-        name: 'graphql-api-skill',
-        includeExamples: true,
-        pythonScriptName: 'graphql_docs_skill.py',
-        introDoc: {
-          enabled: true,
-          outputPath: 'intro/ai-agent-skill.mdx',
-          label: 'AI Agent Skill',
-          title: 'AI Agent Skill',
-        },
-      },
-    };
+    });
   });
 
   afterEach(async () => {
@@ -175,6 +154,18 @@ describe('Generator', () => {
         // Should contain some content
         expect(content.length).toBeGreaterThan(50);
       }
+    });
+
+    it('uses injected logger for generation progress', async () => {
+      const logger: Logger = {
+        info: vi.fn(),
+        warn: vi.fn(),
+      };
+      const generator = new Generator(config, logger);
+
+      await generator.generate('schema.graphql');
+
+      expect(logger.info).toHaveBeenCalled();
     });
 
     it('loads and merges example metadata', async () => {

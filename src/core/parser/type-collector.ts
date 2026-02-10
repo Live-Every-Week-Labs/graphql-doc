@@ -1,5 +1,4 @@
 import {
-  GraphQLSchema,
   GraphQLType,
   isScalarType,
   isObjectType,
@@ -13,16 +12,22 @@ import {
   GraphQLNamedType,
   GraphQLField,
   GraphQLInputField,
+  GraphQLObjectType,
+  GraphQLInputObjectType,
+  GraphQLEnumType,
+  GraphQLUnionType,
+  GraphQLInterfaceType,
+  GraphQLEnumValue,
 } from 'graphql';
-import { TypeDefinition, TypeField, TypeKind } from './types.js';
-import { DirectiveExtractor } from './directive-extractor.js';
+import { TypeDefinition, TypeField } from './types.js';
+import { DirectiveExtractor, DirectiveWarning } from './directive-extractor.js';
 
 export class TypeCollector {
   private collectedTypes: Map<string, TypeDefinition> = new Map();
   private directiveExtractor: DirectiveExtractor;
 
-  constructor() {
-    this.directiveExtractor = new DirectiveExtractor();
+  constructor(reportWarning?: (warning: DirectiveWarning) => void) {
+    this.directiveExtractor = new DirectiveExtractor(reportWarning);
   }
 
   collect(type: GraphQLType): string {
@@ -68,7 +73,7 @@ export class TypeCollector {
     });
   }
 
-  private collectObject(type: any) {
+  private collectObject(type: GraphQLObjectType) {
     // Initialize first to prevent infinite recursion
     this.collectedTypes.set(type.name, {
       name: type.name,
@@ -81,7 +86,7 @@ export class TypeCollector {
     const fields = type.getFields();
     const collectedFields: TypeField[] = [];
 
-    for (const field of Object.values(fields) as GraphQLField<any, any>[]) {
+    for (const field of Object.values(fields) as GraphQLField<unknown, unknown>[]) {
       this.collect(field.type);
       collectedFields.push({
         name: field.name,
@@ -110,7 +115,7 @@ export class TypeCollector {
     definition.directives = this.directiveExtractor.extract(type.astNode!);
   }
 
-  private collectInterface(type: any) {
+  private collectInterface(type: GraphQLInterfaceType) {
     this.collectedTypes.set(type.name, {
       name: type.name,
       kind: 'INTERFACE',
@@ -121,7 +126,7 @@ export class TypeCollector {
     const fields = type.getFields();
     const collectedFields: TypeField[] = [];
 
-    for (const field of Object.values(fields) as GraphQLField<any, any>[]) {
+    for (const field of Object.values(fields) as GraphQLField<unknown, unknown>[]) {
       this.collect(field.type);
       collectedFields.push({
         name: field.name,
@@ -141,7 +146,7 @@ export class TypeCollector {
     definition.directives = this.directiveExtractor.extract(type.astNode!);
   }
 
-  private collectUnion(type: any) {
+  private collectUnion(type: GraphQLUnionType) {
     this.collectedTypes.set(type.name, {
       name: type.name,
       kind: 'UNION',
@@ -162,12 +167,12 @@ export class TypeCollector {
     definition.possibleTypes = typeNames;
   }
 
-  private collectEnum(type: any) {
+  private collectEnum(type: GraphQLEnumType) {
     this.collectedTypes.set(type.name, {
       name: type.name,
       kind: 'ENUM',
       description: type.description || undefined,
-      enumValues: type.getValues().map((v: any) => ({
+      enumValues: type.getValues().map((v: GraphQLEnumValue) => ({
         name: v.name,
         description: v.description || undefined,
         isDeprecated: v.deprecationReason != null,
@@ -178,7 +183,7 @@ export class TypeCollector {
     });
   }
 
-  private collectInputObject(type: any) {
+  private collectInputObject(type: GraphQLInputObjectType) {
     this.collectedTypes.set(type.name, {
       name: type.name,
       kind: 'INPUT_OBJECT',

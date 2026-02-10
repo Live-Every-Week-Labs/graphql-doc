@@ -22,18 +22,10 @@ describe('validate command', () => {
   });
 
   describe('schema validation', () => {
-    it('fails when schema file is not found', async () => {
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
+    it('throws when schema file is not found', async () => {
       await expect(
         runValidate({ schema: 'nonexistent.graphql', targetDir: testDir })
-      ).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
+      ).rejects.toThrow('Validation failed');
     });
 
     it('passes with valid schema', async () => {
@@ -51,32 +43,16 @@ describe('validate command', () => {
       // Create required metadata directory (empty)
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      // Exit code 0 for success
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
+      // Should resolve without throwing
+      await expect(runValidate({ targetDir: testDir })).resolves.toBeUndefined();
     });
 
-    it('fails with invalid GraphQL syntax', async () => {
+    it('throws with invalid GraphQL syntax', async () => {
       // Create an invalid schema
       const schemaPath = path.join(testDir, 'schema.graphql');
       await fs.writeFile(schemaPath, 'this is not valid graphql {{{');
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
+      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('Validation failed');
     });
 
     it('passes with valid custom directives', async () => {
@@ -103,18 +79,11 @@ describe('validate command', () => {
       // Create required metadata directory
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
+      // Should resolve without throwing
+      await expect(runValidate({ targetDir: testDir })).resolves.toBeUndefined();
     });
 
-    it('fails when directive is missing required arguments', async () => {
+    it('throws when directive is missing required arguments', async () => {
       // Create a schema with missing directive arguments
       const schemaPath = path.join(testDir, 'schema.graphql');
       await fs.writeFile(
@@ -135,15 +104,7 @@ describe('validate command', () => {
       // Create required metadata directory
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
+      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('Validation failed');
     });
   });
 
@@ -194,18 +155,11 @@ describe('validate command', () => {
         ],
       });
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
+      // Should resolve without throwing
+      await expect(runValidate({ targetDir: testDir })).resolves.toBeUndefined();
     });
 
-    it('fails with invalid example JSON', async () => {
+    it('throws with invalid example JSON', async () => {
       // Create directories
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
 
@@ -213,18 +167,10 @@ describe('validate command', () => {
       const examplePath = path.join(testDir, 'docs-metadata', 'examples', 'invalid.json');
       await fs.writeFile(examplePath, '{ invalid json }');
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
+      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('Validation failed');
     });
 
-    it('fails with missing required fields in example', async () => {
+    it('throws with missing required fields in example', async () => {
       // Create directories
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
 
@@ -235,18 +181,10 @@ describe('validate command', () => {
         // Missing operationType and examples
       });
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
+      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('Validation failed');
     });
 
-    it('fails when required example coverage is enabled and documented operations are missing examples', async () => {
+    it('throws when required example coverage is enabled and documented operations are missing examples', async () => {
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
 
       const configPath = path.join(testDir, 'require-examples.json');
@@ -257,16 +195,9 @@ describe('validate command', () => {
         requireExamplesForDocumentedOperations: true,
       });
 
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
       await expect(
         runValidate({ config: 'require-examples.json', targetDir: testDir })
-      ).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
+      ).rejects.toThrow('Validation failed');
     });
   });
 
@@ -276,7 +207,7 @@ describe('validate command', () => {
       await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
     });
 
-    it('warns when example references unknown operation', async () => {
+    it('passes with warnings when example references unknown operation', async () => {
       // Create a schema without the referenced operation
       const schemaPath = path.join(testDir, 'schema.graphql');
       await fs.writeFile(
@@ -306,19 +237,11 @@ describe('validate command', () => {
         ],
       });
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      // Without --strict, should exit 0 (warnings only)
-      await expect(runValidate({ targetDir: testDir })).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
+      // Without --strict, should succeed (warnings only)
+      await expect(runValidate({ targetDir: testDir })).resolves.toBeUndefined();
     });
 
-    it('fails in strict mode with warnings', async () => {
+    it('throws in strict mode with warnings', async () => {
       // Create a schema without the referenced operation
       const schemaPath = path.join(testDir, 'schema.graphql');
       await fs.writeFile(
@@ -348,18 +271,10 @@ describe('validate command', () => {
         ],
       });
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      // With --strict, should exit 1 (warnings treated as errors)
+      // With --strict, should throw (warnings treated as errors)
       await expect(runValidate({ targetDir: testDir, strict: true })).rejects.toThrow(
-        'process.exit called'
+        'Validation failed'
       );
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
     });
   });
 
@@ -383,17 +298,10 @@ describe('validate command', () => {
         `
       );
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
+      // Should resolve without throwing
       await expect(
         runValidate({ schema: 'graphql/custom.graphql', targetDir: testDir })
-      ).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
+      ).resolves.toBeUndefined();
     });
 
     it('uses custom config file', async () => {
@@ -419,17 +327,10 @@ describe('validate command', () => {
         framework: 'docusaurus',
       });
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
+      // Should resolve without throwing
       await expect(
         runValidate({ config: 'custom-config.json', targetDir: testDir })
-      ).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
+      ).resolves.toBeUndefined();
     });
 
     it('supports exampleFiles arrays from config', async () => {
@@ -470,16 +371,65 @@ describe('validate command', () => {
         exampleFiles: ['./metadata-a/*.json', './metadata-b/*.json'],
       });
 
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
+      // Should resolve without throwing
       await expect(
         runValidate({ config: 'custom-examples-config.json', targetDir: testDir })
-      ).rejects.toThrow('process.exit called');
+      ).resolves.toBeUndefined();
+    });
+  });
 
-      expect(mockExit).toHaveBeenCalledWith(0);
-      mockExit.mockRestore();
+  describe('output modes', () => {
+    it('emits JSON output on successful validation', async () => {
+      await fs.writeFile(
+        path.join(testDir, 'schema.graphql'),
+        `
+        type Query {
+          ok: String
+        }
+        `
+      );
+      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
+
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      let payload: { success: boolean; schemaValid: boolean } = {
+        success: false,
+        schemaValid: false,
+      };
+      try {
+        await expect(runValidate({ targetDir: testDir, json: true })).resolves.toBeUndefined();
+        const lastCall = logSpy.mock.calls.at(-1)?.[0];
+        payload = JSON.parse(String(lastCall));
+      } finally {
+        logSpy.mockRestore();
+      }
+
+      expect(payload.success).toBe(true);
+      expect(payload.schemaValid).toBe(true);
+    });
+
+    it('emits JSON output on validation failure', async () => {
+      await fs.ensureDir(path.join(testDir, 'docs-metadata', 'examples'));
+
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      let payload: { success: boolean; errors: unknown[] } = { success: false, errors: [] };
+      try {
+        await expect(
+          runValidate({ schema: 'missing.graphql', targetDir: testDir, json: true })
+        ).rejects.toThrow('Validation failed');
+        const lastCall = logSpy.mock.calls.at(-1)?.[0];
+        payload = JSON.parse(String(lastCall));
+      } finally {
+        logSpy.mockRestore();
+      }
+
+      expect(payload.success).toBe(false);
+      expect(payload.errors.length).toBeGreaterThan(0);
+    });
+
+    it('throws when both verbose and quiet flags are used together', async () => {
+      await expect(runValidate({ targetDir: testDir, verbose: true, quiet: true })).rejects.toThrow(
+        '--verbose and --quiet cannot be used together'
+      );
     });
   });
 });

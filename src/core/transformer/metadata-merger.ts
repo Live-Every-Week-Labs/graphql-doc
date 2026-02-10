@@ -1,5 +1,5 @@
-import { Operation as BaseOperation } from '../parser/types';
-import { ExampleFile, Example } from '../metadata/types';
+import { Operation as BaseOperation } from '../parser/types.js';
+import { ExampleFile, Example } from '../metadata/types.js';
 
 export function mergeMetadata(
   baseOperations: BaseOperation[],

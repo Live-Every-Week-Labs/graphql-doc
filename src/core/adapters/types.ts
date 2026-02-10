@@ -1,13 +1,9 @@
-import type { DocModel } from '../transformer/types';
+import type { DocModel } from '../transformer/types.js';
+import type { SerializedDocData } from '../serialization/doc-data.js';
 
-export interface GeneratedFile {
-  path: string;
-  content: string;
-  type: 'mdx' | 'md' | 'json' | 'js' | 'py' | 'zip';
-  absolutePath?: string;
-  binaryContent?: Buffer;
-}
+export type { GeneratedFile } from '../types.js';
+import type { GeneratedFile } from '../types.js';
 
 export interface Adapter {
-  adapt(model: DocModel): GeneratedFile[];
+  adapt(model: DocModel, serializedData?: SerializedDocData): GeneratedFile[];
 }

@@ -1,11 +1,24 @@
 /**
- * String utility functions for URL-friendly transformations.
+ * String utility functions for URL-friendly transformations and text extraction.
  */
+
+/**
+ * Extract the first sentence (ending with `.`, `!`, or `?`) from a string.
+ * Returns the trimmed input if no sentence-ending punctuation is found.
+ * Returns empty string for falsy/empty input.
+ */
+export function firstSentence(value?: string): string {
+  if (!value) return '';
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  const match = trimmed.match(/^[\s\S]*?[.!?](\s|$)/);
+  return (match ? match[0] : trimmed).trim();
+}
 
 /**
  * Converts text to a URL-friendly slug.
  *
- * - Handles camelCase by inserting hyphens (getUser → get-user)
+ * - Handles camelCase by inserting hyphens (getUser -> get-user)
  * - Converts to lowercase
  * - Replaces non-alphanumeric characters with hyphens
  * - Removes leading/trailing hyphens

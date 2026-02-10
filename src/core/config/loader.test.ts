@@ -63,7 +63,7 @@ describe('loadGeneratorConfig', () => {
     it('throws error when config file not found', async () => {
       const nonExistentPath = '/path/to/non-existent/config.json';
       await expect(loadGeneratorConfig(process.cwd(), nonExistentPath)).rejects.toThrow(
-        `Config file not found: ${nonExistentPath}`
+        'Config file not found: config.json'
       );
     });
 
@@ -112,7 +112,37 @@ describe('loadGeneratorConfig', () => {
       expect(config.examplesDir).toBeUndefined();
     });
 
-    it('keeps root-level introDocs in root config', async () => {
+    it('throws for unsupported future configVersion values', async () => {
+      const versionedPath = path.join(tempDir, 'future-version-config.json');
+      fs.writeFileSync(
+        versionedPath,
+        JSON.stringify({
+          configVersion: 99,
+          outputDir: './docs',
+        })
+      );
+
+      await expect(loadGeneratorConfig(process.cwd(), versionedPath)).rejects.toThrow(
+        'Unsupported configVersion'
+      );
+    });
+
+    it('throws for invalid configVersion values', async () => {
+      const versionedPath = path.join(tempDir, 'invalid-version-config.json');
+      fs.writeFileSync(
+        versionedPath,
+        JSON.stringify({
+          configVersion: -1,
+          outputDir: './docs',
+        })
+      );
+
+      await expect(loadGeneratorConfig(process.cwd(), versionedPath)).rejects.toThrow(
+        'Invalid configVersion'
+      );
+    });
+
+    it('migrates root-level introDocs to adapters.docusaurus.introDocs', async () => {
       const introDocsPath = path.join(tempDir, 'intro-docs-config.json');
       fs.writeFileSync(
         introDocsPath,
@@ -124,8 +154,8 @@ describe('loadGeneratorConfig', () => {
       );
 
       const config = await loadGeneratorConfig(process.cwd(), introDocsPath);
-      expect(config.introDocs).toEqual(['./docs/intro/overview.mdx']);
-      expect(config.adapters.docusaurus.introDocs).toEqual([]);
+      expect((config as unknown as { introDocs?: unknown }).introDocs).toBeUndefined();
+      expect(config.adapters.docusaurus.introDocs).toEqual(['./docs/intro/overview.mdx']);
     });
 
     it('sets a default agentSkill outputDir when enabled', async () => {

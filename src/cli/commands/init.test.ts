@@ -101,38 +101,22 @@ describe('init command', () => {
   });
 
   describe('existence checking', () => {
-    it('exits with error when .graphqlrc exists in --yes mode', async () => {
+    it('throws error when .graphqlrc exists in --yes mode', async () => {
       // Create existing .graphqlrc
       await fs.writeFile(path.join(testDir, '.graphqlrc'), 'existing config');
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
       await expect(runInit({ yes: true, targetDir: testDir })).rejects.toThrow(
-        'process.exit called'
+        'Cannot overwrite existing files in non-interactive mode'
       );
-      expect(mockExit).toHaveBeenCalledWith(1);
-
-      mockExit.mockRestore();
     });
 
-    it('exits with error when docs-metadata exists in --yes mode', async () => {
+    it('throws error when docs-metadata exists in --yes mode', async () => {
       // Create existing docs-metadata directory
       await fs.ensureDir(path.join(testDir, 'docs-metadata'));
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
       await expect(runInit({ yes: true, targetDir: testDir })).rejects.toThrow(
-        'process.exit called'
+        'Cannot overwrite existing files in non-interactive mode'
       );
-      expect(mockExit).toHaveBeenCalledWith(1);
-
-      mockExit.mockRestore();
     });
   });
 
@@ -168,7 +152,7 @@ describe('init command', () => {
   });
 
   describe('interactive mode', () => {
-    it('prompts for confirmation when files exist', async () => {
+    it('returns early when user declines to overwrite', async () => {
       const { confirm } = await import('@inquirer/prompts');
       const mockedConfirm = vi.mocked(confirm);
 
@@ -178,16 +162,9 @@ describe('init command', () => {
       // Mock confirm to return false (don't overwrite)
       mockedConfirm.mockResolvedValueOnce(false);
 
-      // Mock process.exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      await expect(runInit({ targetDir: testDir })).rejects.toThrow('process.exit called');
+      // Should resolve without throwing (early return)
+      await expect(runInit({ targetDir: testDir })).resolves.toBeUndefined();
       expect(mockedConfirm).toHaveBeenCalled();
-      expect(mockExit).toHaveBeenCalledWith(0);
-
-      mockExit.mockRestore();
     });
 
     it('proceeds with overwrite when user confirms', async () => {

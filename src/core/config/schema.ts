@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const CURRENT_CONFIG_VERSION = 1 as const;
+
 const IntroDocObjectSchema = z
   .object({
     source: z.string().optional(),
@@ -31,11 +33,24 @@ const AgentSkillIntroDocSchema = z
 const AgentSkillSchema = z
   .object({
     enabled: z.boolean().default(false),
-    name: z.string().min(1).default('graphql-api-skill'),
+    name: z
+      .string()
+      .min(1)
+      .regex(
+        /^[a-zA-Z0-9_-]+$/,
+        'agentSkill.name must only contain alphanumeric characters, hyphens, and underscores'
+      )
+      .default('graphql-api-skill'),
     description: z.string().optional(),
     outputDir: z.string().optional(),
     includeExamples: z.boolean().default(true),
-    pythonScriptName: z.string().default('graphql_docs_skill.py'),
+    pythonScriptName: z
+      .string()
+      .regex(
+        /^[a-zA-Z0-9_-]+\.py$/,
+        'pythonScriptName must be a simple .py filename with only alphanumeric characters, hyphens, and underscores'
+      )
+      .default('graphql_docs_skill.py'),
     introDoc: AgentSkillIntroDocSchema,
   })
   .default({});
@@ -74,7 +89,7 @@ const AdaptersSchema = z
   .object({
     docusaurus: DocusaurusAdapterSchema.default({}),
   })
-  .passthrough()
+  .strip()
   .default({ docusaurus: {} });
 
 const LlmDocsSchema = z
@@ -93,10 +108,10 @@ const LlmDocsSchema = z
   .default({});
 
 export const ConfigSchema = z.object({
+  configVersion: z.literal(CURRENT_CONFIG_VERSION).default(CURRENT_CONFIG_VERSION),
   outputDir: z.string().default('./docs/api'),
   cleanOutputDir: z.boolean().default(false),
   framework: z.string().default('docusaurus'),
-  introDocs: z.array(IntroDocSchema).default([]),
   metadataDir: z.string().default('./docs-metadata'),
   examplesDir: z.string().optional(),
   exampleFiles: z
@@ -116,7 +131,6 @@ export const ConfigSchema = z.object({
     }, z.array(z.string()))
     .default([]),
   allowRemoteSchema: z.boolean().default(false),
-  includeDeprecated: z.boolean().default(true),
   requireExamplesForDocumentedOperations: z.boolean().default(false),
   excludeDocGroups: z
     .preprocess((value) => {
@@ -126,7 +140,6 @@ export const ConfigSchema = z.object({
       return value;
     }, z.array(z.string()))
     .default([]),
-  skipTypes: z.array(z.string()).default([]),
   typeExpansion: z
     .object({
       maxDepth: z.number().default(5),

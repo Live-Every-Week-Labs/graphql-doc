@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { DirectiveExtractor } from './directive-extractor';
-import { parse, FieldDefinitionNode, ObjectTypeDefinitionNode } from 'graphql';
+import { parse, ObjectTypeDefinitionNode } from 'graphql';
 
 describe('DirectiveExtractor', () => {
   const extractor = new DirectiveExtractor();
@@ -36,7 +36,25 @@ describe('DirectiveExtractor', () => {
 
     expect(directives.docGroup).toEqual({
       name: 'Users',
+      displayLabel: 'List Users',
       sidebarTitle: 'List Users',
+    });
+  });
+
+  it('should extract displayLabel from @docGroup', () => {
+    const sdl = `
+      type Query {
+        users: [User] @docGroup(name: "Users", displayLabel: "List Users")
+      }
+    `;
+    const ast = parse(sdl);
+    const field = (ast.definitions[0] as ObjectTypeDefinitionNode).fields![0];
+
+    const directives = extractor.extract(field);
+
+    expect(directives.docGroup).toEqual({
+      name: 'Users',
+      displayLabel: 'List Users',
     });
   });
 
@@ -113,6 +131,23 @@ describe('DirectiveExtractor', () => {
     const field = (ast.definitions[0] as ObjectTypeDefinitionNode).fields![0];
     const directives = extractor.extract(field);
     expect(directives.docGroup).toBeUndefined();
+  });
+
+  it('reports warnings for invalid directive usage', () => {
+    const warnings: string[] = [];
+    const warningExtractor = new DirectiveExtractor((warning) => {
+      warnings.push(`Invalid @${warning.directive} usage: ${warning.message}`);
+    });
+    const sdl = `
+      type Query {
+        users: [User] @docPriority(level: "high")
+      }
+    `;
+    const ast = parse(sdl);
+    const field = (ast.definitions[0] as ObjectTypeDefinitionNode).fields![0];
+    warningExtractor.extract(field);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('Invalid @docPriority usage:');
   });
 
   it('should ignore invalid @docPriority usage', () => {

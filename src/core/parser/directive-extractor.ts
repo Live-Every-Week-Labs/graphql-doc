@@ -1,25 +1,22 @@
 import { FieldDefinitionNode, DirectiveNode, valueFromASTUntyped, ASTNode } from 'graphql';
-import { z } from 'zod';
 import { OperationDirectives, DocGroup, DocPriority, DocTags } from './types.js';
+import {
+  DocGroupSchema,
+  DocPrioritySchema,
+  DocTagsSchema,
+  DocIgnoreSchema,
+} from './directive-schemas.js';
 
-// Define Zod schemas
-const DocGroupSchema = z.object({
-  name: z.string(),
-  order: z.number().optional(),
-  subsection: z.string().optional(),
-  sidebarTitle: z.string().optional(),
-});
+export interface DirectiveWarning {
+  directive: 'docGroup' | 'docPriority' | 'docTags' | 'docIgnore';
+  message: string;
+}
 
-const DocPrioritySchema = z.object({
-  level: z.number(),
-});
-
-const DocTagsSchema = z.object({
-  tags: z.array(z.string()),
-});
-const DocIgnoreSchema = z.object({}).strict();
+type WarningReporter = (warning: DirectiveWarning) => void;
 
 export class DirectiveExtractor {
+  constructor(private reportWarning?: WarningReporter) {}
+
   extract(node: FieldDefinitionNode | ASTNode): OperationDirectives {
     const directives: OperationDirectives = {};
 
@@ -35,9 +32,13 @@ export class DirectiveExtractor {
         case 'docGroup': {
           const result = DocGroupSchema.safeParse(args);
           if (result.success) {
-            directives.docGroup = result.data as DocGroup;
+            const docGroup = result.data as DocGroup;
+            if (!docGroup.displayLabel && docGroup.sidebarTitle) {
+              docGroup.displayLabel = docGroup.sidebarTitle;
+            }
+            directives.docGroup = docGroup;
           } else {
-            console.warn(`Invalid @docGroup usage: ${result.error.message}`);
+            this.reportWarning?.({ directive: 'docGroup', message: result.error.message });
           }
           break;
         }
@@ -46,7 +47,7 @@ export class DirectiveExtractor {
           if (result.success) {
             directives.docPriority = result.data as DocPriority;
           } else {
-            console.warn(`Invalid @docPriority usage: ${result.error.message}`);
+            this.reportWarning?.({ directive: 'docPriority', message: result.error.message });
           }
           break;
         }
@@ -55,7 +56,7 @@ export class DirectiveExtractor {
           if (result.success) {
             directives.docTags = result.data as DocTags;
           } else {
-            console.warn(`Invalid @docTags usage: ${result.error.message}`);
+            this.reportWarning?.({ directive: 'docTags', message: result.error.message });
           }
           break;
         }
@@ -64,7 +65,7 @@ export class DirectiveExtractor {
           if (result.success) {
             directives.docIgnore = true;
           } else {
-            console.warn(`Invalid @docIgnore usage: ${result.error.message}`);
+            this.reportWarning?.({ directive: 'docIgnore', message: result.error.message });
           }
           break;
         }
@@ -74,8 +75,8 @@ export class DirectiveExtractor {
     return directives;
   }
 
-  private getDirectiveArgs(directive: DirectiveNode): any {
-    const args: Record<string, any> = {};
+  private getDirectiveArgs(directive: DirectiveNode): Record<string, unknown> {
+    const args: Record<string, unknown> = {};
 
     if (directive.arguments) {
       for (const arg of directive.arguments) {

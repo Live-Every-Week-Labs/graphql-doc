@@ -97,6 +97,9 @@ Validate your GraphQL schema and metadata files without generating documentation
 - `-s, --schema <path>`: Path to the GraphQL schema file. Defaults to `schema.graphql`.
 - `-c, --config <path>`: Path to a configuration file.
 - `--strict`: Treat warnings as errors (exit with code 1 if any warnings are found).
+- `--json`: Emit machine-readable JSON results for CI systems.
+- `--verbose`: Enable verbose progress logging.
+- `--quiet`: Suppress non-error output.
 - `-h, --help`: Display help for the command.
 
 **Exit Codes:**
@@ -122,6 +125,12 @@ Validate with strict mode (fail on warnings):
 
 ```bash
 graphql-docs validate --strict
+```
+
+Validate with JSON output (CI-friendly):
+
+```bash
+graphql-docs validate --json
 ```
 
 **Validation Checks:**
@@ -175,6 +184,10 @@ Generates documentation from a GraphQL schema.
 - `-o, --output <path>`: Directory where the generated documentation will be written.
 - `-c, --config <path>`: Path to a configuration file (e.g., `.graphqlrc`, `graphql-docs.config.js`).
 - `--clean-output`: Remove existing files in the output directory before generating.
+- `--dry-run`: Preview generated files without writing to disk.
+- `--watch`: Regenerate when schema/example/config files change.
+- `--verbose`: Enable verbose progress logging.
+- `--quiet`: Suppress non-error output.
 - `--llm-docs`: Enable LLM-optimized Markdown output.
 - `--no-llm-docs`: Disable LLM-optimized Markdown output.
 - `--llm-docs-strategy <strategy>`: LLM docs strategy (`single` or `chunked`).
@@ -216,6 +229,18 @@ Use a specific config file:
 
 ```bash
 graphql-docs generate -c .graphqlrc.dev
+```
+
+Preview generation without writing:
+
+```bash
+graphql-docs generate --dry-run
+```
+
+Regenerate on file changes:
+
+```bash
+graphql-docs generate --watch
 ```
 
 ## Configuration

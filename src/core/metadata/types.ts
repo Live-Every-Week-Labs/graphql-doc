@@ -2,11 +2,11 @@ export interface Example {
   name: string;
   description?: string;
   query: string;
-  variables?: Record<string, any>;
+  variables?: Record<string, unknown>;
   response: {
     type: 'success' | 'failure' | 'error';
     httpStatus?: number;
-    body: any;
+    body: unknown;
   };
 }
 

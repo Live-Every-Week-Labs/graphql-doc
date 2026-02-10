@@ -1,13 +1,13 @@
 # Templates
 
-This directory contains the Handlebars templates used for generating component-based MDX content.
+This directory contains runtime templates used by generators.
 
 ## Files
 
-- **`operation.hbs`**: Emits a static props export plus `<OperationView />` markup. Supports `dataReference`, `typesByName`, and `typeLinkMode`.
-- **`type-definition.hbs`**: Emits a static props export plus `<TypeDefinitionView />` markup. Supports `dataReference` and `typeLinkMode`.
-- **`arguments.hbs`**, **`type.hbs`**, **`examples.hbs`**: Legacy partials (kept for reference).
+- **`docusaurus/operation.hbs`**: Emits the Docusaurus operation MDX module.
+- **`docusaurus/type-definition.hbs`**: Emits the Docusaurus type-definition MDX module.
+- **`agent-skill-script.py`**: Template for generated agent skill helper script.
 
 ## Usage
 
-These templates are loaded by the `MdxRenderer` class in `src/core/renderer/mdx-renderer.ts`.
+The Docusaurus templates are loaded by `src/core/adapters/docusaurus/mdx-renderer.ts`.

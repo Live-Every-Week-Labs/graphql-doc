@@ -1,8 +1,9 @@
-import { Operation as BaseOperation, TypeDefinition } from '../parser/types';
-import { ExampleFile, Example } from '../metadata/types';
-import { DocModel, Section, Operation, ExpandedArgument } from './types';
-import { TypeExpander } from './type-expander';
-import { mergeMetadata } from './metadata-merger';
+import { Operation as BaseOperation, TypeDefinition } from '../parser/types.js';
+import { ExampleFile, Example } from '../metadata/types.js';
+import { DocModel, Section, Operation, ExpandedArgument } from './types.js';
+import { TypeExpander } from './type-expander.js';
+import { mergeMetadata } from './metadata-merger.js';
+import { DEFAULT_SORT_PRIORITY, DEFAULT_GROUP_NAME } from '../utils/index.js';
 
 export interface TransformerConfig {
   maxDepth?: number;
@@ -18,12 +19,7 @@ export class Transformer {
 
   constructor(types: TypeDefinition[], config: TransformerConfig = {}) {
     this.typeDefinitions = types;
-    this.expander = new TypeExpander(
-      types,
-      config.maxDepth ?? 5,
-      config.defaultLevels ?? 3,
-      config.showCircularReferences ?? true
-    );
+    this.expander = new TypeExpander(types, config.showCircularReferences ?? true);
     this.excludedDocGroups = new Set(config.excludeDocGroups ?? []);
   }
 
@@ -74,7 +70,7 @@ export class Transformer {
       if (op.directives.docIgnore) {
         continue;
       }
-      const groupName = op.directives.docGroup?.name || 'Uncategorized';
+      const groupName = op.directives.docGroup?.name || DEFAULT_GROUP_NAME;
       if (this.excludedDocGroups.has(groupName)) {
         continue;
       }
@@ -104,18 +100,14 @@ export class Transformer {
 
     // Sort sections: ordered first (by number), then unordered (alphabetically)
     const sections = Array.from(sectionsMap.values()).sort((a, b) => {
-      const aHasOrder = a.order !== undefined;
-      const bHasOrder = b.order !== undefined;
-
       // Both have explicit order: sort numerically
-      if (aHasOrder && bHasOrder) {
-        // @ts-expect-error order is a number because of our check above
+      if (a.order !== undefined && b.order !== undefined) {
         return a.order - b.order;
       }
 
       // Only one has order: ordered items come first
-      if (aHasOrder && !bHasOrder) return -1;
-      if (!aHasOrder && bHasOrder) return 1;
+      if (a.order !== undefined && b.order === undefined) return -1;
+      if (a.order === undefined && b.order !== undefined) return 1;
 
       // Neither has order: sort alphabetically by name
       return a.name.localeCompare(b.name);
@@ -132,8 +124,8 @@ export class Transformer {
 
       for (const subsection of section.subsections) {
         subsection.operations.sort((a, b) => {
-          const priorityA = a.directives.docPriority?.level ?? 999;
-          const priorityB = b.directives.docPriority?.level ?? 999;
+          const priorityA = a.directives.docPriority?.level ?? DEFAULT_SORT_PRIORITY;
+          const priorityB = b.directives.docPriority?.level ?? DEFAULT_SORT_PRIORITY;
           return priorityA - priorityB;
         });
       }

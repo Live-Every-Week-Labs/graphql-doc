@@ -337,9 +337,9 @@ describe('FileWriter', () => {
 
       await expect(fileWriter.write(files)).rejects.toThrow('Path traversal attempt detected');
 
-      // The first file should have been written before the error
+      // With validate-first batching, no files in the batch are written when validation fails
       const validPath = path.join(testDir, 'valid.mdx');
-      expect(await fs.pathExists(validPath)).toBe(true);
+      expect(await fs.pathExists(validPath)).toBe(false);
 
       // The malicious file should not exist outside the directory
       const outsidePath = path.join(testDir, '..', 'outside.mdx');

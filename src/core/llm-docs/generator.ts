@@ -1,8 +1,15 @@
 import path from 'path';
-import { DocModel, ExpandedType, Operation, Section } from '../transformer/types';
-import { GeneratedFile } from '../adapters/types';
-import { slugify } from '../utils/string-utils';
-import type { LlmDocsConfig } from '../config/schema';
+import { DocModel, ExpandedType, Operation, Section } from '../transformer/types.js';
+import { GeneratedFile } from '../adapters/types.js';
+import { slugify, firstSentence } from '../utils/string-utils.js';
+import {
+  toPosix,
+  collectOperations,
+  DEFAULT_GROUP_NAME,
+  LLM_TOKEN_WARNING_THRESHOLD,
+  MAX_PREVIEW_OPERATIONS,
+} from '../utils/index.js';
+import type { LlmDocsConfig } from '../config/schema.js';
 
 export interface LlmDocsResult {
   files: GeneratedFile[];
@@ -18,14 +25,10 @@ const OPERATION_LABELS: Record<Operation['operationType'], string> = {
   subscription: 'Subscriptions',
 };
 
-const MAX_MANIFEST_OPS = 8;
-
 const normalizeBaseUrl = (value?: string) => (value ? value.replace(/\/+$/g, '') : undefined);
 
-const ensurePosix = (value: string) => value.replace(/\\/g, '/');
-
 const inferPublicPath = (outputDir: string) => {
-  const normalized = ensurePosix(outputDir);
+  const normalized = toPosix(outputDir);
   const marker = '/static/';
   const idx = normalized.lastIndexOf(marker);
   if (idx !== -1) {
@@ -59,18 +62,7 @@ const cleanDescription = (name: string, description?: string): string | undefine
   return trimmed;
 };
 
-const firstSentence = (description?: string): string | undefined => {
-  if (!description) return undefined;
-  const trimmed = description.trim();
-  if (!trimmed) return undefined;
-  const match = trimmed.match(/^[\s\S]*?[.!?](\s|$)/);
-  if (match) {
-    return match[0].trim();
-  }
-  return trimmed;
-};
-
-const formatDefaultValue = (value: any): string => {
+const formatDefaultValue = (value: unknown): string => {
   if (value === undefined) return '—';
   try {
     if (typeof value === 'string') {
@@ -164,9 +156,9 @@ export class LlmDocsGenerator {
       });
 
       const estimatedTokens = Math.ceil(singleContent.length / 4);
-      if (estimatedTokens > 50000) {
+      if (estimatedTokens > LLM_TOKEN_WARNING_THRESHOLD) {
         warnings.push(
-          `LLM docs single-file output is approximately ${estimatedTokens} tokens (> 50000).`
+          `LLM docs single-file output is approximately ${estimatedTokens} tokens (> ${LLM_TOKEN_WARNING_THRESHOLD}).`
         );
       }
 
@@ -180,7 +172,7 @@ export class LlmDocsGenerator {
             {
               label: 'API Reference',
               filename: this.config.singleFileName,
-              operations: this.collectOperations(normalizedSections),
+              operations: collectOperations({ sections: normalizedSections }),
             },
           ],
         });
@@ -214,7 +206,7 @@ export class LlmDocsGenerator {
       manifestEntries.push({
         label: section.displayName,
         filename,
-        operations: this.collectOperations([section]),
+        operations: collectOperations({ sections: [section] }),
       });
     }
 
@@ -228,7 +220,7 @@ export class LlmDocsGenerator {
           {
             label: 'API Overview',
             filename: 'index.md',
-            operations: this.collectOperations(normalizedSections),
+            operations: collectOperations({ sections: normalizedSections }),
             description: 'Quick reference with all operation signatures',
           },
           ...manifestEntries,
@@ -257,20 +249,10 @@ export class LlmDocsGenerator {
 
   private normalizeSections(sections: Section[]) {
     return sections.map((section) => {
-      const displayName = section.name === 'Uncategorized' ? GENERAL_GROUP_NAME : section.name;
+      const displayName = section.name === DEFAULT_GROUP_NAME ? GENERAL_GROUP_NAME : section.name;
       const slug = slugify(displayName || GENERAL_GROUP_NAME) || 'general';
       return { ...section, displayName, slug };
     });
-  }
-
-  private collectOperations(sections: Array<Section & { displayName?: string }>): Operation[] {
-    const operations: Operation[] = [];
-    for (const section of sections) {
-      for (const subsection of section.subsections) {
-        operations.push(...subsection.operations);
-      }
-    }
-    return operations;
   }
 
   private renderIndex(
@@ -279,13 +261,13 @@ export class LlmDocsGenerator {
     apiDescription?: string,
     baseUrl?: string
   ) {
-    const queries = this.collectOperations(sections)
+    const queries = collectOperations({ sections })
       .filter((op) => op.operationType === 'query')
       .sort((a, b) => a.name.localeCompare(b.name));
-    const mutations = this.collectOperations(sections)
+    const mutations = collectOperations({ sections })
       .filter((op) => op.operationType === 'mutation')
       .sort((a, b) => a.name.localeCompare(b.name));
-    const subscriptions = this.collectOperations(sections)
+    const subscriptions = collectOperations({ sections })
       .filter((op) => op.operationType === 'subscription')
       .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -325,7 +307,7 @@ export class LlmDocsGenerator {
           ['Operation', 'Group', 'Description'],
           queries.map((op) => {
             const group = op.directives.docGroup?.name ?? GENERAL_GROUP_NAME;
-            return [`\`${this.formatSignature(op)}\``, group, firstSentence(op.description) ?? '—'];
+            return [`\`${this.formatSignature(op)}\``, group, firstSentence(op.description) || '—'];
           })
         )
       );
@@ -340,7 +322,7 @@ export class LlmDocsGenerator {
           ['Operation', 'Group', 'Description'],
           mutations.map((op) => {
             const group = op.directives.docGroup?.name ?? GENERAL_GROUP_NAME;
-            return [`\`${this.formatSignature(op)}\``, group, firstSentence(op.description) ?? '—'];
+            return [`\`${this.formatSignature(op)}\``, group, firstSentence(op.description) || '—'];
           })
         )
       );
@@ -355,7 +337,7 @@ export class LlmDocsGenerator {
           ['Operation', 'Group', 'Description'],
           subscriptions.map((op) => {
             const group = op.directives.docGroup?.name ?? GENERAL_GROUP_NAME;
-            return [`\`${this.formatSignature(op)}\``, group, firstSentence(op.description) ?? '—'];
+            return [`\`${this.formatSignature(op)}\``, group, firstSentence(op.description) || '—'];
           })
         )
       );
@@ -462,7 +444,7 @@ export class LlmDocsGenerator {
   }
 
   private renderTypesReference(section: Section, headingLevel: number) {
-    const operations = this.collectOperations([section]);
+    const operations = collectOperations({ sections: [section] });
     const counts = new Map<string, number>();
     for (const op of operations) {
       for (const typeName of op.referencedTypes ?? []) {
@@ -881,8 +863,9 @@ export class LlmDocsGenerator {
 
     for (const entry of files) {
       const ops = entry.operations.map((op) => op.name);
-      const opList = ops.length > MAX_MANIFEST_OPS ? ops.slice(0, MAX_MANIFEST_OPS) : ops;
-      const suffix = ops.length > MAX_MANIFEST_OPS ? ', …' : '';
+      const opList =
+        ops.length > MAX_PREVIEW_OPERATIONS ? ops.slice(0, MAX_PREVIEW_OPERATIONS) : ops;
+      const suffix = ops.length > MAX_PREVIEW_OPERATIONS ? ', …' : '';
       const opSummary = opList.length ? ` - ${opList.join(', ')}${suffix}` : '';
       const description = entry.description ? `: ${entry.description}` : '';
       lines.push(

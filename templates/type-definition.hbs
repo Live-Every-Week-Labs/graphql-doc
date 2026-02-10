@@ -1,7 +1,0 @@
-{{#if dataReference}}
-{{exportKeyword}} {{exportName}} = {{{dataReference}}};
-{{else}}
-{{exportKeyword}} {{exportName}} = {{{json type}}};
-{{/if}}
-
-<TypeDefinitionView type={ {{exportName}} } typesByName={typesByName}{{#if headingLevel}} headingLevel={ {{headingLevel}} }{{/if}}{{#if hasDefaultExpandedLevels}} defaultExpandedLevels={ {{defaultExpandedLevels}} }{{/if}}{{#if hasMaxDepth}} maxDepth={ {{maxDepth}} }{{/if}}{{#if typeLinkBase}} typeLinkBase={{{typeLinkBase}}}{{/if}}{{#if typeLinkMode}} typeLinkMode={{{typeLinkMode}}}{{/if}} />

@@ -41,4 +41,62 @@ describe('SchemaLoader', () => {
     const queryType = schema.getQueryType();
     expect(queryType?.getFields()['now']).toBeDefined();
   });
+
+  describe('remote schema SSRF protection', () => {
+    const loader = new SchemaLoader();
+
+    it('blocks remote URLs when allowRemoteSchema is false', async () => {
+      await expect(
+        loader.load({ schemaPointer: 'https://example.com/graphql', allowRemoteSchema: false })
+      ).rejects.toThrow('Remote schema loading is disabled');
+    });
+
+    it('blocks localhost URLs', async () => {
+      await expect(
+        loader.load({ schemaPointer: 'https://localhost/graphql', allowRemoteSchema: true })
+      ).rejects.toThrow('hostname "localhost" is not allowed');
+    });
+
+    it('blocks private IPv4 addresses (127.x)', async () => {
+      await expect(
+        loader.load({ schemaPointer: 'https://127.0.0.1/graphql', allowRemoteSchema: true })
+      ).rejects.toThrow('resolves to a private/internal address');
+    });
+
+    it('blocks link-local / metadata IPs (169.254.x)', async () => {
+      await expect(
+        loader.load({
+          schemaPointer: 'https://169.254.169.254/latest/meta-data',
+          allowRemoteSchema: true,
+        })
+      ).rejects.toThrow('resolves to a private/internal address');
+    });
+
+    it('blocks private network IPs (10.x)', async () => {
+      await expect(
+        loader.load({ schemaPointer: 'https://10.0.0.1/graphql', allowRemoteSchema: true })
+      ).rejects.toThrow('resolves to a private/internal address');
+    });
+
+    it('blocks private network IPs (192.168.x)', async () => {
+      await expect(
+        loader.load({ schemaPointer: 'https://192.168.1.1/graphql', allowRemoteSchema: true })
+      ).rejects.toThrow('resolves to a private/internal address');
+    });
+
+    it('blocks private network IPs (172.16-31.x)', async () => {
+      await expect(
+        loader.load({ schemaPointer: 'https://172.16.0.1/graphql', allowRemoteSchema: true })
+      ).rejects.toThrow('resolves to a private/internal address');
+    });
+
+    it('blocks metadata.google.internal', async () => {
+      await expect(
+        loader.load({
+          schemaPointer: 'https://metadata.google.internal/graphql',
+          allowRemoteSchema: true,
+        })
+      ).rejects.toThrow('is not allowed');
+    });
+  });
 });

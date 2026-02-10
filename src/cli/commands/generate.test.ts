@@ -69,19 +69,12 @@ describe('generate command', () => {
 
   describe('with valid schema', () => {
     it('generates documentation successfully', async () => {
-      // Mock process.exit to not actually exit
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
       // Run generate - should not throw
       await runGenerate({ schema: 'schema.graphql', targetDir: testDir });
 
       // Verify output was created
       const outputDir = path.join(testDir, 'docs', 'api');
       expect(await fs.pathExists(outputDir)).toBe(true);
-
-      mockExit.mockRestore();
     });
 
     it('creates output directory structure', async () => {
@@ -111,10 +104,17 @@ describe('generate command', () => {
       const sidebarPath = path.join(testDir, 'docs', 'api', 'sidebars.js');
       expect(await fs.pathExists(sidebarPath)).toBe(true);
     });
+
+    it('supports dry-run mode without writing files', async () => {
+      await runGenerate({ schema: 'schema.graphql', targetDir: testDir, dryRun: true });
+
+      const outputDir = path.join(testDir, 'docs', 'api');
+      expect(await fs.pathExists(outputDir)).toBe(false);
+    });
   });
 
   describe('with missing schema', () => {
-    it('fails with error exit code when schema loading throws', async () => {
+    it('throws error when schema loading fails', async () => {
       // Temporarily restore SchemaLoader to test real error behavior
       const SchemaLoaderModule = await import('../../core/parser/schema-loader.js');
       const originalLoad = SchemaLoaderModule.SchemaLoader.prototype.load;
@@ -124,20 +124,13 @@ describe('generate command', () => {
         throw new Error('Schema file not found');
       };
 
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
-      // Run with missing schema - should exit
+      // Run with missing schema - should throw
       await expect(
         runGenerate({ schema: 'nonexistent.graphql', targetDir: testDir })
-      ).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
+      ).rejects.toThrow('Failed to generate documentation');
 
       // Restore original behavior
       SchemaLoaderModule.SchemaLoader.prototype.load = originalLoad;
-      mockExit.mockRestore();
     });
   });
 
@@ -256,7 +249,7 @@ describe('generate command', () => {
           schema: 'schema.graphql',
           extension: () => ({}),
         }),
-      } as any);
+      } as unknown as Awaited<ReturnType<typeof loadConfig>>);
 
       // Run without explicit schema option
       await runGenerate({ targetDir: testDir });
@@ -291,7 +284,7 @@ describe('generate command', () => {
           schema: ['schema.graphql', 'other-schema.graphql'],
           extension: () => ({}),
         }),
-      } as any);
+      } as unknown as Awaited<ReturnType<typeof loadConfig>>);
 
       await runGenerate({ targetDir: testDir });
 
@@ -302,11 +295,7 @@ describe('generate command', () => {
   });
 
   describe('error handling', () => {
-    it('exits with code 1 on config load error', async () => {
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
+    it('throws error on config load failure', async () => {
       // Create invalid config file
       await fs.writeFile(path.join(testDir, 'invalid.json'), 'not valid json{{{');
 
@@ -315,17 +304,10 @@ describe('generate command', () => {
           config: 'invalid.json',
           targetDir: testDir,
         })
-      ).rejects.toThrow('process.exit called');
-
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
+      ).rejects.toThrow('Failed to load configuration');
     });
 
-    it('exits with code 1 when required example coverage is enabled and examples are missing', async () => {
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
+    it('throws error when required example coverage is enabled and examples are missing', async () => {
       const configPath = path.join(testDir, 'require-examples.json');
       await fs.writeJson(configPath, {
         outputDir: './docs/api',
@@ -340,10 +322,18 @@ describe('generate command', () => {
           schema: 'schema.graphql',
           targetDir: testDir,
         })
-      ).rejects.toThrow('process.exit called');
+      ).rejects.toThrow('Failed to generate documentation');
+    });
 
-      expect(mockExit).toHaveBeenCalledWith(1);
-      mockExit.mockRestore();
+    it('throws when both verbose and quiet flags are used together', async () => {
+      await expect(
+        runGenerate({
+          schema: 'schema.graphql',
+          targetDir: testDir,
+          verbose: true,
+          quiet: true,
+        })
+      ).rejects.toThrow('--verbose and --quiet cannot be used together');
     });
   });
 });

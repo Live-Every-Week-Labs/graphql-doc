@@ -62,7 +62,9 @@ describe('TypeExpander', () => {
     expect(result.kind).toBe('LIST');
     if (result.kind === 'LIST') {
       expect(result.ofType.kind).toBe('TYPE_REF');
-      expect((result.ofType as any).name).toBe('String');
+      if (result.ofType.kind === 'TYPE_REF') {
+        expect(result.ofType.name).toBe('String');
+      }
     }
   });
 
@@ -75,35 +77,43 @@ describe('TypeExpander', () => {
       expect(result.fields).toHaveLength(3);
       const postsField = result.fields.find((f) => f.name === 'posts');
       expect(postsField?.type.kind).toBe('LIST');
-      const postType = (postsField?.type as any).ofType;
-      expect(postType.kind).toBe('TYPE_REF');
-      expect(postType.name).toBe('Post');
+      if (postsField?.type.kind === 'LIST') {
+        const postType = postsField.type.ofType;
+        expect(postType.kind).toBe('TYPE_REF');
+        if (postType.kind === 'TYPE_REF') {
+          expect(postType.name).toBe('Post');
+        }
+      }
     }
   });
 
   describe('showCircularReferences config', () => {
     it('returns CIRCULAR_REF when showCircularReferences is true (default)', () => {
-      const expander = new TypeExpander(mockTypes, 5, 2, true);
+      const expander = new TypeExpander(mockTypes, true);
       const result = expander.expandDefinition('User');
 
       expect(result.kind).toBe('OBJECT');
       if (result.kind === 'OBJECT') {
         const bestFriendField = result.fields.find((f) => f.name === 'bestFriend');
         expect(bestFriendField?.type.kind).toBe('CIRCULAR_REF');
-        expect((bestFriendField?.type as any).ref).toBe('User');
+        if (bestFriendField?.type.kind === 'CIRCULAR_REF') {
+          expect(bestFriendField.type.ref).toBe('User');
+        }
       }
     });
 
     it('returns TYPE_REF when showCircularReferences is false', () => {
-      const expander = new TypeExpander(mockTypes, 5, 2, false);
+      const expander = new TypeExpander(mockTypes, false);
       const result = expander.expandDefinition('User');
 
       expect(result.kind).toBe('OBJECT');
       if (result.kind === 'OBJECT') {
         const bestFriendField = result.fields.find((f) => f.name === 'bestFriend');
         expect(bestFriendField?.type.kind).toBe('TYPE_REF');
-        expect((bestFriendField?.type as any).name).toBe('User');
-        expect((bestFriendField?.type as any).link).toBe('#user');
+        if (bestFriendField?.type.kind === 'TYPE_REF') {
+          expect(bestFriendField.type.name).toBe('User');
+          expect(bestFriendField.type.link).toBe('#user');
+        }
       }
     });
   });

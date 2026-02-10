@@ -1,37 +1,11 @@
-import path from 'path';
-import { DocusaurusAdapter } from './docusaurus/docusaurus-adapter';
-import type { Adapter } from './types';
-import type { Config } from '../config/schema';
-
-const inferLlmDocsBasePath = (outputDir: string) => {
-  const normalized = outputDir.replace(/\\/g, '/');
-  const marker = '/static/';
-  const idx = normalized.lastIndexOf(marker);
-  const segment =
-    idx !== -1
-      ? normalized.slice(idx + marker.length)
-      : path.posix.basename(normalized.replace(/\/+$/g, ''));
-  return `/${segment.replace(/^\/+|\/+$/g, '')}`;
-};
+import { DocusaurusAdapter } from './docusaurus/docusaurus-adapter.js';
+import type { Adapter } from './types.js';
+import type { Config } from '../config/schema.js';
 
 export function createAdapter(config: Config): Adapter {
   switch (config.framework) {
-    case 'docusaurus': {
-      const docusaurusConfig = {
-        ...config.adapters?.docusaurus,
-      };
-      const rootIntroDocs = config.introDocs ?? [];
-      const adapterIntroDocs = docusaurusConfig.introDocs ?? [];
-      docusaurusConfig.introDocs = [...rootIntroDocs, ...adapterIntroDocs];
-      if (!docusaurusConfig.llmDocsBasePath && config.llmDocs?.enabled) {
-        docusaurusConfig.llmDocsBasePath = inferLlmDocsBasePath(config.llmDocs.outputDir);
-      }
-      return new DocusaurusAdapter({
-        outputDir: config.outputDir,
-        typeExpansion: config.typeExpansion,
-        ...docusaurusConfig,
-      });
-    }
+    case 'docusaurus':
+      return DocusaurusAdapter.fromConfig(config);
     default:
       throw new Error(`Unsupported framework: ${config.framework}`);
   }

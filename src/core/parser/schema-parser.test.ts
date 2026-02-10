@@ -17,6 +17,7 @@ describe('SchemaParser', () => {
     const schema = buildSchema(sdl);
     const result = parser.parse(schema);
     const operations = result.operations;
+    expect(result.warnings).toHaveLength(0);
 
     expect(operations).toHaveLength(2);
 
@@ -44,6 +45,7 @@ describe('SchemaParser', () => {
     const schema = buildSchema(sdl);
     const result = parser.parse(schema);
     const operations = result.operations;
+    expect(result.warnings).toHaveLength(0);
 
     const query = operations.find((op) => op.name === 'users');
     expect(query).toBeDefined();
@@ -63,8 +65,22 @@ describe('SchemaParser', () => {
     const schema = buildSchema(sdl);
     const result = parser.parse(schema);
     const operations = result.operations;
+    expect(result.warnings).toHaveLength(0);
 
     const query = operations.find((op) => op.name === 'hello');
     expect(query?.description).toBe('Returns hello');
+  });
+
+  it('collects parser warnings for invalid directives', () => {
+    const sdl = `
+      directive @docPriority(level: Int!) on FIELD_DEFINITION
+      type Query {
+        users: [String] @docPriority(level: "high")
+      }
+    `;
+    const schema = buildSchema(sdl);
+    const result = parser.parse(schema);
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0].message).toContain('Invalid @docPriority usage:');
   });
 });

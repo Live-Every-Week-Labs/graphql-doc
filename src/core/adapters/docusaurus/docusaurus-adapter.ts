@@ -1,52 +1,36 @@
-import { DocModel, Operation, Section, Subsection, ExpandedType } from '../../transformer/types';
-import { GeneratedFile } from '../types';
-import { MdxRenderer } from '../../renderer/mdx-renderer';
-import { SidebarGenerator, SidebarItem } from './sidebar-generator';
-import { escapeYamlValue, escapeYamlTag } from '../../utils/yaml-escape';
-import { slugify } from '../../utils/string-utils';
-import * as fs from 'fs';
+import { DocModel, Operation, Section, Subsection, ExpandedType } from '../../transformer/types.js';
+import { GeneratedFile } from '../types.js';
+import { MdxRenderer } from './mdx-renderer.js';
+import { SidebarGenerator, SidebarItem } from './sidebar-generator.js';
+import { buildIntroDocs as buildIntroDocsSection } from './intro-docs-builder.js';
+import { buildSidebarFiles } from './sidebar-file-builder.js';
+import { escapeYamlValue, escapeYamlTag } from '../../utils/yaml-escape.js';
+import { slugify } from '../../utils/string-utils.js';
+import {
+  toPosix,
+  groupTypes,
+  DEFAULT_SORT_PRIORITY,
+  COMPONENT_PACKAGE_IMPORT,
+} from '../../utils/index.js';
+import type {
+  Config,
+  DocusaurusAdapterConfig as BaseDocusaurusAdapterConfig,
+} from '../../config/schema.js';
+import { serializeDocData } from '../../serialization/doc-data.js';
+import type { SerializedDocData } from '../../serialization/doc-data.js';
 import * as path from 'path';
 
 const DATA_DIR = '_data';
 const OPERATIONS_DATA_FILE = path.posix.join(DATA_DIR, 'operations.json');
 const TYPES_DATA_FILE = path.posix.join(DATA_DIR, 'types.json');
 
-export interface DocusaurusAdapterConfig {
-  singlePage?: boolean;
+export type DocusaurusAdapterConfig = Partial<BaseDocusaurusAdapterConfig> & {
   outputDir?: string;
-  outputPath?: string;
-  docsRoot?: string;
-  docIdPrefix?: string;
-  typeLinkMode?: 'none' | 'deep' | 'all';
   typeExpansion?: {
     maxDepth?: number;
     defaultLevels?: number;
   };
-  llmDocsBasePath?: string;
-  unsafeMdxDescriptions?: boolean;
-  generateSidebar?: boolean;
-  sidebarFile?: string;
-  sidebarCategoryIndex?: boolean;
-  sidebarMerge?: boolean;
-  sidebarTarget?: string;
-  sidebarInsertPosition?: 'replace' | 'append' | 'prepend' | 'before' | 'after';
-  sidebarInsertReference?: string;
-  sidebarSectionLabels?: {
-    operations?: string;
-    types?: string;
-  };
-  introDocs?: Array<
-    | string
-    | {
-        source?: string;
-        content?: string;
-        outputPath?: string;
-        id?: string;
-        label?: string;
-        title?: string;
-      }
-  >;
-}
+};
 
 export class DocusaurusAdapter {
   private renderer: MdxRenderer;
@@ -63,6 +47,49 @@ export class DocusaurusAdapter {
       sectionLabels: config.sidebarSectionLabels,
       docIdPrefix: this.docIdPrefix,
     });
+  }
+
+  /**
+   * Build a DocusaurusAdapter from a full generator Config object.
+   *
+   * Handles Docusaurus-specific assembly such as inferring llmDocsBasePath
+   * from the LLM docs output directory.
+   */
+  static fromConfig(config: Config): DocusaurusAdapter {
+    const docusaurusConfig = {
+      ...config.adapters?.docusaurus,
+    };
+
+    // Infer llmDocsBasePath from the LLM docs outputDir when not explicitly set
+    if (!docusaurusConfig.llmDocsBasePath && config.llmDocs?.enabled) {
+      docusaurusConfig.llmDocsBasePath = DocusaurusAdapter.inferLlmDocsBasePath(
+        config.llmDocs.outputDir
+      );
+    }
+
+    return new DocusaurusAdapter({
+      outputDir: config.outputDir,
+      typeExpansion: config.typeExpansion,
+      ...docusaurusConfig,
+    });
+  }
+
+  /**
+   * Infer the base URL path for LLM docs from the output directory.
+   *
+   * Uses the Docusaurus `/static/` convention: if the outputDir contains `/static/`,
+   * the segment after it becomes the base path. Otherwise falls back to the
+   * directory basename.
+   */
+  private static inferLlmDocsBasePath(outputDir: string): string {
+    const normalized = toPosix(outputDir);
+    const marker = '/static/';
+    const idx = normalized.lastIndexOf(marker);
+    const segment =
+      idx !== -1
+        ? normalized.slice(idx + marker.length)
+        : path.posix.basename(normalized.replace(/\/+$/g, ''));
+    return `/${segment.replace(/^\/+|\/+$/g, '')}`;
   }
 
   private getIntroDocs(): Array<{
@@ -83,7 +110,7 @@ export class DocusaurusAdapter {
     }
 
     const docsRoot = this.config.docsRoot ?? './docs';
-    const outputRoot = this.config.outputDir ?? this.config.outputPath ?? process.cwd();
+    const outputRoot = this.config.outputDir ?? process.cwd();
     const resolvedDocsRoot = path.resolve(docsRoot);
     const resolvedOutputRoot = path.resolve(outputRoot);
 
@@ -106,213 +133,15 @@ export class DocusaurusAdapter {
     return `${this.docIdPrefix}/${id}`;
   }
 
-  private parseFrontMatter(content: string): {
-    frontMatter?: Record<string, string>;
-    frontMatterBlock?: string;
-  } {
-    if (!content.startsWith('---')) {
-      return {};
-    }
-    const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
-    if (!match) {
-      return {};
-    }
-    const block = match[1];
-    const frontMatter: Record<string, string> = {};
-    block.split('\n').forEach((line) => {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) return;
-      const separator = trimmed.indexOf(':');
-      if (separator === -1) return;
-      const key = trimmed.slice(0, separator).trim();
-      let value = trimmed.slice(separator + 1).trim();
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      ) {
-        value = value.slice(1, -1);
-      }
-      frontMatter[key] = value;
+  private generateSidebarFiles(sidebarItems: SidebarItem[]): GeneratedFile[] {
+    return buildSidebarFiles(sidebarItems, {
+      sidebarFile: this.config.sidebarFile,
+      sidebarTarget: this.config.sidebarTarget,
+      sidebarInsertPosition: this.config.sidebarInsertPosition,
+      sidebarInsertReference: this.config.sidebarInsertReference,
+      sidebarMerge: this.config.sidebarMerge,
+      outputDir: this.config.outputDir,
     });
-    return { frontMatter, frontMatterBlock: match[0] };
-  }
-
-  private ensureFrontMatter(
-    content: string,
-    options: { id?: string; title?: string; label?: string }
-  ): string {
-    const { id, title, label } = options;
-    if (!id && !title && !label) {
-      return content;
-    }
-
-    if (content.startsWith('---')) {
-      const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
-      if (!match) {
-        return content;
-      }
-      const block = match[1];
-      const lines = block.split('\n');
-      const hasId = lines.some((line) => line.trim().startsWith('id:'));
-      const hasTitle = lines.some((line) => line.trim().startsWith('title:'));
-      const hasLabel = lines.some((line) => line.trim().startsWith('sidebar_label:'));
-      const additions: string[] = [];
-      if (id && !hasId) additions.push(`id: ${id}`);
-      if (title && !hasTitle) additions.push(`title: ${title}`);
-      if (label && !hasLabel) additions.push(`sidebar_label: ${label}`);
-      if (additions.length === 0) {
-        return content;
-      }
-      const updatedBlock = ['---', ...additions, ...lines, '---'].join('\n');
-      return content.replace(match[0], `${updatedBlock}\n`);
-    }
-
-    const frontMatterLines = ['---'];
-    if (id) frontMatterLines.push(`id: ${id}`);
-    if (title) frontMatterLines.push(`title: ${title}`);
-    if (label) frontMatterLines.push(`sidebar_label: ${label}`);
-    frontMatterLines.push('---');
-    return `${frontMatterLines.join('\n')}\n\n${content}`;
-  }
-
-  private mergeSidebarContent(
-    content: string,
-    sidebarItems: SidebarItem[],
-    options: {
-      targetKey: string;
-      insertPosition: 'replace' | 'append' | 'prepend' | 'before' | 'after';
-      insertReference?: string;
-    }
-  ): string | null {
-    const markerStart = '// <graphql-docs-sidebar>';
-    const markerEnd = '// </graphql-docs-sidebar>';
-    const cleaned = content.replace(
-      new RegExp(`${markerStart}[\\s\\S]*?${markerEnd}\\n?`, 'g'),
-      ''
-    );
-
-    let mergedContent = cleaned;
-    let targetExpr: string | null = null;
-
-    if (cleaned.includes('module.exports')) {
-      targetExpr = 'module.exports';
-    } else {
-      const exportMatch = cleaned.match(/export\\s+default\\s+([A-Za-z0-9_$]+)\\s*;?/);
-      if (exportMatch) {
-        targetExpr = exportMatch[1];
-      } else if (cleaned.match(/export\\s+default\\s*\\{/)) {
-        const replacement = cleaned.replace(/export\\s+default\\s*\\{/, 'const __gqlSidebars = {');
-        mergedContent = replacement;
-        if (!replacement.includes('export default __gqlSidebars')) {
-          mergedContent = `${replacement}\n\nexport default __gqlSidebars;\n`;
-        }
-        targetExpr = '__gqlSidebars';
-      }
-    }
-
-    if (!targetExpr) {
-      return null;
-    }
-
-    const itemsLiteral = JSON.stringify(sidebarItems, null, 2);
-    const mergeOptions = {
-      mode: options.insertPosition,
-      reference: options.insertReference ?? '',
-    };
-    const targetKeyLiteral = JSON.stringify(options.targetKey);
-    const mergeBlock = [
-      markerStart,
-      `const __gqlDocsItems = ${itemsLiteral};`,
-      `const __gqlDocsTargetKey = ${targetKeyLiteral};`,
-      `const __gqlDocsMerge = (items, insert, opts) => {`,
-      `  const list = Array.isArray(items) ? items.slice() : [];`,
-      `  const mode = opts?.mode ?? 'replace';`,
-      `  if (mode === 'replace') return insert;`,
-      `  if (mode === 'append') return [...list, ...insert];`,
-      `  if (mode === 'prepend') return [...insert, ...list];`,
-      `  const reference = opts?.reference;`,
-      `  if (!reference) return [...list, ...insert];`,
-      `  const findIndex = (item) => {`,
-      `    if (typeof item === 'string') return item === reference;`,
-      `    if (item && typeof item === 'object') {`,
-      `      return item.label === reference || item.id === reference || item.value === reference;`,
-      `    }`,
-      `    return false;`,
-      `  };`,
-      `  const index = list.findIndex(findIndex);`,
-      `  if (index === -1) return [...list, ...insert];`,
-      `  const insertIndex = mode === 'before' ? index : index + 1;`,
-      `  return [...list.slice(0, insertIndex), ...insert, ...list.slice(insertIndex)];`,
-      `};`,
-      `${targetExpr}[__gqlDocsTargetKey] = __gqlDocsMerge(` +
-        `${targetExpr}[__gqlDocsTargetKey], __gqlDocsItems, ${JSON.stringify(mergeOptions)});`,
-      markerEnd,
-      '',
-    ].join('\n');
-
-    return `${mergedContent.replace(/\s*$/, '')}\n\n${mergeBlock}`;
-  }
-
-  private buildIntroDocs(): {
-    files: GeneratedFile[];
-    sidebarItems: SidebarItem[];
-  } {
-    const introDocs = this.getIntroDocs();
-    if (introDocs.length === 0) {
-      return { files: [], sidebarItems: [] };
-    }
-
-    const files: GeneratedFile[] = [];
-    const sidebarItems: SidebarItem[] = [];
-
-    for (const doc of introDocs) {
-      let rawContent = doc.content;
-      if (!rawContent) {
-        const sourcePath = doc.source;
-        if (!sourcePath) {
-          throw new Error('Intro doc entries must include either "source" or "content".');
-        }
-        if (!fs.existsSync(sourcePath)) {
-          throw new Error(`Intro doc not found: ${sourcePath}`);
-        }
-        rawContent = fs.readFileSync(sourcePath, 'utf-8');
-      }
-      const { frontMatter } = this.parseFrontMatter(rawContent);
-      const sourceExt = doc.source ? path.extname(doc.source) || '.mdx' : '.mdx';
-      const outputPathRaw =
-        doc.outputPath ??
-        (doc.source
-          ? path.basename(doc.source)
-          : `${slugify(doc.id ?? doc.label ?? doc.title ?? 'intro') || 'intro'}.mdx`);
-      const outputPath = path.extname(outputPathRaw)
-        ? outputPathRaw
-        : `${outputPathRaw}${sourceExt}`;
-      const rawId =
-        doc.id ?? frontMatter?.id ?? outputPath.replace(/\.[^/.]+$/, '').replace(/\\/g, '/');
-      const docId = this.withDocIdPrefix(rawId);
-      const label =
-        doc.label ?? frontMatter?.sidebar_label ?? frontMatter?.title ?? docId.split('/').pop()!;
-
-      const content = this.ensureFrontMatter(rawContent, {
-        id: doc.id,
-        title: doc.title,
-        label: doc.label,
-      });
-
-      files.push({
-        path: outputPath.replace(/\\/g, '/'),
-        content,
-        type: 'mdx',
-      });
-
-      sidebarItems.push({
-        type: 'doc',
-        id: docId,
-        label,
-      });
-    }
-
-    return { files, sidebarItems };
   }
 
   private getSectionPath(section: Section): string {
@@ -356,48 +185,16 @@ export class DocusaurusAdapter {
     return relativePath;
   }
 
-  private buildOperationsByType(model: DocModel): Record<string, Record<string, Operation>> {
-    const operationsByType: Record<string, Record<string, Operation>> = {
-      query: {},
-      mutation: {},
-      subscription: {},
-    };
-
-    for (const section of model.sections) {
-      for (const subsection of section.subsections) {
-        for (const op of subsection.operations) {
-          operationsByType[op.operationType][op.name] = op;
-        }
-      }
-    }
-
-    return operationsByType;
-  }
-
-  private buildTypesByName(types: ExpandedType[]): Record<string, ExpandedType> {
-    const typesByName: Record<string, ExpandedType> = {};
-
-    for (const type of types) {
-      const name = this.getTypeName(type);
-      if (!name) continue;
-      typesByName[name] = type;
-    }
-
-    return typesByName;
-  }
-
-  private generateDataFiles(model: DocModel): GeneratedFile[] {
-    const operationsByType = this.buildOperationsByType(model);
-    const typesByName = this.buildTypesByName(model.types);
+  private generateDataFiles(serializedData: SerializedDocData): GeneratedFile[] {
     const files: GeneratedFile[] = [
       {
         path: OPERATIONS_DATA_FILE,
-        content: JSON.stringify(operationsByType, null, 2),
+        content: serializedData.operationsJson,
         type: 'json',
       },
       {
         path: TYPES_DATA_FILE,
-        content: JSON.stringify(typesByName, null, 2),
+        content: serializedData.typesJson,
         type: 'json',
       },
     ];
@@ -436,9 +233,13 @@ export class DocusaurusAdapter {
     return `export const examplesByOperation = {\n${lines.join('\n')}\n};`;
   }
 
-  adapt(model: DocModel): GeneratedFile[] {
-    const dataFiles = this.generateDataFiles(model);
-    const introDocs = this.buildIntroDocs();
+  adapt(model: DocModel, serializedData?: SerializedDocData): GeneratedFile[] {
+    const sharedDocData = serializedData ?? serializeDocData(model);
+    const dataFiles = this.generateDataFiles(sharedDocData);
+    const introDocs = buildIntroDocsSection({
+      introDocs: this.getIntroDocs(),
+      withDocIdPrefix: (id) => this.withDocIdPrefix(id),
+    });
 
     if (this.config.singlePage) {
       const files = this.generateSinglePageOutput(model, introDocs);
@@ -497,87 +298,7 @@ export class DocusaurusAdapter {
         ];
       }
 
-      const customSidebarFile = this.config.sidebarFile;
-      const targetKey = this.config.sidebarTarget ?? 'apiSidebar';
-      const insertPosition = this.config.sidebarInsertPosition ?? 'replace';
-      const insertReference = this.config.sidebarInsertReference;
-      const shouldMerge = this.config.sidebarMerge !== false;
-      const outputRoot = this.config.outputDir ?? this.config.outputPath ?? process.cwd();
-
-      const writeSidebarFile = (filePath: string, content: string, absolutePath?: string) => {
-        files.push({
-          path: filePath,
-          content,
-          type: 'js',
-          ...(absolutePath ? { absolutePath } : {}),
-        });
-      };
-
-      if (customSidebarFile) {
-        const useArrayExport = customSidebarFile.endsWith('.api.js');
-        const isAbsolute = path.isAbsolute(customSidebarFile);
-        const resolvedSidebarPath = isAbsolute
-          ? customSidebarFile
-          : path.join(outputRoot, customSidebarFile);
-
-        if (shouldMerge && !useArrayExport && fs.existsSync(resolvedSidebarPath)) {
-          const existing = fs.readFileSync(resolvedSidebarPath, 'utf-8');
-          const merged = this.mergeSidebarContent(existing, sidebarItems, {
-            targetKey,
-            insertPosition,
-            insertReference,
-          });
-          if (merged) {
-            writeSidebarFile(
-              customSidebarFile,
-              merged,
-              isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
-                ? resolvedSidebarPath
-                : undefined
-            );
-            return files;
-          }
-        }
-
-        const content = useArrayExport
-          ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
-          : `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`;
-        writeSidebarFile(
-          customSidebarFile,
-          content,
-          isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
-            ? resolvedSidebarPath
-            : undefined
-        );
-      } else {
-        const sidebarsPath = path.join(outputRoot, 'sidebars.js');
-        if (shouldMerge && fs.existsSync(sidebarsPath)) {
-          const existing = fs.readFileSync(sidebarsPath, 'utf-8');
-          const merged = this.mergeSidebarContent(existing, sidebarItems, {
-            targetKey,
-            insertPosition,
-            insertReference,
-          });
-          if (merged) {
-            writeSidebarFile('sidebars.js', merged);
-          } else {
-            writeSidebarFile(
-              'sidebars.js',
-              `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`
-            );
-          }
-        } else if (fs.existsSync(sidebarsPath)) {
-          writeSidebarFile(
-            'sidebars.api.js',
-            `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
-          );
-        } else {
-          writeSidebarFile(
-            'sidebars.js',
-            `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`
-          );
-        }
-      }
+      files.push(...this.generateSidebarFiles(sidebarItems));
     }
 
     return files;
@@ -591,7 +312,7 @@ export class DocusaurusAdapter {
   ): GeneratedFile[] {
     const files: GeneratedFile[] = [];
     const docId = 'api-reference';
-    const typeGroups = this.groupTypes(model.types);
+    const typeGroups = groupTypes(model.types);
     const usedOperationIds = new Set<string>();
     const usedTypeIds = new Set<string>();
     const getOperationId = (op: Operation) => {
@@ -624,7 +345,7 @@ export class DocusaurusAdapter {
       operationEntries.map(({ op }) => ({ name: op.name, operationType: op.operationType }))
     );
     const imports = [
-      `import { OperationView, TypeDefinitionView } from '@graphql-docs/generator/components';`,
+      `import { OperationView, TypeDefinitionView } from '${COMPONENT_PACKAGE_IMPORT}';`,
       `import operationsByType from '${this.getRelativeImportPath(
         `${docId}.mdx`,
         OPERATIONS_DATA_FILE
@@ -674,97 +395,7 @@ export class DocusaurusAdapter {
         ];
       }
 
-      const customSidebarFile = this.config.sidebarFile;
-      const targetKey = this.config.sidebarTarget ?? 'apiSidebar';
-      const insertPosition = this.config.sidebarInsertPosition ?? 'replace';
-      const insertReference = this.config.sidebarInsertReference;
-      const shouldMerge = this.config.sidebarMerge !== false;
-      const outputRoot = this.config.outputDir ?? this.config.outputPath ?? process.cwd();
-
-      const writeSidebarFile = (filePath: string, content: string, absolutePath?: string) => {
-        files.push({
-          path: filePath,
-          content,
-          type: 'js',
-          ...(absolutePath ? { absolutePath } : {}),
-        });
-      };
-
-      if (customSidebarFile) {
-        const useArrayExport = customSidebarFile.endsWith('.api.js');
-        const isAbsolute = path.isAbsolute(customSidebarFile);
-        const resolvedSidebarPath = isAbsolute
-          ? customSidebarFile
-          : path.join(outputRoot, customSidebarFile);
-
-        if (shouldMerge && !useArrayExport && fs.existsSync(resolvedSidebarPath)) {
-          const existing = fs.readFileSync(resolvedSidebarPath, 'utf-8');
-          const merged = this.mergeSidebarContent(existing, sidebarItems, {
-            targetKey,
-            insertPosition,
-            insertReference,
-          });
-          if (merged) {
-            writeSidebarFile(
-              customSidebarFile,
-              merged,
-              isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
-                ? resolvedSidebarPath
-                : undefined
-            );
-          } else {
-            const content = useArrayExport
-              ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
-              : `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`;
-            writeSidebarFile(
-              customSidebarFile,
-              content,
-              isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
-                ? resolvedSidebarPath
-                : undefined
-            );
-          }
-        } else {
-          const content = useArrayExport
-            ? `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
-            : `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`;
-          writeSidebarFile(
-            customSidebarFile,
-            content,
-            isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
-              ? resolvedSidebarPath
-              : undefined
-          );
-        }
-      } else {
-        const sidebarsPath = path.join(outputRoot, 'sidebars.js');
-        if (shouldMerge && fs.existsSync(sidebarsPath)) {
-          const existing = fs.readFileSync(sidebarsPath, 'utf-8');
-          const merged = this.mergeSidebarContent(existing, sidebarItems, {
-            targetKey,
-            insertPosition,
-            insertReference,
-          });
-          if (merged) {
-            writeSidebarFile('sidebars.js', merged);
-          } else {
-            writeSidebarFile(
-              'sidebars.js',
-              `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`
-            );
-          }
-        } else if (fs.existsSync(sidebarsPath)) {
-          writeSidebarFile(
-            'sidebars.api.js',
-            `module.exports = ${JSON.stringify(sidebarItems, null, 2)};`
-          );
-        } else {
-          writeSidebarFile(
-            'sidebars.js',
-            `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`
-          );
-        }
-      }
+      files.push(...this.generateSidebarFiles(sidebarItems));
     }
 
     return files;
@@ -808,7 +439,7 @@ export class DocusaurusAdapter {
       }
     }
 
-    const typeGroups = this.groupTypes(model.types);
+    const typeGroups = groupTypes(model.types);
     if (typeGroups.enums.length + typeGroups.inputs.length + typeGroups.types.length > 0) {
       lines.push(`- [Types](#types)`);
       lines.push(`  - [Enums](#types-enums)`);
@@ -895,7 +526,7 @@ export class DocusaurusAdapter {
     const frontMatter = this.generateFrontMatter(op);
     const imports = options.mdxPath
       ? [
-          `import { OperationView } from '@graphql-docs/generator/components';`,
+          `import { OperationView } from '${COMPONENT_PACKAGE_IMPORT}';`,
           `import operationsByType from '${this.getRelativeImportPath(
             options.mdxPath,
             OPERATIONS_DATA_FILE
@@ -932,7 +563,9 @@ export class DocusaurusAdapter {
   private generateFrontMatter(op: Operation): string {
     const id = slugify(op.name);
     const title = escapeYamlValue(op.name);
-    const sidebarLabel = escapeYamlValue(op.directives.docGroup?.sidebarTitle ?? op.name);
+    const sidebarLabel = escapeYamlValue(
+      op.directives.docGroup?.displayLabel ?? op.directives.docGroup?.sidebarTitle ?? op.name
+    );
 
     const lines = ['---', `id: ${id}`, `title: ${title}`, `sidebar_label: ${sidebarLabel}`];
 
@@ -977,7 +610,7 @@ export class DocusaurusAdapter {
 
   private generateTypeFiles(types: ExpandedType[]): GeneratedFile[] {
     const files: GeneratedFile[] = [];
-    const { enums, inputs, types: objectTypes } = this.groupTypes(types);
+    const { enums, inputs, types: objectTypes } = groupTypes(types);
 
     if (enums.length + inputs.length + objectTypes.length === 0) {
       return files;
@@ -985,7 +618,7 @@ export class DocusaurusAdapter {
 
     files.push({
       path: 'types/_category_.json',
-      content: this.generateCategoryJson('Types', 999),
+      content: this.generateCategoryJson('Types', DEFAULT_SORT_PRIORITY),
       type: 'json',
     });
     files.push({
@@ -1047,7 +680,7 @@ export class DocusaurusAdapter {
     const frontMatter = this.generateTypeFrontMatter(type);
     const imports = options.mdxPath
       ? [
-          `import { TypeDefinitionView } from '@graphql-docs/generator/components';`,
+          `import { TypeDefinitionView } from '${COMPONENT_PACKAGE_IMPORT}';`,
           `import typesByName from '${this.getRelativeImportPath(
             options.mdxPath,
             TYPES_DATA_FILE
@@ -1081,41 +714,8 @@ export class DocusaurusAdapter {
     return lines.join('\n');
   }
 
-  private groupTypes(types: ExpandedType[]) {
-    const enums: ExpandedType[] = [];
-    const inputs: ExpandedType[] = [];
-    const objectTypes: ExpandedType[] = [];
-
-    for (const type of types) {
-      if (!('name' in type)) {
-        continue;
-      }
-      if (type.kind === 'ENUM') {
-        enums.push(type);
-      } else if (type.kind === 'INPUT_OBJECT') {
-        inputs.push(type);
-      } else if (
-        type.kind === 'OBJECT' ||
-        type.kind === 'INTERFACE' ||
-        type.kind === 'UNION' ||
-        type.kind === 'SCALAR'
-      ) {
-        objectTypes.push(type);
-      }
-    }
-
-    const byName = (a: ExpandedType, b: ExpandedType) =>
-      (a as { name: string }).name.localeCompare((b as { name: string }).name);
-
-    return {
-      enums: enums.sort(byName),
-      inputs: inputs.sort(byName),
-      types: objectTypes.sort(byName),
-    };
-  }
-
   private generateTypesContent(
-    typeGroups: ReturnType<typeof this.groupTypes>,
+    typeGroups: ReturnType<typeof groupTypes>,
     typeExportName: (type: ExpandedType) => string
   ): string {
     const { enums, inputs, types } = typeGroups;
