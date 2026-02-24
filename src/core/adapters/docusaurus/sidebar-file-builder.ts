@@ -31,11 +31,11 @@ function mergeSidebarContent(
   if (cleaned.includes('module.exports')) {
     targetExpr = 'module.exports';
   } else {
-    const exportMatch = cleaned.match(/export\\s+default\\s+([A-Za-z0-9_$]+)\\s*;?/);
+    const exportMatch = cleaned.match(/export\s+default\s+([A-Za-z0-9_$]+)\s*;?/);
     if (exportMatch) {
       targetExpr = exportMatch[1];
-    } else if (cleaned.match(/export\\s+default\\s*\\{/)) {
-      const replacement = cleaned.replace(/export\\s+default\\s*\\{/, 'const __gqlSidebars = {');
+    } else if (cleaned.match(/export\s+default\s*\{/)) {
+      const replacement = cleaned.replace(/export\s+default\s*\{/, 'const __gqlSidebars = {');
       mergedContent = replacement;
       if (!replacement.includes('export default __gqlSidebars')) {
         mergedContent = `${replacement}\n\nexport default __gqlSidebars;\n`;
