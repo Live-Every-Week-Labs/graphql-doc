@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { slugify } from './string-utils.js';
+import { operationKey, slugify } from './string-utils.js';
 
 describe('slugify', () => {
   describe('camelCase handling', () => {
@@ -77,5 +77,19 @@ describe('slugify', () => {
       // Regex only matches lowercase followed by uppercase, 3 is not lowercase
       expect(slugify('getUser123ById')).toBe('get-user123by-id');
     });
+  });
+});
+
+describe('operationKey', () => {
+  it('builds a composite key from operation type and name', () => {
+    expect(operationKey({ operationType: 'query', operationName: 'getUser' })).toBe(
+      'query:getUser'
+    );
+  });
+
+  it('differentiates operations with the same name across types', () => {
+    expect(operationKey({ operationType: 'query', operationName: 'ping' })).not.toBe(
+      operationKey({ operationType: 'mutation', operationName: 'ping' })
+    );
   });
 });

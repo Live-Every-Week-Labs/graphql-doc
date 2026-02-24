@@ -15,6 +15,21 @@ export function firstSentence(value?: string): string {
   return (match ? match[0] : trimmed).trim();
 }
 
+export interface OperationKeyInput {
+  operationType: string;
+  operationName: string;
+}
+
+/**
+ * Build a stable lookup key for GraphQL operations.
+ *
+ * Operation names are only unique within a root type, so we key by
+ * `operationType:name` to avoid collisions between query/mutation/subscription.
+ */
+export function operationKey({ operationType, operationName }: OperationKeyInput): string {
+  return `${operationType}:${operationName}`;
+}
+
 /**
  * Converts text to a URL-friendly slug.
  *

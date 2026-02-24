@@ -190,6 +190,41 @@ describe('DocusaurusAdapter', () => {
     expect(sidebarFile?.content).toContain('intro/inline-intro');
   });
 
+  it('suffixes operation doc slugs with operation type when names collide', () => {
+    const collisionModel: DocModel = {
+      sections: [
+        {
+          name: 'Uncategorized',
+          order: 1,
+          subsections: [
+            {
+              name: '',
+              operations: [
+                { ...mockOperation, name: 'ping', operationType: 'query', directives: {} },
+                { ...mockOperation, name: 'ping', operationType: 'mutation', directives: {} },
+              ],
+            },
+          ],
+        },
+      ],
+      types: [],
+    };
+
+    const adapter = new DocusaurusAdapter();
+    const files = adapter.adapt(collisionModel);
+
+    const queryFile = files.find((file) => file.path === 'uncategorized/ping-query.mdx');
+    const mutationFile = files.find((file) => file.path === 'uncategorized/ping-mutation.mdx');
+    expect(queryFile).toBeDefined();
+    expect(mutationFile).toBeDefined();
+    expect(queryFile?.content).toContain('id: ping-query');
+    expect(mutationFile?.content).toContain('id: ping-mutation');
+
+    const sidebarFile = files.find((file) => file.path === 'sidebars.js');
+    expect(sidebarFile?.content).toContain('uncategorized/ping-query');
+    expect(sidebarFile?.content).toContain('uncategorized/ping-mutation');
+  });
+
   describe('Single-Page Mode', () => {
     beforeEach(() => {
       vi.clearAllMocks();

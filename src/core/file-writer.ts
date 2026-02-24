@@ -50,6 +50,24 @@ export class FileWriter {
   async write(files: GeneratedFile[]) {
     await fs.ensureDir(this.outputDir);
     const normalizedOutputDir = path.normalize(path.resolve(this.outputDir));
+    const normalizedPathSources = new Map<string, string>();
+
+    for (const file of files) {
+      const candidatePath = file.absolutePath ?? path.join(this.outputDir, file.path);
+      const normalizedPath = path.normalize(path.resolve(candidatePath));
+      const source = file.absolutePath
+        ? `absolutePath:${file.absolutePath}`
+        : `relativePath:${file.path}`;
+
+      const firstSource = normalizedPathSources.get(normalizedPath);
+      if (firstSource) {
+        throw new Error(
+          `Duplicate output path detected for "${normalizedPath}" from ${firstSource} and ${source}`
+        );
+      }
+
+      normalizedPathSources.set(normalizedPath, source);
+    }
 
     const BATCH_SIZE = 20;
     for (let i = 0; i < files.length; i += BATCH_SIZE) {

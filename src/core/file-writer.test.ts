@@ -229,6 +229,44 @@ describe('FileWriter', () => {
     });
   });
 
+  describe('duplicate path prevention', () => {
+    it('throws when two relative files resolve to the same output path', async () => {
+      const files: GeneratedFile[] = [
+        {
+          path: 'duplicate.mdx',
+          content: 'First',
+          type: 'mdx',
+        },
+        {
+          path: 'duplicate.mdx',
+          content: 'Second',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow('Duplicate output path detected');
+    });
+
+    it('throws when relative and absolute targets resolve to the same path', async () => {
+      const sharedAbsolutePath = path.join(testDir, 'same-target.mdx');
+      const files: GeneratedFile[] = [
+        {
+          path: 'same-target.mdx',
+          content: 'Relative target',
+          type: 'mdx',
+        },
+        {
+          path: 'alias.mdx',
+          absolutePath: sharedAbsolutePath,
+          content: 'Absolute target',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow('Duplicate output path detected');
+    });
+  });
+
   describe('path traversal prevention', () => {
     it('throws error for simple ../ traversal', async () => {
       const files: GeneratedFile[] = [

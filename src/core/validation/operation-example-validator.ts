@@ -1,6 +1,7 @@
 import { ExampleFile } from '../metadata/types.js';
 import { ValidationError } from './types.js';
 import { DEFAULT_GROUP_NAME } from '../utils/index.js';
+import { operationKey } from '../utils/string-utils.js';
 
 interface OperationExampleCoverageOptions {
   excludeDocGroups?: string[];
@@ -9,6 +10,7 @@ interface OperationExampleCoverageOptions {
 
 export interface OperationCoverageTarget {
   name: string;
+  operationType?: 'query' | 'mutation' | 'subscription';
   directives: {
     docIgnore?: boolean;
     docGroup?: {
@@ -43,9 +45,27 @@ export function validateOperationExampleCoverage(
   const examplesLocation = options.examplesLocation ?? 'examples';
 
   const exampleCountByOperation = new Map<string, number>();
+  const exampleCountByName = new Map<string, number>();
+  const exampleCountByLegacyName = new Map<string, number>();
   for (const entry of exampleFiles) {
-    const currentCount = exampleCountByOperation.get(entry.operation) ?? 0;
-    exampleCountByOperation.set(entry.operation, currentCount + entry.examples.length);
+    const nameCount = exampleCountByName.get(entry.operation) ?? 0;
+    exampleCountByName.set(entry.operation, nameCount + entry.examples.length);
+
+    const entryOperationType = (
+      entry as ExampleFile & { operationType?: OperationCoverageTarget['operationType'] }
+    ).operationType;
+    if (entryOperationType) {
+      const key = operationKey({
+        operationType: entryOperationType,
+        operationName: entry.operation,
+      });
+      const typedCount = exampleCountByOperation.get(key) ?? 0;
+      exampleCountByOperation.set(key, typedCount + entry.examples.length);
+    } else {
+      // Backward compatibility for legacy payloads missing operationType.
+      const legacyCount = exampleCountByLegacyName.get(entry.operation) ?? 0;
+      exampleCountByLegacyName.set(entry.operation, legacyCount + entry.examples.length);
+    }
   }
 
   for (const operation of operations) {
@@ -53,7 +73,16 @@ export function validateOperationExampleCoverage(
       continue;
     }
 
-    const exampleCount = exampleCountByOperation.get(operation.name) ?? 0;
+    const exampleCount = operation.operationType
+      ? (exampleCountByOperation.get(
+          operationKey({
+            operationType: operation.operationType,
+            operationName: operation.name,
+          })
+        ) ??
+        exampleCountByLegacyName.get(operation.name) ??
+        0)
+      : (exampleCountByName.get(operation.name) ?? 0);
     if (exampleCount > 0) {
       continue;
     }

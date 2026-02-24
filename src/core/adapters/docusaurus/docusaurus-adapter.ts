@@ -24,6 +24,12 @@ const DATA_DIR = '_data';
 const OPERATIONS_DATA_FILE = path.posix.join(DATA_DIR, 'operations.json');
 const TYPES_DATA_FILE = path.posix.join(DATA_DIR, 'types.json');
 
+interface OperationDocTarget {
+  section: Section;
+  subsection: Subsection;
+  operation: Operation;
+}
+
 export type DocusaurusAdapterConfig = Partial<BaseDocusaurusAdapterConfig> & {
   outputDir?: string;
   typeExpansion?: {
@@ -153,9 +159,114 @@ export class DocusaurusAdapter {
     return subsection.name === '' ? sectionPath : `${sectionPath}/${slugify(subsection.name)}`;
   }
 
-  private getOperationDocId(section: Section, subsection: Subsection, op: Operation): string {
+  private getOperationDocId(
+    section: Section,
+    subsection: Subsection,
+    operationSlug: string
+  ): string {
     const subsectionPath = this.getSubsectionPath(section, subsection);
-    return `${subsectionPath}/${slugify(op.name)}`;
+    return `${subsectionPath}/${operationSlug}`;
+  }
+
+  private collectOperationTargets(model: DocModel): OperationDocTarget[] {
+    const targets: OperationDocTarget[] = [];
+    for (const section of model.sections) {
+      for (const subsection of section.subsections) {
+        for (const operation of subsection.operations) {
+          targets.push({ section, subsection, operation });
+        }
+      }
+    }
+    return targets;
+  }
+
+  private resolveOperationDocSlugs(model: DocModel): WeakMap<Operation, string> {
+    const operationTargets = this.collectOperationTargets(model);
+    const basePathCounts = new Map<string, number>();
+
+    for (const { section, subsection, operation } of operationTargets) {
+      const baseSlug = slugify(operation.name) || 'operation';
+      const baseDocId = this.getOperationDocId(section, subsection, baseSlug);
+      const existingCount = basePathCounts.get(baseDocId) ?? 0;
+      basePathCounts.set(baseDocId, existingCount + 1);
+    }
+
+    const resolvedSlugs = new WeakMap<Operation, string>();
+    const usedDocIds = new Set<string>();
+
+    for (const { section, subsection, operation } of operationTargets) {
+      const baseSlug = slugify(operation.name) || 'operation';
+      const baseDocId = this.getOperationDocId(section, subsection, baseSlug);
+      const isCollision = (basePathCounts.get(baseDocId) ?? 0) > 1;
+      let resolvedSlug = isCollision ? `${baseSlug}-${operation.operationType}` : baseSlug;
+      let resolvedDocId = this.getOperationDocId(section, subsection, resolvedSlug);
+      let counter = 1;
+
+      while (usedDocIds.has(resolvedDocId)) {
+        resolvedSlug = `${baseSlug}-${operation.operationType}-${counter}`;
+        resolvedDocId = this.getOperationDocId(section, subsection, resolvedSlug);
+        counter += 1;
+      }
+
+      usedDocIds.add(resolvedDocId);
+      resolvedSlugs.set(operation, resolvedSlug);
+    }
+
+    return resolvedSlugs;
+  }
+
+  private buildSidebarOperationIdMap(
+    model: DocModel,
+    operationDocSlugs: WeakMap<Operation, string>
+  ): Map<string, string[]> {
+    const idMap = new Map<string, string[]>();
+
+    for (const { section, subsection, operation } of this.collectOperationTargets(model)) {
+      const baseSlug = slugify(operation.name) || 'operation';
+      const resolvedSlug = operationDocSlugs.get(operation) ?? baseSlug;
+      if (baseSlug === resolvedSlug) {
+        continue;
+      }
+
+      const currentId = this.withDocIdPrefix(this.getOperationDocId(section, subsection, baseSlug));
+      const nextId = this.withDocIdPrefix(
+        this.getOperationDocId(section, subsection, resolvedSlug)
+      );
+      const replacements = idMap.get(currentId) ?? [];
+      replacements.push(nextId);
+      idMap.set(currentId, replacements);
+    }
+
+    return idMap;
+  }
+
+  private remapSidebarOperationIds(
+    items: SidebarItem[],
+    idMap: Map<string, string[]>
+  ): SidebarItem[] {
+    if (idMap.size === 0) {
+      return items;
+    }
+
+    return items.map((item) => {
+      const nextItem: SidebarItem = { ...item };
+
+      if (nextItem.type === 'doc' && nextItem.id && idMap.has(nextItem.id)) {
+        const replacements = idMap.get(nextItem.id);
+        if (replacements && replacements.length > 0) {
+          const replacementId = replacements.shift();
+          if (replacementId) {
+            nextItem.id = replacementId;
+          }
+        }
+      }
+
+      if (nextItem.items?.length) {
+        nextItem.items = this.remapSidebarOperationIds(nextItem.items, idMap);
+      }
+
+      return nextItem;
+    });
   }
 
   private getOperationDataReference(op: Operation): string {
@@ -236,6 +347,7 @@ export class DocusaurusAdapter {
   adapt(model: DocModel, serializedData?: SerializedDocData): GeneratedFile[] {
     const sharedDocData = serializedData ?? serializeDocData(model);
     const dataFiles = this.generateDataFiles(sharedDocData);
+    const operationDocSlugs = this.resolveOperationDocSlugs(model);
     const introDocs = buildIntroDocsSection({
       introDocs: this.getIntroDocs(),
       withDocIdPrefix: (id) => this.withDocIdPrefix(id),
@@ -273,11 +385,13 @@ export class DocusaurusAdapter {
         }
 
         for (const op of subsection.operations) {
-          const fileName = `${slugify(op.name)}.mdx`;
+          const operationSlug = operationDocSlugs.get(op) ?? (slugify(op.name) || 'operation');
+          const fileName = `${operationSlug}.mdx`;
           files.push({
             path: `${subsectionPath}/${fileName}`,
             content: this.generateMdx(op, typeLinkBase, {
               mdxPath: `${subsectionPath}/${fileName}`,
+              docSlug: operationSlug,
             }),
             type: 'mdx',
           });
@@ -290,6 +404,8 @@ export class DocusaurusAdapter {
     if (this.config.generateSidebar !== false) {
       // Generate or merge sidebars configuration.
       let sidebarItems = this.sidebarGenerator.generate(model);
+      const operationIdMap = this.buildSidebarOperationIdMap(model, operationDocSlugs);
+      sidebarItems = this.remapSidebarOperationIds(sidebarItems, operationIdMap);
       if (introDocs.sidebarItems.length > 0) {
         sidebarItems = [
           ...introDocs.sidebarItems,
@@ -521,9 +637,9 @@ export class DocusaurusAdapter {
   private generateMdx(
     op: Operation,
     typeLinkBase?: string,
-    options: { mdxPath?: string } = {}
+    options: { mdxPath?: string; docSlug?: string } = {}
   ): string {
-    const frontMatter = this.generateFrontMatter(op);
+    const frontMatter = this.generateFrontMatter(op, options.docSlug);
     const imports = options.mdxPath
       ? [
           `import { OperationView } from '${COMPONENT_PACKAGE_IMPORT}';`,
@@ -560,8 +676,8 @@ export class DocusaurusAdapter {
     return parts.join('\n\n');
   }
 
-  private generateFrontMatter(op: Operation): string {
-    const id = slugify(op.name);
+  private generateFrontMatter(op: Operation, docSlug?: string): string {
+    const id = docSlug ?? (slugify(op.name) || 'operation');
     const title = escapeYamlValue(op.name);
     const sidebarLabel = escapeYamlValue(
       op.directives.docGroup?.displayLabel ?? op.directives.docGroup?.sidebarTitle ?? op.name

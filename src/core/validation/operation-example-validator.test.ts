@@ -7,10 +7,12 @@ import {
 
 function createOperation(
   name: string,
-  directives: OperationCoverageTarget['directives'] = {}
+  directives: OperationCoverageTarget['directives'] = {},
+  operationType: OperationCoverageTarget['operationType'] = 'query'
 ): OperationCoverageTarget {
   return {
     name,
+    operationType,
     directives,
   };
 }
@@ -128,5 +130,53 @@ describe('validateOperationExampleCoverage', () => {
     const errors = validateOperationExampleCoverage(operations, exampleFiles);
     expect(errors).toHaveLength(1);
     expect(errors[0].message).toContain('getUser');
+  });
+
+  it('uses operation type + name when operations share the same name', () => {
+    const operations: OperationCoverageTarget[] = [
+      createOperation('ping', {}, 'query'),
+      createOperation('ping', {}, 'mutation'),
+    ];
+    const exampleFiles: ExampleFile[] = [
+      {
+        operation: 'ping',
+        operationType: 'mutation',
+        examples: [
+          {
+            name: 'Mutation ping',
+            query: 'mutation { ping }',
+            response: { type: 'success', body: {} },
+          },
+        ],
+      },
+    ];
+
+    const errors = validateOperationExampleCoverage(operations, exampleFiles);
+    expect(errors).toHaveLength(1);
+  });
+
+  it('falls back to name-based matching when operation type is unavailable', () => {
+    const operations: OperationCoverageTarget[] = [
+      {
+        name: 'legacyOperation',
+        directives: {},
+      },
+    ];
+    const exampleFiles: ExampleFile[] = [
+      {
+        operation: 'legacyOperation',
+        operationType: 'query',
+        examples: [
+          {
+            name: 'Legacy example',
+            query: 'query { legacyOperation }',
+            response: { type: 'success', body: {} },
+          },
+        ],
+      },
+    ];
+
+    const errors = validateOperationExampleCoverage(operations, exampleFiles);
+    expect(errors).toHaveLength(0);
   });
 });
