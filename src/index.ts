@@ -1,4 +1,5 @@
-export const version = '0.1.0';
+declare const __PKG_VERSION__: string;
+export const version = __PKG_VERSION__;
 
 // Core generator
 export { Generator } from './core/generator.js';

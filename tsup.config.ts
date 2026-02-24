@@ -1,4 +1,8 @@
 import { defineConfig } from 'tsup';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const packageJson = require('./package.json') as { version: string };
 
 export default defineConfig([
   {
@@ -15,6 +19,9 @@ export default defineConfig([
     clean: true,
     target: 'node18',
     external: ['react', 'react-dom'],
+    define: {
+      __PKG_VERSION__: JSON.stringify(packageJson.version),
+    },
     esbuildOptions(options) {
       options.jsx = 'automatic';
     },

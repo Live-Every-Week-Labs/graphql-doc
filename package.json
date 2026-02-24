@@ -14,15 +14,20 @@
   ],
   "author": "Austin Zani",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/austinzani/graphql-doc.git"
+  },
+  "homepage": "https://github.com/austinzani/graphql-doc#readme",
+  "bugs": {
+    "url": "https://github.com/austinzani/graphql-doc/issues"
+  },
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    },
-    "./docusaurus": {
-      "import": "./dist/docusaurus.js",
-      "require": "./dist/docusaurus.cjs"
     },
     "./components": {
       "types": "./dist/components/index.d.ts",
@@ -85,8 +90,8 @@
     "zod": "^3.22.0"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
     "react": {
