@@ -107,50 +107,52 @@ const LlmDocsSchema = z
   })
   .default({});
 
-export const ConfigSchema = z.object({
-  configVersion: z.literal(CURRENT_CONFIG_VERSION).default(CURRENT_CONFIG_VERSION),
-  outputDir: z.string().default('./docs/api'),
-  cleanOutputDir: z.boolean().default(false),
-  framework: z.string().default('docusaurus'),
-  metadataDir: z.string().default('./docs-metadata'),
-  examplesDir: z.string().optional(),
-  exampleFiles: z
-    .preprocess((value) => {
-      if (typeof value === 'string') {
-        return [value];
-      }
-      return value;
-    }, z.array(z.string()))
-    .optional(),
-  schemaExtensions: z
-    .preprocess((value) => {
-      if (typeof value === 'string') {
-        return [value];
-      }
-      return value;
-    }, z.array(z.string()))
-    .default([]),
-  allowRemoteSchema: z.boolean().default(false),
-  requireExamplesForDocumentedOperations: z.boolean().default(false),
-  excludeDocGroups: z
-    .preprocess((value) => {
-      if (typeof value === 'string') {
-        return [value];
-      }
-      return value;
-    }, z.array(z.string()))
-    .default([]),
-  typeExpansion: z
-    .object({
-      maxDepth: z.number().min(1).max(10).default(5),
-      defaultLevels: z.number().min(0).max(10).default(0),
-      showCircularReferences: z.boolean().default(true),
-    })
-    .default({}),
-  agentSkill: AgentSkillSchema,
-  adapters: AdaptersSchema,
-  llmDocs: LlmDocsSchema,
-});
+export const ConfigSchema = z
+  .object({
+    configVersion: z.literal(CURRENT_CONFIG_VERSION).default(CURRENT_CONFIG_VERSION),
+    outputDir: z.string().default('./docs/api'),
+    cleanOutputDir: z.boolean().default(false),
+    framework: z.enum(['docusaurus']).default('docusaurus'),
+    metadataDir: z.string().default('./docs-metadata'),
+    examplesDir: z.string().optional(),
+    exampleFiles: z
+      .preprocess((value) => {
+        if (typeof value === 'string') {
+          return [value];
+        }
+        return value;
+      }, z.array(z.string()))
+      .optional(),
+    schemaExtensions: z
+      .preprocess((value) => {
+        if (typeof value === 'string') {
+          return [value];
+        }
+        return value;
+      }, z.array(z.string()))
+      .default([]),
+    allowRemoteSchema: z.boolean().default(false),
+    requireExamplesForDocumentedOperations: z.boolean().default(false),
+    excludeDocGroups: z
+      .preprocess((value) => {
+        if (typeof value === 'string') {
+          return [value];
+        }
+        return value;
+      }, z.array(z.string()))
+      .default([]),
+    typeExpansion: z
+      .object({
+        maxDepth: z.number().min(1).max(10).default(5),
+        defaultLevels: z.number().min(0).max(10).default(0),
+        showCircularReferences: z.boolean().default(true),
+      })
+      .default({}),
+    agentSkill: AgentSkillSchema,
+    adapters: AdaptersSchema,
+    llmDocs: LlmDocsSchema,
+  })
+  .strip();
 
 export type Config = z.infer<typeof ConfigSchema>;
 export type IntroDocConfig = z.infer<typeof IntroDocSchema>;

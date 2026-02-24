@@ -7,20 +7,26 @@
 
 import { z } from 'zod';
 
-export const DocGroupSchema = z.object({
-  name: z.string(),
-  order: z.number().optional(),
-  subsection: z.string().optional(),
-  displayLabel: z.string().optional(),
-  sidebarTitle: z.string().optional(),
-});
+export const DocGroupSchema = z
+  .object({
+    name: z.string().min(1),
+    order: z.number().optional(),
+    subsection: z.string().optional(),
+    displayLabel: z.string().optional(),
+    sidebarTitle: z.string().optional(),
+  })
+  .strict();
 
-export const DocPrioritySchema = z.object({
-  level: z.number(),
-});
+export const DocPrioritySchema = z
+  .object({
+    level: z.number(),
+  })
+  .strict();
 
-export const DocTagsSchema = z.object({
-  tags: z.array(z.string()),
-});
+export const DocTagsSchema = z
+  .object({
+    tags: z.array(z.string()),
+  })
+  .strict();
 
 export const DocIgnoreSchema = z.object({}).strict();

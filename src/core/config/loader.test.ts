@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { loadGeneratorConfig } from './loader.js';
 import fs from 'fs';
 import path from 'path';
@@ -139,6 +139,48 @@ describe('loadGeneratorConfig', () => {
 
       await expect(loadGeneratorConfig(process.cwd(), versionedPath)).rejects.toThrow(
         'Invalid configVersion'
+      );
+    });
+
+    it('warns when unknown root config keys are stripped', async () => {
+      const warningPath = path.join(tempDir, 'unknown-key-config.json');
+      fs.writeFileSync(
+        warningPath,
+        JSON.stringify({
+          configVersion: 1,
+          outputDir: './docs',
+          framework: 'docusaurus',
+          unknownConfigKey: true,
+        })
+      );
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      try {
+        const config = await loadGeneratorConfig(process.cwd(), warningPath);
+        expect(
+          (config as unknown as { unknownConfigKey?: unknown }).unknownConfigKey
+        ).toBeUndefined();
+        expect(warnSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Unknown config key "unknownConfigKey" will be ignored.')
+        );
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
+
+    it('throws a schema error for unsupported framework values', async () => {
+      const invalidFrameworkPath = path.join(tempDir, 'invalid-framework-config.json');
+      fs.writeFileSync(
+        invalidFrameworkPath,
+        JSON.stringify({
+          configVersion: 1,
+          outputDir: './docs',
+          framework: 'nextjs',
+        })
+      );
+
+      await expect(loadGeneratorConfig(process.cwd(), invalidFrameworkPath)).rejects.toThrow(
+        'Invalid enum value'
       );
     });
 

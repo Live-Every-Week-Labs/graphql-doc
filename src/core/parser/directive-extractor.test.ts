@@ -133,6 +133,47 @@ describe('DirectiveExtractor', () => {
     expect(directives.docGroup).toBeUndefined();
   });
 
+  it('reports warnings for unknown @docGroup arguments', () => {
+    const warnings: string[] = [];
+    const warningExtractor = new DirectiveExtractor((warning) => {
+      warnings.push(`Invalid @${warning.directive} usage: ${warning.message}`);
+    });
+
+    const sdl = `
+      type Query {
+        users: [User] @docGroup(name: "Users", typo: "invalid")
+      }
+    `;
+    const ast = parse(sdl);
+    const field = (ast.definitions[0] as ObjectTypeDefinitionNode).fields![0];
+    const directives = warningExtractor.extract(field);
+
+    expect(directives.docGroup).toBeUndefined();
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('Invalid @docGroup usage:');
+    expect(warnings[0]).toContain('typo');
+  });
+
+  it('rejects empty @docGroup names', () => {
+    const warnings: string[] = [];
+    const warningExtractor = new DirectiveExtractor((warning) => {
+      warnings.push(`Invalid @${warning.directive} usage: ${warning.message}`);
+    });
+
+    const sdl = `
+      type Query {
+        users: [User] @docGroup(name: "")
+      }
+    `;
+    const ast = parse(sdl);
+    const field = (ast.definitions[0] as ObjectTypeDefinitionNode).fields![0];
+    const directives = warningExtractor.extract(field);
+
+    expect(directives.docGroup).toBeUndefined();
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('Invalid @docGroup usage:');
+  });
+
   it('reports warnings for invalid directive usage', () => {
     const warnings: string[] = [];
     const warningExtractor = new DirectiveExtractor((warning) => {

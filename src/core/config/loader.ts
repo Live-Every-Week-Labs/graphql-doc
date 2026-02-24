@@ -6,6 +6,7 @@ import { Config, ConfigSchema, CURRENT_CONFIG_VERSION } from './schema.js';
 import { formatPathForMessage } from '../utils/index.js';
 
 const MODULE_NAME = 'graphql-docs';
+const CONFIG_SCHEMA_KEYS: Set<string> = new Set(ConfigSchema.keyof().options as readonly string[]);
 
 const LEGACY_DOCUSAURUS_KEYS = [
   'singlePage',
@@ -138,10 +139,22 @@ function emitMigrationWarnings(warnings: string[], sourceLabel: string): void {
   }
 }
 
+function collectStrippedKeyWarnings(input: unknown): string[] {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return [];
+  }
+
+  const rootKeys = Object.keys(input);
+  return rootKeys
+    .filter((key) => !CONFIG_SCHEMA_KEYS.has(key))
+    .map((key) => `Unknown config key "${key}" will be ignored.`);
+}
+
 function parseLoadedConfig(rawConfig: unknown, sourceLabel: string): Config {
   const normalization = normalizeConfigInput(rawConfig);
   const migration = migrateConfigInput(normalization.config);
-  const allWarnings = [...normalization.warnings, ...migration.warnings];
+  const strippedKeyWarnings = collectStrippedKeyWarnings(migration.config);
+  const allWarnings = [...normalization.warnings, ...migration.warnings, ...strippedKeyWarnings];
   if (allWarnings.length > 0) {
     emitMigrationWarnings(allWarnings, sourceLabel);
   }
