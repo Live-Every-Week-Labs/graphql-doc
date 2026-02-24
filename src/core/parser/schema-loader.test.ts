@@ -98,5 +98,32 @@ describe('SchemaLoader', () => {
         })
       ).rejects.toThrow('is not allowed');
     });
+
+    it('blocks IPv6-mapped private IPv4 addresses (::ffff:127.0.0.1)', async () => {
+      await expect(
+        loader.load({
+          schemaPointer: 'https://[::ffff:127.0.0.1]/graphql',
+          allowRemoteSchema: true,
+        })
+      ).rejects.toThrow('resolves to a private/internal address');
+    });
+
+    it('blocks IPv6-mapped private IPv4 addresses (::ffff:10.0.0.1)', async () => {
+      await expect(
+        loader.load({
+          schemaPointer: 'https://[::ffff:10.0.0.1]/graphql',
+          allowRemoteSchema: true,
+        })
+      ).rejects.toThrow('resolves to a private/internal address');
+    });
+
+    it('blocks IPv6-mapped private IPv4 addresses (::ffff:192.168.1.1)', async () => {
+      await expect(
+        loader.load({
+          schemaPointer: 'https://[::ffff:192.168.1.1]/graphql',
+          allowRemoteSchema: true,
+        })
+      ).rejects.toThrow('resolves to a private/internal address');
+    });
   });
 });

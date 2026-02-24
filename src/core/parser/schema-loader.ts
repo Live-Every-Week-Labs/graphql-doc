@@ -15,13 +15,55 @@ const PRIVATE_IP_RANGES = [
   /^192\.168\./, // 192.168.0.0/16
   /^169\.254\./, // 169.254.0.0/16 link-local (AWS metadata)
   /^0\./, // 0.0.0.0/8
+  /^::ffff:(?:127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|169\.254\.|0\.)/i,
   /^::1$/, // IPv6 loopback
   /^fd[0-9a-f]{2}:/i, // IPv6 ULA
   /^fe80:/i, // IPv6 link-local
 ];
 
+function normalizeIpv6MappedIpv4(ip: string): string | null {
+  const match = ip.match(/^::ffff:(.+)$/i);
+  if (!match) {
+    return null;
+  }
+
+  const mappedPart = match[1];
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(mappedPart)) {
+    return mappedPart;
+  }
+
+  const hextets = mappedPart.split(':');
+  if (hextets.length !== 2) {
+    return null;
+  }
+
+  const high = Number.parseInt(hextets[0], 16);
+  const low = Number.parseInt(hextets[1], 16);
+  if (
+    !Number.isFinite(high) ||
+    !Number.isFinite(low) ||
+    high < 0 ||
+    high > 0xffff ||
+    low < 0 ||
+    low > 0xffff
+  ) {
+    return null;
+  }
+
+  return `${(high >> 8) & 0xff}.${high & 0xff}.${(low >> 8) & 0xff}.${low & 0xff}`;
+}
+
 function isPrivateIp(ip: string): boolean {
-  return PRIVATE_IP_RANGES.some((pattern) => pattern.test(ip));
+  if (PRIVATE_IP_RANGES.some((pattern) => pattern.test(ip))) {
+    return true;
+  }
+
+  const mappedIpv4 = normalizeIpv6MappedIpv4(ip);
+  if (mappedIpv4) {
+    return PRIVATE_IP_RANGES.some((pattern) => pattern.test(mappedIpv4));
+  }
+
+  return false;
 }
 
 async function validateRemoteUrl(url: string): Promise<void> {
