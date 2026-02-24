@@ -88,7 +88,7 @@ describe('DocusaurusAdapter', () => {
 
     const sidebarFile = files.find((f) => f.path === 'sidebars.js');
     expect(sidebarFile).toBeDefined();
-    expect(sidebarFile?.content).toContain('// <graphql-docs-sidebar>');
+    expect(sidebarFile?.content).toContain('// <graphql-doc-sidebar>');
     expect(sidebarFile?.content).toContain('__gqlDocsTargetKey');
     expect(sidebarFile?.content).toContain('module.exports[__gqlDocsTargetKey]');
 
@@ -140,7 +140,7 @@ describe('DocusaurusAdapter', () => {
 
     const mdxFile = files.find((f) => f.path === 'users/get-user.mdx');
     expect(mdxFile?.content).toContain(
-      "import { OperationView } from '@graphql-docs/generator/components'"
+      "import { OperationView } from '@graphql-doc/generator/components'"
     );
     expect(mdxFile?.content).toContain("import operationsByType from '../_data/operations.json'");
     expect(mdxFile?.content).toContain("import typesByName from '../_data/types.json'");

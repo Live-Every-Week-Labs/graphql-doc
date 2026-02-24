@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is `@graphql-docs/generator` - a documentation generator for GraphQL APIs that organizes content by **operations** (queries, mutations, subscriptions) rather than types. It produces MDX files compatible with Docusaurus.
+This is `@graphql-doc/generator` - a documentation generator for GraphQL APIs that organizes content by **operations** (queries, mutations, subscriptions) rather than types. It produces MDX files compatible with Docusaurus.
 
 ## Common Commands
 
@@ -76,13 +76,13 @@ GraphQL Schema → SchemaLoader → SchemaParser → Transformer → DocusaurusA
 
 ### Package Exports
 
-- `@graphql-docs/generator` - Main library exports
-- `@graphql-docs/generator/components` - React component library (in development)
-- `@graphql-docs/generator/components/styles.css` - Component styles
+- `@graphql-doc/generator` - Main library exports
+- `@graphql-doc/generator/components` - React component library (in development)
+- `@graphql-doc/generator/components/styles.css` - Component styles
 
 ### Configuration
 
-Uses cosmiconfig for flexible config loading. Supports `.graphqlrc`, `graphql-docs.config.js`, etc. Schema defined in `src/core/config/schema.ts` using Zod.
+Uses cosmiconfig for flexible config loading. Supports `.graphqlrc`, `graphql-doc.config.js`, etc. Schema defined in `src/core/config/schema.ts` using Zod.
 
 ### Templates
 

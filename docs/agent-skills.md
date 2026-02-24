@@ -14,7 +14,7 @@ When `agentSkill.enabled: true`, the generator creates:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     agentSkill:
       enabled: true
       name: graphql-api-skill

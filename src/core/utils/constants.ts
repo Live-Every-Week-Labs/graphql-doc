@@ -15,4 +15,4 @@ export const MAX_PREVIEW_OPERATIONS = 8;
 export const LLM_TOKEN_WARNING_THRESHOLD = 50000;
 
 /** Package name for the component library import. */
-export const COMPONENT_PACKAGE_IMPORT = '@graphql-docs/generator/components';
+export const COMPONENT_PACKAGE_IMPORT = '@graphql-doc/generator/components';

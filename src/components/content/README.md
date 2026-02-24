@@ -14,7 +14,7 @@ The `TypeViewer` is a recursive component that renders `ExpandedType` objects. I
 - Depth-limited expansion (defaults to 5 levels inline).
 - Handles circular references and type links gracefully.
 - Proper visualization of Lists (e.g., `[Type]`).
-- Themed styling using `graphql-docs.css`.
+- Themed styling using `graphql-doc.css`.
 
 **Usage:**
 

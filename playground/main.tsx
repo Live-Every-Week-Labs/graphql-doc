@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { TypeViewer } from '../src/components/content/TypeViewer';
 import { ExpansionProvider } from '../src/components/context/ExpansionProvider';
 import { mocks, mockArgs } from './mocks';
-import '../src/components/styles/graphql-docs.css';
+import '../src/components/styles/graphql-doc.css';
 
 import { PropertyTable } from '../src/components/content/PropertyTable';
 

@@ -6,10 +6,10 @@ You can install the generator globally or as a dev dependency in your project.
 
 ```bash
 # Global installation
-npm install -g @graphql-docs/generator
+npm install -g @graphql-doc/generator
 
 # Local installation
-npm install --save-dev @graphql-docs/generator
+npm install --save-dev @graphql-doc/generator
 ```
 
 ## Quick Start
@@ -20,10 +20,10 @@ The easiest way to get started is with the `init` command:
 
 ```bash
 # Interactive setup (prompts for configuration)
-npx graphql-docs init
+npx graphql-doc init
 
 # Non-interactive with defaults
-npx graphql-docs init --yes
+npx graphql-doc init --yes
 ```
 
 This creates:
@@ -35,13 +35,13 @@ This creates:
 ### 2. Generate Documentation
 
 ```bash
-npx graphql-docs generate --schema ./schema.graphql --output ./docs/api
+npx graphql-doc generate --schema ./schema.graphql --output ./docs/api
 ```
 
 Or if you have a config file:
 
 ```bash
-npx graphql-docs generate
+npx graphql-doc generate
 ```
 
 ## CLI Commands
@@ -51,7 +51,7 @@ npx graphql-docs generate
 Initialize a new project with configuration and directory structure.
 
 ```bash
-graphql-docs init [options]
+graphql-doc init [options]
 
 Options:
   -f, --force   Overwrite existing files
@@ -63,7 +63,7 @@ Options:
 Generate documentation from your GraphQL schema.
 
 ```bash
-graphql-docs generate [options]
+graphql-doc generate [options]
 
 Options:
   -s, --schema <path>   Path to GraphQL schema file or URL
@@ -76,7 +76,7 @@ Options:
 Validate your schema and metadata without generating docs (useful for CI).
 
 ```bash
-graphql-docs validate [options]
+graphql-doc validate [options]
 
 Options:
   -s, --schema <path>   Path to local GraphQL schema file(s)
@@ -95,7 +95,7 @@ You can store your settings in a configuration file instead of passing CLI argum
 schema: ./schema.graphql
 
 extensions:
-  graphql-docs:
+  graphql-doc:
     outputDir: ./docs/api
     framework: docusaurus
     metadataDir: ./docs-metadata
@@ -108,7 +108,7 @@ extensions:
 Then simply run:
 
 ```bash
-graphql-docs generate
+graphql-doc generate
 ```
 
 See the [Configuration Guide](./configuration.md) for all available options.
@@ -124,7 +124,7 @@ For MVP, error documentation is handled in two places:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     configVersion: 1
     agentSkill:
       enabled: true
@@ -169,7 +169,7 @@ module.exports = {
 ```yaml
 # .graphqlrc
 extensions:
-  graphql-docs:
+  graphql-doc:
     adapters:
       docusaurus:
         sidebarMerge: false
@@ -184,7 +184,7 @@ The generator will also emit `llms.txt` at `static/llms.txt`.
 ```yaml
 # .graphqlrc
 extensions:
-  graphql-docs:
+  graphql-doc:
     llmDocs:
       outputDir: ./static/llm-docs
       baseUrl: https://docs.example.com
@@ -217,7 +217,7 @@ If you want to organize examples across multiple files/directories, configure `e
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     exampleFiles:
       - ./docs-metadata/examples/queries/*.json
       - ./docs-metadata/examples/mutations/*.json
@@ -227,7 +227,7 @@ If you want to fail CI when a documented operation has no examples, enable:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     requireExamplesForDocumentedOperations: true
 ```
 

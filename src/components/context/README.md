@@ -18,7 +18,7 @@ The `ExpansionProvider` manages the expansion/collapse state of nested type defi
 Wrap your application or component tree with the provider:
 
 ```tsx
-import { ExpansionProvider } from '@graphql-docs/generator/components';
+import { ExpansionProvider } from '@graphql-doc/generator/components';
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
 Consume the context implementation in child components:
 
 ```tsx
-import { useExpansion } from '@graphql-docs/generator/components';
+import { useExpansion } from '@graphql-doc/generator/components';
 
 function TypeNode({ path, depth }) {
   const { isExpanded, toggleExpand } = useExpansion();

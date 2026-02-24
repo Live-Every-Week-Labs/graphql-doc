@@ -1,5 +1,5 @@
 {
-  "name": "@graphql-docs/generator",
+  "name": "@graphql-doc/generator",
   "version": "0.1.0",
   "description": "GraphQL operation-first documentation generator with a React component library",
   "keywords": [
@@ -38,7 +38,7 @@
     "./components/docusaurus.css": "./dist/components/docusaurus.css"
   },
   "bin": {
-    "graphql-docs": "./dist/cli.js"
+    "graphql-doc": "./dist/cli.js"
   },
   "files": [
     "dist",

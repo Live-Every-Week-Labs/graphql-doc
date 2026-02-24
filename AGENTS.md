@@ -35,4 +35,4 @@
 
 ## Configuration Tips
 
-- Local config is typically `.graphqlrc` or `graphql-docs.config.js` at repo root; keep sample config in sync with docs.
+- Local config is typically `.graphqlrc` or `graphql-doc.config.js` at repo root; keep sample config in sync with docs.

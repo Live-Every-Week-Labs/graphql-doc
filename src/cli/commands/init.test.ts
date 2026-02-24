@@ -17,7 +17,7 @@ describe('init command', () => {
 
   beforeEach(async () => {
     // Create a temporary directory for testing
-    testDir = path.join(os.tmpdir(), `graphql-docs-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `graphql-doc-test-${Date.now()}`);
     await fs.ensureDir(testDir);
   });
 
@@ -38,7 +38,7 @@ describe('init command', () => {
 
       const content = await fs.readFile(graphqlrcPath, 'utf-8');
       expect(content).toContain('schema: schema.graphql');
-      expect(content).toContain('graphql-docs:');
+      expect(content).toContain('graphql-doc:');
       expect(content).toContain('outputDir: ./docs/api');
       expect(content).toContain('framework: docusaurus');
       expect(content).toContain('metadataDir: ./docs-metadata');
@@ -120,7 +120,7 @@ describe('init command', () => {
     });
 
     it('throws error when directives file exists in --yes mode', async () => {
-      await fs.writeFile(path.join(testDir, 'graphql-docs-directives.graphql'), '# existing');
+      await fs.writeFile(path.join(testDir, 'graphql-doc-directives.graphql'), '# existing');
 
       await expect(runInit({ yes: true, targetDir: testDir })).rejects.toThrow(
         'Cannot overwrite existing files in non-interactive mode'
@@ -159,12 +159,12 @@ describe('init command', () => {
     });
 
     it('overwrites directives file when --force is used', async () => {
-      await fs.writeFile(path.join(testDir, 'graphql-docs-directives.graphql'), 'old directives');
+      await fs.writeFile(path.join(testDir, 'graphql-doc-directives.graphql'), 'old directives');
 
       await runInit({ yes: true, force: true, targetDir: testDir });
 
       const directivesContent = await fs.readFile(
-        path.join(testDir, 'graphql-docs-directives.graphql'),
+        path.join(testDir, 'graphql-doc-directives.graphql'),
         'utf-8'
       );
       expect(directivesContent).toContain('directive @docGroup');

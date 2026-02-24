@@ -2,9 +2,9 @@
 
 The generator can be configured through:
 
-- `.graphqlrc` (`extensions.graphql-docs`)
-- `graphql-docs.config.js` / `.ts` / `.json`
-- `.graphql-docsrc` / `.graphql-docsrc.json`
+- `.graphqlrc` (`extensions.graphql-doc`)
+- `graphql-doc.config.js` / `.ts` / `.json`
+- `.graphql-docrc` / `.graphql-docrc.json`
 
 ## Starter Configuration
 
@@ -26,7 +26,7 @@ Starter `.graphqlrc`:
 schema: ./schema.graphql
 
 extensions:
-  graphql-docs:
+  graphql-doc:
     configVersion: 1
     outputDir: ./docs/api
     metadataDir: ./docs-metadata
@@ -69,7 +69,7 @@ Use these when needed:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     exampleFiles:
       - ./docs-metadata/examples/queries/*.json
       - ./docs-metadata/examples/mutations/*.json
@@ -110,7 +110,7 @@ Intro docs are adapter-scoped:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     adapters:
       docusaurus:
         introDocs:

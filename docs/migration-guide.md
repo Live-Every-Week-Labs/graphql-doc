@@ -8,7 +8,7 @@ Set:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     configVersion: 1
 ```
 
@@ -22,7 +22,7 @@ Before:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     singlePage: true
     sidebarTarget: apiSidebar
 ```
@@ -31,7 +31,7 @@ After:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     adapters:
       docusaurus:
         singlePage: true
@@ -46,7 +46,7 @@ Before:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     introDocs:
       - ./docs/overview.mdx
 ```
@@ -55,7 +55,7 @@ After:
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     adapters:
       docusaurus:
         introDocs:

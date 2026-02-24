@@ -9,7 +9,7 @@ describe('validate command', () => {
 
   beforeEach(async () => {
     // Create a temporary directory for testing
-    testDir = path.join(os.tmpdir(), `graphql-docs-validate-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `graphql-doc-validate-test-${Date.now()}`);
     await fs.ensureDir(testDir);
   });
 

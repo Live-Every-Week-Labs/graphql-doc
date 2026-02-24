@@ -34,13 +34,13 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - ✅ **Validation**: Validate schema + metadata without generating docs.
 - 🚫 **Group Exclusions**: Exclude doc groups from output via configuration.
 - 🙈 **Selective Exclusions**: Hide operations, fields, arguments, enum values, or types with `@docIgnore`.
-- 🛠️ **Configurable**: Supports `.graphqlrc`, `graphql-docs.config.js`, and more.
+- 🛠️ **Configurable**: Supports `.graphqlrc`, `graphql-doc.config.js`, and more.
 - 🎨 **Themable**: Full CSS variables support for easy customization and dark mode integration.
 
 ## Installation
 
 ```bash
-npm install @graphql-docs/generator
+npm install @graphql-doc/generator
 ```
 
 ## Quick Start
@@ -49,37 +49,37 @@ npm install @graphql-docs/generator
 
 ```bash
 # Interactive setup
-npx graphql-docs init
+npx graphql-doc init
 
 # Or use defaults
-npx graphql-docs init --yes
+npx graphql-doc init --yes
 ```
 
 This creates:
 
 - `.graphqlrc` - Configuration file
 - `docs-metadata/` - Sample metadata files
-- `graphql-docs-directives.graphql` - Directive definitions for your schema
+- `graphql-doc-directives.graphql` - Directive definitions for your schema
 
-> **Important for AppSync/Production:** You must include `graphql-docs-directives.graphql` in your schema before deploying to production. See the [Directive Setup Guide](./docs/directives-setup.md) for instructions.
+> **Important for AppSync/Production:** You must include `graphql-doc-directives.graphql` in your schema before deploying to production. See the [Directive Setup Guide](./docs/directives-setup.md) for instructions.
 
 ### 2. Generate Documentation
 
 ```bash
-npx graphql-docs generate -s schema.graphql -o docs/api
+npx graphql-doc generate -s schema.graphql -o docs/api
 ```
 
 For more details, see the [CLI Reference](./docs/cli.md).
 
 ### Configuration
 
-Create a `.graphqlrc` or `graphql-docs.config.js` file in your project root:
+Create a `.graphqlrc` or `graphql-doc.config.js` file in your project root:
 
 ```yaml
 # .graphqlrc
 schema: './schema.graphql'
 extensions:
-  graphql-docs:
+  graphql-doc:
     configVersion: 1
     outputDir: './docs/api'
     framework: 'docusaurus'

@@ -1,4 +1,4 @@
-import './styles/graphql-docs.css';
+import './styles/graphql-doc.css';
 
 // Context
 export * from './context/ExpansionProvider';

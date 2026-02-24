@@ -1,6 +1,6 @@
 # Examples
 
-This directory contains example repositories demonstrating how to use the `graphql-docs-generator` with various supported documentation frameworks.
+This directory contains example repositories demonstrating how to use the `graphql-doc-generator` with various supported documentation frameworks.
 
 ## Contents
 

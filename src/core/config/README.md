@@ -43,9 +43,9 @@ The `src/core/config` module handles configuration loading and validation for th
 
 - Responsible for finding and parsing the configuration.
 - **Loading Priority:**
-  1.  **GraphQL Config (`.graphqlrc`):** Checks for a `graphql-docs` extension block.
+  1.  **GraphQL Config (`.graphqlrc`):** Checks for a `graphql-doc` extension block.
       - _Note:_ Logs a warning if loading fails (e.g., file not found) and proceeds to next method.
-  2.  **Cosmiconfig:** Searches for `graphql-docs.config.js`, `.json`, etc.
+  2.  **Cosmiconfig:** Searches for `graphql-doc.config.js`, `.json`, etc.
   3.  **Defaults:** Falls back to default values defined in the Zod schema.
 
 - **Smart Defaults:**

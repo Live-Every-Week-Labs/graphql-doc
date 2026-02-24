@@ -12,11 +12,11 @@ npm run generate:schema
 
 ## JSON Config Example
 
-If you use `graphql-docs.config.json`, add `$schema`:
+If you use `graphql-doc.config.json`, add `$schema`:
 
 ```json
 {
-  "$schema": "./node_modules/@graphql-docs/generator/src/schemas/config-schema.json",
+  "$schema": "./node_modules/@graphql-doc/generator/src/schemas/config-schema.json",
   "configVersion": 1,
   "outputDir": "./docs/api",
   "framework": "docusaurus"

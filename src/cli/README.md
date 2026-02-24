@@ -1,6 +1,6 @@
 # CLI Module
 
-This module contains the Command Line Interface (CLI) implementation for the `graphql-docs` generator.
+This module contains the Command Line Interface (CLI) implementation for the `graphql-doc` generator.
 
 ## Structure
 
@@ -35,12 +35,12 @@ Additional generate capabilities:
 
 ### `init`
 
-The `init` command scaffolds a new graphql-docs project. It:
+The `init` command scaffolds a new graphql-doc project. It:
 
 1. Creates a `.graphqlrc` configuration file.
 2. Creates the `docs-metadata/` directory structure.
 3. Adds sample example JSON files.
-4. Creates a `graphql-docs-directives.graphql` file with directive definitions.
+4. Creates a `graphql-doc-directives.graphql` file with directive definitions.
 
 Supports interactive prompts or `--yes` for defaults.
 
@@ -74,5 +74,5 @@ node dist/cli.js init --help
 node dist/cli.js validate --help
 
 # Or run via npx after build
-npx graphql-docs generate --help
+npx graphql-doc generate --help
 ```

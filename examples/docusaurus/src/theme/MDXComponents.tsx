@@ -8,7 +8,7 @@ import {
   ArgumentsTable,
   ExamplesPanel,
   CodeExample,
-} from '@graphql-docs/generator/components';
+} from '@graphql-doc/generator/components';
 
 export default {
   ...MDXComponents,

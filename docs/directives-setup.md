@@ -10,22 +10,22 @@ When you deploy your GraphQL schema to a production server (AWS AppSync, Apollo 
 Unknown directive "@docGroup"
 ```
 
-**Important:** While `graphql-docs` automatically injects these directives during documentation generation, your **production schema** still needs them defined for deployment to succeed.
+**Important:** While `graphql-doc` automatically injects these directives during documentation generation, your **production schema** still needs them defined for deployment to succeed.
 
 ## Quick Setup
 
-### Option 1: Using `graphql-docs init` (Recommended)
+### Option 1: Using `graphql-doc init` (Recommended)
 
-The easiest way is to run the init command, which creates `graphql-docs-directives.graphql` for you:
+The easiest way is to run the init command, which creates `graphql-doc-directives.graphql` for you:
 
 ```bash
-npx graphql-docs init
+npx graphql-doc init
 ```
 
 This creates:
 
 ```
-graphql-docs-directives.graphql  ← Directive definitions
+graphql-doc-directives.graphql  ← Directive definitions
 .graphqlrc                        ← Config with schema reference
 docs-metadata/                    ← Example metadata
 ```
@@ -38,7 +38,7 @@ If you've already initialized your project, copy the directives file from the pa
 
 ```bash
 # Copy from node_modules
-cp node_modules/@graphql-docs/generator/directives.graphql ./graphql-docs-directives.graphql
+cp node_modules/@graphql-doc/generator/directives.graphql ./graphql-doc-directives.graphql
 
 # Or create it manually (see below)
 ```
@@ -54,7 +54,7 @@ If you use `.graphqlrc` or similar config files:
 ```yaml
 # .graphqlrc
 schema:
-  - ./graphql-docs-directives.graphql
+  - ./graphql-doc-directives.graphql
   - ./schema.graphql
 ```
 
@@ -63,7 +63,7 @@ Or in JavaScript:
 ```javascript
 // graphql.config.js
 module.exports = {
-  schema: ['./graphql-docs-directives.graphql', './schema.graphql'],
+  schema: ['./graphql-doc-directives.graphql', './schema.graphql'],
 };
 ```
 
@@ -79,7 +79,7 @@ If you have a single schema file, import or paste the directive definitions at t
 # schema.graphql
 
 # Import the directives (if your tool supports file imports)
-# import "./graphql-docs-directives.graphql"
+# import "./graphql-doc-directives.graphql"
 
 # Or copy-paste the directive definitions at the top of your schema
 directive @docGroup(
@@ -105,7 +105,7 @@ If you're building your schema in code:
 import { readFileSync } from 'fs';
 import { buildSchema } from 'graphql';
 
-const directives = readFileSync('./graphql-docs-directives.graphql', 'utf-8');
+const directives = readFileSync('./graphql-doc-directives.graphql', 'utf-8');
 const schema = readFileSync('./schema.graphql', 'utf-8');
 
 const fullSchema = buildSchema(directives + '\n' + schema);
@@ -122,7 +122,7 @@ import * as appsync from 'aws-cdk-lib/aws-appsync';
 import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 
-const directivesContent = readFileSync('./graphql-docs-directives.graphql', 'utf-8');
+const directivesContent = readFileSync('./graphql-doc-directives.graphql', 'utf-8');
 const schemaContent = readFileSync('./schema.graphql', 'utf-8');
 const combinedSchemaPath = path.join(__dirname, 'schema-with-directives.graphql');
 writeFileSync(combinedSchemaPath, `${directivesContent}\n${schemaContent}`);
@@ -140,7 +140,7 @@ In your `amplify/backend/api/*/schema.graphql`, include the directives at the to
 ```graphql
 # amplify/backend/api/myapi/schema.graphql
 
-# Documentation directives (paste content from graphql-docs-directives.graphql)
+# Documentation directives (paste content from graphql-doc-directives.graphql)
 directive @docGroup(name: String!, order: Int, subsection: String, sidebarTitle: String) on FIELD_DEFINITION
 directive @docPriority(level: Int!) on FIELD_DEFINITION
 directive @docTags(tags: [String!]!) on FIELD_DEFINITION
@@ -173,8 +173,8 @@ Resources:
 
 The full directive definitions are available in:
 
-- `node_modules/@graphql-docs/generator/directives.graphql` (after npm install)
-- `graphql-docs-directives.graphql` (after running `graphql-docs init`)
+- `node_modules/@graphql-doc/generator/directives.graphql` (after npm install)
+- `graphql-doc-directives.graphql` (after running `graphql-doc init`)
 - [GitHub Repository](https://github.com/austinzani/graphql-doc/blob/main/directives.graphql)
 
 ### Complete Definitions
@@ -204,8 +204,8 @@ To verify your directives are properly included:
 # Using GraphQL CLI
 graphql validate
 
-# Or with graphql-docs
-graphql-docs validate
+# Or with graphql-doc
+graphql-doc validate
 ```
 
 ### 2. Check in GraphQL Playground
@@ -222,26 +222,26 @@ After deploying to AppSync, go to the AWS Console → AppSync → Your API → S
 
 **Cause:** The directives aren't included in your schema.
 
-**Fix:** Follow one of the methods above to include `graphql-docs-directives.graphql` in your schema.
+**Fix:** Follow one of the methods above to include `graphql-doc-directives.graphql` in your schema.
 
 ### Error: AppSync deployment fails with directive error
 
 **Cause:** The directives file wasn't included in your deployment package.
 
-**Fix:** Ensure your build/deploy process includes `graphql-docs-directives.graphql` or that the directives are directly in your schema file.
+**Fix:** Ensure your build/deploy process includes `graphql-doc-directives.graphql` or that the directives are directly in your schema file.
 
 ### Directives work locally but fail in production
 
-**Cause:** `graphql-docs` auto-injects directives during documentation generation, but your production server doesn't have them.
+**Cause:** `graphql-doc` auto-injects directives during documentation generation, but your production server doesn't have them.
 
 **Fix:** Add the directives to your production schema following the methods above.
 
 ## Best Practices
 
 1. **Include directives at the top** of your schema file for visibility
-2. **Version control** `graphql-docs-directives.graphql` with your project
+2. **Version control** `graphql-doc-directives.graphql` with your project
 3. **Validate before deploying** using `graphql validate` or similar tools
-4. **Keep directives updated** when upgrading `@graphql-docs/generator`
+4. **Keep directives updated** when upgrading `@graphql-doc/generator`
 5. **Document for your team** that these directives are required for schema deployments
 
 ## Runtime Behavior

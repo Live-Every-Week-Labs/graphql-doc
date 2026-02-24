@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 
 export function createTempDir(): string {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-docs-generator-test-'));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-generator-test-'));
   return tempDir;
 }
 

@@ -12,7 +12,7 @@ function formatCliError(error: unknown): string {
 const program = new Command();
 
 program
-  .name('graphql-docs')
+  .name('graphql-doc')
   .description('GraphQL Operation-First Documentation Generator')
   .version(version);
 
@@ -43,7 +43,7 @@ program
 
 program
   .command('init')
-  .description('Initialize a new graphql-docs project')
+  .description('Initialize a new graphql-doc project')
   .option('-f, --force', 'Overwrite existing files')
   .option('-y, --yes', 'Skip prompts and use defaults')
   .action(async (options) => {

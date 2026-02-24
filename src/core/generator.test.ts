@@ -54,7 +54,7 @@ describe('Generator', () => {
 
   beforeEach(async () => {
     // Create a temporary directory for testing
-    testDir = path.join(os.tmpdir(), `graphql-docs-generator-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `graphql-doc-generator-test-${Date.now()}`);
     outputDir = path.join(testDir, 'output');
     metadataDir = path.join(testDir, 'metadata');
 

@@ -33,7 +33,7 @@ describe('sidebar-file-builder', () => {
     expect(files).toHaveLength(1);
     expect(files[0].path).toBe('sidebars.js');
     expect(files[0].content).toContain('export default sidebars;');
-    expect(files[0].content).toContain('// <graphql-docs-sidebar>');
+    expect(files[0].content).toContain('// <graphql-doc-sidebar>');
     expect(files[0].content).toContain('sidebars[__gqlDocsTargetKey] = __gqlDocsMerge(');
   });
 
@@ -63,6 +63,6 @@ describe('sidebar-file-builder', () => {
     const files = buildSidebarFiles(sidebarItems, { outputDir, sidebarMerge: true });
     expect(files).toHaveLength(1);
     expect(files[0].content).toContain('module.exports[__gqlDocsTargetKey] = __gqlDocsMerge(');
-    expect(files[0].content).toContain('// <graphql-docs-sidebar>');
+    expect(files[0].content).toContain('// <graphql-doc-sidebar>');
   });
 });

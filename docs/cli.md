@@ -1,6 +1,6 @@
 # CLI Reference
 
-The `graphql-docs` CLI is the primary interface for generating documentation from your GraphQL schema.
+The `graphql-doc` CLI is the primary interface for generating documentation from your GraphQL schema.
 
 ## Installation
 
@@ -8,10 +8,10 @@ You can install the generator globally or locally in your project.
 
 ```bash
 # Global installation
-npm install -g @graphql-docs/generator
+npm install -g @graphql-doc/generator
 
 # Local installation
-npm install @graphql-docs/generator
+npm install @graphql-doc/generator
 ```
 
 ## Usage
@@ -19,20 +19,20 @@ npm install @graphql-docs/generator
 If installed globally:
 
 ```bash
-graphql-docs generate [options]
+graphql-doc generate [options]
 ```
 
 If installed locally, use `npx`:
 
 ```bash
-npx graphql-docs generate [options]
+npx graphql-doc generate [options]
 ```
 
 ## Commands
 
 ### `init`
 
-Initialize a new graphql-docs project by creating the configuration file and metadata directory structure.
+Initialize a new graphql-doc project by creating the configuration file and metadata directory structure.
 
 **Options:**
 
@@ -45,19 +45,19 @@ Initialize a new graphql-docs project by creating the configuration file and met
 Initialize with interactive prompts:
 
 ```bash
-graphql-docs init
+graphql-doc init
 ```
 
 Initialize with defaults (non-interactive):
 
 ```bash
-graphql-docs init --yes
+graphql-doc init --yes
 ```
 
 Force overwrite existing files:
 
 ```bash
-graphql-docs init --force
+graphql-doc init --force
 ```
 
 **Generated Structure:**
@@ -66,7 +66,7 @@ The init command creates the following files and directories:
 
 ```
 .graphqlrc                                    # GraphQL configuration file
-graphql-docs-directives.graphql               # Directive definitions for your schema
+graphql-doc-directives.graphql               # Directive definitions for your schema
 docs-metadata/
 ├── examples/
 │   ├── queries/
@@ -75,7 +75,7 @@ docs-metadata/
 │       └── example-mutation.json            # Sample mutation example
 ```
 
-> **Important:** You must include `graphql-docs-directives.graphql` in your schema before deploying to production (AppSync, Apollo Server, etc.). See the [Directive Setup Guide](./directives-setup.md) for detailed instructions.
+> **Important:** You must include `graphql-doc-directives.graphql` in your schema before deploying to production (AppSync, Apollo Server, etc.). See the [Directive Setup Guide](./directives-setup.md) for detailed instructions.
 
 **Interactive Prompts:**
 
@@ -112,25 +112,25 @@ Validate your GraphQL schema and metadata files without generating documentation
 Validate with defaults:
 
 ```bash
-graphql-docs validate
+graphql-doc validate
 ```
 
 Validate a specific schema:
 
 ```bash
-graphql-docs validate -s ./graphql/schema.graphql
+graphql-doc validate -s ./graphql/schema.graphql
 ```
 
 Validate with strict mode (fail on warnings):
 
 ```bash
-graphql-docs validate --strict
+graphql-doc validate --strict
 ```
 
 Validate with JSON output (CI-friendly):
 
 ```bash
-graphql-docs validate --json
+graphql-doc validate --json
 ```
 
 **Validation Checks:**
@@ -182,7 +182,7 @@ Generates documentation from a GraphQL schema.
 
 - `-s, --schema <path>`: Path to the GraphQL schema file or URL.
 - `-o, --output <path>`: Directory where the generated documentation will be written.
-- `-c, --config <path>`: Path to a configuration file (e.g., `.graphqlrc`, `graphql-docs.config.js`).
+- `-c, --config <path>`: Path to a configuration file (e.g., `.graphqlrc`, `graphql-doc.config.js`).
 - `--clean-output`: Remove existing files in the output directory before generating.
 - `--dry-run`: Preview generated files without writing to disk.
 - `--watch`: Regenerate when schema/example/config files change.
@@ -202,56 +202,56 @@ The schema path is resolved in the following order:
 2. `schema` field in `.graphqlrc` (graphql-config)
 3. Default: `schema.graphql`
 
-This means if you have a `.graphqlrc` file with a `schema` field, you can run `graphql-docs generate` without any arguments.
+This means if you have a `.graphqlrc` file with a `schema` field, you can run `graphql-doc generate` without any arguments.
 
 **Examples:**
 
 Generate using schema from `.graphqlrc`:
 
 ```bash
-graphql-docs generate
+graphql-doc generate
 ```
 
 Generate from a specific file:
 
 ```bash
-graphql-docs generate -s ./schema.graphql -o ./docs
+graphql-doc generate -s ./schema.graphql -o ./docs
 ```
 
 Generate from a URL (requires `allowRemoteSchema: true` in config):
 
 ```bash
-graphql-docs generate -s https://api.example.com/graphql -o ./docs
+graphql-doc generate -s https://api.example.com/graphql -o ./docs
 ```
 
 Use a specific config file:
 
 ```bash
-graphql-docs generate -c .graphqlrc.dev
+graphql-doc generate -c .graphqlrc.dev
 ```
 
 Preview generation without writing:
 
 ```bash
-graphql-docs generate --dry-run
+graphql-doc generate --dry-run
 ```
 
 Regenerate on file changes:
 
 ```bash
-graphql-docs generate --watch
+graphql-doc generate --watch
 ```
 
 ## Configuration
 
-The CLI supports standard GraphQL configuration files (`.graphqlrc`, `graphql.config.js`) as well as `graphql-docs.config.js`.
+The CLI supports standard GraphQL configuration files (`.graphqlrc`, `graphql.config.js`) as well as `graphql-doc.config.js`.
 
 Example `.graphqlrc`:
 
 ```yaml
 schema: schema.graphql
 extensions:
-  graphql-docs:
+  graphql-doc:
     outputDir: ./docs/api
     framework: docusaurus
     metadataDir: ./docs-metadata

@@ -238,7 +238,7 @@ describe('generateAgentSkillArtifacts', () => {
     expect(operationsDataFile).toBeDefined();
     expect(typesDataFile).toBeDefined();
 
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'graphql-docs-skill-script-'));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'graphql-doc-skill-script-'));
     const skillDir = path.join(tempDir, 'graphql-api-skill');
     const scriptPath = path.join(skillDir, 'scripts', 'graphql_docs_skill.py');
     const dataDir = path.join(skillDir, '_data');

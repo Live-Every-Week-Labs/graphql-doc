@@ -51,7 +51,7 @@ describe('generate command', () => {
 
   beforeEach(async () => {
     // Create a temporary directory for testing
-    testDir = path.join(os.tmpdir(), `graphql-docs-generate-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `graphql-doc-generate-test-${Date.now()}`);
     await fs.ensureDir(testDir);
 
     // Create required directories

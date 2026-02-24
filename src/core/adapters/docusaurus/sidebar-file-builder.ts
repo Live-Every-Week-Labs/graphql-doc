@@ -21,8 +21,8 @@ function mergeSidebarContent(
     insertReference?: string;
   }
 ): string | null {
-  const markerStart = '// <graphql-docs-sidebar>';
-  const markerEnd = '// </graphql-docs-sidebar>';
+  const markerStart = '// <graphql-doc-sidebar>';
+  const markerEnd = '// </graphql-doc-sidebar>';
   const cleaned = content.replace(new RegExp(`${markerStart}[\\s\\S]*?${markerEnd}\\n?`, 'g'), '');
 
   let mergedContent = cleaned;

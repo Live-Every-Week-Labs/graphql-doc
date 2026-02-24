@@ -119,7 +119,7 @@ function generateGraphqlrcContent(config: InitConfig): string {
   return `schema: ${schemaPath}
 
 extensions:
-  graphql-docs:
+  graphql-doc:
     outputDir: ${outputDir}
     framework: ${framework}
     metadataDir: ${metadataDir}
@@ -141,9 +141,9 @@ async function checkExistingFiles(targetDir: string): Promise<string[]> {
     existingFiles.push('docs-metadata/');
   }
 
-  const directivesPath = path.join(targetDir, 'graphql-docs-directives.graphql');
+  const directivesPath = path.join(targetDir, 'graphql-doc-directives.graphql');
   if (await fs.pathExists(directivesPath)) {
-    existingFiles.push('graphql-docs-directives.graphql');
+    existingFiles.push('graphql-doc-directives.graphql');
   }
 
   return existingFiles;
@@ -217,10 +217,10 @@ export async function runInit(options: InitOptions): Promise<void> {
     createdFiles.push(path.relative(targetDir, mutationExamplePath));
 
     // Create directives file
-    const directivesPath = path.join(targetDir, 'graphql-docs-directives.graphql');
+    const directivesPath = path.join(targetDir, 'graphql-doc-directives.graphql');
     const directivesContent = `# GraphQL Documentation Generator Directives
 #
-# These directives are used by @graphql-docs/generator to organize and control
+# These directives are used by @graphql-doc/generator to organize and control
 # documentation generation. They have no runtime behavior and are safe to include
 # in your production schema.
 #
@@ -228,17 +228,17 @@ export async function runInit(options: InitOptions): Promise<void> {
 # For example, in your .graphqlrc:
 #   schema:
 #     - ./schema.graphql
-#     - ./graphql-docs-directives.graphql
+#     - ./graphql-doc-directives.graphql
 
 ${DIRECTIVE_DEFINITIONS}
 `;
     await fs.writeFile(directivesPath, directivesContent);
-    createdFiles.push('graphql-docs-directives.graphql');
+    createdFiles.push('graphql-doc-directives.graphql');
 
     spinner.succeed('Project files created successfully!');
 
     // Show success message
-    console.log(chalk.green('\n  Initialized graphql-docs project!\n'));
+    console.log(chalk.green('\n  Initialized graphql-doc project!\n'));
 
     console.log(chalk.white('  Created:'));
     createdFiles.forEach((file) => {
@@ -249,11 +249,11 @@ ${DIRECTIVE_DEFINITIONS}
     console.log(chalk.dim(`    1. Place your GraphQL schema at: ${config.schemaPath}`));
     console.log(
       chalk.dim(
-        `    2. Import graphql-docs-directives.graphql in your schema (required for AppSync/production)`
+        `    2. Import graphql-doc-directives.graphql in your schema (required for AppSync/production)`
       )
     );
     console.log(chalk.dim(`    3. Customize the example files in ${config.metadataDir}/`));
-    console.log(chalk.dim('    4. Run: graphql-docs generate\n'));
+    console.log(chalk.dim('    4. Run: graphql-doc generate\n'));
   } catch (error) {
     spinner.fail('Failed to create project files');
     throw new Error(`Failed to create project files: ${getErrorMessage(error)}`);

@@ -13,7 +13,7 @@ LLM docs are raw markdown artifacts optimized for model ingestion and retrieval.
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     llmDocs:
       enabled: true
       outputDir: ./static/llm-docs
@@ -43,8 +43,8 @@ For Docusaurus, write to `./static/llm-docs` so files are served as raw markdown
 Use validation and generation together:
 
 ```bash
-graphql-docs validate --strict
-graphql-docs generate --clean-output
+graphql-doc validate --strict
+graphql-doc generate --clean-output
 ```
 
 This ensures generated LLM docs stay in sync with schema and examples.

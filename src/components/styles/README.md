@@ -2,9 +2,9 @@
 
 This directory contains the styling system for the GraphQL documentation generator.
 
-## `graphql-docs.css`
+## `graphql-doc.css`
 
-The core stylesheet is `graphql-docs.css`. It uses [CSS Custom Properties (Variables)](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) to define the theme.
+The core stylesheet is `graphql-doc.css`. It uses [CSS Custom Properties (Variables)](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) to define the theme.
 
 ### Theming
 

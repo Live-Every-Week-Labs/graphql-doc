@@ -18,7 +18,7 @@ describe('loadGeneratorConfig', () => {
 
     beforeAll(() => {
       // Create temp directory and config file
-      tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-docs-test-'));
+      tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-test-'));
       configPath = path.join(tempDir, 'custom-config.json');
       fs.writeFileSync(
         configPath,

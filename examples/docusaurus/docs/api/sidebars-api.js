@@ -692,7 +692,7 @@ module.exports = {
   ]
 };
 
-// <graphql-docs-sidebar>
+// <graphql-doc-sidebar>
 const __gqlDocsItems = [
   {
     "type": "doc",
@@ -1406,4 +1406,4 @@ const __gqlDocsMerge = (items, insert, opts) => {
   return [...list.slice(0, insertIndex), ...insert, ...list.slice(insertIndex)];
 };
 module.exports[__gqlDocsTargetKey] = __gqlDocsMerge(module.exports[__gqlDocsTargetKey], __gqlDocsItems, {"mode":"replace","reference":""});
-// </graphql-docs-sidebar>
+// </graphql-doc-sidebar>

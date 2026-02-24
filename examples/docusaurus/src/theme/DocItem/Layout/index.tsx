@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@theme-original/DocItem/Layout';
-import { TwoColumnContent } from '@graphql-docs/generator/components';
+import { TwoColumnContent } from '@graphql-doc/generator/components';
 import { useDoc } from '@docusaurus/plugin-content-docs/client';
 
 export default function LayoutWrapper(props: any) {

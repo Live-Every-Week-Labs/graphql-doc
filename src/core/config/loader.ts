@@ -5,7 +5,7 @@ import fs from 'fs';
 import { Config, ConfigSchema, CURRENT_CONFIG_VERSION } from './schema.js';
 import { formatPathForMessage } from '../utils/index.js';
 
-const MODULE_NAME = 'graphql-docs';
+const MODULE_NAME = 'graphql-doc';
 const CONFIG_SCHEMA_KEYS: Set<string> = new Set(ConfigSchema.keyof().options as readonly string[]);
 
 const LEGACY_DOCUSAURUS_KEYS = [
@@ -193,24 +193,24 @@ export async function loadGeneratorConfig(
       const extensionConfig = gqlConfig.getDefault().extension(MODULE_NAME);
 
       if (extensionConfig) {
-        return parseLoadedConfig(extensionConfig, '.graphqlrc extensions.graphql-docs');
+        return parseLoadedConfig(extensionConfig, '.graphqlrc extensions.graphql-doc');
       }
     }
   } catch {
     console.warn(
-      'Warning: Failed to load .graphqlrc configuration. Falling back to graphql-docs config discovery.'
+      'Warning: Failed to load .graphqlrc configuration. Falling back to graphql-doc config discovery.'
     );
     // Fall back to cosmiconfig
   }
 
-  // 2. Try to load from cosmiconfig (graphql-docs.config.js, etc.)
+  // 2. Try to load from cosmiconfig (graphql-doc.config.js, etc.)
   const explorer = cosmiconfig(MODULE_NAME);
   const result = await explorer.search(rootPath);
 
   if (result && result.config) {
     const sourceLabel = result.filepath
       ? formatPathForMessage(result.filepath, rootPath)
-      : 'graphql-docs config';
+      : 'graphql-doc config';
     return parseLoadedConfig(result.config, sourceLabel);
   }
 

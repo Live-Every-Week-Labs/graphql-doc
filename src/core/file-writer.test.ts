@@ -11,7 +11,7 @@ describe('FileWriter', () => {
 
   beforeEach(async () => {
     // Create a temporary directory for testing
-    testDir = path.join(os.tmpdir(), `graphql-docs-file-writer-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `graphql-doc-file-writer-test-${Date.now()}`);
     await fs.ensureDir(testDir);
     fileWriter = new FileWriter(testDir);
   });

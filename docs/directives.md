@@ -120,7 +120,7 @@ If you want to keep a group out of published docs, you can exclude it via config
 
 ```yaml
 extensions:
-  graphql-docs:
+  graphql-doc:
     excludeDocGroups:
       - Internal
       - Experimental
