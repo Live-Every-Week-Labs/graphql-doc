@@ -79,11 +79,60 @@ describe('TypeExpander', () => {
       expect(postsField?.type.kind).toBe('LIST');
       if (postsField?.type.kind === 'LIST') {
         const postType = postsField.type.ofType;
-        expect(postType.kind).toBe('TYPE_REF');
-        if (postType.kind === 'TYPE_REF') {
+        expect(postType.kind).toBe('OBJECT');
+        if (postType.kind === 'OBJECT') {
           expect(postType.name).toBe('Post');
         }
       }
+    }
+  });
+
+  it('limits inline expansion depth when maxDepth is configured', () => {
+    const expander = new TypeExpander(mockTypes, true, 2);
+    const result = expander.expandDefinition('User');
+    expect(result.kind).toBe('OBJECT');
+
+    if (result.kind !== 'OBJECT') {
+      return;
+    }
+
+    const postsField = result.fields.find((f) => f.name === 'posts');
+    expect(postsField?.type.kind).toBe('LIST');
+    if (postsField?.type.kind !== 'LIST' || postsField.type.ofType.kind !== 'OBJECT') {
+      return;
+    }
+
+    const commentsField = postsField.type.ofType.fields.find((f) => f.name === 'comments');
+    expect(commentsField?.type.kind).toBe('LIST');
+    if (commentsField?.type.kind === 'LIST') {
+      expect(commentsField.type.ofType.kind).toBe('TYPE_REF');
+      if (commentsField.type.ofType.kind === 'TYPE_REF') {
+        expect(commentsField.type.ofType.name).toBe('Comment');
+      }
+    }
+  });
+
+  it('marks deeper expanded objects as collapsible based on defaultLevels', () => {
+    const expander = new TypeExpander(mockTypes, true, 5, 1);
+    const result = expander.expandDefinition('User');
+    expect(result.kind).toBe('OBJECT');
+
+    if (result.kind !== 'OBJECT') {
+      return;
+    }
+
+    const postsField = result.fields.find((f) => f.name === 'posts');
+    expect(postsField?.type.kind).toBe('LIST');
+    if (postsField?.type.kind !== 'LIST' || postsField.type.ofType.kind !== 'OBJECT') {
+      return;
+    }
+
+    expect(postsField.type.ofType.isCollapsible).toBe(false);
+
+    const commentsField = postsField.type.ofType.fields.find((f) => f.name === 'comments');
+    expect(commentsField?.type.kind).toBe('LIST');
+    if (commentsField?.type.kind === 'LIST' && commentsField.type.ofType.kind === 'OBJECT') {
+      expect(commentsField.type.ofType.isCollapsible).toBe(true);
     }
   });
 

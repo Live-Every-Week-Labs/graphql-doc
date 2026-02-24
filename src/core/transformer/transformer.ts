@@ -19,7 +19,12 @@ export class Transformer {
 
   constructor(types: TypeDefinition[], config: TransformerConfig = {}) {
     this.typeDefinitions = types;
-    this.expander = new TypeExpander(types, config.showCircularReferences ?? true);
+    this.expander = new TypeExpander(
+      types,
+      config.showCircularReferences ?? true,
+      config.maxDepth ?? 5,
+      config.defaultLevels ?? 0
+    );
     this.excludedDocGroups = new Set(config.excludeDocGroups ?? []);
   }
 

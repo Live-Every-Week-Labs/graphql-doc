@@ -142,8 +142,8 @@ export const ConfigSchema = z.object({
     .default([]),
   typeExpansion: z
     .object({
-      maxDepth: z.number().default(5),
-      defaultLevels: z.number().default(0),
+      maxDepth: z.number().min(1).max(10).default(5),
+      defaultLevels: z.number().min(0).max(10).default(0),
       showCircularReferences: z.boolean().default(true),
     })
     .default({}),
