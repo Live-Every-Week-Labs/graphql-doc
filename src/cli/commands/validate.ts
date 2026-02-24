@@ -1,6 +1,5 @@
 import path from 'path';
 import chalk from 'chalk';
-import ora, { Ora } from 'ora';
 import { loadGeneratorConfig, resolveConfigPaths } from '../../core/config/loader.js';
 import { getExamplePatterns } from '../../core/metadata/example-sources.js';
 import { loadExamples } from '../../core/metadata/example-loader.js';
@@ -11,7 +10,8 @@ import {
   validateOperationExampleCoverage,
 } from '../../core/validation/index.js';
 import { formatPathForMessage, getErrorMessage } from '../../core/utils/index.js';
-import { resolveSchemaPointer } from '../schema-resolver.js';
+import { resolveSchemaPointer, resolveSchemaPointers } from '../schema-resolver.js';
+import { createSpinner, spinnerFail, spinnerSucceed, spinnerWarn } from '../utils.js';
 
 export interface ValidateOptions {
   schema?: string;
@@ -31,61 +31,6 @@ export interface ValidateResult {
   failedDueToStrict: boolean;
   errors: ValidationError[];
   warnings: ValidationError[];
-}
-
-function createSpinner(text: string, quiet: boolean): Ora | null {
-  if (quiet) {
-    return null;
-  }
-
-  return ora(text).start();
-}
-
-function spinnerSucceed(spinner: Ora | null, message: string, quiet: boolean): void {
-  if (spinner) {
-    spinner.succeed(message);
-    return;
-  }
-
-  if (!quiet) {
-    console.log(chalk.green(message));
-  }
-}
-
-function spinnerFail(spinner: Ora | null, message: string, quiet: boolean): void {
-  if (spinner) {
-    spinner.fail(message);
-    return;
-  }
-
-  if (!quiet) {
-    console.error(chalk.red(message));
-  }
-}
-
-function spinnerWarn(spinner: Ora | null, message: string, quiet: boolean): void {
-  if (spinner) {
-    spinner.warn(message);
-    return;
-  }
-
-  if (!quiet) {
-    console.warn(chalk.yellow(message));
-  }
-}
-
-function resolveSchemaPointers(
-  schemaPointer: string | string[],
-  targetDir: string
-): string | string[] {
-  const resolvePointer = (pointer: string) => {
-    const isRemoteSchema = /^https?:\/\//i.test(pointer);
-    return isRemoteSchema || path.isAbsolute(pointer) ? pointer : path.resolve(targetDir, pointer);
-  };
-
-  return Array.isArray(schemaPointer)
-    ? schemaPointer.map(resolvePointer)
-    : resolvePointer(schemaPointer);
 }
 
 /**

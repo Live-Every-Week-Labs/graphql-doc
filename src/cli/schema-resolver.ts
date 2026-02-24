@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { loadConfig } from 'graphql-config';
+import path from 'path';
 
 export interface SchemaResolverOptions {
   schema?: string;
@@ -8,6 +9,20 @@ export interface SchemaResolverOptions {
 export interface SchemaResolverRuntimeOptions {
   silent?: boolean;
   log?: (message: string) => void;
+}
+
+export function resolveSchemaPointers(
+  schemaPointer: string | string[],
+  targetDir: string
+): string | string[] {
+  const resolvePointer = (pointer: string) => {
+    const isRemoteSchema = /^https?:\/\//i.test(pointer);
+    return isRemoteSchema || path.isAbsolute(pointer) ? pointer : path.resolve(targetDir, pointer);
+  };
+
+  return Array.isArray(schemaPointer)
+    ? schemaPointer.map(resolvePointer)
+    : resolvePointer(schemaPointer);
 }
 
 /**

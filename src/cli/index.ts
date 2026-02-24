@@ -2,10 +2,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { version } from '../index.js';
-
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
+import { getErrorMessage } from '../core/utils/index.js';
 
 const program = new Command();
 

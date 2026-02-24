@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import path from 'path';
 import chalk from 'chalk';
-import ora, { Ora } from 'ora';
 import { loadGeneratorConfig, resolveConfigPaths } from '../../core/config/loader.js';
 import { Generator } from '../../core/generator.js';
 import { getExamplePatterns } from '../../core/metadata/example-sources.js';
 import { getErrorMessage } from '../../core/utils/index.js';
-import { resolveSchemaPointer } from '../schema-resolver.js';
+import { resolveSchemaPointer, resolveSchemaPointers } from '../schema-resolver.js';
+import { createSpinner, spinnerSucceed, spinnerFail } from '../utils.js';
 import type { Logger } from '../../core/logger.js';
 import type { Config } from '../../core/config/schema.js';
 
@@ -32,36 +32,6 @@ interface GenerateExecutionContext {
   watchSources: string[];
 }
 
-function createSpinner(text: string, quiet: boolean): Ora | null {
-  if (quiet) {
-    return null;
-  }
-
-  return ora(text).start();
-}
-
-function spinnerSucceed(spinner: Ora | null, message: string, quiet: boolean): void {
-  if (spinner) {
-    spinner.succeed(message);
-    return;
-  }
-
-  if (!quiet) {
-    console.log(chalk.green(message));
-  }
-}
-
-function spinnerFail(spinner: Ora | null, message: string, quiet: boolean): void {
-  if (spinner) {
-    spinner.fail(message);
-    return;
-  }
-
-  if (!quiet) {
-    console.error(chalk.red(message));
-  }
-}
-
 function createUserLogger(options: { quiet: boolean; verbose: boolean }) {
   return {
     info(message: string) {
@@ -75,20 +45,6 @@ function createUserLogger(options: { quiet: boolean; verbose: boolean }) {
       }
     },
   };
-}
-
-function resolveSchemaPathPointer(
-  schemaPointer: string | string[],
-  targetDir: string
-): string | string[] {
-  const resolvePointer = (pointer: string) => {
-    const isRemoteSchema = /^https?:\/\//i.test(pointer);
-    return isRemoteSchema || path.isAbsolute(pointer) ? pointer : path.resolve(targetDir, pointer);
-  };
-
-  return Array.isArray(schemaPointer)
-    ? schemaPointer.map(resolvePointer)
-    : resolvePointer(schemaPointer);
 }
 
 function toArray<T>(value: T | T[]): T[] {
@@ -225,7 +181,7 @@ async function executeGenerateOnce(
     silent: quiet,
     log: verbose ? (message) => console.log(chalk.dim(message)) : undefined,
   });
-  const resolvedSchemaPath = resolveSchemaPathPointer(schemaPointer, targetDir);
+  const resolvedSchemaPath = resolveSchemaPointers(schemaPointer, targetDir);
   const watchSources = [...getExamplePatterns(config), ...(config.schemaExtensions ?? [])];
 
   if (verbose && !quiet) {
