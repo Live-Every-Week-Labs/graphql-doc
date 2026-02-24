@@ -197,7 +197,6 @@ async function buildSkillZip(
 function buildIntroDocContent(options: {
   pageTitle: string;
   pageDescription: string;
-  skillName: string;
   skillOutputDir: string;
   downloadHref?: string;
   downloadLabel: string;
@@ -207,7 +206,6 @@ function buildIntroDocContent(options: {
   const {
     pageTitle,
     pageDescription,
-    skillName,
     skillOutputDir,
     downloadHref,
     downloadLabel,
@@ -253,33 +251,15 @@ function buildIntroDocContent(options: {
     '',
     '---',
     '',
-    '## Installation',
+    '## Platform Setup',
     '',
-    '### Codex CLI',
+    'Find details on how to use skills for your favorite AI tools below:',
     '',
-    'Install directly from the command line:',
-    '',
-    '```bash',
-    `$skill-installer install ${skillName}`,
-    '```',
-    '',
-    '[Codex Skills Documentation](https://developers.openai.com/codex/skills/)',
-    '',
-    '### Claude Code',
-    '',
-    '[Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)',
-    '',
-    '### Claude Desktop',
-    '',
-    '[Using Skills in Claude](https://support.claude.com/en/articles/12512180-using-skills-in-claude)',
-    '',
-    '### Gemini CLI',
-    '',
-    '[Gemini CLI Skills Documentation](https://geminicli.com/docs/cli/skills/)',
-    '',
-    '### Antigravity',
-    '',
-    '[Antigravity Skills Documentation](https://antigravity.google/docs/skills)',
+    '- [Claude Code](https://code.claude.com/docs/en/skills)',
+    '- [Claude Desktop](https://support.claude.com/en/articles/12512180-using-skills-in-claude)',
+    '- [Codex CLI](https://developers.openai.com/codex/skills/)',
+    '- [Gemini CLI](https://geminicli.com/docs/cli/skills/)',
+    '- [Antigravity](https://antigravity.google/docs/skills)',
     '',
     '---',
     '',
@@ -398,7 +378,6 @@ export async function generateAgentSkillArtifacts(
     content: buildIntroDocContent({
       pageTitle,
       pageDescription,
-      skillName,
       skillOutputDir,
       downloadHref,
       downloadLabel,

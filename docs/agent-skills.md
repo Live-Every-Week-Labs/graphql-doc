@@ -28,45 +28,13 @@ extensions:
 
 ## Platform Setup
 
-### Codex CLI
+Find details on how to use skills for your favorite AI tools below:
 
-Install directly from the command line using `$skill-installer`, or place custom skills in `.agents/skills` at repo root or user config directory.
-
-Reference:
-
-- https://developers.openai.com/codex/skills/
-
-### Claude Code
-
-Put custom skills under `~/.claude/skills/` (user scope) or `.claude/skills/` (project scope). Each skill folder should contain `SKILL.md` and any `scripts/` resources.
-
-Reference:
-
-- https://code.claude.com/docs/en/skills
-
-### Claude Desktop
-
-Import the skill package in Claude Desktop settings under Capabilities.
-
-Reference:
-
-- https://support.claude.com/en/articles/12512180-using-skills-in-claude
-
-### Gemini CLI
-
-Configure the skill in your Gemini CLI setup.
-
-Reference:
-
-- https://geminicli.com/docs/cli/skills/
-
-### Antigravity
-
-Add the skill to your Antigravity IDE configuration.
-
-Reference:
-
-- https://antigravity.google/docs/skills
+- [Claude Code](https://code.claude.com/docs/en/skills)
+- [Claude Desktop](https://support.claude.com/en/articles/12512180-using-skills-in-claude)
+- [Codex CLI](https://developers.openai.com/codex/skills/)
+- [Gemini CLI](https://geminicli.com/docs/cli/skills/)
+- [Antigravity](https://antigravity.google/docs/skills)
 
 ## Generated Intro Page
 

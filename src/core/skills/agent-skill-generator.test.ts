@@ -112,8 +112,14 @@ describe('generateAgentSkillArtifacts', () => {
     expect(result.introDoc?.content).toContain('href={skillPackageUrl}');
     expect(result.introDoc?.content).toContain('Download Skill Package (.zip)');
     expect(result.introDoc?.content).toContain('graphql-api-skill.zip');
-    expect(result.introDoc?.content).toContain('## Installation');
-    expect(result.introDoc?.content).toContain('$skill-installer install graphql-api-skill');
+    expect(result.introDoc?.content).toContain('## Platform Setup');
+    expect(result.introDoc?.content).toContain(
+      'Find details on how to use skills for your favorite AI tools below:'
+    );
+    expect(result.introDoc?.content).toContain(
+      '[Codex CLI](https://developers.openai.com/codex/skills/)'
+    );
+    expect(result.introDoc?.content).not.toContain('$skill-installer');
   });
 
   it('uses intro title for both page title and sidebar label', async () => {
@@ -167,7 +173,10 @@ describe('generateAgentSkillArtifacts', () => {
       serializeDocData(mockModel)
     );
     expect(result.introDoc?.content).toContain('Acme GraphQL API');
-    expect(result.introDoc?.content).toContain('$skill-installer install acme-skill');
+    expect(result.introDoc?.content).toContain(
+      '[Claude Code](https://code.claude.com/docs/en/skills)'
+    );
+    expect(result.introDoc?.content).not.toContain('$skill-installer');
   });
 
   it('keeps explicit absolute download URLs as direct links', async () => {
