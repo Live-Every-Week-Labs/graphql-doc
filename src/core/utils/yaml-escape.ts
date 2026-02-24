@@ -26,7 +26,7 @@ const YAML_END_PATTERNS = /[ ]$/;
  *
  * - Returns simple alphanumeric values unquoted
  * - Wraps values containing special characters in double quotes
- * - Escapes internal double quotes by doubling them (YAML 1.2 spec)
+ * - Escapes internal double quotes using backslash escaping
  *
  * @param value - The string value to escape
  * @returns The escaped value, quoted if necessary

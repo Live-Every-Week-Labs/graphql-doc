@@ -10,6 +10,11 @@ const DANGEROUS_PREFIXES_POSIX = [
   '/usr/sbin',
   '/System',
   '/var/run',
+  '/home',
+  '/root',
+  '/proc',
+  '/sys',
+  '/dev',
 ];
 
 /**
@@ -107,6 +112,15 @@ export class FileWriter {
       await Promise.all(
         validatedFiles.map(async ({ file, filePath }) => {
           await fs.ensureDir(path.dirname(filePath));
+          const existingStats = await fs.lstat(filePath).catch((error: NodeJS.ErrnoException) => {
+            if (error.code === 'ENOENT') {
+              return null;
+            }
+            throw error;
+          });
+          if (existingStats?.isSymbolicLink()) {
+            throw new Error(`Refusing to write through symlinked path: ${filePath}`);
+          }
           await fs.writeFile(filePath, file.binaryContent ?? file.content);
         })
       );

@@ -142,6 +142,27 @@ describe('FileWriter', () => {
       expect(content).toBe('New content');
     });
 
+    it('throws when target file path is a symlink', async () => {
+      const realTargetPath = path.join(testDir, 'real-target.mdx');
+      const symlinkPath = path.join(testDir, 'symlinked-output.mdx');
+
+      await fs.writeFile(realTargetPath, 'Original target content');
+      await fs.symlink(realTargetPath, symlinkPath);
+
+      const files: GeneratedFile[] = [
+        {
+          path: 'symlinked-output.mdx',
+          content: 'New content',
+          type: 'mdx',
+        },
+      ];
+
+      await expect(fileWriter.write(files)).rejects.toThrow(
+        'Refusing to write through symlinked path'
+      );
+      expect(await fs.readFile(realTargetPath, 'utf-8')).toBe('Original target content');
+    });
+
     it('handles empty file array', async () => {
       const files: GeneratedFile[] = [];
 
