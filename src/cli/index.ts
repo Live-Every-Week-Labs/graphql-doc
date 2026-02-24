@@ -4,6 +4,11 @@ import chalk from 'chalk';
 import { version } from '../index.js';
 import { getErrorMessage } from '../core/utils/index.js';
 
+function formatCliError(error: unknown): string {
+  const message = getErrorMessage(error);
+  return /^\s*Failed to/i.test(message) ? message : `Error: ${message}`;
+}
+
 const program = new Command();
 
 program
@@ -31,7 +36,7 @@ program
       const { runGenerate } = await import('./commands/generate.js');
       await runGenerate(options);
     } catch (error) {
-      console.error(chalk.red(`Error: ${getErrorMessage(error)}`));
+      console.error(chalk.red(formatCliError(error)));
       process.exit(1);
     }
   });
@@ -46,7 +51,7 @@ program
       const { runInit } = await import('./commands/init.js');
       await runInit(options);
     } catch (error) {
-      console.error(chalk.red(`Error: ${getErrorMessage(error)}`));
+      console.error(chalk.red(formatCliError(error)));
       process.exit(1);
     }
   });
@@ -66,7 +71,7 @@ program
       await runValidate(options);
     } catch (error) {
       if (!options.json) {
-        console.error(chalk.red(`Error: ${getErrorMessage(error)}`));
+        console.error(chalk.red(formatCliError(error)));
       }
       process.exit(1);
     }

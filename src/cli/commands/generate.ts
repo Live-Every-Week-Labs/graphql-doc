@@ -47,6 +47,19 @@ function createUserLogger(options: { quiet: boolean; verbose: boolean }) {
   };
 }
 
+function formatCliError(error: unknown): string {
+  const message = getErrorMessage(error);
+  return /^\s*Failed to/i.test(message) ? message : `Error: ${message}`;
+}
+
+function wrapGenerateFailure(error: unknown): Error {
+  const message = getErrorMessage(error);
+  if (/^\s*Failed to/i.test(message)) {
+    return new Error(message);
+  }
+  return new Error(`Failed to generate documentation: ${message}`);
+}
+
 function toArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
@@ -225,7 +238,7 @@ async function executeGenerateOnce(
     return { config, resolvedSchemaPath, watchSources };
   } catch (error) {
     spinnerFail(generateSpinner, 'Failed to generate documentation', quiet);
-    throw new Error(`Failed to generate documentation: ${getErrorMessage(error)}`);
+    throw wrapGenerateFailure(error);
   }
 }
 
@@ -279,7 +292,7 @@ export async function runGenerate(options: GenerateOptions): Promise<void> {
       try {
         await executeGenerateOnce(options, output);
       } catch (error) {
-        console.error(chalk.red(`Error: ${getErrorMessage(error)}`));
+        console.error(chalk.red(formatCliError(error)));
       }
     } while (regenerateQueued);
 
