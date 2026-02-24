@@ -288,7 +288,10 @@ describe('Generator', () => {
         'utf-8'
       );
       expect(introContent).toContain('Download Skill Package (.zip)');
-      expect(introContent).toContain('## Installation');
+      expect(introContent).toContain('## Platform Setup');
+      expect(introContent).toContain(
+        'Find details on how to use skills for your favorite AI tools below:'
+      );
     });
 
     it('refreshes stale agent skill files and zip artifacts on each run', async () => {
