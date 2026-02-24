@@ -125,4 +125,32 @@ describe('End-to-End Generator Test', () => {
     expect(operationsJsonContent).toContain('Create a new blog post');
     expect(operationsJsonContent).toContain('Title of the post');
   });
+
+  it('generates distinct operation files for query and mutation with the same name', () => {
+    const schema = buildSchema(`
+      type Query {
+        ping: String
+      }
+
+      type Mutation {
+        ping: String
+      }
+    `);
+
+    const parser = new SchemaParser();
+    const parsedSchema = parser.parse(schema);
+    const transformer = new Transformer(parsedSchema.types);
+    const docModel = transformer.transform(parsedSchema.operations, []);
+    const adapter = new DocusaurusAdapter({ outputDir });
+    const files = adapter.adapt(docModel);
+
+    const queryPingFile = files.find((file) => file.path === 'uncategorized/ping-query.mdx');
+    const mutationPingFile = files.find((file) => file.path === 'uncategorized/ping-mutation.mdx');
+    const sidebarFile = files.find((file) => file.path === 'sidebars.js');
+
+    expect(queryPingFile).toBeDefined();
+    expect(mutationPingFile).toBeDefined();
+    expect(sidebarFile?.content).toContain('uncategorized/ping-query');
+    expect(sidebarFile?.content).toContain('uncategorized/ping-mutation');
+  });
 });
