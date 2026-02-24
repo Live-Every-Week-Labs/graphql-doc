@@ -2,6 +2,7 @@ import Handlebars from 'handlebars';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sanitizeHtml, { type IOptions } from 'sanitize-html';
 import { Operation, ExpandedType } from '../../transformer/types.js';
 import { slugify } from '../../utils/string-utils.js';
 
@@ -51,11 +52,54 @@ interface RenderOptions {
   llmDocsBasePath?: string;
 }
 
+const SAFE_MDX_SANITIZE_OPTIONS: IOptions = {
+  allowedTags: [
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'p',
+    'br',
+    'hr',
+    'blockquote',
+    'ul',
+    'ol',
+    'li',
+    'pre',
+    'code',
+    'em',
+    'strong',
+    'del',
+    'a',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
+    'img',
+    'div',
+    'span',
+  ],
+  allowedAttributes: {
+    a: ['href', 'name', 'target', 'rel', 'title'],
+    img: ['src', 'alt', 'title', 'width', 'height', 'loading'],
+    code: ['class'],
+    pre: ['class'],
+    div: ['class'],
+    span: ['class'],
+    th: ['colspan', 'rowspan', 'align'],
+    td: ['colspan', 'rowspan', 'align'],
+  },
+  allowedSchemes: ['http', 'https', 'mailto', 'tel'],
+  allowedSchemesAppliedToAttributes: ['href', 'src'],
+  allowProtocolRelative: false,
+};
+
 function sanitizeUnsafeMdx(value: string): string {
-  return value
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-    .replace(/\son\w+\s*=\s*(["']).*?\1/gi, '')
-    .replace(/\s(href|src)\s*=\s*(["'])\s*javascript:[\s\S]*?\2/gi, '');
+  return sanitizeHtml(value, SAFE_MDX_SANITIZE_OPTIONS);
 }
 
 export class MdxRenderer {
