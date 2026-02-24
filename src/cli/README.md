@@ -65,12 +65,14 @@ Uses validators from `src/core/validation/`. Useful for CI/CD pipelines.
 To test the CLI locally:
 
 ```bash
-# Run using tsx
-npx tsx src/cli/index.ts generate --help
-npx tsx src/cli/index.ts init --help
-npx tsx src/cli/index.ts validate --help
+# Build first
+npm run build
 
-# Link the package globally
-npm link
-graphql-docs generate --help
+# Run the built CLI directly
+node dist/cli.js generate --help
+node dist/cli.js init --help
+node dist/cli.js validate --help
+
+# Or run via npx after build
+npx graphql-docs generate --help
 ```

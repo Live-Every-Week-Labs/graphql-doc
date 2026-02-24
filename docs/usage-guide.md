@@ -79,10 +79,12 @@ Validate your schema and metadata without generating docs (useful for CI).
 graphql-docs validate [options]
 
 Options:
-  -s, --schema <path>   Path to GraphQL schema file or URL
+  -s, --schema <path>   Path to local GraphQL schema file(s)
   -c, --config <path>   Path to config file
   --strict              Treat warnings as errors
 ```
+
+`validate` currently supports local schema files only. Remote URL validation is not supported.
 
 ## Using a Config File
 

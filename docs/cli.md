@@ -189,7 +189,6 @@ Generates documentation from a GraphQL schema.
 - `--verbose`: Enable verbose progress logging.
 - `--quiet`: Suppress non-error output.
 - `--llm-docs`: Enable LLM-optimized Markdown output.
-- `--no-llm-docs`: Disable LLM-optimized Markdown output.
 - `--llm-docs-strategy <strategy>`: LLM docs strategy (`single` or `chunked`).
 - `--llm-docs-depth <depth>`: Max LLM type expansion depth (1-5).
 - `--no-llm-examples`: Exclude examples from LLM docs output.

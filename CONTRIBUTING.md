@@ -7,8 +7,8 @@ Thank you for your interest in contributing!
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/graphql-docs-generator.git
-    cd graphql-docs-generator
+    git clone https://github.com/austinzani/graphql-doc.git
+    cd graphql-doc
     ```
 
 2.  **Install dependencies:**
