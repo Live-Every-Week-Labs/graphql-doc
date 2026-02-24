@@ -105,8 +105,15 @@ describe('generateAgentSkillArtifacts', () => {
     expect(result.introDoc?.outputPath).toBe('intro/ai-agent-skill.mdx');
     expect(result.introDoc?.title).toBe('AI Agent Skill');
     expect(result.introDoc?.label).toBe('AI Agent Skill');
-    expect(result.introDoc?.content).toContain('[Download Skill Package (.zip)](');
+    expect(result.introDoc?.content).toContain(
+      "import skillPackageUrl from '../agent-skills/graphql-api-skill/graphql-api-skill.zip';"
+    );
+    expect(result.introDoc?.content).toContain('button button--primary button--lg');
+    expect(result.introDoc?.content).toContain('href={skillPackageUrl}');
+    expect(result.introDoc?.content).toContain('Download Skill Package (.zip)');
     expect(result.introDoc?.content).toContain('graphql-api-skill.zip');
+    expect(result.introDoc?.content).toContain('## Installation');
+    expect(result.introDoc?.content).toContain('$skill-installer install graphql-api-skill');
   });
 
   it('uses intro title for both page title and sidebar label', async () => {
@@ -134,6 +141,60 @@ describe('generateAgentSkillArtifacts', () => {
     expect(result.introDoc?.title).toBe('GraphQL Skill');
     expect(result.introDoc?.label).toBe('GraphQL Skill');
     expect(result.introDoc?.content).toContain('Download and install this package.');
+  });
+
+  it('includes apiName in the intro doc blurb when provided', async () => {
+    const config = createConfig({
+      outputDir: '/tmp/output',
+      llmDocs: { apiName: 'Acme' },
+      agentSkill: {
+        enabled: true,
+        name: 'acme-skill',
+        includeExamples: true,
+        pythonScriptName: 'graphql_docs_skill.py',
+        outputDir: '/tmp/output/agent-skills/acme-skill',
+        introDoc: {
+          enabled: true,
+          outputPath: 'intro/ai-agent-skill.mdx',
+          title: 'AI Agent Skill',
+        },
+      },
+    });
+
+    const result = await generateAgentSkillArtifacts(
+      mockModel,
+      config,
+      serializeDocData(mockModel)
+    );
+    expect(result.introDoc?.content).toContain('Acme GraphQL API');
+    expect(result.introDoc?.content).toContain('$skill-installer install acme-skill');
+  });
+
+  it('keeps explicit absolute download URLs as direct links', async () => {
+    const config = createConfig({
+      outputDir: '/tmp/output',
+      agentSkill: {
+        enabled: true,
+        name: 'graphql-api-skill',
+        includeExamples: true,
+        pythonScriptName: 'graphql_docs_skill.py',
+        outputDir: '/tmp/output/agent-skills/graphql-api-skill',
+        introDoc: {
+          enabled: true,
+          outputPath: 'intro/ai-agent-skill.mdx',
+          title: 'AI Agent Skill',
+          downloadUrl: '/downloads/pay-theory-api-skill.zip',
+        },
+      },
+    });
+
+    const result = await generateAgentSkillArtifacts(
+      mockModel,
+      config,
+      serializeDocData(mockModel)
+    );
+    expect(result.introDoc?.content).not.toContain('import skillPackageUrl from');
+    expect(result.introDoc?.content).toContain('href="/downloads/pay-theory-api-skill.zip"');
   });
 
   it('generates a Python script that runs against bundled JSON data', async () => {

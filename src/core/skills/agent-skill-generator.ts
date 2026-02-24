@@ -70,13 +70,20 @@ function normalizeHref(value: string): string {
   return `./${normalized}`;
 }
 
+function isRelativeAssetHref(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return false;
+  }
+  if (trimmed.startsWith('/') || trimmed.startsWith('#') || trimmed.startsWith('//')) {
+    return false;
+  }
+  return !/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(trimmed);
+}
+
 function defaultDescription(apiName?: string): string {
   const displayName = apiName?.trim() || 'this API';
   return `Use generated GraphQL docs JSON for ${displayName} to discover operations and fetch schema details with examples.`;
-}
-
-function defaultIntroDocDescription(skillName: string): string {
-  return `Download the ${skillName} package to install this API skill in your agent tooling.`;
 }
 
 function buildSkillMarkdown(
@@ -194,39 +201,93 @@ function buildIntroDocContent(options: {
   skillOutputDir: string;
   downloadHref?: string;
   downloadLabel: string;
+  useMdxAssetImport: boolean;
+  apiName?: string;
 }): string {
-  const { pageTitle, pageDescription, skillName, skillOutputDir, downloadHref, downloadLabel } =
-    options;
+  const {
+    pageTitle,
+    pageDescription,
+    skillName,
+    skillOutputDir,
+    downloadHref,
+    downloadLabel,
+    useMdxAssetImport,
+    apiName,
+  } = options;
+
+  const mdxImportLines: string[] = [];
   let downloadContent: string;
   if (downloadHref) {
     if (/^\s*javascript\s*:/i.test(downloadHref)) {
       throw new Error('downloadHref must not use the javascript: protocol');
     }
-    const markdownLabel = downloadLabel.replace(/\]/g, '\\]');
-    const normalizedHref = encodeURI(downloadHref);
-    downloadContent = `[${markdownLabel}](${normalizedHref})`;
+    const safeLabel = downloadLabel.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const shouldImportAsAsset = useMdxAssetImport && isRelativeAssetHref(downloadHref);
+    if (shouldImportAsAsset) {
+      const importPath = downloadHref.replace(/\\/g, '/').replace(/'/g, "\\'");
+      mdxImportLines.push(`import skillPackageUrl from '${importPath}';`);
+      downloadContent = `<p><a className="button button--primary button--lg" href={skillPackageUrl} download>${safeLabel}</a></p>`;
+    } else {
+      const normalizedHref = encodeURI(downloadHref);
+      downloadContent = `<p><a className="button button--primary button--lg" href="${normalizedHref}">${safeLabel}</a></p>`;
+    }
   } else {
     downloadContent = `Skill package is written to: \`${toPosix(path.resolve(skillOutputDir))}\``;
   }
 
+  const displayName = apiName?.trim() || '';
+  const blurb = pageDescription
+    ? pageDescription
+    : displayName
+      ? `Give your AI coding assistant deep knowledge of the ${displayName} GraphQL API. This skill package bundles structured operation data, type definitions, and usage examples so agents can discover and call API operations.`
+      : `This skill package bundles structured operation data, type definitions, and usage examples so AI agents can discover and call API operations.`;
+
   return [
+    ...mdxImportLines,
+    ...(mdxImportLines.length > 0 ? [''] : []),
     `# ${pageTitle}`,
     '',
-    pageDescription,
-    '',
-    '## Download',
+    blurb,
     '',
     downloadContent,
     '',
-    '## Install and Use',
+    '---',
     '',
-    '- **Claude Desktop / Claude Web**: [What are Skills](https://support.claude.com/en/articles/12512176-what-are-skills), [Create Custom Skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills)',
-    '- **Claude Code**: [Use skills in Claude Code](https://docs.anthropic.com/en/docs/claude-code/common-workflows#use-skills)',
-    '- **Codex CLI**: [Codex Agent Skills](https://developers.openai.com/codex/agent-skills)',
-    '- **Cursor**: [Cursor Rules and Context](https://docs.cursor.com/en/context/rules)',
-    '- **ChatGPT Desktop / Web**: [Custom instructions](https://help.openai.com/en/articles/8096356-custom-instructions-for-chatgpt), [Creating a GPT](https://help.openai.com/en/articles/8554397-creating-a-gpt)',
+    '## Installation',
     '',
-    `The downloaded package contains \`SKILL.md\`, helper scripts, and bundled \`_data/*.json\` files for \`${skillName}\`.`,
+    '### Codex CLI',
+    '',
+    'Install directly from the command line:',
+    '',
+    '```bash',
+    `$skill-installer install ${skillName}`,
+    '```',
+    '',
+    '[Codex Skills Documentation](https://developers.openai.com/codex/skills/)',
+    '',
+    '### Claude Code',
+    '',
+    '[Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)',
+    '',
+    '### Claude Desktop',
+    '',
+    '[Using Skills in Claude](https://support.claude.com/en/articles/12512180-using-skills-in-claude)',
+    '',
+    '### Gemini CLI',
+    '',
+    '[Gemini CLI Skills Documentation](https://geminicli.com/docs/cli/skills/)',
+    '',
+    '### Antigravity',
+    '',
+    '[Antigravity Skills Documentation](https://antigravity.google/docs/skills)',
+    '',
+    '---',
+    '',
+    "## What's Included",
+    '',
+    `- **\`SKILL.md\`** — Skill definition and workflow instructions`,
+    `- **\`scripts/\`** — Python helper for querying operations and types`,
+    `- **\`_data/\`** — Bundled operation and type data in JSON format`,
     '',
   ].join('\n');
 }
@@ -326,9 +387,7 @@ export async function generateAgentSkillArtifacts(
   }
   const downloadHref = introDocConfig.downloadUrl ?? generatedZipHref;
   const pageTitle = (introDocConfig.title || introDocConfig.label || 'AI Agent Skill').trim();
-  const pageDescription = (
-    introDocConfig.description || defaultIntroDocDescription(skillName)
-  ).trim();
+  const pageDescription = introDocConfig.description?.trim() || '';
   const downloadLabel = (introDocConfig.downloadLabel || 'Download Skill Package (.zip)').trim();
 
   const introDoc: IntroDocConfigObject = {
@@ -343,6 +402,8 @@ export async function generateAgentSkillArtifacts(
       skillOutputDir,
       downloadHref,
       downloadLabel,
+      useMdxAssetImport: introOutputPath.toLowerCase().endsWith('.mdx'),
+      apiName: config.llmDocs?.apiName,
     }),
   };
 

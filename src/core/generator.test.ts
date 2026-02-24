@@ -288,6 +288,7 @@ describe('Generator', () => {
         'utf-8'
       );
       expect(introContent).toContain('Download Skill Package (.zip)');
+      expect(introContent).toContain('## Installation');
     });
 
     it('refreshes stale agent skill files and zip artifacts on each run', async () => {

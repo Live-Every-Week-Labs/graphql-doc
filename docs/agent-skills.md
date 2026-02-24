@@ -28,57 +28,45 @@ extensions:
 
 ## Platform Setup
 
-## Claude Desktop
+### Codex CLI
 
-- Open Claude Desktop settings.
-- Go to `Capabilities`.
-- Upload the generated skill `.zip`.
+Install directly from the command line using `$skill-installer`, or place custom skills in `.agents/skills` at repo root or user config directory.
 
 Reference:
 
-- https://support.claude.com/en/articles/12512198-how-to-create-custom-skills
-- https://support.claude.com/en/articles/12512176-what-are-skills
+- https://developers.openai.com/codex/skills/
 
-## Claude Code
+### Claude Code
 
-- Put custom skills under `~/.claude/skills/` (user scope) or `.claude/skills/` (project scope).
-- Each skill folder should contain `SKILL.md` and any `scripts/` resources.
+Put custom skills under `~/.claude/skills/` (user scope) or `.claude/skills/` (project scope). Each skill folder should contain `SKILL.md` and any `scripts/` resources.
 
 Reference:
 
 - https://code.claude.com/docs/en/skills
 
-## Codex CLI / Codex IDE Extension
+### Claude Desktop
 
-- Put custom skills in `.agents/skills` at repo root or user config directory.
-- You can also use the built-in installer flow (`$skill-installer`) described in the docs.
-
-Reference:
-
-- https://developers.openai.com/codex/prompting/skills
-- https://developers.openai.com/codex/local-config
-
-## ChatGPT Desktop
-
-ChatGPT currently uses custom GPTs and custom instructions instead of a native zipped skill format.
-You can still reuse generated skill content by copying guidance from `SKILL.md` and using the helper script/data as project assets.
+Import the skill package in Claude Desktop settings under Capabilities.
 
 Reference:
 
-- https://help.openai.com/en/articles/8096356-custom-instructions-for-chatgpt
-- https://help.openai.com/en/articles/8554397-creating-a-gpt
+- https://support.claude.com/en/articles/12512180-using-skills-in-claude
 
-## Cursor
+### Gemini CLI
 
-Cursor does not use the same zipped skill format directly. Recommended mapping:
-
-- Move reusable instructions into Cursor Rules.
-- Convert high-value skill actions into slash commands under `.cursor/commands`.
+Configure the skill in your Gemini CLI setup.
 
 Reference:
 
-- https://docs.cursor.com/chat/slash-commands
-- https://docs.cursor.com/context/rules
+- https://geminicli.com/docs/cli/skills/
+
+### Antigravity
+
+Add the skill to your Antigravity IDE configuration.
+
+Reference:
+
+- https://antigravity.google/docs/skills
 
 ## Generated Intro Page
 
