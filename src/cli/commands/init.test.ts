@@ -118,6 +118,14 @@ describe('init command', () => {
         'Cannot overwrite existing files in non-interactive mode'
       );
     });
+
+    it('throws error when directives file exists in --yes mode', async () => {
+      await fs.writeFile(path.join(testDir, 'graphql-docs-directives.graphql'), '# existing');
+
+      await expect(runInit({ yes: true, targetDir: testDir })).rejects.toThrow(
+        'Cannot overwrite existing files in non-interactive mode'
+      );
+    });
   });
 
   describe('--force flag', () => {
@@ -149,6 +157,19 @@ describe('init command', () => {
       );
       expect(await fs.pathExists(queryExamplePath)).toBe(true);
     });
+
+    it('overwrites directives file when --force is used', async () => {
+      await fs.writeFile(path.join(testDir, 'graphql-docs-directives.graphql'), 'old directives');
+
+      await runInit({ yes: true, force: true, targetDir: testDir });
+
+      const directivesContent = await fs.readFile(
+        path.join(testDir, 'graphql-docs-directives.graphql'),
+        'utf-8'
+      );
+      expect(directivesContent).toContain('directive @docGroup');
+      expect(directivesContent).not.toContain('old directives');
+    });
   });
 
   describe('interactive mode', () => {
@@ -168,10 +189,9 @@ describe('init command', () => {
     });
 
     it('proceeds with overwrite when user confirms', async () => {
-      const { confirm, input, select } = await import('@inquirer/prompts');
+      const { confirm, input } = await import('@inquirer/prompts');
       const mockedConfirm = vi.mocked(confirm);
       const mockedInput = vi.mocked(input);
-      const mockedSelect = vi.mocked(select);
 
       // Create existing .graphqlrc
       await fs.writeFile(path.join(testDir, '.graphqlrc'), 'existing config');
@@ -185,9 +205,6 @@ describe('init command', () => {
         .mockResolvedValueOnce('./docs/api')
         .mockResolvedValueOnce('./docs-metadata');
 
-      // Mock select prompt
-      mockedSelect.mockResolvedValueOnce('docusaurus');
-
       await runInit({ targetDir: testDir });
 
       // Verify files were created
@@ -196,18 +213,14 @@ describe('init command', () => {
     });
 
     it('uses custom values from prompts', async () => {
-      const { input, select } = await import('@inquirer/prompts');
+      const { input } = await import('@inquirer/prompts');
       const mockedInput = vi.mocked(input);
-      const mockedSelect = vi.mocked(select);
 
       // Mock input prompts with custom values
       mockedInput
         .mockResolvedValueOnce('custom-schema.graphql')
         .mockResolvedValueOnce('./output/docs')
         .mockResolvedValueOnce('./custom-metadata');
-
-      // Mock select prompt
-      mockedSelect.mockResolvedValueOnce('docusaurus');
 
       await runInit({ targetDir: testDir });
 
@@ -221,6 +234,23 @@ describe('init command', () => {
       expect(
         await fs.pathExists(path.join(testDir, 'custom-metadata', 'examples', 'queries'))
       ).toBe(true);
+    });
+
+    it('escapes YAML values from prompts that include special characters', async () => {
+      const { input } = await import('@inquirer/prompts');
+      const mockedInput = vi.mocked(input);
+
+      mockedInput
+        .mockResolvedValueOnce('schema:prod.graphql')
+        .mockResolvedValueOnce('./docs/api #prod')
+        .mockResolvedValueOnce('./metadata "docs"');
+
+      await runInit({ targetDir: testDir });
+
+      const content = await fs.readFile(path.join(testDir, '.graphqlrc'), 'utf-8');
+      expect(content).toContain('schema: "schema:prod.graphql"');
+      expect(content).toContain('outputDir: "./docs/api #prod"');
+      expect(content).toContain('metadataDir: "./metadata \\"docs\\""');
     });
   });
 });

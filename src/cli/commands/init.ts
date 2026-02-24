@@ -1,10 +1,11 @@
-import { input, confirm, select } from '@inquirer/prompts';
+import { input, confirm } from '@inquirer/prompts';
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
 import { DIRECTIVE_DEFINITIONS } from '../../core/parser/directive-definitions.js';
 import { getErrorMessage } from '../../core/utils/index.js';
+import { escapeYamlValue } from '../../core/utils/yaml-escape.js';
 
 export interface InitOptions {
   force?: boolean;
@@ -99,28 +100,29 @@ async function promptForConfig(): Promise<InitConfig> {
     default: DEFAULT_CONFIG.metadataDir,
   });
 
-  const framework = await select({
-    message: 'Documentation framework:',
-    choices: [{ name: 'Docusaurus', value: 'docusaurus' }],
-    default: DEFAULT_CONFIG.framework,
-  });
+  console.log(chalk.dim('Using Docusaurus framework (the only currently supported framework).'));
 
   return {
     schemaPath,
     outputDir,
     metadataDir,
-    framework,
+    framework: 'docusaurus',
   };
 }
 
 function generateGraphqlrcContent(config: InitConfig): string {
-  return `schema: ${config.schemaPath}
+  const schemaPath = escapeYamlValue(config.schemaPath);
+  const outputDir = escapeYamlValue(config.outputDir);
+  const framework = escapeYamlValue(config.framework);
+  const metadataDir = escapeYamlValue(config.metadataDir);
+
+  return `schema: ${schemaPath}
 
 extensions:
   graphql-docs:
-    outputDir: ${config.outputDir}
-    framework: ${config.framework}
-    metadataDir: ${config.metadataDir}
+    outputDir: ${outputDir}
+    framework: ${framework}
+    metadataDir: ${metadataDir}
     adapters:
       docusaurus: {}
 `;
@@ -137,6 +139,11 @@ async function checkExistingFiles(targetDir: string): Promise<string[]> {
   const metadataPath = path.join(targetDir, 'docs-metadata');
   if (await fs.pathExists(metadataPath)) {
     existingFiles.push('docs-metadata/');
+  }
+
+  const directivesPath = path.join(targetDir, 'graphql-docs-directives.graphql');
+  if (await fs.pathExists(directivesPath)) {
+    existingFiles.push('graphql-docs-directives.graphql');
   }
 
   return existingFiles;
