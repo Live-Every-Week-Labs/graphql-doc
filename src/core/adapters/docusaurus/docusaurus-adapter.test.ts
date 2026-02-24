@@ -268,6 +268,25 @@ describe('DocusaurusAdapter', () => {
       expect(mdxFile?.content).toContain('- [Inputs](#types-inputs)');
     });
 
+    it('omits empty type groups from the single-page table of contents', () => {
+      const modelWithoutEnumsOrInputs: DocModel = {
+        ...mockModel,
+        types: [{ kind: 'OBJECT', name: 'User', fields: [] }],
+      };
+
+      const adapter = new DocusaurusAdapter({ singlePage: true });
+      const files = adapter.adapt(modelWithoutEnumsOrInputs);
+
+      const mdxFile = files.find((f) => f.path === 'api-reference.mdx');
+      expect(mdxFile?.content).toContain('- [Types](#types)');
+      expect(mdxFile?.content).toContain('- [Types](#types-types)');
+      expect(mdxFile?.content).not.toContain('- [Enums](#types-enums)');
+      expect(mdxFile?.content).not.toContain('- [Inputs](#types-inputs)');
+      expect(mdxFile?.content).not.toContain('_No entries_');
+      expect(mdxFile?.content).not.toContain('### Enums {#types-enums}');
+      expect(mdxFile?.content).not.toContain('### Inputs {#types-inputs}');
+    });
+
     it('generates section headers with anchor IDs', () => {
       const adapter = new DocusaurusAdapter({ singlePage: true });
       const files = adapter.adapt(mockModel);

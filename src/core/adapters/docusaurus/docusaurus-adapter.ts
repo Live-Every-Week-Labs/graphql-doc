@@ -556,11 +556,20 @@ export class DocusaurusAdapter {
     }
 
     const typeGroups = groupTypes(model.types);
-    if (typeGroups.enums.length + typeGroups.inputs.length + typeGroups.types.length > 0) {
+    const typeLinks: string[] = [];
+    if (typeGroups.enums.length > 0) {
+      typeLinks.push(`  - [Enums](#types-enums)`);
+    }
+    if (typeGroups.inputs.length > 0) {
+      typeLinks.push(`  - [Inputs](#types-inputs)`);
+    }
+    if (typeGroups.types.length > 0) {
+      typeLinks.push(`  - [Types](#types-types)`);
+    }
+
+    if (typeLinks.length > 0) {
       lines.push(`- [Types](#types)`);
-      lines.push(`  - [Enums](#types-enums)`);
-      lines.push(`  - [Inputs](#types-inputs)`);
-      lines.push(`  - [Types](#types-types)`);
+      lines.push(...typeLinks);
     }
 
     return lines.join('\n');
@@ -849,12 +858,6 @@ export class DocusaurusAdapter {
       lines.push(`### ${label} {#${anchor}}`);
       lines.push('');
 
-      if (group.length === 0) {
-        lines.push('_No entries_');
-        lines.push('');
-        return;
-      }
-
       group.forEach((type, index) => {
         const typeName = this.getTypeName(type);
         lines.push(
@@ -876,9 +879,15 @@ export class DocusaurusAdapter {
       lines.push('');
     };
 
-    pushTypeGroup('Enums', 'types-enums', enums);
-    pushTypeGroup('Inputs', 'types-inputs', inputs);
-    pushTypeGroup('Types', 'types-types', types);
+    if (enums.length > 0) {
+      pushTypeGroup('Enums', 'types-enums', enums);
+    }
+    if (inputs.length > 0) {
+      pushTypeGroup('Inputs', 'types-inputs', inputs);
+    }
+    if (types.length > 0) {
+      pushTypeGroup('Types', 'types-types', types);
+    }
 
     return lines.join('\n');
   }
