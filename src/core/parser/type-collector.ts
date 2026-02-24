@@ -95,7 +95,7 @@ export class TypeCollector {
         isRequired: isNonNullType(field.type),
         isList:
           isListType(field.type) || (isNonNullType(field.type) && isListType(field.type.ofType)),
-        directives: this.directiveExtractor.extract(field.astNode!),
+        directives: field.astNode ? this.directiveExtractor.extract(field.astNode) : undefined,
         isDeprecated: field.deprecationReason != null,
         deprecationReason: field.deprecationReason || undefined,
       });
@@ -112,7 +112,9 @@ export class TypeCollector {
     const definition = this.collectedTypes.get(type.name)!;
     definition.fields = collectedFields;
     definition.interfaces = interfaceNames;
-    definition.directives = this.directiveExtractor.extract(type.astNode!);
+    definition.directives = type.astNode
+      ? this.directiveExtractor.extract(type.astNode)
+      : undefined;
   }
 
   private collectInterface(type: GraphQLInterfaceType) {
@@ -135,7 +137,7 @@ export class TypeCollector {
         isRequired: isNonNullType(field.type),
         isList:
           isListType(field.type) || (isNonNullType(field.type) && isListType(field.type.ofType)),
-        directives: this.directiveExtractor.extract(field.astNode!),
+        directives: field.astNode ? this.directiveExtractor.extract(field.astNode) : undefined,
         isDeprecated: field.deprecationReason != null,
         deprecationReason: field.deprecationReason || undefined,
       });
@@ -143,7 +145,9 @@ export class TypeCollector {
 
     const definition = this.collectedTypes.get(type.name)!;
     definition.fields = collectedFields;
-    definition.directives = this.directiveExtractor.extract(type.astNode!);
+    definition.directives = type.astNode
+      ? this.directiveExtractor.extract(type.astNode)
+      : undefined;
   }
 
   private collectUnion(type: GraphQLUnionType) {
@@ -177,9 +181,9 @@ export class TypeCollector {
         description: v.description || undefined,
         isDeprecated: v.deprecationReason != null,
         deprecationReason: v.deprecationReason || undefined,
-        directives: this.directiveExtractor.extract(v.astNode!),
+        directives: v.astNode ? this.directiveExtractor.extract(v.astNode) : undefined,
       })),
-      directives: this.directiveExtractor.extract(type.astNode!),
+      directives: type.astNode ? this.directiveExtractor.extract(type.astNode) : undefined,
     });
   }
 
@@ -203,7 +207,7 @@ export class TypeCollector {
         isRequired: isNonNullType(field.type),
         isList:
           isListType(field.type) || (isNonNullType(field.type) && isListType(field.type.ofType)),
-        directives: this.directiveExtractor.extract(field.astNode!),
+        directives: field.astNode ? this.directiveExtractor.extract(field.astNode) : undefined,
         isDeprecated: field.deprecationReason != null,
         deprecationReason: field.deprecationReason || undefined,
       });
@@ -211,6 +215,8 @@ export class TypeCollector {
 
     const definition = this.collectedTypes.get(type.name)!;
     definition.fields = collectedFields;
-    definition.directives = this.directiveExtractor.extract(type.astNode!);
+    definition.directives = type.astNode
+      ? this.directiveExtractor.extract(type.astNode)
+      : undefined;
   }
 }

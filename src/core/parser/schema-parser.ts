@@ -86,7 +86,7 @@ export class SchemaParser {
     field: GraphQLField<unknown, unknown>,
     operationType: 'query' | 'mutation' | 'subscription'
   ): Operation {
-    const directives = this.directiveExtractor.extract(field.astNode!);
+    const directives = field.astNode ? this.directiveExtractor.extract(field.astNode) : undefined;
     const referencedTypes: string[] = [];
 
     // Collect return type
@@ -103,7 +103,7 @@ export class SchemaParser {
       description: field.description || undefined,
       arguments: field.args.map((arg) => this.createArgument(arg)),
       returnType: field.type.toString(),
-      directives,
+      directives: directives ?? {},
       referencedTypes: [...new Set(referencedTypes)], // Deduplicate
       isDeprecated: field.deprecationReason != null,
       deprecationReason: field.deprecationReason || undefined,

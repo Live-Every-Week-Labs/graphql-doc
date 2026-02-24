@@ -1,6 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { TypeCollector } from './type-collector';
-import { buildSchema } from 'graphql';
+import {
+  buildSchema,
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLInterfaceType,
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLString,
+  GraphQLUnionType,
+} from 'graphql';
 
 describe('TypeCollector', () => {
   it('should collect scalar types', () => {
@@ -119,5 +128,90 @@ describe('TypeCollector', () => {
     expect(inputType).toBeDefined();
     expect(inputType?.kind).toBe('INPUT_OBJECT');
     expect(inputType?.fields).toHaveLength(2);
+  });
+
+  it('handles programmatic schemas without astNode entries', () => {
+    const roleType = new GraphQLEnumType({
+      name: 'Role',
+      values: {
+        ADMIN: {},
+        USER: {},
+      },
+    });
+
+    const nodeInterface = new GraphQLInterfaceType({
+      name: 'Node',
+      fields: {
+        id: { type: GraphQLString },
+      },
+      resolveType: () => null,
+    });
+
+    const userType = new GraphQLObjectType({
+      name: 'User',
+      interfaces: [nodeInterface],
+      fields: {
+        id: { type: GraphQLString },
+        role: { type: roleType },
+      },
+    });
+
+    const searchResultType = new GraphQLUnionType({
+      name: 'SearchResult',
+      types: [userType],
+      resolveType: () => null,
+    });
+
+    const userInputType = new GraphQLInputObjectType({
+      name: 'UserInput',
+      fields: {
+        name: { type: GraphQLString },
+      },
+    });
+
+    const queryType = new GraphQLObjectType({
+      name: 'Query',
+      fields: {
+        user: { type: userType },
+        search: { type: searchResultType },
+      },
+    });
+
+    const mutationType = new GraphQLObjectType({
+      name: 'Mutation',
+      fields: {
+        createUser: {
+          type: userType,
+          args: {
+            input: { type: userInputType },
+          },
+        },
+      },
+    });
+
+    const schema = new GraphQLSchema({
+      query: queryType,
+      mutation: mutationType,
+      types: [userType, roleType, nodeInterface, searchResultType, userInputType],
+    });
+
+    const collector = new TypeCollector();
+    collector.collect(schema.getQueryType()!.getFields()['user'].type);
+    collector.collect(schema.getQueryType()!.getFields()['search'].type);
+    collector.collect(schema.getMutationType()!.getFields()['createUser'].args[0].type);
+    const types = collector.getTypes();
+
+    const user = types.find((t) => t.name === 'User');
+    const node = types.find((t) => t.name === 'Node');
+    const role = types.find((t) => t.name === 'Role');
+    const userInput = types.find((t) => t.name === 'UserInput');
+
+    expect(user?.directives).toBeUndefined();
+    expect(user?.fields?.find((f) => f.name === 'role')?.directives).toBeUndefined();
+    expect(node?.directives).toBeUndefined();
+    expect(role?.directives).toBeUndefined();
+    expect(role?.enumValues?.[0].directives).toBeUndefined();
+    expect(userInput?.directives).toBeUndefined();
+    expect(userInput?.fields?.[0].directives).toBeUndefined();
   });
 });

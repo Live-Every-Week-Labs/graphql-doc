@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SchemaParser } from './schema-parser';
-import { buildSchema } from 'graphql';
+import { GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, buildSchema } from 'graphql';
 
 describe('SchemaParser', () => {
   const parser = new SchemaParser();
@@ -82,5 +82,28 @@ describe('SchemaParser', () => {
     const result = parser.parse(schema);
     expect(result.warnings).toHaveLength(1);
     expect(result.warnings[0].message).toContain('Invalid @docPriority usage:');
+  });
+
+  it('handles programmatic schemas without astNode entries', () => {
+    const schema = new GraphQLSchema({
+      query: new GraphQLObjectType({
+        name: 'Query',
+        fields: {
+          hello: {
+            type: GraphQLString,
+            args: {
+              times: { type: GraphQLInt },
+            },
+          },
+        },
+      }),
+    });
+
+    const result = parser.parse(schema);
+    expect(result.warnings).toHaveLength(0);
+    expect(result.operations).toHaveLength(1);
+    expect(result.operations[0].name).toBe('hello');
+    expect(result.operations[0].directives).toEqual({});
+    expect(result.operations[0].arguments[0].directives).toBeUndefined();
   });
 });
