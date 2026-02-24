@@ -81,12 +81,12 @@
     "commander": "^11.1.0",
     "cosmiconfig": "^9.0.0",
     "fs-extra": "^11.2.0",
-    "glob": "^10.3.0",
     "graphql": "^16.12.0",
     "graphql-config": "^5.0.0",
     "handlebars": "^4.7.8",
     "jszip": "^3.10.1",
     "ora": "^8.2.0",
+    "tinyglobby": "^0.2.15",
     "zod": "^3.22.0"
   },
   "peerDependencies": {

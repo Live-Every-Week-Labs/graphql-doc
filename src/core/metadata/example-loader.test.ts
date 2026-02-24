@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { loadExamples } from './example-loader.js';
 import * as fs from 'fs-extra';
-import { glob } from 'glob';
+import { glob } from 'tinyglobby';
 
 vi.mock('fs-extra', () => {
   const readJson = vi.fn();
@@ -11,7 +11,7 @@ vi.mock('fs-extra', () => {
     default: { readJson },
   };
 });
-vi.mock('glob', () => ({
+vi.mock('tinyglobby', () => ({
   glob: vi.fn(),
 }));
 

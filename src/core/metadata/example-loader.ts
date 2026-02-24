@@ -1,4 +1,4 @@
-import { glob } from 'glob';
+import { glob } from 'tinyglobby';
 import fs from 'fs-extra';
 import { ExampleFileSchema } from './validator.js';
 import { ExampleFile } from './types.js';

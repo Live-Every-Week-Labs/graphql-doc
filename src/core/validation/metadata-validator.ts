@@ -1,4 +1,4 @@
-import { glob } from 'glob';
+import { glob } from 'tinyglobby';
 import fs from 'fs-extra';
 import path from 'path';
 import { z } from 'zod';
