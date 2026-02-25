@@ -115,6 +115,8 @@ export function validateOptions(
     GraphqlDocDocusaurusPluginOptions
   >
 ): GraphqlDocDocusaurusPluginOptions {
+  // Deliberately keep validation on the shared normalize+validate path instead
+  // of Joi/context.validate so CLI and plugin runtimes enforce identical rules.
   const rawOptions = context.options ?? {};
   const normalizedOptions = normalizePluginOptions(rawOptions);
 
