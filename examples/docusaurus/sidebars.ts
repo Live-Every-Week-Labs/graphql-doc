@@ -1,17 +1,26 @@
 import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 
 // Import the generated API sidebar
-let generatedApiSidebar: { apiSidebar?: any[] } = { apiSidebar: [] };
+let generatedApiSidebar: { apiSidebar?: any[] } = {
+  // Keep apiSidebar non-empty on first clean builds before graphql-doc writes
+  // generated sidebar artifacts. This avoids navbar runtime failures.
+  apiSidebar: [{ type: 'doc', id: 'api-intro/overview' }],
+};
 try {
   generatedApiSidebar = require('./docs/api/sidebars.js');
 } catch {
   // First-time builds run before graphql-doc writes the generated sidebar file.
-  generatedApiSidebar = { apiSidebar: [] };
+  // The fallback above keeps the API navbar link renderable.
 }
 
 const prefixApiDocIds = (items: any[]): any[] =>
   items.map((item) => {
-    if (item?.type === 'doc' && typeof item.id === 'string' && !item.id.startsWith('api/')) {
+    if (
+      item?.type === 'doc' &&
+      typeof item.id === 'string' &&
+      !item.id.startsWith('api/') &&
+      !item.id.startsWith('api-intro/')
+    ) {
       return { ...item, id: `api/${item.id}` };
     }
 
