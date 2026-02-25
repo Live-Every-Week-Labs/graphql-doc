@@ -6,6 +6,7 @@ import { SchemaLoader } from '../core/parser/schema-loader';
 import { SchemaParser } from '../core/parser/schema-parser';
 import { Transformer } from '../core/transformer/transformer';
 import { DocusaurusAdapter } from '../core/adapters/docusaurus/docusaurus-adapter';
+import graphqlDocDocusaurusPlugin from '../core/adapters/docusaurus/plugin/index.js';
 import { buildSchema } from 'graphql';
 
 const COMPLEX_SCHEMA_PATH = path.join(__dirname, 'complex-schema.graphql');
@@ -152,5 +153,36 @@ describe('End-to-End Generator Test', () => {
     expect(mutationPingFile).toBeDefined();
     expect(sidebarFile?.content).toContain('uncategorized/ping-query');
     expect(sidebarFile?.content).toContain('uncategorized/ping-mutation');
+  });
+
+  it('runs generation through the exported docusaurus plugin entrypoint', async () => {
+    const pluginSiteDir = path.join(tempDir, 'plugin-site');
+    fs.mkdirSync(pluginSiteDir, { recursive: true });
+    fs.writeFileSync(path.join(pluginSiteDir, 'schema.graphql'), COMPLEX_SCHEMA_CONTENT);
+
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: pluginSiteDir },
+      {
+        schema: './schema.graphql',
+        outputDir: './docs/plugin-api',
+        quiet: true,
+      }
+    );
+
+    const generationResult = (await plugin.loadContent?.()) as
+      | {
+          outputDir: string;
+          llmOutputDir?: string;
+          filesWritten: number;
+          llmFilesWritten: number;
+        }
+      | undefined;
+
+    expect(generationResult).toBeDefined();
+    expect(generationResult?.outputDir).toBe(path.join(pluginSiteDir, 'docs/plugin-api'));
+    expect(generationResult?.filesWritten).toBeGreaterThan(0);
+    expect(generationResult?.llmFilesWritten).toBeGreaterThan(0);
+    expect(fs.existsSync(path.join(pluginSiteDir, 'docs/plugin-api', 'sidebars.js'))).toBe(true);
+    expect(fs.existsSync(path.join(pluginSiteDir, 'llm-docs', 'index.md'))).toBe(true);
   });
 });
