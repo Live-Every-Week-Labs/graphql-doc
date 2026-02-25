@@ -27,4 +27,12 @@ describe('OperationView', () => {
     render(<OperationView operation={mockOperation} />);
     expect(screen.getAllByText('Examples').length).toBeGreaterThan(0);
   });
+
+  it('renders an icon-only markdown download link when llmDocsBasePath is provided', () => {
+    render(<OperationView operation={mockOperation} llmDocsBasePath="/llm-docs" />);
+
+    const link = screen.getByRole('link', { name: 'Download Markdown for General' });
+    expect(link).toHaveAttribute('href', '/llm-docs/general.md');
+    expect(link.querySelector('svg')).toBeInTheDocument();
+  });
 });

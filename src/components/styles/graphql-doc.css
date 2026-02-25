@@ -783,15 +783,23 @@ a.gql-type:hover {
 }
 
 .gql-llm-download {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
     border: 1px solid var(--gql-border-color);
     background: transparent;
     color: var(--gql-description-color);
-    padding: 4px 8px;
+    padding: 0;
     border-radius: 999px;
     text-decoration: none;
+}
+
+.gql-llm-download-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    fill: currentColor;
 }
 
 .gql-llm-download:hover {
@@ -802,6 +810,18 @@ a.gql-type:hover {
 .gql-llm-download:focus-visible {
     outline: none;
     box-shadow: var(--gql-focus-ring);
+}
+
+.gql-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .gql-code-block {
