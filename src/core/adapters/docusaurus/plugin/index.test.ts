@@ -227,6 +227,17 @@ describe('graphqlDocDocusaurusPlugin', () => {
     expect(fs.existsSync(resolvedThemePath ?? '')).toBe(true);
   });
 
+  it('exposes the TypeScript theme path for swizzle --typescript', () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+    const resolvedTypeScriptThemePath = plugin.getTypeScriptThemePath?.();
+
+    expect(resolvedTypeScriptThemePath).toBeDefined();
+    expect(resolvedTypeScriptThemePath).toContain(
+      path.join('src', 'core', 'adapters', 'docusaurus', 'theme')
+    );
+    expect(fs.existsSync(resolvedTypeScriptThemePath ?? '')).toBe(true);
+  });
+
   it('resolves theme path from the plugin module location when cwd changes', async () => {
     const originalCwd = process.cwd();
     const tempSiteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-plugin-site-'));

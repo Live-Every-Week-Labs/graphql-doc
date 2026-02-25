@@ -115,6 +115,9 @@ export default function graphqlDocDocusaurusPlugin(
     getThemePath() {
       return themePath;
     },
+    getTypeScriptThemePath() {
+      return themePath;
+    },
   };
 }
 
