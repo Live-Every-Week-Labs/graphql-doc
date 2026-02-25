@@ -121,4 +121,11 @@ export default function graphqlDocDocusaurusPlugin(
   };
 }
 
+/**
+ * Enumerates the stable theme component IDs that can be swizzled without --danger.
+ */
+export function getSwizzleComponentList(): string[] {
+  return ['DocItem/Layout', 'MDXComponents'];
+}
+
 export { validateOptions, type GraphqlDocDocusaurusPluginOptions } from './options.js';

@@ -17,7 +17,7 @@ vi.mock('./markdown-redirect.js', () => ({
   createMarkdownRedirectWebpackConfig: createMarkdownRedirectWebpackConfigMock,
 }));
 
-import graphqlDocDocusaurusPlugin from './index.js';
+import graphqlDocDocusaurusPlugin, { getSwizzleComponentList } from './index.js';
 
 const require = createRequire(import.meta.url);
 
@@ -236,6 +236,10 @@ describe('graphqlDocDocusaurusPlugin', () => {
       path.join('src', 'core', 'adapters', 'docusaurus', 'theme')
     );
     expect(fs.existsSync(resolvedTypeScriptThemePath ?? '')).toBe(true);
+  });
+
+  it('exports a stable swizzle component allowlist', () => {
+    expect(getSwizzleComponentList()).toEqual(['DocItem/Layout', 'MDXComponents']);
   });
 
   it('resolves theme path from the plugin module location when cwd changes', async () => {
