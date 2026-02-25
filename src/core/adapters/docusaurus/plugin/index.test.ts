@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -198,6 +199,30 @@ describe('graphqlDocDocusaurusPlugin', () => {
       path.join('src', 'core', 'adapters', 'docusaurus', 'theme')
     );
     expect(fs.existsSync(resolvedThemePath ?? '')).toBe(true);
+  });
+
+  it('resolves theme path from the plugin module location when cwd changes', async () => {
+    const originalCwd = process.cwd();
+    const tempSiteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-plugin-site-'));
+    fs.writeFileSync(path.join(tempSiteDir, 'package.json'), '{"name":"site"}\n');
+
+    try {
+      process.chdir(tempSiteDir);
+      vi.resetModules();
+
+      const { default: pluginFactory } = await import('./index.js');
+      const plugin = pluginFactory({ siteDir: tempSiteDir });
+      const resolvedThemePath = plugin.getThemePath?.() ?? '';
+
+      expect(resolvedThemePath).toContain(
+        path.join('src', 'core', 'adapters', 'docusaurus', 'theme')
+      );
+      expect(resolvedThemePath.startsWith(tempSiteDir)).toBe(false);
+      expect(fs.existsSync(resolvedThemePath)).toBe(true);
+    } finally {
+      process.chdir(originalCwd);
+      fs.rmSync(tempSiteDir, { recursive: true, force: true });
+    }
   });
 
   it('fails fast when invalid options are provided', () => {

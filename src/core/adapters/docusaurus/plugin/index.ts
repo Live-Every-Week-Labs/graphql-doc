@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { LoadContext, Plugin } from '@docusaurus/types';
 import {
   normalizePluginOptions,
@@ -15,7 +16,19 @@ import {
   type PluginGenerationResult,
 } from './run-generation.js';
 
-const runtimeDir = typeof __dirname === 'string' ? __dirname : process.cwd();
+function getRuntimeDir(): string {
+  if (typeof __dirname === 'string') {
+    return __dirname;
+  }
+
+  try {
+    return path.dirname(fileURLToPath(import.meta.url));
+  } catch {
+    return process.cwd();
+  }
+}
+
+const runtimeDir = getRuntimeDir();
 const runtimeRequire = createRequire(path.join(runtimeDir, '__graphql-doc-plugin-runtime__.cjs'));
 
 function resolvePackageRoot(startDir: string): string {
