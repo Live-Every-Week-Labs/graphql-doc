@@ -13,6 +13,7 @@ export interface GraphqlDocDocusaurusPluginOptions {
   llmDocsStrategy?: 'single' | 'chunked';
   llmDocsDepth?: 1 | 2 | 3 | 4 | 5;
   llmExamples?: boolean;
+  watch?: boolean;
   verbose?: boolean;
   quiet?: boolean;
 }
@@ -29,6 +30,7 @@ export interface NormalizedGraphqlDocDocusaurusPluginOptions {
   llmDocsStrategy?: 'single' | 'chunked';
   llmDocsDepth?: 1 | 2 | 3 | 4 | 5;
   llmExamples: boolean;
+  watch: boolean;
   verbose: boolean;
   quiet: boolean;
 }
@@ -48,7 +50,24 @@ export function normalizePluginOptions(
     llmDocsStrategy: options.llmDocsStrategy,
     llmDocsDepth: options.llmDocsDepth,
     llmExamples: options.llmExamples ?? true,
+    watch: options.watch ?? false,
     verbose: options.verbose ?? false,
     quiet: options.quiet ?? false,
   };
+}
+
+/**
+ * Validate normalized plugin options and fail fast on unsupported combinations.
+ */
+export function validatePluginOptions(options: NormalizedGraphqlDocDocusaurusPluginOptions): void {
+  if (options.verbose && options.quiet) {
+    throw new Error('Invalid graphql-doc plugin options: verbose and quiet cannot both be true.');
+  }
+
+  if (options.watch) {
+    throw new Error(
+      'The graphql-doc Docusaurus plugin does not support watch mode yet. ' +
+        'Generation currently runs once per startup/build.'
+    );
+  }
 }

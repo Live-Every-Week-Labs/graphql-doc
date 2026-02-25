@@ -23,3 +23,10 @@ isolation from framework-agnostic pipeline logic.
 - Keep Docusaurus plugin runtime logic in this directory.
 - Reuse `src/core/generator.ts` and `src/core/config/*` for shared pipeline
   behavior; do not duplicate parser/transformer/renderer internals here.
+
+## Lifecycle Semantics
+
+- The plugin runs generation in `loadContent`.
+- Generation is memoized to a single execution per Docusaurus lifecycle.
+- Watch mode is intentionally deferred; the plugin currently performs one pass
+  per `docusaurus start` / `docusaurus build` invocation.

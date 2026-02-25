@@ -1,4 +1,8 @@
-import { normalizePluginOptions, type GraphqlDocDocusaurusPluginOptions } from './options.js';
+import {
+  normalizePluginOptions,
+  validatePluginOptions,
+  type GraphqlDocDocusaurusPluginOptions,
+} from './options.js';
 import { runPluginGeneration, type PluginGenerationResult } from './run-generation.js';
 
 interface DocusaurusContextLike {
@@ -21,13 +25,18 @@ export default function graphqlDocDocusaurusPlugin(
   rawOptions: GraphqlDocDocusaurusPluginOptions = {}
 ): DocusaurusPluginLike {
   const options = normalizePluginOptions(rawOptions);
+  validatePluginOptions(options);
   let generationPromise: Promise<PluginGenerationResult> | null = null;
 
   return {
     name: 'graphql-doc-docusaurus-plugin',
     async loadContent() {
-      // Docusaurus may call plugin hooks multiple times in long-running dev
-      // sessions; memoize generation to avoid duplicate writes in one lifecycle.
+      // Generation is intentionally tied to loadContent so it runs during
+      // startup/build and before downstream plugin content phases consume
+      // generated files.
+      //
+      // Docusaurus can re-enter hooks in long-running sessions. Memoization
+      // keeps this plugin deterministic by executing at most once per lifecycle.
       if (!generationPromise) {
         generationPromise = runPluginGeneration({
           siteDir: context.siteDir,
