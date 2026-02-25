@@ -64,6 +64,32 @@ describe('graphqlDocDocusaurusPlugin', () => {
     });
   });
 
+  it('logs a plugin ordering reminder when verbose mode is enabled', async () => {
+    const generationResult = {
+      schemaPointer: '/repo/schema.graphql',
+      outputDir: '/repo/docs/api',
+      llmOutputDir: '/repo/static/llm-docs',
+      filesWritten: 4,
+      llmFilesWritten: 1,
+    };
+    runPluginGenerationMock.mockResolvedValue(generationResult);
+
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo' },
+      {
+        verbose: true,
+      }
+    );
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    await plugin.loadContent?.();
+
+    expect(logSpy).toHaveBeenCalledWith(
+      '[graphql-doc] Generation starting - ensure this plugin is listed before content-docs'
+    );
+    logSpy.mockRestore();
+  });
+
   it('returns watch targets for schema and config sources', () => {
     buildPluginWatchTargetsMock.mockReturnValue(['/repo/schema.graphql', '/repo/config.json']);
 

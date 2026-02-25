@@ -35,6 +35,22 @@ const config: Config = {
     locales: ['en'],
   },
 
+  // Keep graphql-doc before docs preset declarations so generated files are
+  // available when plugin-content-docs loads content.
+  plugins: [
+    [
+      require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
+      {
+        configPath: './graphql-doc.config.json',
+        schema: '../../test_schemas/ecommerce/ecommerce.graphql',
+        markdownRedirect: {
+          docsBasePath: '/docs/api',
+          llmDocsPath: '/llm-docs',
+        },
+      },
+    ],
+  ],
+
   presets: [
     [
       'classic',
@@ -65,19 +81,6 @@ const config: Config = {
           customCss: './src/css/custom.css',
         },
       } satisfies Preset.Options,
-    ],
-  ],
-  plugins: [
-    [
-      require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
-      {
-        configPath: './graphql-doc.config.json',
-        schema: '../../test_schemas/ecommerce/ecommerce.graphql',
-        markdownRedirect: {
-          docsBasePath: '/docs/api',
-          llmDocsPath: '/llm-docs',
-        },
-      },
     ],
   ],
 

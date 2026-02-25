@@ -149,6 +149,25 @@ plugins: [
 ];
 ```
 
+## Plugin Ordering (Required)
+
+Place `@lewl/graphql-doc/docusaurus-plugin` before `@docusaurus/preset-classic` or any explicit
+`@docusaurus/plugin-content-docs` entry so generated files exist before docs content loading starts.
+
+```ts
+const config = {
+  plugins: [
+    [
+      require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
+      {
+        configPath: './graphql-doc.config.json',
+      },
+    ],
+  ],
+  presets: [['classic', {}]],
+};
+```
+
 Runtime options available on the plugin itself:
 
 | Option                          | Default      | Notes                                                               |

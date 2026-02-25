@@ -68,6 +68,12 @@ export default function graphqlDocDocusaurusPlugin(
       // Generation is intentionally tied to loadContent so it runs during
       // startup/build and before downstream plugin content phases consume
       // generated files.
+      if (options.verbose && !options.quiet) {
+        console.log(
+          '[graphql-doc] Generation starting - ensure this plugin is listed before content-docs'
+        );
+      }
+
       return runPluginGeneration({
         siteDir: context.siteDir,
         options,

@@ -52,6 +52,7 @@ Add the published plugin entry in your `docusaurus.config.ts`:
 ```ts
 plugins: [
   [
+    // Keep graphql-doc before preset-classic/content-docs declarations.
     require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
     {
       configPath: './graphql-doc.config.json',
