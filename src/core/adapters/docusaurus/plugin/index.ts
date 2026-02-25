@@ -150,9 +150,15 @@ export default function graphqlDocDocusaurusPlugin(
       ];
     },
     getThemePath() {
+      // Deliberately return TSX source instead of a compiled dist/theme bundle.
+      // Docusaurus compiles theme components from plugin packages during its own
+      // build, and this keeps swizzle source + runtime resolution aligned without
+      // introducing a second theme build pipeline.
       return themePath;
     },
     getTypeScriptThemePath() {
+      // Keep this equal to getThemePath() until Docusaurus requires split
+      // compiled-vs-source paths for plugin-shipped themes.
       return themePath;
     },
     injectHtmlTags({ content }) {
