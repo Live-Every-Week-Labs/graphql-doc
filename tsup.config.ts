@@ -11,6 +11,7 @@ export default defineConfig([
       cli: 'src/cli/index.ts',
       'components/index': 'src/components/index.ts',
       'components/docusaurus': 'src/components/docusaurus.ts',
+      'docusaurus-plugin': 'src/core/adapters/docusaurus/plugin/index.ts',
     },
     format: ['cjs', 'esm'],
     dts: true,

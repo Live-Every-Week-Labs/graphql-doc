@@ -34,6 +34,11 @@
       "import": "./dist/components/index.js",
       "require": "./dist/components/index.cjs"
     },
+    "./docusaurus-plugin": {
+      "types": "./dist/docusaurus-plugin.d.ts",
+      "import": "./dist/docusaurus-plugin.js",
+      "require": "./dist/docusaurus-plugin.cjs"
+    },
     "./components/styles.css": "./dist/components/index.css",
     "./components/docusaurus.css": "./dist/components/docusaurus.css"
   },
