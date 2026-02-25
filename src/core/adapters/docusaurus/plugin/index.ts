@@ -74,12 +74,32 @@ export default function graphqlDocDocusaurusPlugin(
         );
       }
 
-      return runPluginGeneration({
-        siteDir: context.siteDir,
-        options,
-      });
+      try {
+        return await runPluginGeneration({
+          siteDir: context.siteDir,
+          options,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`[graphql-doc] Generation failed: ${message}`);
+
+        if (options.verbose) {
+          console.error(error);
+        }
+
+        return {
+          schemaPointer: options.schema ?? '',
+          outputDir: options.outputDir ?? '',
+          filesWritten: 0,
+          llmFilesWritten: 0,
+        };
+      }
     },
     contentLoaded({ content, actions }) {
+      if (content.filesWritten <= 0 && content.llmFilesWritten <= 0 && !content.outputDir) {
+        return;
+      }
+
       actions.setGlobalData({
         filesWritten: content.filesWritten,
         llmFilesWritten: content.llmFilesWritten,
@@ -88,7 +108,7 @@ export default function graphqlDocDocusaurusPlugin(
       });
     },
     postBuild({ content }) {
-      if (options.quiet) {
+      if (options.quiet || (content.filesWritten <= 0 && content.llmFilesWritten <= 0)) {
         return;
       }
 

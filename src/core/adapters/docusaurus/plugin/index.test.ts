@@ -90,6 +90,32 @@ describe('graphqlDocDocusaurusPlugin', () => {
     logSpy.mockRestore();
   });
 
+  it('returns a zero-result payload when generation fails', async () => {
+    runPluginGenerationMock.mockRejectedValue(new Error('schema endpoint is unreachable'));
+
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo' },
+      {
+        schema: './schema.graphql',
+        outputDir: './docs/api',
+      }
+    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const result = await plugin.loadContent?.();
+
+    expect(result).toEqual({
+      schemaPointer: './schema.graphql',
+      outputDir: './docs/api',
+      filesWritten: 0,
+      llmFilesWritten: 0,
+    });
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[graphql-doc] Generation failed: schema endpoint is unreachable'
+    );
+    errorSpy.mockRestore();
+  });
+
   it('returns watch targets for schema and config sources', () => {
     buildPluginWatchTargetsMock.mockReturnValue(['/repo/schema.graphql', '/repo/config.json']);
 
@@ -136,6 +162,25 @@ describe('graphqlDocDocusaurusPlugin', () => {
     });
   });
 
+  it('skips global data publication when generation returned an empty fallback result', async () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+    const setGlobalData = vi.fn();
+
+    await plugin.contentLoaded?.({
+      content: {
+        schemaPointer: '',
+        outputDir: '',
+        filesWritten: 0,
+        llmFilesWritten: 0,
+      },
+      actions: {
+        setGlobalData,
+      },
+    } as any);
+
+    expect(setGlobalData).not.toHaveBeenCalled();
+  });
+
   it('logs a postBuild summary when quiet mode is disabled', async () => {
     const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
@@ -170,6 +215,24 @@ describe('graphqlDocDocusaurusPlugin', () => {
         llmOutputDir: '/repo/static/llm-docs',
         filesWritten: 9,
         llmFilesWritten: 2,
+      },
+    } as any);
+
+    expect(logSpy).not.toHaveBeenCalled();
+    logSpy.mockRestore();
+  });
+
+  it('does not log a postBuild success summary for a zero-result generation', async () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    await plugin.postBuild?.({
+      content: {
+        schemaPointer: './schema.graphql',
+        outputDir: '/repo/docs/api',
+        llmOutputDir: '/repo/static/llm-docs',
+        filesWritten: 0,
+        llmFilesWritten: 0,
       },
     } as any);
 
