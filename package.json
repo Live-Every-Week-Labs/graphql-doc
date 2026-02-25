@@ -1,6 +1,6 @@
 {
   "name": "@lewl/graphql-doc",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "GraphQL operation-first documentation generator with a React component library",
   "keywords": [
     "graphql",
