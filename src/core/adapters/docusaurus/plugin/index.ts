@@ -1,4 +1,7 @@
 import { createRequire } from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { LoadContext, Plugin } from '@docusaurus/types';
 import {
   normalizePluginOptions,
@@ -10,6 +13,25 @@ import { createMarkdownRedirectWebpackConfig } from './markdown-redirect.js';
 import { runPluginGeneration, type PluginGenerationResult } from './run-generation.js';
 
 const require = createRequire(import.meta.url);
+const runtimeDir = path.dirname(fileURLToPath(import.meta.url));
+
+function resolvePackageRoot(startDir: string): string {
+  let currentDir = startDir;
+  while (true) {
+    if (fs.existsSync(path.join(currentDir, 'package.json'))) {
+      return currentDir;
+    }
+
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      return startDir;
+    }
+
+    currentDir = parentDir;
+  }
+}
+
+const themePath = path.join(resolvePackageRoot(runtimeDir), 'src/core/adapters/docusaurus/theme');
 
 /**
  * Docusaurus plugin entrypoint for graphql-doc generation.
@@ -53,6 +75,9 @@ export default function graphqlDocDocusaurusPlugin(
         require.resolve('@lewl/graphql-doc/components/styles.css'),
         require.resolve('@lewl/graphql-doc/components/docusaurus.css'),
       ];
+    },
+    getThemePath() {
+      return themePath;
     },
   };
 }

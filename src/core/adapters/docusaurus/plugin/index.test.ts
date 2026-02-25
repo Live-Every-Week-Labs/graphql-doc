@@ -1,4 +1,6 @@
 import { createRequire } from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const runPluginGenerationMock = vi.hoisted(() => vi.fn());
@@ -95,6 +97,17 @@ describe('graphqlDocDocusaurusPlugin', () => {
       require.resolve('@lewl/graphql-doc/components/styles.css'),
       require.resolve('@lewl/graphql-doc/components/docusaurus.css'),
     ]);
+  });
+
+  it('exposes the bundled graphql-doc Docusaurus theme path', () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+    const resolvedThemePath = plugin.getThemePath?.();
+
+    expect(resolvedThemePath).toBeDefined();
+    expect(resolvedThemePath).toContain(
+      path.join('src', 'core', 'adapters', 'docusaurus', 'theme')
+    );
+    expect(fs.existsSync(resolvedThemePath ?? '')).toBe(true);
   });
 
   it('fails fast when invalid options are provided', () => {

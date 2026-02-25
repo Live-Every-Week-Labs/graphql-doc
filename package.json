@@ -48,6 +48,7 @@
   "files": [
     "dist",
     "src/schemas/config-schema.json",
+    "src/core/adapters/docusaurus/theme",
     "templates",
     "directives.graphql",
     "README.md",
