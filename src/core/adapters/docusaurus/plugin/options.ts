@@ -13,9 +13,24 @@ export interface GraphqlDocDocusaurusPluginOptions {
   llmDocsStrategy?: 'single' | 'chunked';
   llmDocsDepth?: 1 | 2 | 3 | 4 | 5;
   llmExamples?: boolean;
+  markdownRedirect?: MarkdownRedirectOptions;
   watch?: boolean;
   verbose?: boolean;
   quiet?: boolean;
+}
+
+export interface MarkdownRedirectOptions {
+  enabled?: boolean;
+  docsBasePath?: string;
+  llmDocsPath?: string;
+  staticDir?: string;
+}
+
+export interface NormalizedMarkdownRedirectOptions {
+  enabled: boolean;
+  docsBasePath: string;
+  llmDocsPath: string;
+  staticDir?: string;
 }
 
 /**
@@ -30,6 +45,7 @@ export interface NormalizedGraphqlDocDocusaurusPluginOptions {
   llmDocsStrategy?: 'single' | 'chunked';
   llmDocsDepth?: 1 | 2 | 3 | 4 | 5;
   llmExamples: boolean;
+  markdownRedirect: NormalizedMarkdownRedirectOptions;
   watch: boolean;
   verbose: boolean;
   quiet: boolean;
@@ -50,6 +66,12 @@ export function normalizePluginOptions(
     llmDocsStrategy: options.llmDocsStrategy,
     llmDocsDepth: options.llmDocsDepth,
     llmExamples: options.llmExamples ?? true,
+    markdownRedirect: {
+      enabled: options.markdownRedirect?.enabled ?? true,
+      docsBasePath: options.markdownRedirect?.docsBasePath ?? '/docs/api',
+      llmDocsPath: options.markdownRedirect?.llmDocsPath ?? '/llm-docs',
+      staticDir: options.markdownRedirect?.staticDir,
+    },
     watch: options.watch ?? false,
     verbose: options.verbose ?? false,
     quiet: options.quiet ?? false,
@@ -69,5 +91,13 @@ export function validatePluginOptions(options: NormalizedGraphqlDocDocusaurusPlu
       'The graphql-doc Docusaurus plugin does not support watch mode yet. ' +
         'Generation currently runs once per startup/build.'
     );
+  }
+
+  if (!options.markdownRedirect.docsBasePath.trim()) {
+    throw new Error('Invalid graphql-doc plugin options: markdownRedirect.docsBasePath is empty.');
+  }
+
+  if (!options.markdownRedirect.llmDocsPath.trim()) {
+    throw new Error('Invalid graphql-doc plugin options: markdownRedirect.llmDocsPath is empty.');
   }
 }

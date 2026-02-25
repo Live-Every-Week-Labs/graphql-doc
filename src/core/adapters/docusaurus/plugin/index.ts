@@ -3,6 +3,7 @@ import {
   validatePluginOptions,
   type GraphqlDocDocusaurusPluginOptions,
 } from './options.js';
+import { createMarkdownRedirectWebpackConfig } from './markdown-redirect.js';
 import { runPluginGeneration, type PluginGenerationResult } from './run-generation.js';
 
 interface DocusaurusContextLike {
@@ -12,6 +13,7 @@ interface DocusaurusContextLike {
 interface DocusaurusPluginLike {
   name: string;
   loadContent?: () => Promise<unknown>;
+  configureWebpack?: () => Record<string, unknown> | undefined;
 }
 
 /**
@@ -44,6 +46,12 @@ export default function graphqlDocDocusaurusPlugin(
         });
       }
       return generationPromise;
+    },
+    configureWebpack() {
+      return createMarkdownRedirectWebpackConfig({
+        siteDir: context.siteDir,
+        options: options.markdownRedirect,
+      });
     },
   };
 }

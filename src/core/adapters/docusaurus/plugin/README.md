@@ -17,6 +17,9 @@ isolation from framework-agnostic pipeline logic.
 - `run-generation.ts`:
   Runtime generation orchestration (config load, schema resolution,
   generator invocation) used by plugin hooks.
+- `markdown-redirect.ts`:
+  Dev-server middleware for `Accept: text/markdown` redirects into generated
+  LLM markdown artifacts.
 
 ## Ownership Boundary
 
@@ -28,5 +31,7 @@ isolation from framework-agnostic pipeline logic.
 
 - The plugin runs generation in `loadContent`.
 - Generation is memoized to a single execution per Docusaurus lifecycle.
+- Markdown redirect middleware is enabled by default (can be disabled via
+  plugin options).
 - Watch mode is intentionally deferred; the plugin currently performs one pass
   per `docusaurus start` / `docusaurus build` invocation.

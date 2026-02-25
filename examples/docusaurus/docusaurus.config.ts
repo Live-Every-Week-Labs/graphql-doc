@@ -1,7 +1,6 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import path from 'path';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -70,11 +69,14 @@ const config: Config = {
   ],
   plugins: [
     [
-      path.resolve(__dirname, 'plugins', 'llm-markdown-redirect'),
+      require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
       {
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-        staticDir: path.resolve(__dirname, 'static'),
+        configPath: './graphql-doc.config.json',
+        schema: '../../test_schemas/ecommerce/ecommerce.graphql',
+        markdownRedirect: {
+          docsBasePath: '/docs/api',
+          llmDocsPath: '/llm-docs',
+        },
       },
     ],
   ],
