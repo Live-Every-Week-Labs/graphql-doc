@@ -16,11 +16,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/austinzani/graphql-doc.git"
+    "url": "git+https://github.com/Live-Every-Week-Labs/graphql-doc.git"
   },
-  "homepage": "https://github.com/austinzani/graphql-doc#readme",
+  "homepage": "https://github.com/Live-Every-Week-Labs/graphql-doc#readme",
   "bugs": {
-    "url": "https://github.com/austinzani/graphql-doc/issues"
+    "url": "https://github.com/Live-Every-Week-Labs/graphql-doc/issues"
   },
   "type": "module",
   "exports": {

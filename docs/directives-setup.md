@@ -175,7 +175,7 @@ The full directive definitions are available in:
 
 - `node_modules/@lewl/graphql-doc/directives.graphql` (after npm install)
 - `graphql-doc-directives.graphql` (after running `graphql-doc init`)
-- [GitHub Repository](https://github.com/austinzani/graphql-doc/blob/main/directives.graphql)
+- [GitHub Repository](https://github.com/Live-Every-Week-Labs/graphql-doc/blob/main/directives.graphql)
 
 ### Complete Definitions
 
