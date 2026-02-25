@@ -169,26 +169,83 @@ describe('graphqlDocDocusaurusPlugin', () => {
   it('publishes generation metadata via contentLoaded global data', async () => {
     const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
     const setGlobalData = vi.fn();
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-content-loaded-'));
+
+    try {
+      await plugin.contentLoaded?.({
+        content: {
+          schemaPointer: './schema.graphql',
+          outputDir,
+          llmOutputDir: '/repo/static/llm-docs',
+          filesWritten: 14,
+          llmFilesWritten: 3,
+        },
+        actions: {
+          setGlobalData,
+        },
+      } as any);
+    } finally {
+      fs.rmSync(outputDir, { recursive: true, force: true });
+    }
+
+    expect(setGlobalData).toHaveBeenCalledWith({
+      filesWritten: 14,
+      llmFilesWritten: 3,
+      outputDir,
+      schemaPointer: './schema.graphql',
+    });
+  });
+
+  it('warns when generation reports files written but output directory is missing', async () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+    const setGlobalData = vi.fn();
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     await plugin.contentLoaded?.({
       content: {
         schemaPointer: './schema.graphql',
-        outputDir: '/repo/docs/api',
+        outputDir: '/repo/missing-output',
         llmOutputDir: '/repo/static/llm-docs',
-        filesWritten: 14,
-        llmFilesWritten: 3,
+        filesWritten: 1,
+        llmFilesWritten: 0,
       },
       actions: {
         setGlobalData,
       },
     } as any);
 
-    expect(setGlobalData).toHaveBeenCalledWith({
-      filesWritten: 14,
-      llmFilesWritten: 3,
-      outputDir: '/repo/docs/api',
-      schemaPointer: './schema.graphql',
-    });
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[graphql-doc] Warning: Generation reported files written but output directory is missing. Ensure this plugin is listed before @docusaurus/preset-classic in docusaurus.config.ts.'
+    );
+    expect(setGlobalData).toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  it('suppresses missing output directory warnings in quiet mode', async () => {
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo' },
+      {
+        quiet: true,
+      }
+    );
+    const setGlobalData = vi.fn();
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    await plugin.contentLoaded?.({
+      content: {
+        schemaPointer: './schema.graphql',
+        outputDir: '/repo/missing-output',
+        llmOutputDir: '/repo/static/llm-docs',
+        filesWritten: 1,
+        llmFilesWritten: 0,
+      },
+      actions: {
+        setGlobalData,
+      },
+    } as any);
+
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
   });
 
   it('skips global data publication when generation returned an empty fallback result', async () => {

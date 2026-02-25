@@ -110,6 +110,14 @@ export default function graphqlDocDocusaurusPlugin(
         return;
       }
 
+      if (content.filesWritten > 0 && content.outputDir && !fs.existsSync(content.outputDir)) {
+        if (!options.quiet) {
+          console.warn(
+            '[graphql-doc] Warning: Generation reported files written but output directory is missing. Ensure this plugin is listed before @docusaurus/preset-classic in docusaurus.config.ts.'
+          );
+        }
+      }
+
       actions.setGlobalData({
         filesWritten: content.filesWritten,
         llmFilesWritten: content.llmFilesWritten,
