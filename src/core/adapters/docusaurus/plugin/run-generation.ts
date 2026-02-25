@@ -1,7 +1,6 @@
-import path from 'path';
-import { loadConfig } from 'graphql-config';
 import { loadGeneratorConfig, resolveConfigPaths } from '../../../config/loader.js';
 import type { Config } from '../../../config/schema.js';
+import { resolveSchemaPointer, resolveSchemaPointers } from '../../../config/schema-pointer.js';
 import { Generator } from '../../../generator.js';
 import type { Logger } from '../../../logger.js';
 import type { NormalizedGraphqlDocDocusaurusPluginOptions } from './options.js';
@@ -34,55 +33,6 @@ function createPluginLogger(options: { quiet: boolean; verbose: boolean }): Logg
       console.warn(`[graphql-doc] Warning: ${message}`);
     },
   };
-}
-
-function resolveSchemaPointers(
-  schemaPointer: string | string[],
-  siteDir: string
-): string | string[] {
-  const resolvePointer = (pointer: string) => {
-    const isRemoteSchema = /^https?:\/\//i.test(pointer);
-    return isRemoteSchema || path.isAbsolute(pointer) ? pointer : path.resolve(siteDir, pointer);
-  };
-
-  return Array.isArray(schemaPointer)
-    ? schemaPointer.map(resolvePointer)
-    : resolvePointer(schemaPointer);
-}
-
-async function resolveSchemaPointer(
-  schemaOption: string | string[] | undefined,
-  siteDir: string
-): Promise<string | string[]> {
-  if (schemaOption) {
-    return schemaOption;
-  }
-
-  try {
-    const gqlConfig = await loadConfig({ rootDir: siteDir });
-    if (gqlConfig) {
-      const project = gqlConfig.getDefault();
-      const schemaFromConfig = project.schema;
-
-      if (typeof schemaFromConfig === 'string') {
-        return schemaFromConfig;
-      }
-
-      if (Array.isArray(schemaFromConfig)) {
-        const stringSchemas = schemaFromConfig.filter(
-          (pointer): pointer is string => typeof pointer === 'string'
-        );
-        if (stringSchemas.length > 0) {
-          return stringSchemas;
-        }
-      }
-    }
-  } catch {
-    // If graphql-config is absent or malformed, the generator's schema loading
-    // step will emit a clear error from the final resolved pointer.
-  }
-
-  return 'schema.graphql';
 }
 
 function applyPluginOverrides(
@@ -133,7 +83,10 @@ export async function runPluginGeneration(
   config = applyPluginOverrides(config, options);
   config = resolveConfigPaths(config, siteDir);
 
-  const schemaPointer = await resolveSchemaPointer(options.schema, siteDir);
+  const schemaPointer = await resolveSchemaPointer({ schema: options.schema }, siteDir, {
+    silent: !options.verbose,
+    log: (message) => logger.info(message),
+  });
   const resolvedSchemaPointer = resolveSchemaPointers(schemaPointer, siteDir);
 
   const generator = new Generator(config, logger);

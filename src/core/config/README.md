@@ -58,6 +58,15 @@ The `src/core/config` module handles configuration loading and validation for th
 - **Path Resolution Helper:**
   - `resolveConfigPaths` normalizes relative paths (output, metadata, examples, explicit example files, schema extensions, LLM docs output, adapter intro docs, and agent skill output) against a root directory.
 
+### 3. Schema Pointer Resolution
+
+**File:** `schema-pointer.ts`
+
+- Centralizes schema pointer discovery shared by CLI and plugin runtime.
+- Exposes:
+  - `resolveSchemaPointer`: resolves in priority order (explicit option -> `.graphqlrc` -> `schema.graphql`).
+  - `resolveSchemaPointers`: resolves local pointer paths relative to target root.
+
 ## Usage
 
 ```typescript
