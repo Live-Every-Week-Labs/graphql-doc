@@ -188,4 +188,117 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     expect(redirect).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
   });
+
+  it('passes through non-markdown requests', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const middleware = createMiddleware({
+      siteDir,
+      options: {
+        enabled: true,
+        docsBasePath: '/docs/api',
+        llmDocsPath: '/llm-docs',
+      },
+    });
+
+    const redirect = vi.fn();
+    const next = vi.fn();
+
+    middleware(
+      { path: '/docs/api/users/get-user', headers: { accept: 'text/html' } },
+      { redirect },
+      next
+    );
+
+    expect(redirect).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes through requests with no Accept header', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const middleware = createMiddleware({
+      siteDir,
+      options: {
+        enabled: true,
+        docsBasePath: '/docs/api',
+        llmDocsPath: '/llm-docs',
+      },
+    });
+
+    const redirect = vi.fn();
+    const next = vi.fn();
+
+    middleware({ path: '/docs/api/users/get-user', headers: {} }, { redirect }, next);
+
+    expect(redirect).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes through llms manifest requests', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const middleware = createMiddleware({
+      siteDir,
+      options: {
+        enabled: true,
+        docsBasePath: '/docs/api',
+        llmDocsPath: '/llm-docs',
+      },
+    });
+
+    const redirect = vi.fn();
+    const next = vi.fn();
+
+    middleware({ path: '/llms.txt', headers: { accept: 'text/markdown' } }, { redirect }, next);
+
+    expect(redirect).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes through requests already targeting llm docs', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const middleware = createMiddleware({
+      siteDir,
+      options: {
+        enabled: true,
+        docsBasePath: '/docs/api',
+        llmDocsPath: '/llm-docs',
+      },
+    });
+
+    const redirect = vi.fn();
+    const next = vi.fn();
+
+    middleware(
+      { path: '/llm-docs/users.md', headers: { accept: 'text/markdown' } },
+      { redirect },
+      next
+    );
+
+    expect(redirect).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns undefined when markdown redirect is disabled', () => {
+    const webpackConfig = createMarkdownRedirectWebpackConfig({
+      siteDir: '/repo',
+      options: {
+        enabled: false,
+        docsBasePath: '/docs/api',
+        llmDocsPath: '/llm-docs',
+      },
+    });
+
+    expect(webpackConfig).toBeUndefined();
+  });
 });

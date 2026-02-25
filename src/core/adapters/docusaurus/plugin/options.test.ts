@@ -63,6 +63,29 @@ describe('docusaurus plugin options', () => {
     expect(normalized.quiet).toBe(false);
   });
 
+  it('preserves markdown redirect defaults when only enabled is overridden', () => {
+    const normalized = normalizePluginOptions({
+      markdownRedirect: {
+        enabled: false,
+      },
+    });
+
+    expect(normalized.markdownRedirect).toEqual({
+      enabled: false,
+      docsBasePath: '/docs/api',
+      llmDocsPath: '/llm-docs',
+      staticDir: undefined,
+    });
+  });
+
+  it('preserves schema arrays exactly as provided', () => {
+    const normalized = normalizePluginOptions({
+      schema: ['./schema.graphql', './schema.extensions.graphql'],
+    });
+
+    expect(normalized.schema).toEqual(['./schema.graphql', './schema.extensions.graphql']);
+  });
+
   it('rejects verbose and quiet together', () => {
     const normalized = normalizePluginOptions({ verbose: true, quiet: true });
     expect(() => validatePluginOptions(normalized)).toThrow(

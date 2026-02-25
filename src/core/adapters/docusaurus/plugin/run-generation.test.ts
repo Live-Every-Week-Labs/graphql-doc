@@ -151,4 +151,66 @@ describe('buildPluginWatchTargets', () => {
     expect(targets).toContain(path.join(siteDir, '.graphqlrc'));
     expect(targets).toContain(path.join(siteDir, 'docs-metadata'));
   });
+
+  it('handles missing configPath files gracefully', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-watch-targets-'));
+    tempDirs.push(siteDir);
+
+    fs.mkdirSync(path.join(siteDir, 'docs-metadata'), { recursive: true });
+
+    const targets = buildPluginWatchTargets(
+      siteDir,
+      createNormalizedOptions({
+        configPath: './missing.config.json',
+      })
+    );
+
+    expect(targets).toContain(siteDir);
+    expect(targets).toContain(path.join(siteDir, 'docs-metadata'));
+  });
+
+  it('returns each local schema when schema option is an array', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-watch-targets-'));
+    tempDirs.push(siteDir);
+
+    fs.writeFileSync(path.join(siteDir, 'schema.graphql'), 'type Query { ping: String! }');
+    fs.writeFileSync(path.join(siteDir, 'schema.extensions.graphql'), 'scalar DateTime');
+    fs.mkdirSync(path.join(siteDir, 'docs-metadata'), { recursive: true });
+
+    const targets = buildPluginWatchTargets(
+      siteDir,
+      createNormalizedOptions({
+        schema: ['./schema.graphql', './schema.extensions.graphql'],
+      })
+    );
+
+    expect(targets).toEqual(
+      expect.arrayContaining([
+        path.join(siteDir, 'schema.graphql'),
+        path.join(siteDir, 'schema.extensions.graphql'),
+      ])
+    );
+  });
+
+  it('walks missing config metadata directories up to the nearest existing parent', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-watch-targets-'));
+    tempDirs.push(siteDir);
+
+    fs.mkdirSync(path.join(siteDir, 'docs-metadata'), { recursive: true });
+    fs.writeFileSync(
+      path.join(siteDir, '.graphqlrc'),
+      [
+        'schema: ./schema.graphql',
+        'extensions:',
+        '  graphql-doc:',
+        '    examplesDir: ./docs-metadata/missing/examples',
+        '',
+      ].join('\n')
+    );
+
+    const targets = buildPluginWatchTargets(siteDir, createNormalizedOptions());
+
+    expect(targets).toContain(path.join(siteDir, '.graphqlrc'));
+    expect(targets).toContain(path.join(siteDir, 'docs-metadata'));
+  });
 });

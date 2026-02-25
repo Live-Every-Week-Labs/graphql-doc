@@ -121,6 +121,31 @@ describe('graphqlDocDocusaurusPlugin', () => {
     errorSpy.mockRestore();
   });
 
+  it('logs full error details when verbose mode is enabled and generation fails', async () => {
+    const generationError = new Error('schema endpoint is unreachable');
+    runPluginGenerationMock.mockRejectedValue(generationError);
+
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo' },
+      {
+        schema: './schema.graphql',
+        outputDir: './docs/api',
+        verbose: true,
+      }
+    );
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await plugin.loadContent?.();
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[graphql-doc] Generation failed: schema endpoint is unreachable'
+    );
+    expect(errorSpy).toHaveBeenCalledWith(generationError);
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
+  });
+
   it('returns watch targets for schema and config sources', () => {
     buildPluginWatchTargetsMock.mockReturnValue(['/repo/schema.graphql', '/repo/config.json']);
 
@@ -352,6 +377,56 @@ describe('graphqlDocDocusaurusPlugin', () => {
         docsBasePath: '/docs/custom-api',
         llmDocsPath: '/llm-markdown',
         staticDir: './public-static',
+      },
+    });
+  });
+
+  it('configures markdown redirect middleware when isServer is undefined', () => {
+    const webpackConfig = { devServer: { setupMiddlewares: vi.fn() } };
+    createMarkdownRedirectWebpackConfigMock.mockReturnValue(webpackConfig);
+
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo', baseUrl: '/' });
+
+    const configured = plugin.configureWebpack?.();
+
+    expect(configured).toEqual(webpackConfig);
+    expect(createMarkdownRedirectWebpackConfigMock).toHaveBeenCalledWith({
+      siteDir: '/repo',
+      baseUrl: '/',
+      options: {
+        enabled: true,
+        docsBasePath: '/docs/api',
+        llmDocsPath: '/llm-docs',
+        staticDir: undefined,
+      },
+    });
+  });
+
+  it('returns undefined webpack config when markdown redirect is disabled', () => {
+    createMarkdownRedirectWebpackConfigMock.mockImplementation((context) =>
+      context.options.enabled ? { devServer: { setupMiddlewares: vi.fn() } } : undefined
+    );
+
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo', baseUrl: '/' },
+      {
+        markdownRedirect: {
+          enabled: false,
+        },
+      }
+    );
+
+    const configured = plugin.configureWebpack?.({}, false);
+
+    expect(configured).toBeUndefined();
+    expect(createMarkdownRedirectWebpackConfigMock).toHaveBeenCalledWith({
+      siteDir: '/repo',
+      baseUrl: '/',
+      options: {
+        enabled: false,
+        docsBasePath: '/docs/api',
+        llmDocsPath: '/llm-docs',
+        staticDir: undefined,
       },
     });
   });
