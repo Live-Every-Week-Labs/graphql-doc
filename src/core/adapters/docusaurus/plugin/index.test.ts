@@ -4,9 +4,11 @@ import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const runPluginGenerationMock = vi.hoisted(() => vi.fn());
+const buildPluginWatchTargetsMock = vi.hoisted(() => vi.fn());
 const createMarkdownRedirectWebpackConfigMock = vi.hoisted(() => vi.fn());
 
 vi.mock('./run-generation.js', () => ({
+  buildPluginWatchTargets: buildPluginWatchTargetsMock,
   runPluginGeneration: runPluginGenerationMock,
 }));
 
@@ -28,7 +30,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
     expect(plugin.name).toBe('graphql-doc-docusaurus-plugin');
   });
 
-  it('runs generation from loadContent once per lifecycle', async () => {
+  it('runs generation from loadContent on each lifecycle invocation', async () => {
     const generationResult = {
       schemaPointer: '/repo/schema.graphql',
       outputDir: '/repo/docs/api',
@@ -50,7 +52,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
 
     expect(firstResult).toEqual(generationResult);
     expect(secondResult).toEqual(generationResult);
-    expect(runPluginGenerationMock).toHaveBeenCalledTimes(1);
+    expect(runPluginGenerationMock).toHaveBeenCalledTimes(2);
     expect(runPluginGenerationMock).toHaveBeenCalledWith({
       siteDir: '/repo',
       options: expect.objectContaining({
@@ -59,6 +61,27 @@ describe('graphqlDocDocusaurusPlugin', () => {
         llmExamples: true,
       }),
     });
+  });
+
+  it('returns watch targets for schema and config sources', () => {
+    buildPluginWatchTargetsMock.mockReturnValue(['/repo/schema.graphql', '/repo/config.json']);
+
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo' },
+      {
+        schema: './schema.graphql',
+        configPath: './graphql-doc.config.json',
+      }
+    );
+
+    expect(plugin.getPathsToWatch?.()).toEqual(['/repo/schema.graphql', '/repo/config.json']);
+    expect(buildPluginWatchTargetsMock).toHaveBeenCalledWith(
+      '/repo',
+      expect.objectContaining({
+        schema: './schema.graphql',
+        configPath: './graphql-doc.config.json',
+      })
+    );
   });
 
   it('passes markdown redirect config to configureWebpack', () => {

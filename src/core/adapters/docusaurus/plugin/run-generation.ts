@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { loadGeneratorConfig, resolveConfigPaths } from '../../../config/loader.js';
 import type { Config } from '../../../config/schema.js';
 import { resolveSchemaPointer, resolveSchemaPointers } from '../../../config/schema-pointer.js';
@@ -16,6 +18,87 @@ export interface PluginGenerationResult {
   llmOutputDir?: string;
   filesWritten: number;
   llmFilesWritten: number;
+}
+
+const DEFAULT_CONFIG_CANDIDATES = [
+  '.graphqlrc',
+  '.graphql-docrc',
+  '.graphql-docrc.json',
+  '.graphql-docrc.yaml',
+  '.graphql-docrc.yml',
+  '.graphql-docrc.js',
+  '.graphql-docrc.cjs',
+  '.graphql-docrc.mjs',
+  '.graphql-docrc.ts',
+  'graphql-doc.config.js',
+  'graphql-doc.config.cjs',
+  'graphql-doc.config.mjs',
+  'graphql-doc.config.ts',
+  'graphql-doc.config.json',
+];
+
+function toArray<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value];
+}
+
+function normalizeWatchPath(input: string, targetDir: string): string | null {
+  if (!input || /^https?:\/\//i.test(input)) {
+    return null;
+  }
+
+  const absolute = path.isAbsolute(input) ? input : path.resolve(targetDir, input);
+  const wildcardIndex = absolute.search(/[*?[{]/);
+  const withoutGlob = wildcardIndex >= 0 ? absolute.slice(0, wildcardIndex) : absolute;
+  const candidate = wildcardIndex >= 0 ? path.dirname(withoutGlob) : withoutGlob;
+
+  let watchPath = candidate;
+  while (!fs.existsSync(watchPath)) {
+    const parent = path.dirname(watchPath);
+    if (parent === watchPath) {
+      return null;
+    }
+    watchPath = parent;
+  }
+
+  return watchPath;
+}
+
+function resolveConfigWatchSources(
+  siteDir: string,
+  options: NormalizedGraphqlDocDocusaurusPluginOptions
+): string[] {
+  if (options.configPath) {
+    return [options.configPath];
+  }
+
+  return DEFAULT_CONFIG_CANDIDATES.map((candidate) => path.resolve(siteDir, candidate)).filter(
+    (p) => fs.existsSync(p)
+  );
+}
+
+/**
+ * Build the filesystem targets that Docusaurus should watch in dev mode.
+ *
+ * The plugin always includes explicit schema/config pointers and the default
+ * metadata root so schema/example changes can trigger re-generation.
+ */
+export function buildPluginWatchTargets(
+  siteDir: string,
+  options: NormalizedGraphqlDocDocusaurusPluginOptions
+): string[] {
+  const sources: string[] = [...resolveConfigWatchSources(siteDir, options), 'docs-metadata'];
+
+  if (options.schema) {
+    sources.push(...toArray(options.schema));
+  }
+
+  return Array.from(
+    new Set(
+      sources
+        .map((entry) => normalizeWatchPath(entry, siteDir))
+        .filter((entry): entry is string => Boolean(entry))
+    )
+  );
 }
 
 function createPluginLogger(options: { quiet: boolean; verbose: boolean }): Logger {

@@ -10,7 +10,11 @@ import {
   type GraphqlDocDocusaurusPluginOptions,
 } from './options.js';
 import { createMarkdownRedirectWebpackConfig } from './markdown-redirect.js';
-import { runPluginGeneration, type PluginGenerationResult } from './run-generation.js';
+import {
+  buildPluginWatchTargets,
+  runPluginGeneration,
+  type PluginGenerationResult,
+} from './run-generation.js';
 
 const require = createRequire(import.meta.url);
 const runtimeDir = path.dirname(fileURLToPath(import.meta.url));
@@ -36,8 +40,8 @@ const themePath = path.join(resolvePackageRoot(runtimeDir), 'src/core/adapters/d
 /**
  * Docusaurus plugin entrypoint for graphql-doc generation.
  *
- * The plugin performs a single generation pass during Docusaurus plugin
- * lifecycle loading so downstream docs plugins consume fresh generated files.
+ * Generation is tied to plugin lifecycle hooks so downstream docs plugins
+ * consume fresh files both on startup and on watched-file re-invocations.
  */
 export default function graphqlDocDocusaurusPlugin(
   context: LoadContext,
@@ -45,7 +49,6 @@ export default function graphqlDocDocusaurusPlugin(
 ): Plugin<PluginGenerationResult> {
   const options = normalizePluginOptions(rawOptions);
   validatePluginOptions(options);
-  let generationPromise: Promise<PluginGenerationResult> | null = null;
 
   return {
     name: 'graphql-doc-docusaurus-plugin',
@@ -53,22 +56,19 @@ export default function graphqlDocDocusaurusPlugin(
       // Generation is intentionally tied to loadContent so it runs during
       // startup/build and before downstream plugin content phases consume
       // generated files.
-      //
-      // Docusaurus can re-enter hooks in long-running sessions. Memoization
-      // keeps this plugin deterministic by executing at most once per lifecycle.
-      if (!generationPromise) {
-        generationPromise = runPluginGeneration({
-          siteDir: context.siteDir,
-          options,
-        });
-      }
-      return generationPromise;
+      return runPluginGeneration({
+        siteDir: context.siteDir,
+        options,
+      });
     },
     configureWebpack() {
       return createMarkdownRedirectWebpackConfig({
         siteDir: context.siteDir,
         options: options.markdownRedirect,
       });
+    },
+    getPathsToWatch() {
+      return buildPluginWatchTargets(context.siteDir, options);
     },
     getClientModules() {
       return [
