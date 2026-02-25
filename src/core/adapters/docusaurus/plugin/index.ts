@@ -1,3 +1,4 @@
+import type { LoadContext, Plugin } from '@docusaurus/types';
 import {
   normalizePluginOptions,
   validatePluginOptions,
@@ -6,16 +7,6 @@ import {
 import { createMarkdownRedirectWebpackConfig } from './markdown-redirect.js';
 import { runPluginGeneration, type PluginGenerationResult } from './run-generation.js';
 
-interface DocusaurusContextLike {
-  siteDir: string;
-}
-
-interface DocusaurusPluginLike {
-  name: string;
-  loadContent?: () => Promise<unknown>;
-  configureWebpack?: () => Record<string, unknown> | undefined;
-}
-
 /**
  * Docusaurus plugin entrypoint for graphql-doc generation.
  *
@@ -23,9 +14,9 @@ interface DocusaurusPluginLike {
  * lifecycle loading so downstream docs plugins consume fresh generated files.
  */
 export default function graphqlDocDocusaurusPlugin(
-  context: DocusaurusContextLike,
+  context: LoadContext,
   rawOptions: GraphqlDocDocusaurusPluginOptions = {}
-): DocusaurusPluginLike {
+): Plugin<PluginGenerationResult> {
   const options = normalizePluginOptions(rawOptions);
   validatePluginOptions(options);
   let generationPromise: Promise<PluginGenerationResult> | null = null;
