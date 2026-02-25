@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const runPluginGenerationMock = vi.hoisted(() => vi.fn());
@@ -12,6 +13,8 @@ vi.mock('./markdown-redirect.js', () => ({
 }));
 
 import graphqlDocDocusaurusPlugin from './index.js';
+
+const require = createRequire(import.meta.url);
 
 describe('graphqlDocDocusaurusPlugin', () => {
   beforeEach(() => {
@@ -83,6 +86,15 @@ describe('graphqlDocDocusaurusPlugin', () => {
         staticDir: './public-static',
       },
     });
+  });
+
+  it('injects graphql-doc CSS modules into the client bundle', () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+
+    expect(plugin.getClientModules?.()).toEqual([
+      require.resolve('@lewl/graphql-doc/components/styles.css'),
+      require.resolve('@lewl/graphql-doc/components/docusaurus.css'),
+    ]);
   });
 
   it('fails fast when invalid options are provided', () => {

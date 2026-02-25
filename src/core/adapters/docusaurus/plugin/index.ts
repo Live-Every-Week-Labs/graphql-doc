@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import type { LoadContext, Plugin } from '@docusaurus/types';
 import {
   normalizePluginOptions,
@@ -7,6 +8,8 @@ import {
 } from './options.js';
 import { createMarkdownRedirectWebpackConfig } from './markdown-redirect.js';
 import { runPluginGeneration, type PluginGenerationResult } from './run-generation.js';
+
+const require = createRequire(import.meta.url);
 
 /**
  * Docusaurus plugin entrypoint for graphql-doc generation.
@@ -44,6 +47,12 @@ export default function graphqlDocDocusaurusPlugin(
         siteDir: context.siteDir,
         options: options.markdownRedirect,
       });
+    },
+    getClientModules() {
+      return [
+        require.resolve('@lewl/graphql-doc/components/styles.css'),
+        require.resolve('@lewl/graphql-doc/components/docusaurus.css'),
+      ];
     },
   };
 }
