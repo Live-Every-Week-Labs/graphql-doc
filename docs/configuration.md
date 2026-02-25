@@ -184,7 +184,6 @@ Runtime options available on the plugin itself:
 | `markdownRedirect.docsBasePath` | `/docs/api`  | Docs base path inspected for markdown-aware requests.               |
 | `markdownRedirect.llmDocsPath`  | `/llm-docs`  | Redirect target base path for generated markdown pages.             |
 | `markdownRedirect.staticDir`    | `./static`   | Static directory used to detect available LLM markdown files.       |
-| `watch`                         | `false`      | Not supported in v1; plugin runs once per start/build lifecycle.    |
 | `verbose`                       | `false`      | Emits plugin generation logs.                                       |
 | `quiet`                         | `false`      | Suppresses plugin warnings/logs; mutually exclusive with `verbose`. |
 
