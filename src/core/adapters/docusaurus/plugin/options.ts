@@ -7,6 +7,7 @@ import type { OptionValidationContext } from '@docusaurus/types';
  * migrate to plugin usage with minimal cognitive overhead.
  */
 export interface GraphqlDocDocusaurusPluginOptions {
+  id?: string;
   configPath?: string;
   schema?: string | string[];
   outputDir?: string;
@@ -38,6 +39,7 @@ export interface NormalizedMarkdownRedirectOptions {
  * Fully normalized plugin options used by runtime code.
  */
 export interface NormalizedGraphqlDocDocusaurusPluginOptions {
+  id?: string;
   configPath?: string;
   schema?: string | string[];
   outputDir?: string;
@@ -58,6 +60,7 @@ export function normalizePluginOptions(
   options: GraphqlDocDocusaurusPluginOptions = {}
 ): NormalizedGraphqlDocDocusaurusPluginOptions {
   return {
+    id: options.id,
     configPath: options.configPath,
     schema: options.schema,
     outputDir: options.outputDir,
@@ -123,5 +126,8 @@ export function validateOptions(
     throw createDocusaurusValidationError(message);
   }
 
-  return rawOptions;
+  return {
+    id: rawOptions.id ?? 'default',
+    ...rawOptions,
+  };
 }

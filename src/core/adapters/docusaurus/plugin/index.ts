@@ -1,7 +1,6 @@
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { LoadContext, Plugin } from '@docusaurus/types';
 import {
   normalizePluginOptions,
@@ -16,8 +15,8 @@ import {
   type PluginGenerationResult,
 } from './run-generation.js';
 
-const require = createRequire(import.meta.url);
-const runtimeDir = path.dirname(fileURLToPath(import.meta.url));
+const runtimeDir = typeof __dirname === 'string' ? __dirname : process.cwd();
+const runtimeRequire = createRequire(path.join(runtimeDir, '__graphql-doc-plugin-runtime__.cjs'));
 
 function resolvePackageRoot(startDir: string): string {
   let currentDir = startDir;
@@ -90,8 +89,8 @@ export default function graphqlDocDocusaurusPlugin(
     },
     getClientModules() {
       return [
-        require.resolve('@lewl/graphql-doc/components/styles.css'),
-        require.resolve('@lewl/graphql-doc/components/docusaurus.css'),
+        runtimeRequire.resolve('@lewl/graphql-doc/components/styles.css'),
+        runtimeRequire.resolve('@lewl/graphql-doc/components/docusaurus.css'),
       ];
     },
     getThemePath() {

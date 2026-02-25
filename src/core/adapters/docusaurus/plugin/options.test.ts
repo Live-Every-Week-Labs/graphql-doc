@@ -6,6 +6,7 @@ describe('docusaurus plugin options', () => {
     const normalized = normalizePluginOptions();
 
     expect(normalized).toEqual({
+      id: undefined,
       configPath: undefined,
       schema: undefined,
       outputDir: undefined,
@@ -104,7 +105,10 @@ describe('docusaurus plugin options', () => {
       validate: (() => options) as never,
     });
 
-    expect(validated).toEqual(options);
+    expect(validated).toEqual({
+      id: 'default',
+      ...options,
+    });
   });
 
   it('throws a ValidationError for invalid docusaurus options', () => {

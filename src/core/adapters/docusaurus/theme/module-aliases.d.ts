@@ -5,12 +5,12 @@
  * contracts here to keep local type-checking strict without pulling in full
  * Docusaurus app types.
  */
-declare module '@theme-original/MDXComponents' {
+declare module '@theme-init/MDXComponents' {
   const MDXComponents: Record<string, unknown>;
   export default MDXComponents;
 }
 
-declare module '@theme-original/DocItem/Layout' {
+declare module '@theme-init/DocItem/Layout' {
   import type { ComponentType, PropsWithChildren } from 'react';
 
   const Layout: ComponentType<PropsWithChildren<Record<string, unknown>>>;

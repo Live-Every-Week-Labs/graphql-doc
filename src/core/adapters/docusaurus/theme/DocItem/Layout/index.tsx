@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import Layout from '@theme-original/DocItem/Layout';
+import Layout from '@theme-init/DocItem/Layout';
 import { useDoc } from '@docusaurus/plugin-content-docs/client';
 import { TwoColumnContent } from '@lewl/graphql-doc/components';
 

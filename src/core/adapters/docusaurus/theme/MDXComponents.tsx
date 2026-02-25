@@ -1,4 +1,4 @@
-import MDXComponents from '@theme-original/MDXComponents';
+import MDXComponents from '@theme-init/MDXComponents';
 import {
   ArgumentsTable,
   CodeExample,
