@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const runPluginGenerationMock = vi.hoisted(() => vi.fn());
 const buildPluginWatchTargetsMock = vi.hoisted(() => vi.fn());
 const createMarkdownRedirectWebpackConfigMock = vi.hoisted(() => vi.fn());
+const registerCliCommandsMock = vi.hoisted(() => vi.fn());
 
 vi.mock('./run-generation.js', () => ({
   buildPluginWatchTargets: buildPluginWatchTargetsMock,
@@ -15,6 +16,10 @@ vi.mock('./run-generation.js', () => ({
 
 vi.mock('./markdown-redirect.js', () => ({
   createMarkdownRedirectWebpackConfig: createMarkdownRedirectWebpackConfigMock,
+}));
+
+vi.mock('./extend-cli.js', () => ({
+  registerCliCommands: registerCliCommandsMock,
 }));
 
 import graphqlDocDocusaurusPlugin, { getSwizzleComponentList } from './index.js';
@@ -129,6 +134,30 @@ describe('graphqlDocDocusaurusPlugin', () => {
 
     expect(plugin.getPathsToWatch?.()).toEqual(['/repo/schema.graphql', '/repo/config.json']);
     expect(buildPluginWatchTargetsMock).toHaveBeenCalledWith(
+      '/repo',
+      expect.objectContaining({
+        schema: './schema.graphql',
+        configPath: './graphql-doc.config.json',
+      })
+    );
+  });
+
+  it('registers graphql-doc CLI commands through extendCli', () => {
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo' },
+      {
+        schema: './schema.graphql',
+        configPath: './graphql-doc.config.json',
+      }
+    );
+    const cli = {
+      command: vi.fn(),
+    };
+
+    plugin.extendCli?.(cli as any);
+
+    expect(registerCliCommandsMock).toHaveBeenCalledWith(
+      cli,
       '/repo',
       expect.objectContaining({
         schema: './schema.graphql',

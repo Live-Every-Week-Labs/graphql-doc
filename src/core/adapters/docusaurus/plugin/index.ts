@@ -15,6 +15,7 @@ import {
   runPluginGeneration,
   type PluginGenerationResult,
 } from './run-generation.js';
+import { registerCliCommands } from './extend-cli.js';
 
 function getRuntimeDir(): string {
   if (typeof __dirname === 'string') {
@@ -134,6 +135,9 @@ export default function graphqlDocDocusaurusPlugin(
     },
     getPathsToWatch() {
       return buildPluginWatchTargets(context.siteDir, options);
+    },
+    extendCli(cli) {
+      registerCliCommands(cli, context.siteDir, options);
     },
     getClientModules() {
       return [
