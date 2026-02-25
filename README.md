@@ -45,7 +45,33 @@ npm install @lewl/graphql-doc
 
 ## Quick Start
 
-### 1. Initialize a Project
+### 1. Configure as a Docusaurus Plugin (Recommended)
+
+Add the published plugin entry in your `docusaurus.config.ts`:
+
+```ts
+plugins: [
+  [
+    require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
+    {
+      configPath: './graphql-doc.config.json',
+      schema: './schema.graphql',
+      outputDir: './docs/api',
+      // LLM markdown generation is enabled by default
+      llmDocs: true,
+      // Markdown redirect middleware is enabled by default
+      markdownRedirect: {
+        enabled: true,
+      },
+    },
+  ],
+];
+```
+
+On `docusaurus start` or `docusaurus build`, the plugin runs one generation pass before docs
+content loading.
+
+### 2. Initialize a Project
 
 ```bash
 # Interactive setup
@@ -63,7 +89,7 @@ This creates:
 
 > **Important for AppSync/Production:** You must include `graphql-doc-directives.graphql` in your schema before deploying to production. See the [Directive Setup Guide](./docs/directives-setup.md) for instructions.
 
-### 2. Generate Documentation
+### 3. Generate Documentation (CLI Workflow)
 
 ```bash
 npx graphql-doc generate -s schema.graphql -o docs/api
@@ -84,13 +110,18 @@ extensions:
     outputDir: './docs/api'
     framework: 'docusaurus'
     metadataDir: './docs-metadata'
-    agentSkill:
-      enabled: true
     adapters:
       docusaurus:
         introDocs:
           - ./docs/api-overview.mdx
 ```
+
+`agentSkill.enabled` is opt-in and remains disabled unless you explicitly enable it.
+
+## Adapter Isolation
+
+All Docusaurus-specific runtime behavior is isolated in the adapter layer:
+`src/core/adapters/docusaurus/**`.
 
 ## Development
 

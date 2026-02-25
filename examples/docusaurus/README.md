@@ -16,6 +16,24 @@ npm run start
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
+## Plugin Setup
+
+This example uses the package plugin export directly in `docusaurus.config.ts`:
+
+```ts
+plugins: [
+  [
+    require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
+    {
+      configPath: './graphql-doc.config.json',
+      schema: '../../test_schemas/ecommerce/ecommerce.graphql',
+    },
+  ],
+];
+```
+
+LLM markdown generation and markdown redirect middleware are both default-on in this plugin flow.
+
 ## LLM Docs Output
 
 This example config writes LLM-optimized Markdown to `./static/llm-docs` and `./static/llms.txt`.
@@ -27,8 +45,8 @@ When the site is running, the raw files are available at:
 
 ## Markdown Redirect Middleware (Dev Server)
 
-The sample site includes a small dev-server middleware that checks for
-`Accept: text/markdown` and redirects docs page requests to the raw LLM Markdown files.
+The plugin's built-in dev-server middleware checks for `Accept: text/markdown` and redirects docs
+page requests to raw LLM Markdown files.
 Example:
 
 ```bash

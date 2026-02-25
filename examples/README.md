@@ -4,4 +4,4 @@ This directory contains example repositories demonstrating how to use the `graph
 
 ## Contents
 
-- **[docusaurus](./docusaurus)**: A complete Docusaurus site configured to use the generator. This serves as a reference implementation for integrating GraphQL documentation into a Docusaurus project.
+- **[docusaurus](./docusaurus)**: A complete Docusaurus site configured with the published plugin entrypoint (`@lewl/graphql-doc/docusaurus-plugin`). This is the reference integration for plugin-first GraphQL doc generation.

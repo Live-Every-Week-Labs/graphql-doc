@@ -12,7 +12,33 @@ npm install -g @lewl/graphql-doc
 npm install --save-dev @lewl/graphql-doc
 ```
 
-## Quick Start
+## Docusaurus Plugin Quick Start (Recommended)
+
+Configure the package directly as a Docusaurus plugin so docs are generated during site startup and
+build:
+
+```ts
+// docusaurus.config.ts
+plugins: [
+  [
+    require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
+    {
+      configPath: './graphql-doc.config.json',
+      schema: './schema.graphql',
+      outputDir: './docs/api',
+      // Default-on for plugin workflows:
+      llmDocs: true,
+      markdownRedirect: {
+        enabled: true,
+      },
+    },
+  ],
+];
+```
+
+The plugin runs once per `docusaurus start` / `docusaurus build` lifecycle.
+
+## CLI Quick Start
 
 ### 1. Initialize Your Project
 
@@ -126,6 +152,7 @@ For MVP, error documentation is handled in two places:
 extensions:
   graphql-doc:
     configVersion: 1
+    # Opt-in only: AI skill files and intro insertion stay disabled unless enabled.
     agentSkill:
       enabled: true
       introDoc:
@@ -149,32 +176,28 @@ extensions:
 
 ## Integration with Docusaurus
 
-1. Generate the documentation into your Docusaurus `docs` folder or a subdirectory.
+Use the published plugin entrypoint in `plugins`:
 
-2. If you already have `sidebars.js`, the generator will merge into it by default (updating
-   `apiSidebar` and preserving any other sidebars).
-
-3. If you prefer a separate sidebar file, disable merging and import the result:
-
-```javascript
-// sidebars.js
-const apiSidebar = require('./sidebars.api.js');
-
-module.exports = {
-  ...apiSidebar,
-  myOtherSidebar: [ ... ],
-};
+```ts
+plugins: [
+  [
+    require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
+    {
+      configPath: './graphql-doc.config.json',
+    },
+  ],
+];
 ```
 
-```yaml
-# .graphqlrc
-extensions:
-  graphql-doc:
-    adapters:
-      docusaurus:
-        sidebarMerge: false
-        sidebarFile: ./sidebars.api.js
-```
+Migration from script/manual generation:
+
+1. Remove custom scripts that run `graphql-doc generate` before Docusaurus.
+2. Remove any local markdown redirect plugin in your Docusaurus site.
+3. Keep your existing graphql-doc config (`.graphqlrc` or `graphql-doc.config.*`).
+4. Add the exported plugin subpath: `@lewl/graphql-doc/docusaurus-plugin`.
+
+The generator still merges into `apiSidebar` by default. If you need separate sidebars, keep using
+`adapters.docusaurus.sidebarMerge: false` and `sidebarFile`.
 
 ## LLM Docs Output
 

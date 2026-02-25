@@ -6,6 +6,9 @@ The generator can be configured through:
 - `graphql-doc.config.js` / `.ts` / `.json`
 - `.graphql-docrc` / `.graphql-docrc.json`
 
+All Docusaurus-specific runtime plugin code is isolated under
+`src/core/adapters/docusaurus/**`.
+
 ## Starter Configuration
 
 Most projects only need these options:
@@ -128,6 +131,46 @@ Each entry can be:
 
 - `string`: source path.
 - `object`: `{ source | content, outputPath?, id?, label?, title? }`
+
+## Docusaurus Plugin Runtime Options
+
+Use the exported plugin subpath in `docusaurus.config.ts`:
+
+```ts
+plugins: [
+  [
+    require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
+    {
+      configPath: './graphql-doc.config.json',
+      schema: './schema.graphql',
+      outputDir: './docs/api',
+    },
+  ],
+];
+```
+
+Runtime options available on the plugin itself:
+
+| Option                          | Default      | Notes                                                               |
+| :------------------------------ | :----------- | :------------------------------------------------------------------ |
+| `configPath`                    |              | Path to `.graphqlrc` or `graphql-doc.config.*`.                     |
+| `schema`                        |              | Overrides schema pointer(s) for plugin generation only.             |
+| `outputDir`                     |              | Overrides `outputDir` for plugin generation only.                   |
+| `cleanOutput`                   |              | Overrides `cleanOutputDir` for plugin generation only.              |
+| `llmDocs`                       | `true`       | LLM markdown generation is enabled by default in plugin workflows.  |
+| `llmDocsStrategy`               | config value | Optional override (`single` or `chunked`).                          |
+| `llmDocsDepth`                  | config value | Optional override for max LLM type depth (`1` to `5`).              |
+| `llmExamples`                   | `true`       | Includes examples in LLM markdown by default.                       |
+| `markdownRedirect.enabled`      | `true`       | Markdown redirect middleware is enabled by default.                 |
+| `markdownRedirect.docsBasePath` | `/docs/api`  | Docs base path inspected for markdown-aware requests.               |
+| `markdownRedirect.llmDocsPath`  | `/llm-docs`  | Redirect target base path for generated markdown pages.             |
+| `markdownRedirect.staticDir`    | `./static`   | Static directory used to detect available LLM markdown files.       |
+| `watch`                         | `false`      | Not supported in v1; plugin runs once per start/build lifecycle.    |
+| `verbose`                       | `false`      | Emits plugin generation logs.                                       |
+| `quiet`                         | `false`      | Suppresses plugin warnings/logs; mutually exclusive with `verbose`. |
+
+The plugin runs generation once during Docusaurus startup/build. AI skill artifact generation and
+intro-doc insertion remain opt-in through `agentSkill.enabled` in generator config.
 
 ## LLM Docs Options
 
