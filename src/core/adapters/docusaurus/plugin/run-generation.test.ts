@@ -82,4 +82,73 @@ describe('buildPluginWatchTargets', () => {
     expect(targets).toContain(path.join(siteDir, 'docs-metadata'));
     expect(targets.find((entry) => entry.includes('example.com'))).toBeUndefined();
   });
+
+  it('adds schema and metadata paths defined in loaded config files', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-watch-targets-'));
+    tempDirs.push(siteDir);
+
+    fs.mkdirSync(path.join(siteDir, 'schemas'), { recursive: true });
+    fs.writeFileSync(path.join(siteDir, 'schemas', 'api.graphql'), 'type Query { ping: String! }');
+    fs.mkdirSync(path.join(siteDir, 'docs-metadata', 'examples'), { recursive: true });
+    fs.mkdirSync(path.join(siteDir, 'docs-metadata', 'errors'), { recursive: true });
+    fs.writeFileSync(
+      path.join(siteDir, '.graphqlrc'),
+      [
+        'schema: ./schemas/api.graphql',
+        'extensions:',
+        '  graphql-doc:',
+        '    examples:',
+        '      dir: ./docs-metadata/examples',
+        '    errors:',
+        '      dir: ./docs-metadata/errors',
+        '',
+      ].join('\n')
+    );
+
+    const targets = buildPluginWatchTargets(siteDir, createNormalizedOptions());
+
+    expect(targets).toEqual(
+      expect.arrayContaining([
+        path.join(siteDir, '.graphqlrc'),
+        path.join(siteDir, 'schemas', 'api.graphql'),
+        path.join(siteDir, 'docs-metadata', 'examples'),
+        path.join(siteDir, 'docs-metadata', 'errors'),
+      ])
+    );
+  });
+
+  it('filters remote schema pointers discovered from config while keeping local metadata paths', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-watch-targets-'));
+    tempDirs.push(siteDir);
+
+    fs.mkdirSync(path.join(siteDir, 'docs-metadata', 'examples'), { recursive: true });
+    fs.writeFileSync(
+      path.join(siteDir, '.graphqlrc'),
+      [
+        'schema: https://example.com/schema.graphql',
+        'extensions:',
+        '  graphql-doc:',
+        '    examplesDir: ./docs-metadata/examples',
+        '',
+      ].join('\n')
+    );
+
+    const targets = buildPluginWatchTargets(siteDir, createNormalizedOptions());
+
+    expect(targets.find((entry) => entry.includes('example.com'))).toBeUndefined();
+    expect(targets).toContain(path.join(siteDir, 'docs-metadata', 'examples'));
+  });
+
+  it('does not crash watch target resolution when config parsing fails', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-watch-targets-'));
+    tempDirs.push(siteDir);
+
+    fs.writeFileSync(path.join(siteDir, '.graphqlrc'), 'schema: [');
+    fs.mkdirSync(path.join(siteDir, 'docs-metadata'), { recursive: true });
+
+    const targets = buildPluginWatchTargets(siteDir, createNormalizedOptions());
+
+    expect(targets).toContain(path.join(siteDir, '.graphqlrc'));
+    expect(targets).toContain(path.join(siteDir, 'docs-metadata'));
+  });
 });

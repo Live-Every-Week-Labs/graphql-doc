@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { cosmiconfigSync } from 'cosmiconfig';
 import { loadGeneratorConfig, resolveConfigPaths } from '../../../config/loader.js';
 import type { Config } from '../../../config/schema.js';
 import { resolveSchemaPointer, resolveSchemaPointers } from '../../../config/schema-pointer.js';
@@ -36,9 +37,106 @@ const DEFAULT_CONFIG_CANDIDATES = [
   'graphql-doc.config.ts',
   'graphql-doc.config.json',
 ];
+const MODULE_NAME = 'graphql-doc';
+const UNSUPPORTED_SYNC_CONFIG_EXTENSIONS = new Set(['.js', '.cjs', '.mjs', '.ts']);
+const EMPTY_WATCH_CONFIG: WatchConfigSources = {};
 
 function toArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
+}
+
+interface WatchConfigSources {
+  schema?: string | string[];
+  examplesDir?: string;
+  errorsDir?: string;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function getNestedRecord(source: Record<string, unknown>, key: string): Record<string, unknown> {
+  const value = source[key];
+  return isRecord(value) ? value : {};
+}
+
+function getNestedString(source: Record<string, unknown>, key: string): string | undefined {
+  const value = source[key];
+  return typeof value === 'string' ? value : undefined;
+}
+
+function getNestedStringOrArray(
+  source: Record<string, unknown>,
+  key: string
+): string | string[] | undefined {
+  const value = source[key];
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (Array.isArray(value) && value.every((entry) => typeof entry === 'string')) {
+    return value;
+  }
+
+  return undefined;
+}
+
+function supportsSyncWatchConfig(configPath: string): boolean {
+  const ext = path.extname(configPath).toLowerCase();
+  return !UNSUPPORTED_SYNC_CONFIG_EXTENSIONS.has(ext);
+}
+
+function readWatchConfigSources(rawConfig: unknown): WatchConfigSources {
+  if (!isRecord(rawConfig)) {
+    return EMPTY_WATCH_CONFIG;
+  }
+
+  const rootConfig = rawConfig;
+  const extensions = getNestedRecord(rootConfig, 'extensions');
+  const extensionConfig = getNestedRecord(extensions, MODULE_NAME);
+  const source = Object.keys(extensionConfig).length > 0 ? extensionConfig : rootConfig;
+  const examples = getNestedRecord(source, 'examples');
+  const errors = getNestedRecord(source, 'errors');
+
+  const schema =
+    getNestedStringOrArray(source, 'schema') ?? getNestedStringOrArray(rootConfig, 'schema');
+  const examplesDir = getNestedString(source, 'examplesDir') ?? getNestedString(examples, 'dir');
+  const errorsDir = getNestedString(source, 'errorsDir') ?? getNestedString(errors, 'dir');
+
+  return {
+    schema,
+    examplesDir,
+    errorsDir,
+  };
+}
+
+function loadGeneratorConfigSync(
+  siteDir: string,
+  options: NormalizedGraphqlDocDocusaurusPluginOptions
+): WatchConfigSources {
+  const explorer = cosmiconfigSync(MODULE_NAME);
+  const candidatePaths = resolveConfigWatchSources(siteDir, options);
+
+  for (const configPath of candidatePaths) {
+    const resolvedPath = path.isAbsolute(configPath)
+      ? configPath
+      : path.resolve(siteDir, configPath);
+    if (!fs.existsSync(resolvedPath) || !supportsSyncWatchConfig(resolvedPath)) {
+      continue;
+    }
+
+    try {
+      const loaded = explorer.load(resolvedPath);
+      if (loaded?.config) {
+        return readWatchConfigSources(loaded.config);
+      }
+    } catch {
+      // Skip malformed or unsupported config payloads. Base watch targets are
+      // still returned from explicit options and file-level config candidates.
+    }
+  }
+
+  return EMPTY_WATCH_CONFIG;
 }
 
 function normalizeWatchPath(input: string, targetDir: string): string | null {
@@ -90,6 +188,17 @@ export function buildPluginWatchTargets(
 
   if (options.schema) {
     sources.push(...toArray(options.schema));
+  }
+
+  const configSources = loadGeneratorConfigSync(siteDir, options);
+  if (configSources.schema) {
+    sources.push(...toArray(configSources.schema));
+  }
+  if (configSources.examplesDir) {
+    sources.push(configSources.examplesDir);
+  }
+  if (configSources.errorsDir) {
+    sources.push(configSources.errorsDir);
   }
 
   return Array.from(
