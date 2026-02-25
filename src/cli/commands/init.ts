@@ -220,7 +220,7 @@ export async function runInit(options: InitOptions): Promise<void> {
     const directivesPath = path.join(targetDir, 'graphql-doc-directives.graphql');
     const directivesContent = `# GraphQL Documentation Generator Directives
 #
-# These directives are used by @graphql-doc/generator to organize and control
+# These directives are used by @lewl/graphql-doc to organize and control
 # documentation generation. They have no runtime behavior and are safe to include
 # in your production schema.
 #

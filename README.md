@@ -40,7 +40,7 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 ## Installation
 
 ```bash
-npm install @graphql-doc/generator
+npm install @lewl/graphql-doc
 ```
 
 ## Quick Start

@@ -8,10 +8,10 @@ You can install the generator globally or locally in your project.
 
 ```bash
 # Global installation
-npm install -g @graphql-doc/generator
+npm install -g @lewl/graphql-doc
 
 # Local installation
-npm install @graphql-doc/generator
+npm install @lewl/graphql-doc
 ```
 
 ## Usage

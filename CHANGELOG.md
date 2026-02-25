@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial public release of `@graphql-doc/generator`.
+- Initial public release of `@lewl/graphql-doc`.
 - Operation-first GraphQL documentation generation pipeline.
 - Docusaurus adapter with multi-page and single-page output modes.
 - CLI commands for project initialization, validation, and generation.

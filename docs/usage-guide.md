@@ -6,10 +6,10 @@ You can install the generator globally or as a dev dependency in your project.
 
 ```bash
 # Global installation
-npm install -g @graphql-doc/generator
+npm install -g @lewl/graphql-doc
 
 # Local installation
-npm install --save-dev @graphql-doc/generator
+npm install --save-dev @lewl/graphql-doc
 ```
 
 ## Quick Start

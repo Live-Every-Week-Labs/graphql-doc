@@ -140,7 +140,7 @@ describe('DocusaurusAdapter', () => {
 
     const mdxFile = files.find((f) => f.path === 'users/get-user.mdx');
     expect(mdxFile?.content).toContain(
-      "import { OperationView } from '@graphql-doc/generator/components'"
+      "import { OperationView } from '@lewl/graphql-doc/components'"
     );
     expect(mdxFile?.content).toContain("import operationsByType from '../_data/operations.json'");
     expect(mdxFile?.content).toContain("import typesByName from '../_data/types.json'");

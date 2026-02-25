@@ -38,7 +38,7 @@ If you've already initialized your project, copy the directives file from the pa
 
 ```bash
 # Copy from node_modules
-cp node_modules/@graphql-doc/generator/directives.graphql ./graphql-doc-directives.graphql
+cp node_modules/@lewl/graphql-doc/directives.graphql ./graphql-doc-directives.graphql
 
 # Or create it manually (see below)
 ```
@@ -173,7 +173,7 @@ Resources:
 
 The full directive definitions are available in:
 
-- `node_modules/@graphql-doc/generator/directives.graphql` (after npm install)
+- `node_modules/@lewl/graphql-doc/directives.graphql` (after npm install)
 - `graphql-doc-directives.graphql` (after running `graphql-doc init`)
 - [GitHub Repository](https://github.com/austinzani/graphql-doc/blob/main/directives.graphql)
 
@@ -241,7 +241,7 @@ After deploying to AppSync, go to the AWS Console → AppSync → Your API → S
 1. **Include directives at the top** of your schema file for visibility
 2. **Version control** `graphql-doc-directives.graphql` with your project
 3. **Validate before deploying** using `graphql validate` or similar tools
-4. **Keep directives updated** when upgrading `@graphql-doc/generator`
+4. **Keep directives updated** when upgrading `@lewl/graphql-doc`
 5. **Document for your team** that these directives are required for schema deployments
 
 ## Runtime Behavior

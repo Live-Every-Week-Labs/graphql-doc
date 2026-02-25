@@ -5,7 +5,7 @@ The component library renders GraphQL DocModel output in a two-column, Stripe/Re
 ## Installation
 
 ```bash
-npm install @graphql-doc/generator
+npm install @lewl/graphql-doc
 ```
 
 ```tsx
@@ -17,10 +17,10 @@ import {
   FieldTable,
   ArgumentsTable,
   TypeViewer,
-} from '@graphql-doc/generator/components';
-import '@graphql-doc/generator/components/styles.css';
+} from '@lewl/graphql-doc/components';
+import '@lewl/graphql-doc/components/styles.css';
 // Optional: sidebar helpers for the Docusaurus adapter
-import '@graphql-doc/generator/components/docusaurus.css';
+import '@lewl/graphql-doc/components/docusaurus.css';
 ```
 
 If you are not using Docusaurus, you can skip the `docusaurus.css` import.
@@ -34,7 +34,7 @@ The generator emits MDX that imports shared JSON maps and renders components:
 api: true
 ---
 
-import { OperationView } from '@graphql-doc/generator/components';
+import { OperationView } from '@lewl/graphql-doc/components';
 import operationsByType from '../_data/operations.json';
 import typesByName from '../_data/types.json';
 
@@ -73,7 +73,7 @@ npm run swizzle @docusaurus/theme-classic DocItem/Layout -- --wrap
 ```tsx
 import React from 'react';
 import Layout from '@theme-original/DocItem/Layout';
-import { TwoColumnContent } from '@graphql-doc/generator/components';
+import { TwoColumnContent } from '@lewl/graphql-doc/components';
 
 export default function LayoutWrapper(props) {
   const isApiDoc = props.content?.frontMatter?.api === true;
@@ -114,7 +114,7 @@ import {
   ArgumentsTable,
   ExamplesPanel,
   CodeExample,
-} from '@graphql-doc/generator/components';
+} from '@lewl/graphql-doc/components';
 
 export default {
   ...MDXComponents,
@@ -151,7 +151,7 @@ prism: {
 
 ## Theming
 
-All components read from `@graphql-doc/generator/components/styles.css` and are themed via CSS custom properties. Common tokens include:
+All components read from `@lewl/graphql-doc/components/styles.css` and are themed via CSS custom properties. Common tokens include:
 
 - `--gql-type-color`, `--gql-field-color`, `--gql-description-color`
 - `--gql-success-bg`, `--gql-warning-bg`, `--gql-error-bg`
