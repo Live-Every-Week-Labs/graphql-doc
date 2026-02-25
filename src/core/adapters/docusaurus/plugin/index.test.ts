@@ -52,7 +52,6 @@ describe('graphqlDocDocusaurusPlugin', () => {
         schema: './schema.graphql',
         llmDocs: true,
         llmExamples: true,
-        watch: false,
       }),
     });
   });
@@ -91,9 +90,10 @@ describe('graphqlDocDocusaurusPlugin', () => {
       graphqlDocDocusaurusPlugin(
         { siteDir: '/repo' },
         {
-          watch: true,
+          verbose: true,
+          quiet: true,
         }
       )
-    ).toThrow('does not support watch mode yet');
+    ).toThrow('verbose and quiet cannot both be true');
   });
 });

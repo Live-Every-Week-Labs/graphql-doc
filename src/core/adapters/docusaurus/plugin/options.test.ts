@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizePluginOptions, validatePluginOptions } from './options.js';
+import { normalizePluginOptions, validateOptions, validatePluginOptions } from './options.js';
 
 describe('docusaurus plugin options', () => {
   it('normalizes deterministic defaults', () => {
@@ -20,7 +20,6 @@ describe('docusaurus plugin options', () => {
         llmDocsPath: '/llm-docs',
         staticDir: undefined,
       },
-      watch: false,
       verbose: false,
       quiet: false,
     });
@@ -70,11 +69,6 @@ describe('docusaurus plugin options', () => {
     );
   });
 
-  it('rejects watch mode until plugin watcher support exists', () => {
-    const normalized = normalizePluginOptions({ watch: true });
-    expect(() => validatePluginOptions(normalized)).toThrow('does not support watch mode yet');
-  });
-
   it('rejects an empty markdown redirect docs base path', () => {
     const normalized = normalizePluginOptions({
       markdownRedirect: {
@@ -96,6 +90,36 @@ describe('docusaurus plugin options', () => {
 
     expect(() => validatePluginOptions(normalized)).toThrow(
       'markdownRedirect.llmDocsPath is empty'
+    );
+  });
+
+  it('exports a docusaurus validateOptions hook', () => {
+    const options = {
+      outputDir: './docs/api',
+      llmDocs: true,
+    };
+
+    const validated = validateOptions({
+      options,
+      validate: (() => options) as never,
+    });
+
+    expect(validated).toEqual(options);
+  });
+
+  it('throws a ValidationError for invalid docusaurus options', () => {
+    expect(() =>
+      validateOptions({
+        options: {
+          verbose: true,
+          quiet: true,
+        },
+        validate: (() => ({})) as never,
+      })
+    ).toThrowError(
+      expect.objectContaining({
+        name: 'ValidationError',
+      })
     );
   });
 });

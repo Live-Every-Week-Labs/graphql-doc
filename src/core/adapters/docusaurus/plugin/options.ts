@@ -1,3 +1,5 @@
+import type { OptionValidationContext } from '@docusaurus/types';
+
 /**
  * User-facing options accepted by the Docusaurus plugin entrypoint.
  *
@@ -14,7 +16,6 @@ export interface GraphqlDocDocusaurusPluginOptions {
   llmDocsDepth?: 1 | 2 | 3 | 4 | 5;
   llmExamples?: boolean;
   markdownRedirect?: MarkdownRedirectOptions;
-  watch?: boolean;
   verbose?: boolean;
   quiet?: boolean;
 }
@@ -46,7 +47,6 @@ export interface NormalizedGraphqlDocDocusaurusPluginOptions {
   llmDocsDepth?: 1 | 2 | 3 | 4 | 5;
   llmExamples: boolean;
   markdownRedirect: NormalizedMarkdownRedirectOptions;
-  watch: boolean;
   verbose: boolean;
   quiet: boolean;
 }
@@ -72,7 +72,6 @@ export function normalizePluginOptions(
       llmDocsPath: options.markdownRedirect?.llmDocsPath ?? '/llm-docs',
       staticDir: options.markdownRedirect?.staticDir,
     },
-    watch: options.watch ?? false,
     verbose: options.verbose ?? false,
     quiet: options.quiet ?? false,
   };
@@ -86,13 +85,6 @@ export function validatePluginOptions(options: NormalizedGraphqlDocDocusaurusPlu
     throw new Error('Invalid graphql-doc plugin options: verbose and quiet cannot both be true.');
   }
 
-  if (options.watch) {
-    throw new Error(
-      'The graphql-doc Docusaurus plugin does not support watch mode yet. ' +
-        'Generation currently runs once per startup/build.'
-    );
-  }
-
   if (!options.markdownRedirect.docsBasePath.trim()) {
     throw new Error('Invalid graphql-doc plugin options: markdownRedirect.docsBasePath is empty.');
   }
@@ -100,4 +92,36 @@ export function validatePluginOptions(options: NormalizedGraphqlDocDocusaurusPlu
   if (!options.markdownRedirect.llmDocsPath.trim()) {
     throw new Error('Invalid graphql-doc plugin options: markdownRedirect.llmDocsPath is empty.');
   }
+}
+
+function createDocusaurusValidationError(message: string): Error {
+  const validationError = new Error(message);
+  validationError.name = 'ValidationError';
+  return validationError;
+}
+
+/**
+ * Validate plugin options using Docusaurus's `validateOptions` module contract.
+ *
+ * Docusaurus invokes this before plugin initialization so startup failures are
+ * surfaced during option validation rather than deep in plugin execution.
+ */
+export function validateOptions(
+  context: OptionValidationContext<
+    GraphqlDocDocusaurusPluginOptions,
+    GraphqlDocDocusaurusPluginOptions
+  >
+): GraphqlDocDocusaurusPluginOptions {
+  const rawOptions = context.options ?? {};
+  const normalizedOptions = normalizePluginOptions(rawOptions);
+
+  try {
+    validatePluginOptions(normalizedOptions);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Invalid graphql-doc plugin options supplied.';
+    throw createDocusaurusValidationError(message);
+  }
+
+  return rawOptions;
 }

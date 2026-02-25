@@ -1,6 +1,7 @@
 import type { LoadContext, Plugin } from '@docusaurus/types';
 import {
   normalizePluginOptions,
+  validateOptions,
   validatePluginOptions,
   type GraphqlDocDocusaurusPluginOptions,
 } from './options.js';
@@ -47,4 +48,4 @@ export default function graphqlDocDocusaurusPlugin(
   };
 }
 
-export type { GraphqlDocDocusaurusPluginOptions } from './options.js';
+export { validateOptions, type GraphqlDocDocusaurusPluginOptions } from './options.js';
