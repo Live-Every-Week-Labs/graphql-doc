@@ -15,7 +15,7 @@ npm install --save-dev @lewl/graphql-doc
 ## Docusaurus Plugin Quick Start (Recommended)
 
 Configure the package directly as a Docusaurus plugin so docs are generated during site startup and
-build:
+build, with zero manual theme/CSS wiring:
 
 ```ts
 // docusaurus.config.ts
@@ -26,17 +26,20 @@ plugins: [
       configPath: './graphql-doc.config.json',
       schema: './schema.graphql',
       outputDir: './docs/api',
-      // Default-on for plugin workflows:
-      llmDocs: true,
-      markdownRedirect: {
-        enabled: true,
-      },
     },
   ],
 ];
 ```
 
-The plugin runs once per `docusaurus start` / `docusaurus build` lifecycle.
+When enabled, the plugin automatically:
+
+- injects graphql-doc component CSS (`styles.css` + `docusaurus.css`)
+- provides default `MDXComponents` and `DocItem/Layout` theme wrappers
+- watches schema/config/metadata paths during `docusaurus start`
+- publishes generation metadata via Docusaurus global plugin data
+
+The plugin runs during `docusaurus start` / `docusaurus build`, and in dev mode it re-runs when
+watched files change.
 
 ## CLI Quick Start
 
@@ -193,8 +196,10 @@ Migration from script/manual generation:
 
 1. Remove custom scripts that run `graphql-doc generate` before Docusaurus.
 2. Remove any local markdown redirect plugin in your Docusaurus site.
-3. Keep your existing graphql-doc config (`.graphqlrc` or `graphql-doc.config.*`).
-4. Add the exported plugin subpath: `@lewl/graphql-doc/docusaurus-plugin`.
+3. Remove manual graphql-doc CSS imports from `src/css/custom.css`.
+4. Remove local `src/theme/MDXComponents.*` and `src/theme/DocItem/Layout/*` wrappers if they only re-export graphql-doc defaults.
+5. Keep your existing graphql-doc config (`.graphqlrc` or `graphql-doc.config.*`).
+6. Add the exported plugin subpath: `@lewl/graphql-doc/docusaurus-plugin`.
 
 The generator still merges into `apiSidebar` by default. If you need separate sidebars, keep using
 `adapters.docusaurus.sidebarMerge: false` and `sidebarFile`.

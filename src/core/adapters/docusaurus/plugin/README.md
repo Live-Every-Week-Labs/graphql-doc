@@ -16,10 +16,13 @@ isolation from framework-agnostic pipeline logic.
   Plugin option contracts and normalization defaults.
 - `run-generation.ts`:
   Runtime generation orchestration (config load, schema resolution,
-  generator invocation) used by plugin hooks.
+  generator invocation, and watch-target discovery used by plugin hooks.
 - `markdown-redirect.ts`:
   Dev-server middleware for `Accept: text/markdown` redirects into generated
-  LLM markdown artifacts.
+  LLM markdown artifacts with `baseUrl` awareness.
+- `../theme/*`:
+  Default swizzlable theme components (`MDXComponents` and `DocItem/Layout`)
+  automatically exposed through the plugin.
 
 ## Ownership Boundary
 
@@ -29,9 +32,15 @@ isolation from framework-agnostic pipeline logic.
 
 ## Lifecycle Semantics
 
-- The plugin runs generation in `loadContent`.
-- Generation is memoized to a single execution per Docusaurus lifecycle.
-- Markdown redirect middleware is enabled by default (can be disabled via
-  plugin options).
-- Watch mode is intentionally deferred; the plugin currently performs one pass
-  per `docusaurus start` / `docusaurus build` invocation.
+- `validateOptions` is exported at module level so startup validation errors are
+  surfaced by Docusaurus.
+- `loadContent` runs generation each time Docusaurus invokes the hook.
+- `getPathsToWatch` watches local schema/config/metadata paths so `docusaurus start`
+  can trigger regeneration on change.
+- `getClientModules` auto-injects `@lewl/graphql-doc/components` CSS assets.
+- `getThemePath` exposes default theme wrappers, removing manual swizzle
+  boilerplate for common setups.
+- `contentLoaded` publishes generation metadata with `setGlobalData`.
+- `postBuild` logs a build summary unless `quiet` mode is enabled.
+- Markdown redirect middleware remains enabled by default and can be disabled
+  with plugin options.
