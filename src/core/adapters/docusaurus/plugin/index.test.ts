@@ -284,7 +284,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
       }
     );
 
-    const configured = plugin.configureWebpack?.();
+    const configured = plugin.configureWebpack?.({}, false);
 
     expect(configured).toEqual(webpackConfig);
     expect(createMarkdownRedirectWebpackConfigMock).toHaveBeenCalledWith({
@@ -297,6 +297,15 @@ describe('graphqlDocDocusaurusPlugin', () => {
         staticDir: './public-static',
       },
     });
+  });
+
+  it('returns an empty webpack config object for server builds', () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo', baseUrl: '/' });
+
+    const configured = plugin.configureWebpack?.({}, true);
+
+    expect(configured).toEqual({});
+    expect(createMarkdownRedirectWebpackConfigMock).not.toHaveBeenCalled();
   });
 
   it('injects graphql-doc CSS modules into the client bundle', () => {

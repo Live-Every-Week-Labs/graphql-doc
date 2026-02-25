@@ -126,7 +126,11 @@ export default function graphqlDocDocusaurusPlugin(
         `[graphql-doc] Built ${content.filesWritten} API docs, ${content.llmFilesWritten} LLM docs`
       );
     },
-    configureWebpack() {
+    configureWebpack(_config, isServer) {
+      if (isServer) {
+        return {};
+      }
+
       return createMarkdownRedirectWebpackConfig({
         siteDir: context.siteDir,
         baseUrl: context.baseUrl ?? '/',
