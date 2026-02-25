@@ -63,13 +63,17 @@ function acceptsMarkdown(acceptHeader: string | undefined): boolean {
   return typeof acceptHeader === 'string' && acceptHeader.toLowerCase().includes('text/markdown');
 }
 
+function matchesDocsBasePath(requestPath: string, docsBasePath: string): boolean {
+  return requestPath === docsBasePath || requestPath.startsWith(`${docsBasePath}/`);
+}
+
 function resolveTarget(
   requestPath: string,
   docsBasePath: string,
   llmDocsPath: string,
   staticDir: string
 ): string | undefined {
-  if (!requestPath.startsWith(docsBasePath)) {
+  if (!matchesDocsBasePath(requestPath, docsBasePath)) {
     return undefined;
   }
 
