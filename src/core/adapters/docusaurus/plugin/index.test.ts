@@ -89,7 +89,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
     createMarkdownRedirectWebpackConfigMock.mockReturnValue(webpackConfig);
 
     const plugin = graphqlDocDocusaurusPlugin(
-      { siteDir: '/repo' },
+      { siteDir: '/repo', baseUrl: '/' },
       {
         markdownRedirect: {
           docsBasePath: '/docs/custom-api',
@@ -104,6 +104,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
     expect(configured).toEqual(webpackConfig);
     expect(createMarkdownRedirectWebpackConfigMock).toHaveBeenCalledWith({
       siteDir: '/repo',
+      baseUrl: '/',
       options: {
         enabled: true,
         docsBasePath: '/docs/custom-api',

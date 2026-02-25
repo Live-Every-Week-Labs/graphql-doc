@@ -64,6 +64,7 @@ export default function graphqlDocDocusaurusPlugin(
     configureWebpack() {
       return createMarkdownRedirectWebpackConfig({
         siteDir: context.siteDir,
+        baseUrl: context.baseUrl ?? '/',
         options: options.markdownRedirect,
       });
     },

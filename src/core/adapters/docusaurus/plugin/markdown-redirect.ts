@@ -4,6 +4,7 @@ import type { NormalizedMarkdownRedirectOptions } from './options.js';
 
 interface MarkdownRedirectRuntimeContext {
   siteDir: string;
+  baseUrl?: string;
   options: NormalizedMarkdownRedirectOptions;
 }
 
@@ -28,6 +29,35 @@ interface ResponseLike {
 const withLeadingSlash = (value: string): string => (value.startsWith('/') ? value : `/${value}`);
 const withoutTrailingSlash = (value: string): string => value.replace(/\/+$/, '');
 const stripLeadingSlash = (value: string): string => value.replace(/^\/+/, '');
+const stripTrailingSlash = (value: string): string => value.replace(/\/+$/, '');
+
+function normalizeBaseUrlPrefix(baseUrl: string | undefined): string {
+  if (!baseUrl || baseUrl === '/') {
+    return '';
+  }
+
+  return withoutTrailingSlash(withLeadingSlash(baseUrl));
+}
+
+function prefixWithBaseUrl(pathname: string, baseUrlPrefix: string): string {
+  return baseUrlPrefix ? `${baseUrlPrefix}${pathname}` : pathname;
+}
+
+function stripBaseUrlPrefix(requestPath: string, baseUrlPrefix: string): string | undefined {
+  if (!baseUrlPrefix) {
+    return requestPath;
+  }
+
+  if (requestPath === baseUrlPrefix) {
+    return '/';
+  }
+
+  if (requestPath.startsWith(`${baseUrlPrefix}/`)) {
+    return requestPath.slice(baseUrlPrefix.length);
+  }
+
+  return undefined;
+}
 
 function acceptsMarkdown(acceptHeader: string | undefined): boolean {
   return typeof acceptHeader === 'string' && acceptHeader.toLowerCase().includes('text/markdown');
@@ -74,6 +104,7 @@ export function createMarkdownRedirectWebpackConfig(
 
   const docsBasePath = withoutTrailingSlash(withLeadingSlash(context.options.docsBasePath));
   const llmDocsPath = withoutTrailingSlash(withLeadingSlash(context.options.llmDocsPath));
+  const baseUrlPrefix = normalizeBaseUrlPrefix(context.baseUrl);
   const staticDir = context.options.staticDir
     ? path.isAbsolute(context.options.staticDir)
       ? context.options.staticDir
@@ -88,25 +119,31 @@ export function createMarkdownRedirectWebpackConfig(
         }
 
         devServer.app.use((req: RequestLike, res: ResponseLike, next: () => void) => {
-          const requestPath = req.path || req.url || '';
+          const requestPath =
+            stripTrailingSlash((req.path || req.url || '').split('?')[0] || '/') || '/';
           if (!acceptsMarkdown(req.headers?.accept)) {
             return next();
           }
 
+          const scopedRequestPath = stripBaseUrlPrefix(requestPath, baseUrlPrefix);
+          if (!scopedRequestPath) {
+            return next();
+          }
+
           if (
-            requestPath.startsWith(llmDocsPath) ||
-            requestPath === '/llms.txt' ||
-            requestPath === `${llmDocsPath}/index.md`
+            scopedRequestPath.startsWith(llmDocsPath) ||
+            scopedRequestPath === '/llms.txt' ||
+            scopedRequestPath === `${llmDocsPath}/index.md`
           ) {
             return next();
           }
 
-          const target = resolveTarget(requestPath, docsBasePath, llmDocsPath, staticDir);
+          const target = resolveTarget(scopedRequestPath, docsBasePath, llmDocsPath, staticDir);
           if (!target) {
             return next();
           }
 
-          res.redirect(302, target);
+          res.redirect(302, prefixWithBaseUrl(target, baseUrlPrefix));
         });
 
         return middlewares;
