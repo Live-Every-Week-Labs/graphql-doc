@@ -109,6 +109,47 @@ describe('graphqlDocDocusaurusPlugin', () => {
     });
   });
 
+  it('logs a postBuild summary when quiet mode is disabled', async () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    await plugin.postBuild?.({
+      content: {
+        schemaPointer: './schema.graphql',
+        outputDir: '/repo/docs/api',
+        llmOutputDir: '/repo/static/llm-docs',
+        filesWritten: 9,
+        llmFilesWritten: 2,
+      },
+    } as any);
+
+    expect(logSpy).toHaveBeenCalledWith('[graphql-doc] Built 9 API docs, 2 LLM docs');
+    logSpy.mockRestore();
+  });
+
+  it('suppresses postBuild summary logs in quiet mode', async () => {
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo' },
+      {
+        quiet: true,
+      }
+    );
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    await plugin.postBuild?.({
+      content: {
+        schemaPointer: './schema.graphql',
+        outputDir: '/repo/docs/api',
+        llmOutputDir: '/repo/static/llm-docs',
+        filesWritten: 9,
+        llmFilesWritten: 2,
+      },
+    } as any);
+
+    expect(logSpy).not.toHaveBeenCalled();
+    logSpy.mockRestore();
+  });
+
   it('passes markdown redirect config to configureWebpack', () => {
     const webpackConfig = { devServer: { setupMiddlewares: vi.fn() } };
     createMarkdownRedirectWebpackConfigMock.mockReturnValue(webpackConfig);

@@ -69,6 +69,15 @@ export default function graphqlDocDocusaurusPlugin(
         schemaPointer: content.schemaPointer,
       });
     },
+    postBuild({ content }) {
+      if (options.quiet) {
+        return;
+      }
+
+      console.log(
+        `[graphql-doc] Built ${content.filesWritten} API docs, ${content.llmFilesWritten} LLM docs`
+      );
+    },
     configureWebpack() {
       return createMarkdownRedirectWebpackConfig({
         siteDir: context.siteDir,
