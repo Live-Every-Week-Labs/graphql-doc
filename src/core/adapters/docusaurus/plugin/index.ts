@@ -49,6 +49,15 @@ function resolvePackageRoot(startDir: string): string {
 
 const themePath = path.join(resolvePackageRoot(runtimeDir), 'src/core/adapters/docusaurus/theme');
 
+function resolveLlmsHref(baseUrl: string | undefined): string {
+  if (!baseUrl) {
+    return '/llms.txt';
+  }
+
+  const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  return `${normalizedBaseUrl}llms.txt`;
+}
+
 /**
  * Docusaurus plugin entrypoint for graphql-doc generation.
  *
@@ -137,6 +146,25 @@ export default function graphqlDocDocusaurusPlugin(
     },
     getTypeScriptThemePath() {
       return themePath;
+    },
+    injectHtmlTags({ content }) {
+      if (!content.llmFilesWritten || !options.markdownRedirect.enabled) {
+        return {};
+      }
+
+      return {
+        headTags: [
+          {
+            tagName: 'link',
+            attributes: {
+              rel: 'alternate',
+              type: 'text/markdown',
+              href: resolveLlmsHref(context.baseUrl),
+              title: 'LLM-friendly documentation',
+            },
+          },
+        ],
+      };
     },
   };
 }

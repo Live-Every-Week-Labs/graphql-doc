@@ -305,6 +305,50 @@ describe('graphqlDocDocusaurusPlugin', () => {
     expect(getSwizzleComponentList()).toEqual(['DocItem/Layout', 'MDXComponents']);
   });
 
+  it('injects an LLM discovery link tag when markdown artifacts are generated', () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo', baseUrl: '/docs-root/' });
+
+    const tags = plugin.injectHtmlTags?.({
+      content: {
+        schemaPointer: './schema.graphql',
+        outputDir: '/repo/docs/api',
+        llmOutputDir: '/repo/static/llm-docs',
+        filesWritten: 9,
+        llmFilesWritten: 2,
+      },
+    } as any);
+
+    expect(tags).toEqual({
+      headTags: [
+        {
+          tagName: 'link',
+          attributes: {
+            rel: 'alternate',
+            type: 'text/markdown',
+            href: '/docs-root/llms.txt',
+            title: 'LLM-friendly documentation',
+          },
+        },
+      ],
+    });
+  });
+
+  it('does not inject LLM discovery tags when no markdown artifacts were generated', () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+
+    const tags = plugin.injectHtmlTags?.({
+      content: {
+        schemaPointer: './schema.graphql',
+        outputDir: '/repo/docs/api',
+        llmOutputDir: '/repo/static/llm-docs',
+        filesWritten: 9,
+        llmFilesWritten: 0,
+      },
+    } as any);
+
+    expect(tags).toEqual({});
+  });
+
   it('resolves theme path from the plugin module location when cwd changes', async () => {
     const originalCwd = process.cwd();
     const tempSiteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-plugin-site-'));
