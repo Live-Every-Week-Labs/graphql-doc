@@ -1,9 +1,8 @@
 {
-  "$schema": "../../src/schemas/config-schema.json",
+  "configVersion": 1,
   "outputDir": "./docs/api",
   "framework": "docusaurus",
   "metadataDir": "../../test_schemas/ecommerce",
-  "includeDeprecated": true,
   "llmDocs": {
     "outputDir": "./static/llm-docs",
     "baseUrl": "http://localhost:3000"

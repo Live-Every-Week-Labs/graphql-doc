@@ -1,7 +1,13 @@
 import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 
 // Import the generated API sidebar
-const apiSidebar = require('./docs/api/sidebars.js');
+let generatedApiSidebar: { apiSidebar?: any[] } = { apiSidebar: [] };
+try {
+  generatedApiSidebar = require('./docs/api/sidebars.js');
+} catch {
+  // First-time builds run before graphql-doc writes the generated sidebar file.
+  generatedApiSidebar = { apiSidebar: [] };
+}
 
 const prefixApiDocIds = (items: any[]): any[] =>
   items.map((item) => {
@@ -33,7 +39,7 @@ const sidebars: SidebarsConfig = {
   ],
 
   // API sidebar - imported from generated file
-  apiSidebar: prefixApiDocIds(apiSidebar.apiSidebar),
+  apiSidebar: prefixApiDocIds(generatedApiSidebar.apiSidebar ?? []),
 };
 
 export default sidebars;
