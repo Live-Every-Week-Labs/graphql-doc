@@ -61,6 +61,14 @@ export default function graphqlDocDocusaurusPlugin(
         options,
       });
     },
+    contentLoaded({ content, actions }) {
+      actions.setGlobalData({
+        filesWritten: content.filesWritten,
+        llmFilesWritten: content.llmFilesWritten,
+        outputDir: content.outputDir,
+        schemaPointer: content.schemaPointer,
+      });
+    },
     configureWebpack() {
       return createMarkdownRedirectWebpackConfig({
         siteDir: context.siteDir,

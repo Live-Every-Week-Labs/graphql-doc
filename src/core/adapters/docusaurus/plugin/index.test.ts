@@ -84,6 +84,31 @@ describe('graphqlDocDocusaurusPlugin', () => {
     );
   });
 
+  it('publishes generation metadata via contentLoaded global data', async () => {
+    const plugin = graphqlDocDocusaurusPlugin({ siteDir: '/repo' });
+    const setGlobalData = vi.fn();
+
+    await plugin.contentLoaded?.({
+      content: {
+        schemaPointer: './schema.graphql',
+        outputDir: '/repo/docs/api',
+        llmOutputDir: '/repo/static/llm-docs',
+        filesWritten: 14,
+        llmFilesWritten: 3,
+      },
+      actions: {
+        setGlobalData,
+      },
+    } as any);
+
+    expect(setGlobalData).toHaveBeenCalledWith({
+      filesWritten: 14,
+      llmFilesWritten: 3,
+      outputDir: '/repo/docs/api',
+      schemaPointer: './schema.graphql',
+    });
+  });
+
   it('passes markdown redirect config to configureWebpack', () => {
     const webpackConfig = { devServer: { setupMiddlewares: vi.fn() } };
     createMarkdownRedirectWebpackConfigMock.mockReturnValue(webpackConfig);
