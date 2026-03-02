@@ -20,12 +20,7 @@ Groups operations into logical sections for documentation organization.
 ### Syntax
 
 ```graphql
-directive @docGroup(
-  name: String!
-  order: Int
-  subsection: String
-  sidebarTitle: String
-) on FIELD_DEFINITION
+directive @docGroup(name: String!, subsection: String, sidebarTitle: String) on FIELD_DEFINITION
 ```
 
 ### Arguments
@@ -33,39 +28,50 @@ directive @docGroup(
 | Argument       | Type      | Required | Description                                        |
 | :------------- | :-------- | :------- | :------------------------------------------------- |
 | `name`         | `String!` | Yes      | The name of the documentation section              |
-| `order`        | `Int`     | No       | Display order (lower numbers first)                |
 | `subsection`   | `String`  | No       | Optional subsection within the main section        |
 | `sidebarTitle` | `String`  | No       | Optional sidebar label override for this operation |
 
 ### Sorting Behavior
 
-Sections are sorted using a two-tier system:
+Section ordering is configured via `groupOrdering` in your config file, not via `@docGroup`.
 
-1. **Ordered sections first**: Sections with an `order` value are sorted numerically (ascending)
-2. **Unordered sections after**: Sections without an `order` value are sorted alphabetically
+Supported modes:
 
-**Example:**
+1. `alphabetical`: all groups sorted alphabetically.
+2. `explicit`: `explicitOrder` groups first, then remaining groups alphabetically.
+3. `pinned`: `pinToStart` first, unpinned groups alphabetically, `pinToEnd` last.
 
-```graphql
-type Query {
-  # Ordered sections (appear first, sorted by order)
-  getUser: User @docGroup(name: "User Management", order: 1, sidebarTitle: "Get User")
-  getPayment: Payment @docGroup(name: "Payments", order: 2)
+`Uncategorized` is always placed at the end in every mode.
 
-  # Unordered sections (appear after, sorted alphabetically)
-  getAnalytics: Analytics @docGroup(name: "Analytics")
-  getBilling: Billing @docGroup(name: "Billing")
-  getReports: Report @docGroup(name: "Reports")
-}
+```yaml
+# alphabetical
+extensions:
+  graphql-doc:
+    groupOrdering:
+      mode: alphabetical
 ```
 
-**Resulting order:**
+```yaml
+# explicit
+extensions:
+  graphql-doc:
+    groupOrdering:
+      mode: explicit
+      explicitOrder:
+        - Authorization
+        - Merchant
+        - Payments
+```
 
-1. User Management (order: 1)
-2. Payments (order: 2)
-3. Analytics (alphabetical)
-4. Billing (alphabetical)
-5. Reports (alphabetical)
+```yaml
+# pinned (keeps Deprecated docs visible, but at the end)
+extensions:
+  graphql-doc:
+    groupOrdering:
+      mode: pinned
+      pinToEnd:
+        - Deprecated
+```
 
 ### Subsections
 
@@ -73,21 +79,29 @@ Use the `subsection` argument to create nested groupings:
 
 ```graphql
 type Query {
-  getUser: User @docGroup(name: "User Management", order: 1, subsection: "Retrieval")
+  getUser: User @docGroup(name: "User Management", subsection: "Retrieval")
 
-  searchUsers: [User] @docGroup(name: "User Management", order: 1, subsection: "Retrieval")
+  searchUsers: [User] @docGroup(name: "User Management", subsection: "Retrieval")
 }
 
 type Mutation {
-  createUser: User @docGroup(name: "User Management", order: 1, subsection: "Modification")
+  createUser: User @docGroup(name: "User Management", subsection: "Modification")
 
-  updateUser: User @docGroup(name: "User Management", order: 1, subsection: "Modification")
+  updateUser: User @docGroup(name: "User Management", subsection: "Modification")
 }
 ```
 
 This generates a structure like:
 
-````
+```
+User Management/
+├── Retrieval/
+│   ├── getUser
+│   └── searchUsers
+└── Modification/
+    ├── createUser
+    └── updateUser
+```
 
 ### Sidebar Label Override
 
@@ -98,17 +112,7 @@ as the operation name:
 type Query {
   users: [User] @docGroup(name: "Users", sidebarTitle: "List Users")
 }
-````
-
-User Management/
-├── Retrieval/
-│ ├── getUser
-│ └── searchUsers
-└── Modification/
-├── createUser
-└── updateUser
-
-````
+```
 
 ### Uncategorized Operations
 
@@ -124,7 +128,7 @@ extensions:
     excludeDocGroups:
       - Internal
       - Experimental
-````
+```
 
 ---
 
@@ -269,7 +273,7 @@ type Query {
   Get a user by their unique identifier.
   """
   getUser(id: ID!): User
-    @docGroup(name: "User Management", order: 1, subsection: "Queries")
+    @docGroup(name: "User Management", subsection: "Queries")
     @docPriority(level: 1)
     @docTags(tags: ["users", "read"])
 
@@ -277,7 +281,7 @@ type Query {
   Search for users matching the given criteria.
   """
   searchUsers(query: String!, limit: Int): [User!]!
-    @docGroup(name: "User Management", order: 1, subsection: "Queries")
+    @docGroup(name: "User Management", subsection: "Queries")
     @docPriority(level: 2)
     @docTags(tags: ["users", "read", "search"])
 
@@ -285,7 +289,7 @@ type Query {
   Get the current user's profile.
   """
   me: User
-    @docGroup(name: "User Management", order: 1, subsection: "Queries")
+    @docGroup(name: "User Management", subsection: "Queries")
     @docPriority(level: 3)
     @docTags(tags: ["users", "read", "auth-required"])
 }
@@ -295,7 +299,7 @@ type Mutation {
   Create a new user account.
   """
   createUser(input: CreateUserInput!): User!
-    @docGroup(name: "User Management", order: 1, subsection: "Mutations")
+    @docGroup(name: "User Management", subsection: "Mutations")
     @docPriority(level: 1)
     @docTags(tags: ["users", "write", "admin-only"])
 
@@ -303,7 +307,7 @@ type Mutation {
   Update an existing user's information.
   """
   updateUser(id: ID!, input: UpdateUserInput!): User!
-    @docGroup(name: "User Management", order: 1, subsection: "Mutations")
+    @docGroup(name: "User Management", subsection: "Mutations")
     @docPriority(level: 2)
     @docTags(tags: ["users", "write"])
 }
@@ -317,7 +321,7 @@ You can define the directives in your schema, or let the generator handle them a
 
 ```graphql
 # Optional: Define directives explicitly in your schema
-directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
 
 directive @docPriority(level: Int!) on FIELD_DEFINITION
 
@@ -325,7 +329,7 @@ directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 
 # Your schema types...
 type Query {
-  getUser(id: ID!): User @docGroup(name: "Users", order: 1)
+  getUser(id: ID!): User @docGroup(name: "Users")
 }
 ```
 

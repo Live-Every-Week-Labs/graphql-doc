@@ -139,7 +139,7 @@ The `validate` command performs the following checks:
 
 1. **Schema Validation**
    - GraphQL SDL syntax is valid
-   - Custom directives (`@docGroup`, `@docPriority`, `@docTags`, `@docIgnore`) have required arguments (`@docGroup` requires `name`; `order` is optional)
+   - Custom directives (`@docGroup`, `@docPriority`, `@docTags`, `@docIgnore`) have required arguments (`@docGroup` requires `name`)
    - Directive argument types are correct
 
 2. **Example Files Validation**

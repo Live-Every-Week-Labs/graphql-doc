@@ -231,7 +231,7 @@ Use custom directives in your schema to control how operations are grouped and o
 ```graphql
 type Query {
   getUser(id: ID!): User
-    @docGroup(name: "User Management", order: 1)
+    @docGroup(name: "User Management")
     @docPriority(level: 1)
     @docTags(tags: ["users", "read"])
 }

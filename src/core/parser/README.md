@@ -26,7 +26,7 @@ The `src/core/parser` module is responsible for loading GraphQL schemas, extract
 **File:** `directive-extractor.ts`
 
 - Extracts custom documentation directives:
-  - `@docGroup`: Categorization and ordering.
+  - `@docGroup`: Categorization (`name`, `subsection`, labels).
   - `@docPriority`: Sorting priority.
   - `@docTags`: Tagging operations.
   - `@docIgnore`: Exclude fields/types from generated docs.

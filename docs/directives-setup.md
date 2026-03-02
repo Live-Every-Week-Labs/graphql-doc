@@ -82,12 +82,7 @@ If you have a single schema file, import or paste the directive definitions at t
 # import "./graphql-doc-directives.graphql"
 
 # Or copy-paste the directive definitions at the top of your schema
-directive @docGroup(
-  name: String!
-  order: Int
-  subsection: String
-  sidebarTitle: String
-) on FIELD_DEFINITION
+directive @docGroup(name: String!, subsection: String, sidebarTitle: String) on FIELD_DEFINITION
 directive @docPriority(level: Int!) on FIELD_DEFINITION
 directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 directive @docIgnore on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE | OBJECT | INPUT_OBJECT | ENUM | INTERFACE | UNION | SCALAR
@@ -141,7 +136,7 @@ In your `amplify/backend/api/*/schema.graphql`, include the directives at the to
 # amplify/backend/api/myapi/schema.graphql
 
 # Documentation directives (paste content from graphql-doc-directives.graphql)
-directive @docGroup(name: String!, order: Int, subsection: String, sidebarTitle: String) on FIELD_DEFINITION
+directive @docGroup(name: String!, subsection: String, sidebarTitle: String) on FIELD_DEFINITION
 directive @docPriority(level: Int!) on FIELD_DEFINITION
 directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 directive @docIgnore on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE | OBJECT | INPUT_OBJECT | ENUM | INTERFACE | UNION | SCALAR
@@ -180,12 +175,7 @@ The full directive definitions are available in:
 ### Complete Definitions
 
 ```graphql
-directive @docGroup(
-  name: String!
-  order: Int
-  subsection: String
-  sidebarTitle: String
-) on FIELD_DEFINITION
+directive @docGroup(name: String!, subsection: String, sidebarTitle: String) on FIELD_DEFINITION
 
 directive @docPriority(level: Int!) on FIELD_DEFINITION
 
