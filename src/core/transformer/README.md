@@ -6,7 +6,7 @@ The Transformer module is responsible for converting the parsed GraphQL schema a
 
 1.  **Metadata Merging**: Combines parsed operations with examples from external JSON files.
 2.  **Type Normalization**: Produces reference-based type trees so each schema type is defined once and reused by reference.
-3.  **Grouping & Sorting**: Organizes operations into sections and subsections based on `@docGroup` directives and sorts them using `@docPriority`.
+3.  **Grouping & Sorting**: Organizes operations into sections/subsections based on `@docGroup`, applies config-driven group ordering (`alphabetical`, `explicit`, `pinned`), and sorts operations using `@docPriority`.
 4.  **Group Exclusions**: Skips operations in excluded doc groups (configurable).
 5.  **Directive Filtering**: Honors `@docIgnore` on operations, arguments, fields, enum values, and types.
 
@@ -47,7 +47,7 @@ interface DocModel {
 
 interface Section {
   name: string;
-  order: number | undefined;
+  order: number;
   subsections: Subsection[];
 }
 

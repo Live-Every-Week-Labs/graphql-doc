@@ -16,7 +16,7 @@ describe('Transformer', () => {
       arguments: [],
       returnType: 'User',
       directives: {
-        docGroup: { name: 'Users', order: 1 },
+        docGroup: { name: 'Users' },
         docPriority: { level: 2 },
       },
       referencedTypes: ['User'],
@@ -28,7 +28,7 @@ describe('Transformer', () => {
       arguments: [],
       returnType: 'User',
       directives: {
-        docGroup: { name: 'Users', order: 1 },
+        docGroup: { name: 'Users' },
         docPriority: { level: 1 },
       },
       referencedTypes: ['User'],
@@ -40,23 +40,22 @@ describe('Transformer', () => {
       arguments: [],
       returnType: 'String',
       directives: {
-        docGroup: { name: 'System', order: 2 },
+        docGroup: { name: 'System' },
       },
       referencedTypes: ['String'],
       isDeprecated: false,
     },
   ];
 
-  it('groups and sorts operations', () => {
+  it('groups and sorts operations using default alphabetical section ordering', () => {
     const transformer = new Transformer(mockTypes);
     const result = transformer.transform(mockOperations, []);
 
     expect(result.sections).toHaveLength(2);
-    expect(result.sections[0].name).toBe('Users');
-    expect(result.sections[1].name).toBe('System');
+    expect(result.sections[0].name).toBe('System');
+    expect(result.sections[1].name).toBe('Users');
 
-    const usersSection = result.sections[0];
-    // Check sorting within section (createUser priority 1 < getUser priority 2)
+    const usersSection = result.sections[1];
     const mainSubsection = usersSection.subsections[0];
     expect(mainSubsection.operations).toHaveLength(2);
     expect(mainSubsection.operations[0].name).toBe('createUser');
@@ -111,7 +110,7 @@ describe('Transformer', () => {
         arguments: [],
         returnType: 'String',
         directives: {
-          docGroup: { name: 'Group', order: 1, subsection: 'Sub A' },
+          docGroup: { name: 'Group', subsection: 'Sub A' },
         },
         referencedTypes: [],
         isDeprecated: false,
@@ -122,7 +121,7 @@ describe('Transformer', () => {
         arguments: [],
         returnType: 'String',
         directives: {
-          docGroup: { name: 'Group', order: 1, subsection: 'Sub B' },
+          docGroup: { name: 'Group', subsection: 'Sub B' },
         },
         referencedTypes: [],
         isDeprecated: false,
@@ -133,7 +132,7 @@ describe('Transformer', () => {
         arguments: [],
         returnType: 'String',
         directives: {
-          docGroup: { name: 'Group', order: 1 }, // No subsection -> Root
+          docGroup: { name: 'Group' },
         },
         referencedTypes: [],
         isDeprecated: false,
@@ -145,118 +144,110 @@ describe('Transformer', () => {
 
     const section = result.sections[0];
     expect(section.subsections).toHaveLength(3);
-    // Root subsection (empty name) should be first
     expect(section.subsections[0].name).toBe('');
     expect(section.subsections[0].operations[0].name).toBe('op3');
-
-    // Then alphabetical
     expect(section.subsections[1].name).toBe('Sub A');
     expect(section.subsections[2].name).toBe('Sub B');
   });
 
-  it('sorts sections with order first, then alphabetically for unordered', () => {
-    const opsWithMixedOrder: BaseOperation[] = [
+  it('supports explicit group ordering mode', () => {
+    const opsWithGroups: BaseOperation[] = [
       {
-        name: 'op1',
+        name: 'alpha',
         operationType: 'query',
         arguments: [],
         returnType: 'String',
-        directives: {
-          docGroup: { name: 'Zebra' }, // No order - should be last alphabetically
-        },
+        directives: { docGroup: { name: 'Alpha' } },
         referencedTypes: [],
         isDeprecated: false,
       },
       {
-        name: 'op2',
+        name: 'payments',
         operationType: 'query',
         arguments: [],
         returnType: 'String',
-        directives: {
-          docGroup: { name: 'Users', order: 2 },
-        },
+        directives: { docGroup: { name: 'Payments' } },
         referencedTypes: [],
         isDeprecated: false,
       },
       {
-        name: 'op3',
+        name: 'users',
         operationType: 'query',
         arguments: [],
         returnType: 'String',
-        directives: {
-          docGroup: { name: 'Alpha' }, // No order - should be first alphabetically among unordered
-        },
-        referencedTypes: [],
-        isDeprecated: false,
-      },
-      {
-        name: 'op4',
-        operationType: 'query',
-        arguments: [],
-        returnType: 'String',
-        directives: {
-          docGroup: { name: 'Payments', order: 1 },
-        },
+        directives: { docGroup: { name: 'Users' } },
         referencedTypes: [],
         isDeprecated: false,
       },
     ];
 
-    const transformer = new Transformer(mockTypes);
-    const result = transformer.transform(opsWithMixedOrder, [], []);
+    const transformer = new Transformer(mockTypes, {
+      groupOrdering: {
+        mode: 'explicit',
+        explicitOrder: ['Users', 'Payments'],
+      },
+    });
+    const result = transformer.transform(opsWithGroups, []);
 
-    expect(result.sections).toHaveLength(4);
-    // Ordered sections first (by order number)
-    expect(result.sections[0].name).toBe('Payments'); // order: 1
-    expect(result.sections[1].name).toBe('Users'); // order: 2
-    // Unordered sections last (alphabetically)
-    expect(result.sections[2].name).toBe('Alpha'); // no order, alphabetically first
-    expect(result.sections[3].name).toBe('Zebra'); // no order, alphabetically last
+    expect(result.sections.map((section) => section.name)).toEqual(['Users', 'Payments', 'Alpha']);
+    expect(result.sections.map((section) => section.order)).toEqual([1, 2, 3]);
   });
 
-  it('sorts all sections alphabetically when none have order', () => {
-    const opsWithNoOrder: BaseOperation[] = [
+  it('supports pinned ordering with normalized matching and keeps Uncategorized last', () => {
+    const opsWithUncategorized: BaseOperation[] = [
       {
-        name: 'op1',
+        name: 'alpha',
         operationType: 'query',
         arguments: [],
         returnType: 'String',
-        directives: {
-          docGroup: { name: 'Zebra' },
-        },
+        directives: { docGroup: { name: 'Alpha' } },
         referencedTypes: [],
         isDeprecated: false,
       },
       {
-        name: 'op2',
+        name: 'auth',
         operationType: 'query',
         arguments: [],
         returnType: 'String',
-        directives: {
-          docGroup: { name: 'Alpha' },
-        },
+        directives: { docGroup: { name: 'Auth Group' } },
         referencedTypes: [],
         isDeprecated: false,
       },
       {
-        name: 'op3',
+        name: 'legacy',
         operationType: 'query',
         arguments: [],
         returnType: 'String',
-        directives: {
-          docGroup: { name: 'Middle' },
-        },
+        directives: { docGroup: { name: 'Deprecated' } },
+        referencedTypes: [],
+        isDeprecated: false,
+      },
+      {
+        name: 'uncategorizedOp',
+        operationType: 'query',
+        arguments: [],
+        returnType: 'String',
+        directives: {},
         referencedTypes: [],
         isDeprecated: false,
       },
     ];
 
-    const transformer = new Transformer(mockTypes);
-    const result = transformer.transform(opsWithNoOrder, [], []);
+    const transformer = new Transformer(mockTypes, {
+      groupOrdering: {
+        mode: 'pinned',
+        pinToStart: ['auth_group'],
+        pinToEnd: ['DEPRECATED'],
+      },
+    });
+    const result = transformer.transform(opsWithUncategorized, []);
 
-    expect(result.sections).toHaveLength(3);
-    expect(result.sections[0].name).toBe('Alpha');
-    expect(result.sections[1].name).toBe('Middle');
-    expect(result.sections[2].name).toBe('Zebra');
+    expect(result.sections.map((section) => section.name)).toEqual([
+      'Auth Group',
+      'Alpha',
+      'Deprecated',
+      'Uncategorized',
+    ]);
+    expect(result.sections.map((section) => section.order)).toEqual([1, 2, 3, 4]);
   });
 });

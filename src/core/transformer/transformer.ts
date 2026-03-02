@@ -4,18 +4,22 @@ import { DocModel, Section, Operation, ExpandedArgument } from './types.js';
 import { TypeExpander } from './type-expander.js';
 import { mergeMetadata } from './metadata-merger.js';
 import { DEFAULT_SORT_PRIORITY, DEFAULT_GROUP_NAME } from '../utils/index.js';
+import { sortSectionsByGroupOrdering } from './group-ordering.js';
+import type { GroupOrderingConfig } from '../config/schema.js';
 
 export interface TransformerConfig {
   maxDepth?: number;
   defaultLevels?: number;
   showCircularReferences?: boolean;
   excludeDocGroups?: string[];
+  groupOrdering?: GroupOrderingConfig;
 }
 
 export class Transformer {
   private expander: TypeExpander;
   private typeDefinitions: TypeDefinition[];
   private excludedDocGroups: Set<string>;
+  private groupOrdering: GroupOrderingConfig;
 
   constructor(types: TypeDefinition[], config: TransformerConfig = {}) {
     this.typeDefinitions = types;
@@ -26,6 +30,7 @@ export class Transformer {
       config.defaultLevels ?? 0
     );
     this.excludedDocGroups = new Set(config.excludeDocGroups ?? []);
+    this.groupOrdering = config.groupOrdering ?? { mode: 'alphabetical' };
   }
 
   transform(baseOperations: BaseOperation[], exampleFiles: ExampleFile[]): DocModel {
@@ -85,7 +90,7 @@ export class Transformer {
       if (!section) {
         section = {
           name: groupName,
-          order: undefined,
+          order: 0,
           subsections: [],
         };
         sectionsMap.set(groupName, section);
@@ -102,20 +107,13 @@ export class Transformer {
       subsection.operations.push(op);
     }
 
-    // Sort sections: ordered first (by number), then unordered (alphabetically)
-    const sections = Array.from(sectionsMap.values()).sort((a, b) => {
-      // Both have explicit order: sort numerically
-      if (a.order !== undefined && b.order !== undefined) {
-        return a.order - b.order;
-      }
-
-      // Only one has order: ordered items come first
-      if (a.order !== undefined && b.order === undefined) return -1;
-      if (a.order === undefined && b.order !== undefined) return 1;
-
-      // Neither has order: sort alphabetically by name
-      return a.name.localeCompare(b.name);
-    });
+    const sections = sortSectionsByGroupOrdering(
+      Array.from(sectionsMap.values()),
+      this.groupOrdering
+    );
+    for (let index = 0; index < sections.length; index += 1) {
+      sections[index].order = index + 1;
+    }
 
     // Sort subsections and operations
     for (const section of sections) {

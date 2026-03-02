@@ -110,7 +110,11 @@ export interface Subsection {
 
 export interface Section {
   name: string;
-  order: number | undefined; // undefined means no explicit order; items without order are sorted alphabetically after ordered items
+  /**
+   * 1-based display position derived after group ordering policy is applied.
+   * This is used by adapters that emit ordered category metadata.
+   */
+  order: number;
   subsections: Subsection[];
 }
 
