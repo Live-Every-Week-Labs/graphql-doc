@@ -9,11 +9,6 @@ export const DIRECTIVE_DEFINITIONS = `
     name: String!
 
     """
-    Display order within documentation (lower numbers first)
-    """
-    order: Int
-
-    """
     Optional subsection within the main section
     """
     subsection: String

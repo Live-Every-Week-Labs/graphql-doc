@@ -36,10 +36,10 @@ describe('SchemaParser', () => {
 
   it('should extract directives', () => {
     const sdl = `
-      directive @docGroup(name: String!, order: Int!) on FIELD_DEFINITION
+      directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
 
       type Query {
-        users: [String] @docGroup(name: "Users", order: 1)
+        users: [String] @docGroup(name: "Users")
       }
     `;
     const schema = buildSchema(sdl);
@@ -51,7 +51,6 @@ describe('SchemaParser', () => {
     expect(query).toBeDefined();
     expect(query?.directives.docGroup).toEqual({
       name: 'Users',
-      order: 1,
     });
   });
 

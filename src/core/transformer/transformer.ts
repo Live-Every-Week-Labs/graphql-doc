@@ -79,14 +79,13 @@ export class Transformer {
       if (this.excludedDocGroups.has(groupName)) {
         continue;
       }
-      const groupOrder = op.directives.docGroup?.order; // undefined if not specified
       const subsectionName = op.directives.docGroup?.subsection;
 
       let section = sectionsMap.get(groupName);
       if (!section) {
         section = {
           name: groupName,
-          order: groupOrder,
+          order: undefined,
           subsections: [],
         };
         sectionsMap.set(groupName, section);

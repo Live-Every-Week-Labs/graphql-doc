@@ -1,4 +1,4 @@
-directive @docGroup(name: String!, order: Int, subsection: String) on OBJECT | FIELD_DEFINITION
+directive @docGroup(name: String!, subsection: String) on OBJECT | FIELD_DEFINITION
 directive @docPriority(level: Int!) on FIELD_DEFINITION
 directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 
@@ -24,7 +24,7 @@ interface Node {
 }
 
 "Represents a registered user in the system"
-type User implements Node @docGroup(name: "User Management", order: 1) {
+type User implements Node @docGroup(name: "User Management") {
   "Unique identifier for the user"
   id: ID!
   "Timestamp when the user account was created"
@@ -54,7 +54,7 @@ type UserProfile {
 }
 
 "A blog post or article created by a user"
-type Post implements Node @docGroup(name: "Content", order: 2) {
+type Post implements Node @docGroup(name: "Content") {
   "Unique identifier for the post"
   id: ID!
   "Timestamp when the post was created"

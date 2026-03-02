@@ -10,21 +10,21 @@ import type { Logger } from './logger.js';
 
 // Test schema content
 const TEST_SCHEMA = `
-directive @docGroup(name: String!, order: Int, subsection: String) on OBJECT | FIELD_DEFINITION
+directive @docGroup(name: String!, subsection: String) on OBJECT | FIELD_DEFINITION
 directive @docPriority(level: Int!) on FIELD_DEFINITION
 directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 
 type Query {
   "Get a user by ID"
-  getUser(id: ID!): User @docGroup(name: "Users", order: 1)
+  getUser(id: ID!): User @docGroup(name: "Users")
 
   "List all users"
-  listUsers: [User!]! @docGroup(name: "Users", order: 1) @docPriority(level: 2)
+  listUsers: [User!]! @docGroup(name: "Users") @docPriority(level: 2)
 }
 
 type Mutation {
   "Create a new user"
-  createUser(name: String!, email: String!): User @docGroup(name: "Users", order: 1)
+  createUser(name: String!, email: String!): User @docGroup(name: "Users")
 }
 
 "A user in the system"

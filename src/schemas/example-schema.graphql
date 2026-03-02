@@ -3,14 +3,14 @@ type Query {
   Retrieve a user by their unique identifier.
   """
   user(id: ID!): User
-    @docGroup(name: "User Management", order: 1)
+    @docGroup(name: "User Management")
     @docPriority(level: 1)
 
   """
   Search for users.
   """
   searchUsers(query: String!): [User!]!
-    @docGroup(name: "User Management", order: 1)
+    @docGroup(name: "User Management")
     @docPriority(level: 2)
 }
 
@@ -19,7 +19,7 @@ type Mutation {
   Create a new user.
   """
   createUser(input: CreateUserInput!): User!
-    @docGroup(name: "User Management", order: 1)
+    @docGroup(name: "User Management")
 }
 
 """
@@ -39,7 +39,6 @@ input CreateUserInput {
 
 directive @docGroup(
   name: String!
-  order: Int!
   subsection: String
 ) on FIELD_DEFINITION
 

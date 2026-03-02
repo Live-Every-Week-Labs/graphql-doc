@@ -10,7 +10,6 @@ import { z } from 'zod';
 export const DocGroupSchema = z
   .object({
     name: z.string().min(1),
-    order: z.number().optional(),
     subsection: z.string().optional(),
     displayLabel: z.string().optional(),
     sidebarTitle: z.string().optional(),

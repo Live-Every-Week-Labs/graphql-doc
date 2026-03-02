@@ -61,12 +61,12 @@ describe('validate command', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
         directive @docPriority(level: Int!) on FIELD_DEFINITION
         directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 
         type Query {
-          users: [User] @docGroup(name: "Users", order: 1) @docPriority(level: 1) @docTags(tags: ["users"])
+          users: [User] @docGroup(name: "Users") @docPriority(level: 1) @docTags(tags: ["users"])
         }
 
         type User {
@@ -89,10 +89,10 @@ describe('validate command', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
 
         type Query {
-          users: [User] @docGroup(order: 1)
+          users: [User] @docGroup(subsection: "Admin")
         }
 
         type User {

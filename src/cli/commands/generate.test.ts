@@ -7,16 +7,16 @@ import { runGenerate } from './generate.js';
 
 // Test schema content
 const TEST_SCHEMA = `
-directive @docGroup(name: String!, order: Int, subsection: String) on OBJECT | FIELD_DEFINITION
+directive @docGroup(name: String!, subsection: String) on OBJECT | FIELD_DEFINITION
 
 type Query {
   "Get a user by ID"
-  getUser(id: ID!): User @docGroup(name: "Users", order: 1)
+  getUser(id: ID!): User @docGroup(name: "Users")
 }
 
 type Mutation {
   "Create a new user"
-  createUser(name: String!): User @docGroup(name: "Users", order: 1)
+  createUser(name: String!): User @docGroup(name: "Users")
 }
 
 "A user in the system"

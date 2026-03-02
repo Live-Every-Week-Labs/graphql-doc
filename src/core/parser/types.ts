@@ -1,6 +1,5 @@
 export interface DocGroup {
   name: string;
-  order?: number;
   subsection?: string;
   displayLabel?: string;
   /**

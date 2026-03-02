@@ -8,7 +8,7 @@ describe('DirectiveExtractor', () => {
   it('should extract @docGroup directive', () => {
     const sdl = `
       type Query {
-        users: [User] @docGroup(name: "User Management", order: 1, subsection: "Retrieval")
+        users: [User] @docGroup(name: "User Management", subsection: "Retrieval")
       }
     `;
     const ast = parse(sdl);
@@ -18,7 +18,6 @@ describe('DirectiveExtractor', () => {
 
     expect(directives.docGroup).toEqual({
       name: 'User Management',
-      order: 1,
       subsection: 'Retrieval',
     });
   });
@@ -108,7 +107,7 @@ describe('DirectiveExtractor', () => {
     const sdl = `
       type Query {
         users: [User] 
-          @docGroup(name: "Users", order: 1)
+          @docGroup(name: "Users")
           @docPriority(level: 2)
       }
     `;
@@ -117,7 +116,7 @@ describe('DirectiveExtractor', () => {
 
     const directives = extractor.extract(field);
 
-    expect(directives.docGroup).toEqual({ name: 'Users', order: 1 });
+    expect(directives.docGroup).toEqual({ name: 'Users' });
     expect(directives.docPriority).toEqual({ level: 2 });
   });
 

@@ -145,11 +145,11 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
 
         type Query {
-          users: [User] @docGroup(name: "Users", order: 1)
-          admins: [User] @docGroup(name: "Users", order: 1, subsection: "Admin")
+          users: [User] @docGroup(name: "Users")
+          admins: [User] @docGroup(name: "Users", subsection: "Admin")
         }
 
         type User {
@@ -169,7 +169,7 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
         directive @docIgnore on FIELD_DEFINITION
 
         type Query {
@@ -198,10 +198,10 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
 
         type Query {
-          users: [User] @docGroup(order: 1)
+          users: [User] @docGroup(subsection: "Admin")
         }
 
         type User {
@@ -338,12 +338,12 @@ describe('SchemaValidator', () => {
       expect(result.errors[0].message).toContain('tags');
     });
 
-    it('fails with invalid argument type for @docGroup order', async () => {
+    it('fails with unsupported @docGroup arguments', async () => {
       const schemaPath = path.join(testDir, 'schema.graphql');
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
 
         type Query {
           users: [User] @docGroup(name: "Users", order: "not-a-number")
@@ -367,7 +367,7 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
         directive @docPriority(level: Int!) on FIELD_DEFINITION
 
         type Query {
@@ -393,12 +393,12 @@ describe('SchemaValidator', () => {
       await fs.writeFile(
         schemaPath,
         `
-        directive @docGroup(name: String!, order: Int, subsection: String) on FIELD_DEFINITION
+        directive @docGroup(name: String!, subsection: String) on FIELD_DEFINITION
         directive @docPriority(level: Int!) on FIELD_DEFINITION
         directive @docTags(tags: [String!]!) on FIELD_DEFINITION
 
         type Query {
-          users: [User] @docGroup(name: "Users", order: 1) @docPriority(level: 1) @docTags(tags: ["users"])
+          users: [User] @docGroup(name: "Users") @docPriority(level: 1) @docTags(tags: ["users"])
         }
 
         type User {
