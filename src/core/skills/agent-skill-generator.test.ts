@@ -19,7 +19,7 @@ const mockOperation: Operation = {
   arguments: [],
   returnType: { kind: 'OBJECT', name: 'User', fields: [] },
   returnTypeString: 'User',
-  directives: { docGroup: { name: 'Users', order: 1 } },
+  directives: { docGroup: { name: 'Users' } },
   referencedTypes: ['User'],
   isDeprecated: false,
   examples: [],

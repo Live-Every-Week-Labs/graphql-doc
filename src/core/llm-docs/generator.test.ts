@@ -68,7 +68,7 @@ describe('LlmDocsGenerator', () => {
       returnType: makeTypeRef('User'),
       returnTypeString: 'User',
       directives: {
-        docGroup: { name: 'Users', order: 1 },
+        docGroup: { name: 'Users' },
       },
       referencedTypes: ['User', 'Profile', 'ID'],
       isDeprecated: false,
@@ -112,5 +112,53 @@ describe('LlmDocsGenerator', () => {
     expect(indexFile?.content).toContain('getUser(id: ID!): User');
     expect(chunkFile?.content).toContain('**Profile fields:**');
     expect(manifest?.content).toContain('https://docs.example.com/llm-docs/index.md');
+  });
+
+  it('preserves section ordering when generating chunked files', () => {
+    const makeOperation = (name: string, group: string): Operation => ({
+      name,
+      operationType: 'query',
+      description: `${name} description`,
+      arguments: [],
+      returnType: { kind: 'SCALAR', name: 'String' },
+      returnTypeString: 'String',
+      directives: { docGroup: { name: group } },
+      referencedTypes: ['String'],
+      isDeprecated: false,
+      examples: [],
+    });
+
+    const model: DocModel = {
+      sections: [
+        {
+          name: 'Beta',
+          order: 1,
+          subsections: [{ name: '', operations: [makeOperation('betaQuery', 'Beta')] }],
+        },
+        {
+          name: 'Alpha',
+          order: 2,
+          subsections: [{ name: '', operations: [makeOperation('alphaQuery', 'Alpha')] }],
+        },
+      ],
+      types: [],
+    };
+
+    const generator = new LlmDocsGenerator({
+      enabled: true,
+      outputDir: '/tmp/llm-docs',
+      strategy: 'chunked',
+      includeExamples: false,
+      generateManifest: false,
+      singleFileName: 'api-reference.md',
+      maxTypeDepth: 3,
+    });
+
+    const { files } = generator.generate(model);
+    const chunkPaths = files.filter((file) => file.path.endsWith('.md')).map((file) => file.path);
+    const indexFile = files.find((file) => file.path === 'index.md');
+
+    expect(chunkPaths).toEqual(['index.md', 'beta.md', 'alpha.md']);
+    expect(indexFile?.content).toContain('**Groups:** Beta, Alpha');
   });
 });

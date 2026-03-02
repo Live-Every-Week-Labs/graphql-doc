@@ -16,12 +16,15 @@ function normalizeGroupOrderingKey(value: string): string {
 
 /**
  * Keep first occurrence by normalized key so duplicate config entries do not reorder later entries.
+ *
+ * The helper accepts an optional list so programmatic callers that bypass config parsing
+ * still get deterministic behavior.
  */
-function uniqueNormalizedEntries(entries: string[]): string[] {
+function uniqueNormalizedEntries(entries?: string[]): string[] {
   const unique: string[] = [];
   const seen = new Set<string>();
 
-  for (const entry of entries) {
+  for (const entry of entries ?? []) {
     const key = normalizeGroupOrderingKey(entry);
     if (seen.has(key)) {
       continue;
@@ -70,7 +73,7 @@ function sortExplicit(sections: Section[], explicitOrder: string[]): Section[] {
   });
 }
 
-function sortPinned(sections: Section[], pinToStart: string[], pinToEnd: string[]): Section[] {
+function sortPinned(sections: Section[], pinToStart?: string[], pinToEnd?: string[]): Section[] {
   const startKeys = uniqueNormalizedEntries(pinToStart);
   const endKeys = uniqueNormalizedEntries(pinToEnd);
   const startIndex = new Map(startKeys.map((key, index) => [key, index]));

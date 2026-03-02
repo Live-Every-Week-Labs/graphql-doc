@@ -50,7 +50,7 @@ describe('End-to-End Generator Test', () => {
 
     // 3. Transform
     const transformer = new Transformer(parsedSchema.types);
-    const docModel = transformer.transform(parsedSchema.operations, [], []);
+    const docModel = transformer.transform(parsedSchema.operations, []);
     expect(docModel).toBeDefined();
 
     // Verify Sections
@@ -153,6 +153,49 @@ describe('End-to-End Generator Test', () => {
     expect(mutationPingFile).toBeDefined();
     expect(sidebarFile?.content).toContain('uncategorized/ping-query');
     expect(sidebarFile?.content).toContain('uncategorized/ping-mutation');
+  });
+
+  it('keeps the Deprecated group at the end when pinned with groupOrdering', () => {
+    const schema = buildSchema(`
+      directive @docGroup(name: String!, subsection: String, sidebarTitle: String) on FIELD_DEFINITION
+
+      type Query {
+        getToken: String @docGroup(name: "Authorization")
+        listUsers: [String!]! @docGroup(name: "Users")
+        createLegacyPayment: String @docGroup(name: "Deprecated")
+      }
+    `);
+
+    const parser = new SchemaParser();
+    const parsedSchema = parser.parse(schema);
+    const transformer = new Transformer(parsedSchema.types, {
+      groupOrdering: {
+        mode: 'pinned',
+        pinToEnd: ['Deprecated'],
+      },
+    });
+    const docModel = transformer.transform(parsedSchema.operations, []);
+    const adapter = new DocusaurusAdapter({ outputDir });
+    const files = adapter.adapt(docModel);
+
+    expect(docModel.sections.map((section) => section.name)).toEqual([
+      'Authorization',
+      'Users',
+      'Deprecated',
+    ]);
+
+    const categoryFiles = files.filter((file) => file.path.endsWith('/_category_.json'));
+    const categoryPositions = new Map(
+      categoryFiles.map((file) => {
+        const sectionName = file.path.split('/')[0];
+        const category = JSON.parse(file.content) as { position?: number };
+        return [sectionName, category.position];
+      })
+    );
+
+    expect(categoryPositions.get('authorization')).toBe(1);
+    expect(categoryPositions.get('users')).toBe(2);
+    expect(categoryPositions.get('deprecated')).toBe(3);
   });
 
   it('runs generation through the exported docusaurus plugin entrypoint', async () => {

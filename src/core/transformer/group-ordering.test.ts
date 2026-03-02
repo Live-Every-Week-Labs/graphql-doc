@@ -79,6 +79,22 @@ describe('sortSectionsByGroupOrdering', () => {
     ]);
   });
 
+  it('treats omitted pinned lists as empty for programmatic callers', () => {
+    const sections = makeSections(['Users', 'Deprecated', 'Authorization', 'Uncategorized']);
+
+    const result = sortSectionsByGroupOrdering(sections, {
+      mode: 'pinned',
+      pinToEnd: ['Deprecated'],
+    } as any);
+
+    expect(result.map((section) => section.name)).toEqual([
+      'Authorization',
+      'Users',
+      'Deprecated',
+      'Uncategorized',
+    ]);
+  });
+
   it('uses first occurrence for duplicate explicit entries and ignores unknown groups', () => {
     const sections = makeSections(['Users', 'Payments', 'Alpha', 'Uncategorized']);
 
