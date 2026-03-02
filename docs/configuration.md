@@ -21,6 +21,7 @@ Most projects only need these options:
 | `exampleFiles` or `examplesDir`  | auto              | Where operation examples come from               |
 | `cleanOutputDir`                 | `false`           | Whether old generated files are removed first    |
 | `excludeDocGroups`               | `[]`              | Hide groups like `Internal` or `Experimental`    |
+| `groupOrdering.mode`             | `alphabetical`    | Controls section ordering strategy               |
 | `adapters.docusaurus.singlePage` | `false`           | Switch between multi-page and single-page output |
 
 Starter `.graphqlrc`:
@@ -47,6 +48,7 @@ Use these when needed:
 
 - `schemaExtensions`: merge framework scalar/directive stubs into the schema.
 - `requireExamplesForDocumentedOperations`: fail generate/validate when documented operations have no examples.
+- `groupOrdering.*`: configure section ordering (`alphabetical`, `explicit`, `pinned`).
 - `typeExpansion.*`: tune expansion depth and collapsible behavior.
 - `llmDocs.*`: emit LLM-friendly markdown + `llms.txt`.
 - `agentSkill.*`: emit downloadable AI skill artifacts.
@@ -66,6 +68,7 @@ Use these when needed:
 | `schemaExtensions`                       | `string[]`           | `[]`                      |
 | `allowRemoteSchema`                      | `boolean`            | `false`                   |
 | `excludeDocGroups`                       | `string \| string[]` | `[]`                      |
+| `groupOrdering`                          | `object`             | `{ mode: "alphabetical"}` |
 | `requireExamplesForDocumentedOperations` | `boolean`            | `false`                   |
 
 `exampleFiles` accepts one or many files/globs:
@@ -77,6 +80,59 @@ extensions:
       - ./docs-metadata/examples/queries/*.json
       - ./docs-metadata/examples/mutations/*.json
       - ./docs-metadata/examples/shared/common.json
+```
+
+## Group Ordering
+
+Use `groupOrdering` to control how top-level operation sections are sorted.
+
+### Modes
+
+| Mode           | Behavior                                                                            |
+| :------------- | :---------------------------------------------------------------------------------- |
+| `alphabetical` | Sort all groups alphabetically.                                                     |
+| `explicit`     | `explicitOrder` groups first in listed order, then remaining groups alphabetically. |
+| `pinned`       | `pinToStart` first, unpinned groups alphabetically, `pinToEnd` last.                |
+
+`Uncategorized` is always placed at the end in all modes.
+
+### Validation Rules
+
+- `explicit` mode requires non-empty `explicitOrder`.
+- `pinned` mode cannot include the same normalized name in both `pinToStart` and `pinToEnd`.
+- Name matching for explicit/pinned entries is case-insensitive using normalized keys:
+  - lowercase
+  - trim surrounding whitespace
+  - replace internal whitespace with `_`
+
+### Examples
+
+```yaml
+extensions:
+  graphql-doc:
+    groupOrdering:
+      mode: alphabetical
+```
+
+```yaml
+extensions:
+  graphql-doc:
+    groupOrdering:
+      mode: explicit
+      explicitOrder:
+        - Authentication
+        - Payments
+```
+
+```yaml
+extensions:
+  graphql-doc:
+    groupOrdering:
+      mode: pinned
+      pinToStart:
+        - Authentication
+      pinToEnd:
+        - Deprecated
 ```
 
 ## Type Expansion

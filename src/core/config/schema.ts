@@ -2,6 +2,66 @@ import { z } from 'zod';
 
 export const CURRENT_CONFIG_VERSION = 1 as const;
 
+const GroupOrderingEntrySchema = z.string().trim().min(1);
+
+/**
+ * Normalize group names for matching across config and schema annotations.
+ * This intentionally mirrors product rules:
+ * - case-insensitive (lowercase)
+ * - trim surrounding whitespace
+ * - collapse internal whitespace to underscores
+ */
+const normalizeGroupOrderingKey = (value: string): string =>
+  value.trim().toLowerCase().replace(/\s+/g, '_');
+
+const GroupOrderingAlphabeticalSchema = z
+  .object({
+    mode: z.literal('alphabetical'),
+  })
+  .strict();
+
+const GroupOrderingExplicitSchema = z
+  .object({
+    mode: z.literal('explicit'),
+    explicitOrder: z.array(GroupOrderingEntrySchema).min(1),
+  })
+  .strict();
+
+const GroupOrderingPinnedSchema = z
+  .object({
+    mode: z.literal('pinned'),
+    pinToStart: z.array(GroupOrderingEntrySchema).default([]),
+    pinToEnd: z.array(GroupOrderingEntrySchema).default([]),
+  })
+  .strict();
+
+const GroupOrderingSchema = z
+  .discriminatedUnion('mode', [
+    GroupOrderingAlphabeticalSchema,
+    GroupOrderingExplicitSchema,
+    GroupOrderingPinnedSchema,
+  ])
+  .superRefine((value, ctx) => {
+    if (value.mode !== 'pinned') {
+      return;
+    }
+
+    const startKeys = new Set(value.pinToStart.map(normalizeGroupOrderingKey));
+    for (const entry of value.pinToEnd) {
+      const normalized = normalizeGroupOrderingKey(entry);
+      if (startKeys.has(normalized)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['pinToEnd'],
+          message:
+            'groupOrdering.pinToStart and groupOrdering.pinToEnd cannot contain the same normalized group name.',
+        });
+        return;
+      }
+    }
+  })
+  .default({ mode: 'alphabetical' });
+
 const IntroDocObjectSchema = z
   .object({
     source: z.string().optional(),
@@ -141,6 +201,7 @@ export const ConfigSchema = z
         return value;
       }, z.array(z.string()))
       .default([]),
+    groupOrdering: GroupOrderingSchema,
     typeExpansion: z
       .object({
         maxDepth: z.number().min(1).max(10).default(5),
@@ -160,3 +221,4 @@ export type IntroDocConfigObject = z.infer<typeof IntroDocObjectSchema>;
 export type AgentSkillConfig = z.infer<typeof AgentSkillSchema>;
 export type DocusaurusAdapterConfig = z.infer<typeof DocusaurusAdapterSchema>;
 export type LlmDocsConfig = z.infer<typeof LlmDocsSchema>;
+export type GroupOrderingConfig = z.infer<typeof GroupOrderingSchema>;

@@ -17,6 +17,7 @@
     },
     "framework": {
       "type": "string",
+      "enum": ["docusaurus"],
       "default": "docusaurus"
     },
     "metadataDir": {
@@ -54,15 +55,83 @@
       },
       "default": []
     },
+    "groupOrdering": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "alphabetical"
+            }
+          },
+          "required": ["mode"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "explicit"
+            },
+            "explicitOrder": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            }
+          },
+          "required": ["mode", "explicitOrder"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "const": "pinned"
+            },
+            "pinToStart": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "default": []
+            },
+            "pinToEnd": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "default": []
+            }
+          },
+          "required": ["mode"],
+          "additionalProperties": false
+        }
+      ],
+      "default": {
+        "mode": "alphabetical"
+      }
+    },
     "typeExpansion": {
       "type": "object",
       "properties": {
         "maxDepth": {
           "type": "number",
+          "minimum": 1,
+          "maximum": 10,
           "default": 5
         },
         "defaultLevels": {
           "type": "number",
+          "minimum": 0,
+          "maximum": 10,
           "default": 0
         },
         "showCircularReferences": {

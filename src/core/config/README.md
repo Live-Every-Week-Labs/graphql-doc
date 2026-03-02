@@ -21,6 +21,12 @@ The `src/core/config` module handles configuration loading and validation for th
   - `schemaExtensions`: Extra SDL files merged into the schema for framework scalars/directives (default: `[]`).
   - `allowRemoteSchema`: Allow loading schema from remote URLs (default: `false`).
   - `excludeDocGroups`: Doc group names to exclude from output (string or array, default: `[]`).
+  - `groupOrdering`: Group ordering strategy for top-level sections.
+    - `mode: 'alphabetical'` (default) sorts groups by name.
+    - `mode: 'explicit'` requires non-empty `explicitOrder`.
+    - `mode: 'pinned'` supports optional `pinToStart` / `pinToEnd` lists.
+    - `Uncategorized` is always placed at the end.
+    - Explicit/pinned matching uses normalized keys (lowercase + trim + whitespace to `_`).
   - `requireExamplesForDocumentedOperations`: Fail generation/validation when documented operations have no examples (default: `false`).
   - `typeExpansion`: Settings for type depth and circular references.
     - `maxDepth`: Hard limit on inline expansion depth (default: `5`). Deeper references render as type links.

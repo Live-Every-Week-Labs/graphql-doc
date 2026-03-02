@@ -19,7 +19,11 @@ If you use `graphql-doc.config.json`, add `$schema`:
   "$schema": "./node_modules/@lewl/graphql-doc/src/schemas/config-schema.json",
   "configVersion": 1,
   "outputDir": "./docs/api",
-  "framework": "docusaurus"
+  "framework": "docusaurus",
+  "groupOrdering": {
+    "mode": "pinned",
+    "pinToEnd": ["Deprecated"]
+  }
 }
 ```
 

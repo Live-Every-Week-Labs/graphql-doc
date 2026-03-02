@@ -10,6 +10,7 @@ describe('loadGeneratorConfig', () => {
     expect(config.outputDir).toBe('./docs/api');
     expect(config.framework).toBe('docusaurus');
     expect(config.adapters.docusaurus).toBeDefined();
+    expect(config.groupOrdering).toEqual({ mode: 'alphabetical' });
   });
 
   describe('custom config path', () => {
@@ -43,6 +44,84 @@ describe('loadGeneratorConfig', () => {
       const config = await loadGeneratorConfig(process.cwd(), configPath);
       expect(config.outputDir).toBe('./custom-output');
       expect(config.adapters.docusaurus.singlePage).toBe(true);
+    });
+
+    it('accepts explicit group ordering mode with explicitOrder', async () => {
+      const explicitPath = path.join(tempDir, 'group-ordering-explicit.json');
+      fs.writeFileSync(
+        explicitPath,
+        JSON.stringify({
+          outputDir: './docs',
+          framework: 'docusaurus',
+          groupOrdering: {
+            mode: 'explicit',
+            explicitOrder: ['Core', 'Payments'],
+          },
+        })
+      );
+
+      const config = await loadGeneratorConfig(process.cwd(), explicitPath);
+      expect(config.groupOrdering.mode).toBe('explicit');
+      if (config.groupOrdering.mode === 'explicit') {
+        expect(config.groupOrdering.explicitOrder).toEqual(['Core', 'Payments']);
+      }
+    });
+
+    it('throws when explicit group ordering mode omits explicitOrder', async () => {
+      const explicitMissingPath = path.join(tempDir, 'group-ordering-explicit-missing.json');
+      fs.writeFileSync(
+        explicitMissingPath,
+        JSON.stringify({
+          outputDir: './docs',
+          framework: 'docusaurus',
+          groupOrdering: {
+            mode: 'explicit',
+          },
+        })
+      );
+
+      await expect(loadGeneratorConfig(process.cwd(), explicitMissingPath)).rejects.toThrow(
+        'explicitOrder'
+      );
+    });
+
+    it('throws when explicit group ordering mode provides an empty explicitOrder', async () => {
+      const explicitEmptyPath = path.join(tempDir, 'group-ordering-explicit-empty.json');
+      fs.writeFileSync(
+        explicitEmptyPath,
+        JSON.stringify({
+          outputDir: './docs',
+          framework: 'docusaurus',
+          groupOrdering: {
+            mode: 'explicit',
+            explicitOrder: [],
+          },
+        })
+      );
+
+      await expect(loadGeneratorConfig(process.cwd(), explicitEmptyPath)).rejects.toThrow(
+        'at least 1'
+      );
+    });
+
+    it('throws when pinned ordering duplicates normalized group names across start and end', async () => {
+      const pinnedOverlapPath = path.join(tempDir, 'group-ordering-pinned-overlap.json');
+      fs.writeFileSync(
+        pinnedOverlapPath,
+        JSON.stringify({
+          outputDir: './docs',
+          framework: 'docusaurus',
+          groupOrdering: {
+            mode: 'pinned',
+            pinToStart: ['Deprecated Payments'],
+            pinToEnd: ['  deprecated_payments  '],
+          },
+        })
+      );
+
+      await expect(loadGeneratorConfig(process.cwd(), pinnedOverlapPath)).rejects.toThrow(
+        'cannot contain the same normalized group name'
+      );
     });
 
     it('maps legacy Docusaurus keys into adapters', async () => {
