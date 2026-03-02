@@ -20,6 +20,9 @@ type Query {
 
   "List all users"
   listUsers: [User!]! @docGroup(name: "Users") @docPriority(level: 2)
+
+  "Get system health"
+  health: String @docGroup(name: "System")
 }
 
 type Mutation {
@@ -136,6 +139,26 @@ describe('Generator', () => {
 
       const content = await fs.readFile(sidebarPath, 'utf-8');
       expect(content).toContain('module.exports');
+    });
+
+    it('applies configured group ordering to generated output', async () => {
+      const generator = new Generator({
+        ...config,
+        groupOrdering: {
+          mode: 'explicit',
+          explicitOrder: ['Users', 'System'],
+        },
+      });
+      await generator.generate('schema.graphql');
+
+      const sidebarPath = path.join(outputDir, 'sidebars.js');
+      const content = await fs.readFile(sidebarPath, 'utf-8');
+      const usersIndex = content.indexOf('"label": "Users"');
+      const systemIndex = content.indexOf('"label": "System"');
+
+      expect(usersIndex).toBeGreaterThanOrEqual(0);
+      expect(systemIndex).toBeGreaterThanOrEqual(0);
+      expect(usersIndex).toBeLessThan(systemIndex);
     });
 
     it('generates MDX content with descriptions', async () => {

@@ -189,6 +189,7 @@ export class Generator {
     const transformer = new Transformer(types, {
       ...this.config.typeExpansion,
       excludeDocGroups: this.config.excludeDocGroups,
+      groupOrdering: this.config.groupOrdering,
     });
     const docModel = transformer.transform(operations, examples);
     const serializedData: SerializedDocData = serializeDocData(docModel);
