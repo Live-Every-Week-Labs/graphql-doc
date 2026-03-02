@@ -9,7 +9,7 @@ describe('SidebarGenerator', () => {
     arguments: [],
     returnType: { kind: 'SCALAR', name: 'User' },
     directives: {
-      docGroup: { name: 'Users', order: 1 },
+      docGroup: { name: 'Users' },
       docTags: { tags: ['read', 'user'] },
     },
     referencedTypes: [],
@@ -33,7 +33,7 @@ describe('SidebarGenerator', () => {
               {
                 ...mockOperation,
                 name: 'deleteUser',
-                directives: { docGroup: { name: 'Users', subsection: 'Admin', order: 2 } },
+                directives: { docGroup: { name: 'Users', subsection: 'Admin' } },
               },
             ],
           },

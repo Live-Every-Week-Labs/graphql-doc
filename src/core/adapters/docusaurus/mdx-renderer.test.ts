@@ -19,7 +19,7 @@ describe('MdxRenderer', () => {
     ],
     returnType: { kind: 'SCALAR', name: 'User' },
     directives: {
-      docGroup: { name: 'Users', order: 1 },
+      docGroup: { name: 'Users' },
     },
     referencedTypes: [],
     isDeprecated: false,
