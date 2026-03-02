@@ -35,6 +35,7 @@ package-lock.json.bak
 
 # Test
 .vitest
+.playwright-mcp
 
 # Local config overrides
 *.local
@@ -47,4 +48,3 @@ package-lock.json.bak
 
 # Planning documents
 .plans
-

@@ -40,6 +40,7 @@
     --gql-description-color: #656d76;
     --gql-required-color: #cf222e;
     --gql-deprecated-color: #9a6700;
+    --gql-llm-icon-color: #2563eb;
 
     /* Status Token System */
     /* Success */
@@ -80,6 +81,7 @@
     --gql-description-color: #8b949e;
     --gql-required-color: #ff7b72;
     --gql-deprecated-color: #d29922;
+    --gql-llm-icon-color: #60a5fa;
 
     /* Status Colors */
     --gql-success-bg: #238636;
@@ -442,10 +444,11 @@ a.gql-type:hover {
 }
 
 .gql-operation-title {
-    margin: 0;
+    margin: 0 !important;
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--gql-field-color);
+    line-height: 1;
 }
 
 .gql-op-type {
@@ -786,30 +789,26 @@ a.gql-type:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.9rem;
-    height: 1.9rem;
-    border: 1px solid var(--gql-border-color);
-    background: transparent;
-    color: var(--gql-description-color);
-    padding: 0;
-    border-radius: 999px;
+    color: var(--gql-llm-icon-color);
     text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
 }
 
 .gql-llm-download-icon {
-    width: 1.05rem;
-    height: 1.05rem;
+    width: 1.5rem;
+    height: 1.5rem;
     fill: currentColor;
 }
 
 .gql-llm-download:hover {
-    color: var(--gql-field-color);
-    background: var(--gql-hover-bg);
+    opacity: 1;
 }
 
 .gql-llm-download:focus-visible {
     outline: none;
     box-shadow: var(--gql-focus-ring);
+    border-radius: 4px;
 }
 
 .gql-visually-hidden {
