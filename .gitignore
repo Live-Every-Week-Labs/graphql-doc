@@ -48,3 +48,6 @@ package-lock.json.bak
 
 # Planning documents
 .plans
+
+# Temporary local integration workspace
+.tmp
