@@ -201,16 +201,28 @@ export class LlmDocsGenerator {
     }> = [];
 
     for (const section of normalizedSections) {
+      const operations = collectOperations({ sections: [section] });
+      const operationSlugs = this.resolveOperationSlugs(operations);
       const filename = `${section.slug}.md`;
       files.push({
         path: filename,
-        content: this.renderGroupSummary(section, apiName),
+        content: this.renderGroupSummary(section, apiName, operationSlugs),
         type: 'md',
       });
+
+      for (const operation of operations) {
+        const operationSlug = this.getOperationSlug(operation, operationSlugs);
+        files.push({
+          path: `${section.slug}/${operationSlug}.md`,
+          content: this.renderOperationFile(operation, section, apiName),
+          type: 'md',
+        });
+      }
+
       manifestEntries.push({
         label: section.displayName,
         filename,
-        operations: collectOperations({ sections: [section] }),
+        operations,
       });
     }
 
@@ -352,16 +364,28 @@ export class LlmDocsGenerator {
     lines.push('');
     lines.push('## Documentation Files');
     lines.push('');
-    lines.push('For full documentation including type definitions and examples, see:');
+    lines.push('For per-operation documentation files, see:');
     lines.push('');
     for (const section of sections) {
-      lines.push(`- [${section.displayName}](./${section.slug}.md)`);
+      const operations = collectOperations({ sections: [section] });
+      const operationSlugs = this.resolveOperationSlugs(operations);
+      lines.push(`### ${section.displayName}`);
+      lines.push('');
+      for (const operation of operations) {
+        const operationSlug = this.getOperationSlug(operation, operationSlugs);
+        lines.push(`- [${operation.name}](./${section.slug}/${operationSlug}.md)`);
+      }
+      lines.push('');
     }
 
     return lines.join('\n');
   }
 
-  private renderGroupSummary(section: NormalizedSection, apiName: string) {
+  private renderGroupSummary(
+    section: NormalizedSection,
+    apiName: string,
+    operationSlugs: Map<Operation, string>
+  ) {
     const operations = collectOperations({ sections: [section] });
     const lines: string[] = [];
     lines.push(`# ${section.displayName}`);
@@ -374,7 +398,7 @@ export class LlmDocsGenerator {
     lines.push('');
 
     const operationRows = operations.map((operation) => {
-      const operationSlug = this.getOperationSlug(operation);
+      const operationSlug = this.getOperationSlug(operation, operationSlugs);
       const operationType = this.getOperationTypeLabel(operation.operationType);
       const siteOperationHref = this.getOperationSiteHref(section.slug, operationSlug);
       const description = firstSentence(operation.description) || NO_DESCRIPTION_AVAILABLE;
@@ -390,7 +414,7 @@ export class LlmDocsGenerator {
       lines.push('For full operation details including arguments, return types, and examples:');
       lines.push('');
       for (const operation of operations) {
-        const operationSlug = this.getOperationSlug(operation);
+        const operationSlug = this.getOperationSlug(operation, operationSlugs);
         lines.push(`- [${operation.name}](./${section.slug}/${operationSlug}.md)`);
       }
     }
@@ -794,8 +818,33 @@ export class LlmDocsGenerator {
     return slugify(typeName) || typeName.toLowerCase();
   }
 
-  private getOperationSlug(operation: Operation): string {
-    return slugify(operation.name) || 'operation';
+  private resolveOperationSlugs(operations: Operation[]): Map<Operation, string> {
+    const operationSlugs = new Map<Operation, string>();
+    const usedSlugs = new Set<string>();
+
+    for (const operation of operations) {
+      const baseSlug = slugify(operation.name) || 'operation';
+      let resolvedSlug = baseSlug;
+
+      if (usedSlugs.has(resolvedSlug)) {
+        resolvedSlug = `${baseSlug}-${operation.operationType}`;
+      }
+
+      let counter = 1;
+      while (usedSlugs.has(resolvedSlug)) {
+        resolvedSlug = `${baseSlug}-${operation.operationType}-${counter}`;
+        counter += 1;
+      }
+
+      usedSlugs.add(resolvedSlug);
+      operationSlugs.set(operation, resolvedSlug);
+    }
+
+    return operationSlugs;
+  }
+
+  private getOperationSlug(operation: Operation, operationSlugs?: Map<Operation, string>): string {
+    return operationSlugs?.get(operation) ?? (slugify(operation.name) || 'operation');
   }
 
   private getOperationTypeLabel(type: Operation['operationType']): string {

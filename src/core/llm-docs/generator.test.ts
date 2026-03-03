@@ -107,14 +107,17 @@ describe('LlmDocsGenerator', () => {
     const { files } = generator.generate(model);
     const indexFile = files.find((file) => file.path === 'index.md');
     const chunkFile = files.find((file) => file.path === 'users.md');
+    const operationFile = files.find((file) => file.path === 'users/get-user.md');
     const manifest = files.find((file) => file.path === 'llms.txt');
 
     expect(indexFile?.content).toContain('getUser(id: ID!): User');
+    expect(indexFile?.content).toContain('[getUser](./users/get-user.md)');
     expect(chunkFile?.content).toContain('## Operations');
     expect(chunkFile?.content).toContain(
       '[getUser](https://docs.example.com/docs/api/users/get-user)'
     );
     expect(chunkFile?.content).not.toContain('## Type Definitions');
+    expect(operationFile?.content).toContain('# getUser');
     expect(manifest?.content).toContain('https://docs.example.com/llm-docs/index.md');
   });
 
@@ -162,7 +165,13 @@ describe('LlmDocsGenerator', () => {
     const chunkPaths = files.filter((file) => file.path.endsWith('.md')).map((file) => file.path);
     const indexFile = files.find((file) => file.path === 'index.md');
 
-    expect(chunkPaths).toEqual(['index.md', 'beta.md', 'alpha.md']);
+    expect(chunkPaths).toEqual([
+      'index.md',
+      'beta.md',
+      'beta/beta-query.md',
+      'alpha.md',
+      'alpha/alpha-query.md',
+    ]);
     expect(indexFile?.content).toContain('**Groups:** Beta, Alpha');
   });
 });
