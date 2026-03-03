@@ -132,4 +132,11 @@ describe('MdxRenderer', () => {
     });
     expect(output).toContain("export const operation = operationsByType['query']['getUser']");
   });
+
+  it('passes siteBasePath to OperationView when provided', () => {
+    const output = renderer.renderOperation(mockOperation, {
+      siteBasePath: '/docs/custom-api',
+    });
+    expect(output).toContain('siteBasePath="/docs/custom-api"');
+  });
 });

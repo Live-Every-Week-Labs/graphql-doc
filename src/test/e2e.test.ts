@@ -227,5 +227,10 @@ describe('End-to-End Generator Test', () => {
     expect(generationResult?.llmFilesWritten).toBeGreaterThan(0);
     expect(fs.existsSync(path.join(pluginSiteDir, 'docs/plugin-api', 'sidebars.js'))).toBe(true);
     expect(fs.existsSync(path.join(pluginSiteDir, 'llm-docs', 'index.md'))).toBe(true);
+    expect(fs.existsSync(path.join(pluginSiteDir, 'llm-docs', 'user-management.md'))).toBe(true);
+    expect(
+      fs.existsSync(path.join(pluginSiteDir, 'llm-docs', 'user-management', 'get-user.md'))
+    ).toBe(true);
+    expect(fs.existsSync(path.join(pluginSiteDir, 'llms.txt'))).toBe(true);
   });
 });
