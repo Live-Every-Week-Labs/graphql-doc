@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { describe, it, expect, afterEach } from 'vitest';
 import { OperationView } from './OperationView';
 import { mockOperation } from '../__tests__/fixtures';
@@ -28,12 +28,53 @@ describe('OperationView', () => {
     expect(screen.getAllByText('Examples').length).toBeGreaterThan(0);
   });
 
-  it('renders an icon-only markdown download link when llmDocsBasePath is provided', () => {
+  it('renders a markdown download dropdown with overview and operation links', () => {
     render(<OperationView operation={mockOperation} llmDocsBasePath="/llm-docs" />);
 
-    const link = screen.getByRole('link', { name: 'Download Markdown for General' });
-    expect(link).toHaveAttribute('href', '/llm-docs/general.md');
-    expect(link.querySelector('svg')).toBeInTheDocument();
+    const button = screen.getByRole('button', { name: 'Download Markdown for General' });
+    fireEvent.click(button);
+
+    const groupOverviewLink = screen.getByRole('menuitem', { name: 'Download General overview' });
+    const operationDetailsLink = screen.getByRole('menuitem', { name: 'Download getUser details' });
+
+    expect(groupOverviewLink).toHaveAttribute('href', '/llm-docs/general.md');
+    expect(operationDetailsLink).toHaveAttribute('href', '/llm-docs/general/get-user.md');
+    expect(button.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('closes markdown download dropdown on Escape', () => {
+    render(<OperationView operation={mockOperation} llmDocsBasePath="/llm-docs" />);
+
+    const button = screen.getByRole('button', { name: 'Download Markdown for General' });
+    fireEvent.click(button);
+    expect(screen.getByRole('menuitem', { name: 'Download General overview' })).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('menuitem', { name: 'Download General overview' })).toBeNull();
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('closes markdown download dropdown on click-outside', () => {
+    render(<OperationView operation={mockOperation} llmDocsBasePath="/llm-docs" />);
+
+    const button = screen.getByRole('button', { name: 'Download Markdown for General' });
+    fireEvent.click(button);
+    expect(screen.getByRole('menuitem', { name: 'Download General overview' })).toBeInTheDocument();
+
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByRole('menuitem', { name: 'Download General overview' })).toBeNull();
+  });
+
+  it('sets markdown dropdown aria attributes', () => {
+    render(<OperationView operation={mockOperation} llmDocsBasePath="/llm-docs" />);
+
+    const button = screen.getByRole('button', { name: 'Download Markdown for General' });
+    expect(button).toHaveAttribute('aria-haspopup', 'true');
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(button);
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+    expect(button).toHaveAttribute('aria-controls');
   });
 
   it('adds Docusaurus layout bridge classes for full-width rendering', () => {

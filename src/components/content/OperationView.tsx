@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { Operation, ExpandedType } from '../../core/transformer/types';
 import { slugify } from '../../core/utils/string-utils';
 import { ExpansionProvider } from '../context/ExpansionProvider';
@@ -58,17 +58,147 @@ export const OperationView = React.memo(function OperationView({
   children,
 }: OperationViewProps) {
   const rootRef = useRef<HTMLElement | null>(null);
+  const downloadMenuRef = useRef<HTMLDivElement | null>(null);
+  const downloadButtonRef = useRef<HTMLButtonElement | null>(null);
+  const menuItemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
+  const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
   useDocusaurusLayoutBridge(rootRef);
-  const slug = slugify(operation.name);
+  const operationSlug = slugify(operation.name) || 'operation';
   const HeadingTag = `h${Math.min(6, Math.max(1, headingLevel))}` as keyof JSX.IntrinsicElements;
   const tags = operation.directives?.docTags?.tags ?? [];
   const typeLabel = operation.operationType.toUpperCase();
   const groupName = operation.directives?.docGroup?.name || 'General';
-  const groupSlug = slugify(groupName);
-  const llmDocsHref = llmDocsBasePath
-    ? `${llmDocsBasePath.replace(/\/$/, '')}/${groupSlug}.md`
+  const groupSlug = slugify(groupName) || 'general';
+  const llmDocsRoot = llmDocsBasePath ? llmDocsBasePath.replace(/\/$/, '') : undefined;
+  const groupOverviewHref = llmDocsRoot ? `${llmDocsRoot}/${groupSlug}.md` : undefined;
+  const operationDetailsHref = llmDocsRoot
+    ? `${llmDocsRoot}/${groupSlug}/${operationSlug}.md`
     : undefined;
   const llmDownloadAriaLabel = `${llmDocsDownloadLabel} for ${groupName}`;
+  const llmMenuId = `gql-llm-menu-${groupSlug}-${operationSlug}`;
+
+  const focusMenuItem = useCallback((index: number) => {
+    const menuItems = menuItemRefs.current.filter(
+      (item): item is HTMLAnchorElement => item !== null
+    );
+    if (menuItems.length === 0) {
+      return;
+    }
+    const normalizedIndex = ((index % menuItems.length) + menuItems.length) % menuItems.length;
+    menuItems[normalizedIndex].focus();
+  }, []);
+
+  const closeDownloadMenu = useCallback(() => {
+    setIsDownloadMenuOpen(false);
+  }, []);
+
+  const openDownloadMenu = useCallback(
+    (focusIndex?: number) => {
+      setIsDownloadMenuOpen(true);
+      if (typeof focusIndex === 'number') {
+        window.setTimeout(() => focusMenuItem(focusIndex), 0);
+      }
+    },
+    [focusMenuItem]
+  );
+
+  const handleDownloadMenuKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!isDownloadMenuOpen) {
+        return;
+      }
+
+      const menuItems = menuItemRefs.current.filter(
+        (item): item is HTMLAnchorElement => item !== null
+      );
+      if (menuItems.length === 0) {
+        return;
+      }
+
+      const currentIndex = menuItems.findIndex((item) => item === document.activeElement);
+
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          focusMenuItem(currentIndex + 1);
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          focusMenuItem(currentIndex - 1);
+          break;
+        case 'Home':
+          event.preventDefault();
+          focusMenuItem(0);
+          break;
+        case 'End':
+          event.preventDefault();
+          focusMenuItem(menuItems.length - 1);
+          break;
+        case 'Escape':
+          event.preventDefault();
+          closeDownloadMenu();
+          downloadButtonRef.current?.focus();
+          break;
+        default:
+          break;
+      }
+    },
+    [closeDownloadMenu, focusMenuItem, isDownloadMenuOpen]
+  );
+
+  const handleDownloadButtonKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLButtonElement>) => {
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          openDownloadMenu(0);
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          openDownloadMenu(1);
+          break;
+        case 'Enter':
+        case ' ':
+          event.preventDefault();
+          if (isDownloadMenuOpen) {
+            closeDownloadMenu();
+          } else {
+            openDownloadMenu();
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    [closeDownloadMenu, isDownloadMenuOpen, openDownloadMenu]
+  );
+
+  useEffect(() => {
+    if (!isDownloadMenuOpen) {
+      return;
+    }
+
+    const handleDocumentMouseDown = (event: MouseEvent) => {
+      if (!downloadMenuRef.current?.contains(event.target as Node)) {
+        closeDownloadMenu();
+      }
+    };
+
+    const handleDocumentKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeDownloadMenu();
+        downloadButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('mousedown', handleDocumentMouseDown);
+    document.addEventListener('keydown', handleDocumentKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleDocumentMouseDown);
+      document.removeEventListener('keydown', handleDocumentKeyDown);
+    };
+  }, [closeDownloadMenu, isDownloadMenuOpen]);
 
   return (
     <TypeRegistryProvider typesByName={typesByName}>
@@ -78,20 +208,61 @@ export const OperationView = React.memo(function OperationView({
             <div className="gql-operation-main">
               <header className="gql-operation-header">
                 <div className="gql-operation-title-row">
-                  <HeadingTag id={slug} className="gql-operation-title">
+                  <HeadingTag id={operationSlug} className="gql-operation-title">
                     {operation.name}
                   </HeadingTag>
-                  {llmDocsHref && (
-                    <a
-                      className="gql-llm-download"
-                      href={llmDocsHref}
-                      download={`${groupSlug}.md`}
-                      aria-label={llmDownloadAriaLabel}
-                      title={llmDownloadAriaLabel}
-                    >
-                      <MarkdownDownloadIcon />
-                      <span className="gql-visually-hidden">{llmDownloadAriaLabel}</span>
-                    </a>
+                  {groupOverviewHref && operationDetailsHref && (
+                    <div className="gql-llm-download" ref={downloadMenuRef}>
+                      <button
+                        type="button"
+                        ref={downloadButtonRef}
+                        className="gql-llm-download-trigger"
+                        aria-label={llmDownloadAriaLabel}
+                        title={llmDownloadAriaLabel}
+                        aria-expanded={isDownloadMenuOpen}
+                        aria-haspopup="true"
+                        aria-controls={llmMenuId}
+                        onClick={() => setIsDownloadMenuOpen((open) => !open)}
+                        onKeyDown={handleDownloadButtonKeyDown}
+                      >
+                        <MarkdownDownloadIcon />
+                        <span className="gql-visually-hidden">{llmDownloadAriaLabel}</span>
+                      </button>
+                      {isDownloadMenuOpen && (
+                        <div
+                          id={llmMenuId}
+                          className="gql-llm-menu"
+                          role="menu"
+                          aria-label="Markdown download options"
+                          onKeyDown={handleDownloadMenuKeyDown}
+                        >
+                          <a
+                            ref={(node) => {
+                              menuItemRefs.current[0] = node;
+                            }}
+                            className="gql-llm-menu-item"
+                            role="menuitem"
+                            href={groupOverviewHref}
+                            download={`${groupSlug}.md`}
+                            onClick={closeDownloadMenu}
+                          >
+                            Download {groupName} overview
+                          </a>
+                          <a
+                            ref={(node) => {
+                              menuItemRefs.current[1] = node;
+                            }}
+                            className="gql-llm-menu-item"
+                            role="menuitem"
+                            href={operationDetailsHref}
+                            download={`${operationSlug}.md`}
+                            onClick={closeDownloadMenu}
+                          >
+                            Download {operation.name} details
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   )}
                   <span className={`gql-badge gql-badge-neutral gql-op-type`}>{typeLabel}</span>
                   {tags.map((tag) => (

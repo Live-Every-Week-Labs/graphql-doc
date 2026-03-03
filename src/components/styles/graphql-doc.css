@@ -8,102 +8,102 @@
  */
 
 :root {
-    /* ==========================================================================
+  /* ==========================================================================
      Layout Tokens
      ========================================================================== */
-    --gql-content-max-width: 1400px;
-    --gql-spacing-base: 1rem;
-    --gql-border-radius: 6px;
-    --gql-content-gap: 2rem;
-    --gql-examples-top: 96px;
-    --gql-nested-line: #d1d5db;
-    --gql-nested-line-1: #c7d2fe;
-    --gql-nested-line-2: #bbf7d0;
-    --gql-nested-line-3: #fde68a;
-    --gql-nested-line-4: #fecaca;
-    --gql-nested-line-5: #f5d0fe;
+  --gql-content-max-width: 1400px;
+  --gql-spacing-base: 1rem;
+  --gql-border-radius: 6px;
+  --gql-content-gap: 2rem;
+  --gql-examples-top: 96px;
+  --gql-nested-line: #d1d5db;
+  --gql-nested-line-1: #c7d2fe;
+  --gql-nested-line-2: #bbf7d0;
+  --gql-nested-line-3: #fde68a;
+  --gql-nested-line-4: #fecaca;
+  --gql-nested-line-5: #f5d0fe;
 
-    /* ==========================================================================
+  /* ==========================================================================
      Color Tokens - Light Theme (Default)
      ========================================================================== */
 
-    /* Panels & Backgrounds */
-    --gql-code-panel-bg: #ffffff;
-    --gql-code-panel-fg: #24292f;
-    --gql-border-color: #e5e7eb;
+  /* Panels & Backgrounds */
+  --gql-code-panel-bg: #ffffff;
+  --gql-code-panel-fg: #24292f;
+  --gql-border-color: #e5e7eb;
 
-    /* Typography Colors */
-    --gql-type-color: #0969da;
-    /* Links, Types */
-    --gql-field-color: #1f2328;
-    /* Field names */
-    --gql-description-color: #656d76;
-    --gql-required-color: #cf222e;
-    --gql-deprecated-color: #9a6700;
-    --gql-llm-icon-color: #2563eb;
+  /* Typography Colors */
+  --gql-type-color: #0969da;
+  /* Links, Types */
+  --gql-field-color: #1f2328;
+  /* Field names */
+  --gql-description-color: #656d76;
+  --gql-required-color: #cf222e;
+  --gql-deprecated-color: #9a6700;
+  --gql-llm-icon-color: #2563eb;
 
-    /* Status Token System */
-    /* Success */
-    --gql-success-bg: #dcfce7;
-    --gql-success-text: #166534;
-    /* Warning */
-    --gql-warning-bg: #fef3c7;
-    --gql-warning-text: #92400e;
-    /* Error */
-    --gql-error-bg: #fee2e2;
-    --gql-error-text: #991b1b;
-    /* Neutral */
-    --gql-neutral-bg: #e5e7eb;
-    --gql-neutral-text: #374151;
-    /* Union */
-    --gql-union-bg: #dbeafe;
-    --gql-union-text: #1e40af;
+  /* Status Token System */
+  /* Success */
+  --gql-success-bg: #dcfce7;
+  --gql-success-text: #166534;
+  /* Warning */
+  --gql-warning-bg: #fef3c7;
+  --gql-warning-text: #92400e;
+  /* Error */
+  --gql-error-bg: #fee2e2;
+  --gql-error-text: #991b1b;
+  /* Neutral */
+  --gql-neutral-bg: #e5e7eb;
+  --gql-neutral-text: #374151;
+  /* Union */
+  --gql-union-bg: #dbeafe;
+  --gql-union-text: #1e40af;
 
-    /* Interactive Elements */
-    --gql-hover-bg: #f3f4f6;
-    --gql-active-bg: #e5e7eb;
-    --gql-focus-ring: 0 0 0 2px rgba(9, 105, 218, 0.3);
-    --gql-transition-speed: 0.2s;
+  /* Interactive Elements */
+  --gql-hover-bg: #f3f4f6;
+  --gql-active-bg: #e5e7eb;
+  --gql-focus-ring: 0 0 0 2px rgba(9, 105, 218, 0.3);
+  --gql-transition-speed: 0.2s;
 }
 
 /* ==========================================================================
    Dark Theme
    ========================================================================== */
 [data-theme='dark'] {
-    /* Panels & Backgrounds */
-    --gql-code-panel-bg: #0d1117;
-    --gql-code-panel-fg: #e6edf3;
-    --gql-border-color: #30363d;
+  /* Panels & Backgrounds */
+  --gql-code-panel-bg: #0d1117;
+  --gql-code-panel-fg: #e6edf3;
+  --gql-border-color: #30363d;
 
-    /* Typography Colors */
-    --gql-type-color: #79c0ff;
-    --gql-field-color: #e6edf3;
-    --gql-description-color: #8b949e;
-    --gql-required-color: #ff7b72;
-    --gql-deprecated-color: #d29922;
-    --gql-llm-icon-color: #60a5fa;
+  /* Typography Colors */
+  --gql-type-color: #79c0ff;
+  --gql-field-color: #e6edf3;
+  --gql-description-color: #8b949e;
+  --gql-required-color: #ff7b72;
+  --gql-deprecated-color: #d29922;
+  --gql-llm-icon-color: #60a5fa;
 
-    /* Status Colors */
-    --gql-success-bg: #238636;
-    --gql-success-text: #ffffff;
-    --gql-warning-bg: #9e6a03;
-    --gql-warning-text: #ffffff;
-    --gql-error-bg: #da3633;
-    --gql-error-text: #ffffff;
-    --gql-neutral-bg: #30363d;
-    --gql-neutral-text: #e6edf3;
-    --gql-union-bg: #1e40af;
-    --gql-union-text: #dbeafe;
+  /* Status Colors */
+  --gql-success-bg: #238636;
+  --gql-success-text: #ffffff;
+  --gql-warning-bg: #9e6a03;
+  --gql-warning-text: #ffffff;
+  --gql-error-bg: #da3633;
+  --gql-error-text: #ffffff;
+  --gql-neutral-bg: #30363d;
+  --gql-neutral-text: #e6edf3;
+  --gql-union-bg: #1e40af;
+  --gql-union-text: #dbeafe;
 
-    /* Interactive */
-    --gql-hover-bg: #161b22;
-    --gql-active-bg: #21262d;
-    --gql-nested-line: #30363d;
-    --gql-nested-line-1: #6366f1;
-    --gql-nested-line-2: #22c55e;
-    --gql-nested-line-3: #f59e0b;
-    --gql-nested-line-4: #ef4444;
-    --gql-nested-line-5: #a855f7;
+  /* Interactive */
+  --gql-hover-bg: #161b22;
+  --gql-active-bg: #21262d;
+  --gql-nested-line: #30363d;
+  --gql-nested-line-1: #6366f1;
+  --gql-nested-line-2: #22c55e;
+  --gql-nested-line-3: #f59e0b;
+  --gql-nested-line-4: #ef4444;
+  --gql-nested-line-5: #a855f7;
 }
 
 /* ==========================================================================
@@ -112,7 +112,9 @@
 
 /* Font Families for consistent "premium" look if not set elsewhere */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
 }
 
 /* ==========================================================================
@@ -120,81 +122,88 @@ body {
    ========================================================================== */
 
 .gql-docs-container {
-    max-width: 1800px !important;
+  max-width: 1800px !important;
 }
 
 @media (min-width: 997px) {
-    body.gql-docs-page main[class*='docMainContainer'] [class*='docItemCol'],
-    .gql-docs-page main[class*='docMainContainer'] [class*='docItemCol'],
-    .gql-docs-col {
-        --ifm-col-width: 100% !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
-        flex-basis: 100% !important;
-    }
+  body.gql-docs-page main[class*='docMainContainer'] [class*='docItemCol'],
+  .gql-docs-page main[class*='docMainContainer'] [class*='docItemCol'],
+  .gql-docs-col {
+    --ifm-col-width: 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    flex-basis: 100% !important;
+  }
 }
 
 @supports selector(.container:has(.gql-operation)) {
-    @media (min-width: 997px) {
-        main[class*='docMainContainer'] .container:has(.gql-operation),
-        main[class*='docMainContainer'] .container:has(.gql-type-definition) {
-            max-width: 1800px !important;
-        }
-
-        main[class*='docMainContainer'] [class*='docItemCol']:has(.gql-operation),
-        main[class*='docMainContainer'] [class*='docItemCol']:has(.gql-type-definition) {
-            --ifm-col-width: 100% !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            flex: 0 0 100% !important;
-            flex-basis: 100% !important;
-        }
+  @media (min-width: 997px) {
+    main[class*='docMainContainer'] .container:has(.gql-operation),
+    main[class*='docMainContainer'] .container:has(.gql-type-definition) {
+      max-width: 1800px !important;
     }
+
+    main[class*='docMainContainer'] [class*='docItemCol']:has(.gql-operation),
+    main[class*='docMainContainer'] [class*='docItemCol']:has(.gql-type-definition) {
+      --ifm-col-width: 100% !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 0 0 100% !important;
+      flex-basis: 100% !important;
+    }
+  }
 }
 
 .gql-type-viewer {
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-    font-size: 0.9em;
-    line-height: 1.5;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
 }
 
 .gql-type {
-    color: var(--gql-type-color);
-    font-weight: 600;
+  color: var(--gql-type-color);
+  font-weight: 600;
 }
 
 .gql-field {
-    color: var(--gql-field-color);
-    font-weight: 500;
+  color: var(--gql-field-color);
+  font-weight: 500;
 }
 
 .gql-description {
-    color: var(--gql-description-color);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 0.9em;
-    font-style: italic;
+  color: var(--gql-description-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.9em;
+  font-style: italic;
 }
 
 .gql-description-text {
-    color: var(--gql-description-color);
-    font-size: 0.9em;
+  color: var(--gql-description-color);
+  font-size: 0.9em;
 }
 
 .gql-required {
-    color: var(--gql-required-color);
-    font-weight: bold;
+  color: var(--gql-required-color);
+  font-weight: bold;
 }
 
 .gql-deprecated {
-    color: var(--gql-deprecated-color);
-    font-size: 0.85em;
-    font-style: normal;
-    background: var(--gql-warning-bg);
-    color: var(--gql-warning-text);
-    padding: 1px 4px;
-    border-radius: 4px;
-    margin-left: 6px;
+  color: var(--gql-deprecated-color);
+  font-size: 0.85em;
+  font-style: normal;
+  background: var(--gql-warning-bg);
+  color: var(--gql-warning-text);
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-left: 6px;
 }
 
 /* ==========================================================================
@@ -202,48 +211,48 @@ body {
    ========================================================================== */
 
 .gql-tree-node {
-    display: block;
-    position: relative;
-    padding-left: 2px;
+  display: block;
+  position: relative;
+  padding-left: 2px;
 }
 
 .gql-expand-toggle {
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    padding: 2px 4px;
-    border-radius: 4px;
-    transition: background-color var(--gql-transition-speed);
-    margin-left: -4px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background-color var(--gql-transition-speed);
+  margin-left: -4px;
 }
 
 .gql-expand-toggle:hover {
-    background-color: var(--gql-hover-bg);
+  background-color: var(--gql-hover-bg);
 }
 
 .gql-toggle-icon {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    line-height: 14px;
-    text-align: center;
-    font-size: 10px;
-    margin-left: 6px;
-    color: var(--gql-description-color);
-    transition: transform var(--gql-transition-speed);
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  text-align: center;
+  font-size: 10px;
+  margin-left: 6px;
+  color: var(--gql-description-color);
+  transition: transform var(--gql-transition-speed);
 }
 
 .gql-toggle-icon.is-expanded {
-    transform: rotate(90deg);
+  transform: rotate(90deg);
 }
 
 .gql-nested-content {
-    margin-left: 8px;
-    padding-left: 12px;
-    border-left: 2px solid var(--gql-border-color);
-    margin-top: 4px;
-    position: relative;
+  margin-left: 8px;
+  padding-left: 12px;
+  border-left: 2px solid var(--gql-border-color);
+  margin-top: 4px;
+  position: relative;
 }
 
 /* ==========================================================================
@@ -252,87 +261,87 @@ body {
 
 /* Enums */
 .gql-enum-value {
-    display: flex;
-    align-items: baseline;
-    padding: 2px 0;
+  display: flex;
+  align-items: baseline;
+  padding: 2px 0;
 }
 
 /* Objects/Fields */
 .gql-field-row {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
 }
 
 .gql-field-signature {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .gql-punctuation {
-    color: var(--gql-description-color);
-    margin: 0 4px;
-    opacity: 0.6;
+  color: var(--gql-description-color);
+  margin: 0 4px;
+  opacity: 0.6;
 }
 
 .gql-list-wrapper {
-    display: inline-flex;
-    align-items: center;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Links */
 a.gql-type {
-    text-decoration: none;
-    cursor: pointer;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 a.gql-type:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* List Wrapper Brackets */
 .gql-bracket {
-    color: var(--gql-description-color);
-    font-weight: bold;
-    opacity: 0.7;
+  color: var(--gql-description-color);
+  font-weight: bold;
+  opacity: 0.7;
 }
 
 /* Badge utility */
 .gql-badge {
-    display: inline-block;
-    padding: 0.15em 0.5em;
-    font-size: 0.75em;
-    font-weight: 600;
-    line-height: 1;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  display: inline-block;
+  padding: 0.15em 0.5em;
+  font-size: 0.75em;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .gql-badge-warning {
-    background-color: var(--gql-warning-bg);
-    color: var(--gql-warning-text);
+  background-color: var(--gql-warning-bg);
+  color: var(--gql-warning-text);
 }
 
 .gql-badge-success {
-    background-color: var(--gql-success-bg);
-    color: var(--gql-success-text);
+  background-color: var(--gql-success-bg);
+  color: var(--gql-success-text);
 }
 
 .gql-badge-error {
-    background-color: var(--gql-error-bg);
-    color: var(--gql-error-text);
+  background-color: var(--gql-error-bg);
+  color: var(--gql-error-text);
 }
 
 .gql-badge-neutral {
-    background-color: var(--gql-neutral-bg);
-    color: var(--gql-neutral-text);
+  background-color: var(--gql-neutral-bg);
+  color: var(--gql-neutral-text);
 }
 
 .gql-badge-union {
-    background-color: var(--gql-union-bg);
-    color: var(--gql-union-text);
+  background-color: var(--gql-union-bg);
+  color: var(--gql-union-text);
 }
 
 /* ==========================================================================
@@ -340,118 +349,125 @@ a.gql-type:hover {
    ========================================================================== */
 
 .gql-field-table {
-    width: 100%;
-    border: 1px solid var(--gql-border-color);
-    border-radius: var(--gql-border-radius);
-    overflow: hidden;
-    margin-bottom: var(--gql-spacing-base);
-    background-color: var(--gql-code-panel-bg);
+  width: 100%;
+  border: 1px solid var(--gql-border-color);
+  border-radius: var(--gql-border-radius);
+  overflow: hidden;
+  margin-bottom: var(--gql-spacing-base);
+  background-color: var(--gql-code-panel-bg);
 }
 
 .gql-field-table-header {
-    display: flex;
-    background-color: var(--gql-active-bg);
-    border-bottom: 1px solid var(--gql-border-color);
-    font-weight: 600;
-    color: var(--gql-field-color);
+  display: flex;
+  background-color: var(--gql-active-bg);
+  border-bottom: 1px solid var(--gql-border-color);
+  font-weight: 600;
+  color: var(--gql-field-color);
 }
 
 .gql-field-table-body {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .gql-table-row {
-    display: flex;
-    border-bottom: 1px solid var(--gql-border-color);
+  display: flex;
+  border-bottom: 1px solid var(--gql-border-color);
 }
 
 .gql-table-row:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .gql-table-row:hover {
-    background-color: var(--gql-hover-bg);
+  background-color: var(--gql-hover-bg);
 }
 
 .gql-table-cell {
-    padding: 12px;
-    flex: 1;
+  padding: 12px;
+  flex: 1;
 }
 
 .gql-cell-name {
-    flex: 0 0 25%;
-    min-width: 150px;
-    word-break: break-word;
+  flex: 0 0 25%;
+  min-width: 150px;
+  word-break: break-word;
 }
 
 .gql-cell-type {
-    flex: 0 0 25%;
-    min-width: 150px;
-    word-break: break-word;
+  flex: 0 0 25%;
+  min-width: 150px;
+  word-break: break-word;
 }
 
 .gql-cell-default {
-    flex: 0 0 15%;
-    min-width: 120px;
-    word-break: break-word;
-    color: var(--gql-description-color);
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-    font-size: 0.85em;
+  flex: 0 0 15%;
+  min-width: 120px;
+  word-break: break-word;
+  color: var(--gql-description-color);
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
+  font-size: 0.85em;
 }
 
 .gql-cell-desc {
-    flex: 1;
-    min-width: 200px;
+  flex: 1;
+  min-width: 200px;
 }
 
 .gql-field-name {
-    font-weight: 600;
-    color: var(--gql-field-color);
+  font-weight: 600;
+  color: var(--gql-field-color);
 }
 
 .gql-deprecated-name {
-    text-decoration: line-through;
-    color: var(--gql-description-color);
+  text-decoration: line-through;
+  color: var(--gql-description-color);
 }
 
 .gql-no-desc {
-    color: var(--gql-description-color);
-    font-style: italic;
-    opacity: 0.5;
+  color: var(--gql-description-color);
+  font-style: italic;
+  opacity: 0.5;
 }
 
 .gql-default-code {
-    color: var(--gql-description-color);
+  color: var(--gql-description-color);
 }
 
 /* Arguments */
 .gql-field-args {
-    margin-top: 8px;
-    font-size: 0.9em;
+  margin-top: 8px;
+  font-size: 0.9em;
 }
 
 .gql-args-label {
-    font-weight: 600;
-    color: var(--gql-description-color);
-    margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--gql-description-color);
+  margin-bottom: 4px;
 }
 
 .gql-args-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    padding-left: 8px;
-    border-left: 2px solid var(--gql-border-color);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  padding-left: 8px;
+  border-left: 2px solid var(--gql-border-color);
 }
 
 .gql-args-list li {
-    margin-bottom: 2px;
+  margin-bottom: 2px;
 }
 
 .gql-arg-name {
-    color: var(--gql-field-color);
-    font-family: monospace;
+  color: var(--gql-field-color);
+  font-family: monospace;
 }
 
 /* ==========================================================================
@@ -459,155 +475,155 @@ a.gql-type:hover {
    ========================================================================== */
 
 .gql-operation {
-    padding: 8px 0 32px;
-    border-bottom: 1px solid var(--gql-border-color);
+  padding: 8px 0 32px;
+  border-bottom: 1px solid var(--gql-border-color);
 }
 
 .gql-operation:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .gql-operation-header {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .gql-operation-title-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .gql-operation-title {
-    margin: 0 !important;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--gql-field-color);
-    line-height: 1;
+  margin: 0 !important;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gql-field-color);
+  line-height: 1;
 }
 
 .gql-op-type {
-    font-size: 0.7rem;
+  font-size: 0.7rem;
 }
 
 .gql-type-kind {
-    font-size: 0.7rem;
+  font-size: 0.7rem;
 }
 
 .gql-type-definition {
-    padding: 8px 0 32px;
-    border-bottom: 1px solid var(--gql-border-color);
+  padding: 8px 0 32px;
+  border-bottom: 1px solid var(--gql-border-color);
 }
 
 .gql-type-definition:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .gql-type-definition-header {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .gql-type-definition-title-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .gql-type-definition-title {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--gql-field-color);
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gql-field-color);
 }
 
 .gql-type-definition-description {
-    color: var(--gql-description-color);
+  color: var(--gql-description-color);
 }
 
 .gql-type-definition-section {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .gql-tag {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.15rem 0.45rem;
-    font-size: 0.7rem;
-    border-radius: 999px;
-    background: var(--gql-neutral-bg);
-    color: var(--gql-neutral-text);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  background: var(--gql-neutral-bg);
+  color: var(--gql-neutral-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .gql-deprecation-warning {
-    padding: 8px 12px;
-    border-radius: var(--gql-border-radius);
-    background: var(--gql-warning-bg);
-    color: var(--gql-warning-text);
-    font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: var(--gql-border-radius);
+  background: var(--gql-warning-bg);
+  color: var(--gql-warning-text);
+  font-size: 0.9rem;
 }
 
 .gql-deprecation-label {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .gql-operation-description {
-    margin-bottom: 16px;
-    color: var(--gql-description-color);
+  margin-bottom: 16px;
+  color: var(--gql-description-color);
 }
 
 .gql-operation-section {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .gql-operation-section + .gql-operation-section {
-    border-top: 2px solid var(--gql-border-color);
-    padding-top: 16px;
+  border-top: 2px solid var(--gql-border-color);
+  padding-top: 16px;
 }
 
 .gql-section-title {
-    font-size: 1rem;
-    margin-bottom: 12px;
-    color: var(--gql-field-color);
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: var(--gql-field-color);
 }
 
 .gql-operation-section .gql-section-title {
-    font-size: 1.15rem;
-    font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 .gql-operation {
-    container-type: inline-size;
+  container-type: inline-size;
 }
 
 .gql-operation-layout {
-    display: block;
-    width: 100%;
-    max-width: 1800px;
-    margin: 0 auto;
+  display: block;
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
 }
 
 .gql-operation-main {
-    min-width: 0;
+  min-width: 0;
 }
 
 .gql-operation-examples {
-    margin-top: 16px;
-    min-width: 0;
-    align-self: start;
+  margin-top: 16px;
+  min-width: 0;
+  align-self: start;
 }
 
 .gql-operation-examples .gql-examples-panel {
-    position: static;
-    top: auto;
+  position: static;
+  top: auto;
 }
 
 /* ==========================================================================
@@ -615,39 +631,39 @@ a.gql-type:hover {
    ========================================================================== */
 
 .gql-docs-content {
-    display: block;
-    width: 100%;
+  display: block;
+  width: 100%;
 }
 
 .gql-docs-shell {
-    container-type: inline-size;
-    width: 100%;
+  container-type: inline-size;
+  width: 100%;
 }
 
 .gql-docs-content--has-examples {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--gql-content-gap);
-    align-items: start;
-    width: 100%;
-    max-width: 1800px;
-    margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--gql-content-gap);
+  align-items: start;
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
 }
 
 .gql-docs-main {
-    min-width: 0;
+  min-width: 0;
 }
 
 .gql-docs-examples {
-    min-width: 0;
+  min-width: 0;
 }
 
 .gql-docs-content--has-examples .gql-operation-examples {
-    display: none;
+  display: none;
 }
 
 .gql-docs-content--has-examples .gql-operation-layout {
-    display: block;
+  display: block;
 }
 
 /* ==========================================================================
@@ -655,333 +671,374 @@ a.gql-type:hover {
    ========================================================================== */
 
 .gql-examples-panel {
-    position: sticky;
-    top: var(--gql-examples-top);
-    border: 1px solid var(--gql-border-color);
-    border-radius: var(--gql-border-radius);
-    background: var(--gql-code-panel-bg);
-    color: var(--gql-code-panel-fg);
-    overflow: hidden;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: var(--gql-examples-top);
+  border: 1px solid var(--gql-border-color);
+  border-radius: var(--gql-border-radius);
+  background: var(--gql-code-panel-bg);
+  color: var(--gql-code-panel-fg);
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
 }
 
 .gql-examples-header {
-    padding: 12px 16px;
-    font-weight: 600;
-    border-bottom: 1px solid var(--gql-border-color);
-    background: var(--gql-active-bg);
+  padding: 12px 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--gql-border-color);
+  background: var(--gql-active-bg);
 }
 
 .gql-examples-empty {
-    padding: 16px;
-    color: var(--gql-description-color);
+  padding: 16px;
+  color: var(--gql-description-color);
 }
 
 .gql-tabs {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .gql-tab-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--gql-border-color);
-    background: var(--gql-code-panel-bg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--gql-border-color);
+  background: var(--gql-code-panel-bg);
 }
 
 .gql-tab {
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--gql-description-color);
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: background-color var(--gql-transition-speed), color var(--gql-transition-speed);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--gql-description-color);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition:
+    background-color var(--gql-transition-speed),
+    color var(--gql-transition-speed);
 }
 
 .gql-tab:hover {
-    background: var(--gql-hover-bg);
-    color: var(--gql-field-color);
+  background: var(--gql-hover-bg);
+  color: var(--gql-field-color);
 }
 
 .gql-tab:focus-visible {
-    outline: none;
-    box-shadow: var(--gql-focus-ring);
+  outline: none;
+  box-shadow: var(--gql-focus-ring);
 }
 
 .gql-tab.is-active {
-    background: var(--gql-active-bg);
-    color: var(--gql-field-color);
-    border-color: var(--gql-border-color);
+  background: var(--gql-active-bg);
+  color: var(--gql-field-color);
+  border-color: var(--gql-border-color);
 }
 
 .gql-tab-panel {
-    padding: 12px;
+  padding: 12px;
 }
 
 .gql-tab-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .gql-tab-label-text {
-    font-weight: 500;
+  font-weight: 500;
 }
 
 .gql-status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    display: inline-block;
-    background: var(--gql-neutral-bg);
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  display: inline-block;
+  background: var(--gql-neutral-bg);
 }
 
 .gql-status-success {
-    background: var(--gql-success-bg);
+  background: var(--gql-success-bg);
 }
 
 .gql-status-failure {
-    background: var(--gql-warning-bg);
+  background: var(--gql-warning-bg);
 }
 
 .gql-status-error {
-    background: var(--gql-error-bg);
+  background: var(--gql-error-bg);
 }
 
 .gql-code-example {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .gql-code-example-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .gql-code-example-title {
-    font-weight: 600;
-    color: var(--gql-field-color);
+  font-weight: 600;
+  color: var(--gql-field-color);
 }
 
 .gql-code-example-description {
-    font-size: 0.9rem;
-    color: var(--gql-description-color);
+  font-size: 0.9rem;
+  color: var(--gql-description-color);
 }
 
 .gql-code-panel {
-    border: 1px solid var(--gql-border-color);
-    border-radius: var(--gql-border-radius);
-    overflow: hidden;
-    background: var(--gql-code-panel-bg);
+  border: 1px solid var(--gql-border-color);
+  border-radius: var(--gql-border-radius);
+  overflow: hidden;
+  background: var(--gql-code-panel-bg);
 }
 
 .gql-code-panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: var(--gql-active-bg);
-    border-bottom: 1px solid var(--gql-border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--gql-active-bg);
+  border-bottom: 1px solid var(--gql-border-color);
 }
 
 .gql-code-panel-title {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--gql-description-color);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gql-description-color);
 }
 
 .gql-copy-button {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border: 1px solid var(--gql-border-color);
-    background: transparent;
-    color: var(--gql-description-color);
-    padding: 4px 8px;
-    border-radius: 999px;
-    cursor: pointer;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--gql-border-color);
+  background: transparent;
+  color: var(--gql-description-color);
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
 }
 
 .gql-copy-button:hover {
-    color: var(--gql-field-color);
-    background: var(--gql-hover-bg);
+  color: var(--gql-field-color);
+  background: var(--gql-hover-bg);
 }
 
 .gql-copy-button:focus-visible {
-    outline: none;
-    box-shadow: var(--gql-focus-ring);
+  outline: none;
+  box-shadow: var(--gql-focus-ring);
 }
 
 .gql-llm-download {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gql-llm-icon-color);
-    text-decoration: none;
-    opacity: 0.8;
-    transition: opacity 0.15s ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.gql-llm-download-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  justify-content: center;
+  color: var(--gql-llm-icon-color);
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
 }
 
 .gql-llm-download-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    fill: currentColor;
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
 }
 
-.gql-llm-download:hover {
-    opacity: 1;
+.gql-llm-download-trigger:hover {
+  opacity: 1;
 }
 
-.gql-llm-download:focus-visible {
-    outline: none;
-    box-shadow: var(--gql-focus-ring);
-    border-radius: 4px;
+.gql-llm-download-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--gql-focus-ring);
+  border-radius: 4px;
+}
+
+.gql-llm-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 240px;
+  padding: 6px;
+  border-radius: var(--gql-border-radius);
+  border: 1px solid var(--gql-border-color);
+  background: var(--gql-code-panel-bg);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--gql-field-color) 15%, transparent);
+  z-index: 40;
+}
+
+.gql-llm-menu-item {
+  display: block;
+  text-decoration: none;
+  color: var(--gql-field-color);
+  font-size: 0.85rem;
+  line-height: 1.35;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.gql-llm-menu-item:hover,
+.gql-llm-menu-item:focus-visible {
+  background: var(--gql-hover-bg);
+  outline: none;
 }
 
 .gql-visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .gql-code-block {
-    margin: 0;
-    padding: 12px;
-    font-size: 0.85rem;
-    overflow-x: auto;
-    background: transparent;
+  margin: 0;
+  padding: 12px;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  background: transparent;
 }
 
 .gql-response-badge {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 /* Responsiveness */
 @media (max-width: 768px) {
-    .gql-field-table-header {
-        display: none;
-        /* Hide header on mobile */
-    }
+  .gql-field-table-header {
+    display: none;
+    /* Hide header on mobile */
+  }
 
-    .gql-table-row {
-        flex-direction: column;
-        padding: 12px;
-    }
+  .gql-table-row {
+    flex-direction: column;
+    padding: 12px;
+  }
 
-    .gql-table-cell {
-        padding: 4px 0;
-        border: none;
-    }
+  .gql-table-cell {
+    padding: 4px 0;
+    border: none;
+  }
 
-    .gql-cell-name {
-        margin-bottom: 4px;
-        font-size: 1.1em;
-    }
+  .gql-cell-name {
+    margin-bottom: 4px;
+    font-size: 1.1em;
+  }
 
-    .gql-cell-default {
-        font-size: 0.8em;
-    }
+  .gql-cell-default {
+    font-size: 0.8em;
+  }
 }
 
 @container (max-width: 1000px) {
-    .gql-docs-content--has-examples {
-        display: block;
-    }
+  .gql-docs-content--has-examples {
+    display: block;
+  }
 
-    .gql-docs-content--has-examples .gql-docs-examples {
-        display: none;
-    }
+  .gql-docs-content--has-examples .gql-docs-examples {
+    display: none;
+  }
 
-    .gql-docs-content--has-examples .gql-operation-examples {
-        display: block;
-        margin-top: 16px;
-    }
+  .gql-docs-content--has-examples .gql-operation-examples {
+    display: block;
+    margin-top: 16px;
+  }
 }
 
 @container (min-width: 1000px) {
-    .gql-operation-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: var(--gql-content-gap);
-        align-items: stretch;
-    }
+  .gql-operation-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--gql-content-gap);
+    align-items: stretch;
+  }
 
-    .gql-operation-main {
-        padding-bottom: calc(var(--gql-examples-top) + var(--gql-content-gap) * 2);
-    }
+  .gql-operation-main {
+    padding-bottom: calc(var(--gql-examples-top) + var(--gql-content-gap) * 2);
+  }
 
-    .gql-operation-examples {
-        margin-top: 0;
-        align-self: stretch;
-    }
+  .gql-operation-examples {
+    margin-top: 0;
+    align-self: stretch;
+  }
 
-    .gql-operation-examples .gql-examples-panel {
-        position: sticky;
-        top: var(--gql-examples-top);
-    }
+  .gql-operation-examples .gql-examples-panel {
+    position: sticky;
+    top: var(--gql-examples-top);
+  }
 
-    .gql-docs-content--has-examples .gql-operation-layout {
-        display: block;
-    }
+  .gql-docs-content--has-examples .gql-operation-layout {
+    display: block;
+  }
 }
 
 @media (max-width: 1000px) {
-    .gql-docs-content--has-examples {
-        display: block;
-    }
+  .gql-docs-content--has-examples {
+    display: block;
+  }
 
-    .gql-docs-content--has-examples .gql-docs-examples {
-        display: none;
-    }
+  .gql-docs-content--has-examples .gql-docs-examples {
+    display: none;
+  }
 
-    .gql-docs-content--has-examples .gql-operation-examples {
-        display: block;
-        margin-top: 16px;
-    }
+  .gql-docs-content--has-examples .gql-operation-examples {
+    display: block;
+    margin-top: 16px;
+  }
 }
 
 @media (min-width: 1000px) {
-    .gql-operation-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: var(--gql-content-gap);
-        align-items: stretch;
-    }
+  .gql-operation-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--gql-content-gap);
+    align-items: stretch;
+  }
 
-    .gql-operation-main {
-        padding-bottom: calc(var(--gql-examples-top) + var(--gql-content-gap) * 2);
-    }
+  .gql-operation-main {
+    padding-bottom: calc(var(--gql-examples-top) + var(--gql-content-gap) * 2);
+  }
 
-    .gql-operation-examples {
-        margin-top: 0;
-        align-self: stretch;
-    }
+  .gql-operation-examples {
+    margin-top: 0;
+    align-self: stretch;
+  }
 
-    .gql-operation-examples .gql-examples-panel {
-        position: sticky;
-        top: var(--gql-examples-top);
-    }
+  .gql-operation-examples .gql-examples-panel {
+    position: sticky;
+    top: var(--gql-examples-top);
+  }
 
-    .gql-docs-content--has-examples .gql-operation-layout {
-        display: block;
-    }
+  .gql-docs-content--has-examples .gql-operation-layout {
+    display: block;
+  }
 }
 
 /* ========================================================================== */
@@ -989,333 +1046,354 @@ a.gql-type:hover {
 /* ========================================================================== */
 
 .gql-field-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .gql-field-item {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--gql-border-color);
-    --gql-nested-line-color: var(--gql-nested-line-1);
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--gql-border-color);
+  --gql-nested-line-color: var(--gql-nested-line-1);
 }
 
 .gql-field-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .gql-field-item[data-depth='0'] {
-    --gql-nested-line-color: var(--gql-nested-line-1);
+  --gql-nested-line-color: var(--gql-nested-line-1);
 }
 
 .gql-field-item[data-depth='1'] {
-    --gql-nested-line-color: var(--gql-nested-line-2);
+  --gql-nested-line-color: var(--gql-nested-line-2);
 }
 
 .gql-field-item[data-depth='2'] {
-    --gql-nested-line-color: var(--gql-nested-line-3);
+  --gql-nested-line-color: var(--gql-nested-line-3);
 }
 
 .gql-field-item[data-depth='3'] {
-    --gql-nested-line-color: var(--gql-nested-line-4);
+  --gql-nested-line-color: var(--gql-nested-line-4);
 }
 
 .gql-field-item[data-depth='4'] {
-    --gql-nested-line-color: var(--gql-nested-line-5);
+  --gql-nested-line-color: var(--gql-nested-line-5);
 }
 
 .gql-field-name-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .gql-required-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: var(--gql-error-bg);
-    color: var(--gql-error-text);
-    font-size: 0.75rem;
-    font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gql-error-bg);
+  color: var(--gql-error-text);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .gql-type-nullable {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    flex-wrap: wrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
 }
 
 .gql-nullable-text {
-    color: var(--gql-description-color);
-    font-weight: 500;
+  color: var(--gql-description-color);
+  font-weight: 500;
 }
 
 .gql-field-meta {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-top: 0.25rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
 }
 
 .gql-field-type {
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-    font-size: 0.9rem;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
+  font-size: 0.9rem;
 }
 
 .gql-field-default {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.85rem;
-    color: var(--gql-description-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--gql-description-color);
 }
 
 .gql-field-default-label {
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--gql-description-color);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gql-description-color);
 }
 
 .gql-default-code {
-    background: var(--gql-hover-bg);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.8rem;
+  background: var(--gql-hover-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
 }
 
 .gql-field-description {
-    margin-top: 0.35rem;
+  margin-top: 0.35rem;
 }
 
 .gql-field-toggle {
-    margin-top: 0.5rem;
-    border: 1px solid var(--gql-border-color);
-    background: transparent;
-    color: var(--gql-type-color);
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color var(--gql-transition-speed);
+  margin-top: 0.5rem;
+  border: 1px solid var(--gql-border-color);
+  background: transparent;
+  color: var(--gql-type-color);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--gql-transition-speed);
 }
 
 .gql-field-toggle:hover {
-    background: var(--gql-hover-bg);
+  background: var(--gql-hover-bg);
 }
 
 .gql-field-link {
-    display: inline-flex;
-    margin-top: 0.5rem;
-    color: var(--gql-type-color);
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-decoration: none;
+  display: inline-flex;
+  margin-top: 0.5rem;
+  color: var(--gql-type-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .gql-field-link:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .gql-field-children {
-    margin-top: 0.75rem;
-    padding-left: 1rem;
-    border-left: 2px solid var(--gql-nested-line-color, var(--gql-nested-line));
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--gql-nested-line-color, var(--gql-nested-line));
 }
 
 .gql-field-enum {
-    margin-top: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .gql-field-enum-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--gql-description-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gql-description-color);
 }
 
 .gql-field-enum-values {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
 }
 
 .gql-field-enum-chip {
-    background: var(--gql-neutral-bg);
-    color: var(--gql-neutral-text);
-    border-radius: 999px;
-    padding: 2px 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
+  background: var(--gql-neutral-bg);
+  color: var(--gql-neutral-text);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .gql-field-enum-more {
-    display: inline-block;
-    margin-top: 0.35rem;
-    color: var(--gql-type-color);
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-decoration: none;
+  display: inline-block;
+  margin-top: 0.35rem;
+  color: var(--gql-type-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .gql-field-enum-more:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .gql-enum-definition {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .gql-enum-definition-item {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--gql-border-color);
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--gql-border-color);
 }
 
 .gql-enum-definition-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .gql-enum-value-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .gql-enum-value-name {
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-    font-weight: 600;
-    color: var(--gql-field-color);
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
+  font-weight: 600;
+  color: var(--gql-field-color);
 }
 
 .gql-enum-value-description {
-    margin-top: 0.35rem;
+  margin-top: 0.35rem;
 }
 
 .gql-enum-definition-empty {
-    color: var(--gql-description-color);
-    font-style: italic;
+  color: var(--gql-description-color);
+  font-style: italic;
 }
 
 .gql-union-types {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .gql-union-options {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .gql-union-option {
-    padding-left: 0.75rem;
-    border-left: 2px solid var(--gql-border-color);
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--gql-border-color);
 }
 
 .gql-union-option-header {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .gql-union-option-body {
-    margin-top: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .gql-operator {
-    color: var(--gql-description-color);
-    opacity: 0.7;
+  color: var(--gql-description-color);
+  opacity: 0.7;
 }
 
 .gql-field-args {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px dashed var(--gql-border-color);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--gql-border-color);
 }
 
 .gql-args-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--gql-description-color);
-    margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gql-description-color);
+  margin-bottom: 0.25rem;
 }
 
 .gql-args-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.85rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
 }
 
 .gql-arg-name {
-    font-weight: 600;
-    color: var(--gql-field-color);
+  font-weight: 600;
+  color: var(--gql-field-color);
 }
 
 .gql-arg-separator {
-    margin: 0 0.35rem;
-    color: var(--gql-description-color);
+  margin: 0 0.35rem;
+  color: var(--gql-description-color);
 }
 
 .gql-arg-type {
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-    color: var(--gql-type-color);
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
+  color: var(--gql-type-color);
 }
 
 .gql-type-block {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .gql-type-heading {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .gql-type-collection {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--gql-description-color);
-    font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gql-description-color);
+  font-weight: 600;
 }
 
 .gql-enum-values {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
 }
 
 .gql-enum-chip {
-    background: var(--gql-neutral-bg);
-    color: var(--gql-neutral-text);
-    border-radius: 999px;
-    padding: 2px 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
+  background: var(--gql-neutral-bg);
+  color: var(--gql-neutral-text);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
