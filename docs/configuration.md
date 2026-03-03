@@ -281,6 +281,11 @@ intro-doc insertion remain opt-in through `agentSkill.enabled` in generator conf
 | `llmDocs.apiName`          |                    |
 | `llmDocs.apiDescription`   |                    |
 
+Notes:
+
+- When `llmDocs.strategy` is `chunked`, set `llmDocs.baseUrl` to your deployed docs domain so
+  generated markdown links are fully qualified and portable.
+
 ## Agent Skill Options
 
 | Option                              | Default                    |

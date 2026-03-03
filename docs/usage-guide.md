@@ -237,6 +237,10 @@ extensions:
       baseUrl: https://docs.example.com
 ```
 
+For `llmDocs.strategy: chunked`, treat `llmDocs.baseUrl` as required. It ensures links embedded in
+group summary markdown are absolute and usable when files are downloaded or consumed outside the
+running site.
+
 When the site is running, the raw files are available at:
 
 - `/llm-docs/index.md`

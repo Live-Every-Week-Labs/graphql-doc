@@ -35,6 +35,7 @@ The `src/core/config` module handles configuration loading and validation for th
   - `llmDocs`: LLM-optimized Markdown output settings.
     - `enabled`, `outputDir`, `strategy`, `includeExamples`, `generateManifest`
     - `singleFileName`, `maxTypeDepth`, `baseUrl`, `apiName`, `apiDescription`
+    - For `strategy: 'chunked'`, set `baseUrl` so generated markdown links are absolute.
   - `agentSkill`: AI skill artifact generation settings.
     - `enabled`, `name`, `description`, `outputDir`, `includeExamples`, `pythonScriptName`
     - `introDoc.enabled`, `introDoc.outputPath`, `introDoc.id`, `introDoc.title`, `introDoc.description`, `introDoc.downloadUrl`, `introDoc.downloadLabel`

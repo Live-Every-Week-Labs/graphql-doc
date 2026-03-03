@@ -25,6 +25,26 @@ extensions:
       apiDescription: Public GraphQL API for payment flows
 ```
 
+## `baseUrl` Requirement for Chunked Docs
+
+If you use `strategy: chunked`, set `llmDocs.baseUrl` to your deployed docs domain.
+
+Why this matters:
+
+- Group summary markdown includes operation links to the human docs site and direct markdown files.
+- Downloaded markdown is often read out-of-band (local disk, agent context, copied artifact), so
+  relative paths like `/docs/api/...` are not portable.
+
+Use a fully-qualified URL:
+
+```yaml
+extensions:
+  graphql-doc:
+    llmDocs:
+      strategy: chunked
+      baseUrl: https://docs.example.com
+```
+
 ## Strategy
 
 - `chunked` (default): one markdown file per doc group plus index.
