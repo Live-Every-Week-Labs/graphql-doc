@@ -18,6 +18,7 @@ export interface LlmDocsResult {
 
 const DEFAULT_API_NAME = 'GraphQL API';
 const GENERAL_GROUP_NAME = 'General';
+const NO_DESCRIPTION_AVAILABLE = 'No description available.';
 
 const OPERATION_LABELS: Record<Operation['operationType'], string> = {
   query: 'Queries',
@@ -117,6 +118,8 @@ const extractTypeName = (typeString?: string) => {
   if (!typeString) return undefined;
   return typeString.replace(/[![\]\s]/g, '').trim() || undefined;
 };
+
+type NormalizedSection = Section & { displayName: string; slug: string };
 
 export class LlmDocsGenerator {
   private config: LlmDocsConfig;
@@ -256,7 +259,7 @@ export class LlmDocsGenerator {
   }
 
   private renderIndex(
-    sections: Array<Section & { displayName: string; slug: string }>,
+    sections: NormalizedSection[],
     apiName: string,
     apiDescription?: string,
     baseUrl?: string
@@ -357,7 +360,7 @@ export class LlmDocsGenerator {
     return lines.join('\n');
   }
 
-  private renderChunk(section: Section & { displayName: string; slug: string }, apiName: string) {
+  private renderChunk(section: NormalizedSection, apiName: string) {
     const lines: string[] = [];
     lines.push(`# ${section.displayName}`);
     lines.push('');
@@ -374,8 +377,116 @@ export class LlmDocsGenerator {
     return lines.join('\n');
   }
 
+  private renderOperationFile(
+    operation: Operation,
+    section: NormalizedSection,
+    apiName: string
+  ): string {
+    const lines: string[] = [];
+    const operationTypeLabel = operation.operationType.toUpperCase();
+    const operationTypes = this.collectReferencedTypes(operation);
+    const returnTypeLabel = formatTypeString(
+      operation.returnTypeString,
+      this.formatExpandedType(operation.returnType)
+    );
+
+    lines.push(`# ${operation.name}`);
+    lines.push('');
+    lines.push(`> **Group:** ${section.displayName}`);
+    lines.push(`> **Operation Type:** ${operationTypeLabel}`);
+    lines.push(
+      `> Part of [${apiName}](../index.md) and [${section.displayName}](../${section.slug}.md)`
+    );
+    lines.push('');
+
+    if (operation.isDeprecated) {
+      lines.push(
+        `> Deprecated${operation.deprecationReason ? `: ${operation.deprecationReason}` : ''}`
+      );
+      lines.push('');
+    }
+
+    if (operation.description) {
+      const paragraphs = operation.description
+        .split(/\n{2,}/g)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean);
+      for (const paragraph of paragraphs) {
+        lines.push(paragraph);
+        lines.push('');
+      }
+    }
+
+    lines.push('## GraphQL Signature');
+    lines.push('');
+    lines.push(...this.renderOperationSignature(operation));
+    lines.push('');
+
+    if (operation.arguments.length > 0) {
+      lines.push('## Arguments');
+      lines.push('');
+      lines.push(this.renderArgumentsTable(operation));
+      lines.push('');
+    }
+
+    lines.push('## Return Type');
+    lines.push('');
+    lines.push(`**Returns:** ${returnTypeLabel}`);
+
+    const returnFieldsTable = this.renderOperationReturnFields(operation);
+    if (returnFieldsTable) {
+      lines.push('');
+      lines.push(returnFieldsTable);
+    }
+
+    if (this.config.includeExamples && operation.examples.length > 0) {
+      lines.push('');
+      lines.push('## Examples');
+      lines.push('');
+
+      for (const [index, example] of operation.examples.entries()) {
+        const exampleName = example.name?.trim() || `Example ${index + 1}`;
+        lines.push(`### ${exampleName}`);
+        lines.push('');
+        if (example.description) {
+          lines.push(example.description);
+          lines.push('');
+        }
+
+        lines.push('**Query:**');
+        lines.push('');
+        lines.push('```graphql');
+        lines.push(example.query.trim());
+        lines.push('```');
+        lines.push('');
+
+        lines.push('**Variables:**');
+        lines.push('');
+        lines.push('```json');
+        lines.push(JSON.stringify(example.variables ?? {}, null, 2));
+        lines.push('```');
+        lines.push('');
+
+        lines.push('**Response:**');
+        lines.push('');
+        lines.push('```json');
+        lines.push(JSON.stringify(example.response?.body ?? {}, null, 2));
+        lines.push('```');
+        lines.push('');
+      }
+    }
+
+    const typeSection = this.renderTypesSection(operationTypes, 2);
+    if (typeSection.length > 0) {
+      lines.push('');
+      lines.push(...typeSection);
+    }
+
+    return lines.join('\n').trim();
+  }
+
   private renderSingleFile(
-    sections: Array<Section & { displayName: string; slug: string }>,
+    sections: NormalizedSection[],
     apiName: string,
     apiDescription?: string
   ) {
@@ -400,6 +511,266 @@ export class LlmDocsGenerator {
       lines.push('');
     }
     return lines.join('\n').trim();
+  }
+
+  private renderOperationSignature(operation: Operation): string[] {
+    const variableDefinitions = operation.arguments
+      .map((arg) => `$${arg.name}: ${arg.typeString ?? this.formatExpandedType(arg.type)}`)
+      .join(', ');
+    const callArguments = operation.arguments.map((arg) => `${arg.name}: $${arg.name}`).join(', ');
+    const rootTypeName =
+      extractTypeName(operation.returnTypeString) ?? getNamedTypeFromExpanded(operation.returnType);
+    const rootType = rootTypeName ? this.typesByName[rootTypeName] : undefined;
+    const hasSelectionSet = Boolean(rootType && (isObjectLike(rootType) || isUnionType(rootType)));
+
+    const lines = [
+      '```graphql',
+      `${operation.operationType} ${operation.name}${variableDefinitions ? `(${variableDefinitions})` : ''} {`,
+      `  ${operation.name}${callArguments ? `(${callArguments})` : ''}${hasSelectionSet ? ' {' : ''}`,
+    ];
+
+    if (hasSelectionSet) {
+      lines.push('    __typename');
+      lines.push('  }');
+    }
+
+    lines.push('}');
+    lines.push('```');
+    return lines;
+  }
+
+  private collectReferencedTypes(operation: Operation): string[] {
+    const collected: string[] = [];
+    const seenTypeNames = new Set<string>();
+    const visitedNamedTypes = new Set<string>();
+    const visitedExpanded = new Set<string>();
+
+    const collectByName = (typeName?: string) => {
+      if (!typeName) return;
+      const normalizedType = this.typesByName[typeName];
+      if (!normalizedType || normalizedType.kind === 'SCALAR') {
+        return;
+      }
+
+      if (!seenTypeNames.has(typeName)) {
+        seenTypeNames.add(typeName);
+        collected.push(typeName);
+      }
+
+      if (visitedNamedTypes.has(typeName)) {
+        return;
+      }
+      visitedNamedTypes.add(typeName);
+      walkExpandedType(normalizedType);
+    };
+
+    const walkExpandedType = (type?: ExpandedType) => {
+      if (!type) return;
+
+      if (type.kind === 'LIST') {
+        walkExpandedType(type.ofType);
+        return;
+      }
+
+      if (type.kind === 'TYPE_REF') {
+        collectByName(type.name);
+        return;
+      }
+
+      if (type.kind === 'CIRCULAR_REF') {
+        collectByName(type.ref);
+        return;
+      }
+
+      if (type.kind === 'UNION') {
+        collectByName(type.name);
+        const key = `${type.kind}:${type.name}`;
+        if (visitedExpanded.has(key)) {
+          return;
+        }
+        visitedExpanded.add(key);
+        for (const possible of type.possibleTypes ?? []) {
+          walkExpandedType(possible);
+        }
+        return;
+      }
+
+      if (isObjectLike(type)) {
+        collectByName(type.name);
+        const key = `${type.kind}:${type.name}`;
+        if (visitedExpanded.has(key)) {
+          return;
+        }
+        visitedExpanded.add(key);
+        for (const field of type.fields ?? []) {
+          walkExpandedType(field.type);
+          for (const arg of field.args ?? []) {
+            walkExpandedType(arg.type);
+          }
+          collectByName(extractTypeName(field.typeString));
+        }
+      }
+    };
+
+    for (const arg of operation.arguments) {
+      walkExpandedType(arg.type);
+      collectByName(extractTypeName(arg.typeString));
+    }
+
+    walkExpandedType(operation.returnType);
+    collectByName(extractTypeName(operation.returnTypeString));
+
+    for (const referencedTypeName of operation.referencedTypes ?? []) {
+      collectByName(referencedTypeName);
+    }
+
+    return collected;
+  }
+
+  private renderOperationReturnFields(operation: Operation): string | undefined {
+    const typeName =
+      extractTypeName(operation.returnTypeString) ?? getNamedTypeFromExpanded(operation.returnType);
+    if (!typeName) {
+      return undefined;
+    }
+
+    const rootType = this.typesByName[typeName];
+    if (!rootType || !isObjectLike(rootType) || rootType.fields.length === 0) {
+      return undefined;
+    }
+
+    const rows = rootType.fields.map((field) => {
+      const fieldTypeName =
+        extractTypeName(field.typeString) ?? getNamedTypeFromExpanded(field.type);
+      const description = this.renderFieldDescription(field.name, field.description, fieldTypeName);
+
+      return [
+        `\`${field.name}\``,
+        formatTypeString(field.typeString, this.formatExpandedType(field.type)),
+        description,
+      ];
+    });
+
+    return renderTable(['Field', 'Type', 'Description'], rows);
+  }
+
+  private renderTypesSection(typeNames: string[], headingLevel: number): string[] {
+    const uniqueTypeNames = Array.from(new Set(typeNames)).filter((typeName) => {
+      const typeDef = this.typesByName[typeName];
+      return Boolean(typeDef && typeDef.kind !== 'SCALAR');
+    });
+
+    if (uniqueTypeNames.length === 0) {
+      return [];
+    }
+
+    const lines: string[] = [];
+    lines.push(heading(headingLevel, 'Type Definitions'));
+    lines.push('');
+
+    for (const typeName of uniqueTypeNames) {
+      const definitionLines = this.renderTypeDefinition(typeName, headingLevel + 1);
+      if (definitionLines.length === 0) {
+        continue;
+      }
+      lines.push(...definitionLines);
+      lines.push('');
+    }
+
+    return lines.filter((line, index) => !(line === '' && lines[index - 1] === ''));
+  }
+
+  private renderTypeDefinition(typeName: string, headingLevel: number): string[] {
+    const typeDef = this.typesByName[typeName];
+    if (!typeDef || typeDef.kind === 'SCALAR') {
+      return [];
+    }
+
+    const lines: string[] = [];
+    lines.push(heading(headingLevel, `${typeName} {#${this.getTypeAnchor(typeName)}}`));
+    lines.push('');
+
+    if ('description' in typeDef && typeDef.description) {
+      lines.push(typeDef.description);
+      lines.push('');
+    }
+
+    if (isEnumType(typeDef)) {
+      const rows = typeDef.values.map((value) => {
+        const note = value.isDeprecated
+          ? ` (deprecated${value.deprecationReason ? `: ${value.deprecationReason}` : ''})`
+          : '';
+        const description =
+          cleanDescription(value.name, value.description) ?? NO_DESCRIPTION_AVAILABLE;
+        return [`\`${value.name}\``, `${description}${note}`];
+      });
+      lines.push(renderTable([`${typeName} Value`, 'Description'], rows));
+      return lines;
+    }
+
+    if (isUnionType(typeDef)) {
+      const rows = typeDef.possibleTypes.map((possible) => {
+        const possibleName = getNamedTypeFromExpanded(possible) ?? 'Unknown';
+        const possibleType =
+          possibleName !== 'Unknown' ? this.typesByName[possibleName] : undefined;
+        const possibleDescription =
+          possibleType && 'description' in possibleType
+            ? cleanDescription(possibleName, possibleType.description)
+            : undefined;
+        return [
+          possibleName === 'Unknown' ? '`Unknown`' : this.renderTypeLink(possibleName),
+          possibleDescription ?? NO_DESCRIPTION_AVAILABLE,
+        ];
+      });
+      lines.push(renderTable(['Type', 'Description'], rows));
+      return lines;
+    }
+
+    if (isObjectLike(typeDef)) {
+      const rows = typeDef.fields.map((field) => {
+        const fieldTypeName =
+          extractTypeName(field.typeString) ?? getNamedTypeFromExpanded(field.type);
+        const description = this.renderFieldDescription(
+          field.name,
+          field.description,
+          fieldTypeName
+        );
+
+        return [
+          `\`${field.name}\``,
+          formatTypeString(field.typeString, this.formatExpandedType(field.type)),
+          description,
+        ];
+      });
+      lines.push(renderTable(['Field', 'Type', 'Description'], rows));
+    }
+
+    return lines;
+  }
+
+  private renderFieldDescription(
+    fieldName: string,
+    description: string | undefined,
+    fieldTypeName: string | undefined
+  ): string {
+    const baseDescription = cleanDescription(fieldName, description) ?? NO_DESCRIPTION_AVAILABLE;
+    if (!fieldTypeName || !this.shouldLinkType(fieldTypeName)) {
+      return baseDescription;
+    }
+    return `${baseDescription} *(see ${this.renderTypeLink(fieldTypeName)})*`;
+  }
+
+  private shouldLinkType(typeName: string): boolean {
+    const typeDef = this.typesByName[typeName];
+    return Boolean(typeDef && typeDef.kind !== 'SCALAR');
+  }
+
+  private renderTypeLink(typeName: string): string {
+    return `[${typeName}](#${this.getTypeAnchor(typeName)})`;
+  }
+
+  private getTypeAnchor(typeName: string): string {
+    return slugify(typeName) || typeName.toLowerCase();
   }
 
   private renderSectionOperations(section: Section, baseHeadingLevel: number) {
