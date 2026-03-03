@@ -11,6 +11,13 @@ export interface GraphqlDocDocusaurusPluginOptions {
   configPath?: string;
   schema?: string | string[];
   outputDir?: string;
+  /**
+   * Enable Docusaurus watch-target registration for graphql-doc inputs.
+   *
+   * Disabled by default because aggressive watch graphs can destabilize large
+   * host sites; users can opt in when they explicitly need live regeneration.
+   */
+  watch?: boolean;
   cleanOutput?: boolean;
   llmDocs?: boolean;
   llmDocsStrategy?: 'single' | 'chunked';
@@ -43,6 +50,7 @@ export interface NormalizedGraphqlDocDocusaurusPluginOptions {
   configPath?: string;
   schema?: string | string[];
   outputDir?: string;
+  watch: boolean;
   cleanOutput?: boolean;
   llmDocs: boolean;
   llmDocsStrategy?: 'single' | 'chunked';
@@ -64,6 +72,7 @@ export function normalizePluginOptions(
     configPath: options.configPath,
     schema: options.schema,
     outputDir: options.outputDir,
+    watch: options.watch ?? false,
     cleanOutput: options.cleanOutput,
     llmDocs: options.llmDocs ?? true,
     llmDocsStrategy: options.llmDocsStrategy,

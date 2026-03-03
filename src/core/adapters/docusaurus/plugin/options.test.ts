@@ -10,6 +10,7 @@ describe('docusaurus plugin options', () => {
       configPath: undefined,
       schema: undefined,
       outputDir: undefined,
+      watch: false,
       cleanOutput: undefined,
       llmDocs: true,
       llmDocsStrategy: undefined,
@@ -31,6 +32,7 @@ describe('docusaurus plugin options', () => {
       configPath: './graphql-doc.config.json',
       schema: ['./schema.graphql', './schema.extensions.graphql'],
       outputDir: './docs/generated-api',
+      watch: true,
       cleanOutput: true,
       llmDocs: false,
       llmDocsStrategy: 'single',
@@ -48,6 +50,7 @@ describe('docusaurus plugin options', () => {
     expect(normalized.configPath).toBe('./graphql-doc.config.json');
     expect(normalized.schema).toEqual(['./schema.graphql', './schema.extensions.graphql']);
     expect(normalized.outputDir).toBe('./docs/generated-api');
+    expect(normalized.watch).toBe(true);
     expect(normalized.cleanOutput).toBe(true);
     expect(normalized.llmDocs).toBe(false);
     expect(normalized.llmDocsStrategy).toBe('single');

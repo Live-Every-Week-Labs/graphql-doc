@@ -204,6 +204,25 @@ Migration from script/manual generation:
 The generator still merges into `apiSidebar` by default. If you need separate sidebars, keep using
 `adapters.docusaurus.sidebarMerge: false` and `sidebarFile`.
 
+> Important: When `sidebarMerge: false` is set, graphql-doc does **not** automatically attach the
+> generated sidebar to your docs plugin. If you do not import/register the generated sidebar in your
+> host `sidebars.js`, pages render without a left sidebar.
+>
+> Example:
+>
+> ```js
+> // sidebars.js
+> // Adjust this path to match your graphql-doc outputDir.
+> const apiSidebar = require('./docs/graphql-api/sidebars.js');
+>
+> module.exports = {
+>   docs: [
+>     /* existing docs */
+>   ],
+>   apiSidebar: apiSidebar.apiSidebar,
+> };
+> ```
+
 ## LLM Docs Output
 
 To expose raw, LLM-optimized Markdown in Docusaurus, write the LLM docs into `static/llm-docs`.

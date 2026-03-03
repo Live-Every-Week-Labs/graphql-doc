@@ -152,6 +152,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
     const plugin = graphqlDocDocusaurusPlugin(
       { siteDir: '/repo' },
       {
+        watch: true,
         schema: './schema.graphql',
         configPath: './graphql-doc.config.json',
       }
@@ -161,10 +162,23 @@ describe('graphqlDocDocusaurusPlugin', () => {
     expect(buildPluginWatchTargetsMock).toHaveBeenCalledWith(
       '/repo',
       expect.objectContaining({
+        watch: true,
         schema: './schema.graphql',
         configPath: './graphql-doc.config.json',
       })
     );
+  });
+
+  it('disables watch targets by default', () => {
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: '/repo' },
+      {
+        schema: './schema.graphql',
+      }
+    );
+
+    expect(plugin.getPathsToWatch?.()).toEqual([]);
+    expect(buildPluginWatchTargetsMock).not.toHaveBeenCalled();
   });
 
   it('registers graphql-doc CLI commands through extendCli', () => {

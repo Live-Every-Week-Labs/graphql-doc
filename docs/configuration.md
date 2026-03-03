@@ -165,6 +165,26 @@ All Docusaurus-specific config lives under `adapters.docusaurus`.
 | `adapters.docusaurus.sidebarSectionLabels`   | operations/types |
 | `adapters.docusaurus.introDocs`              | `[]`             |
 
+Sidebar wiring behavior:
+
+- `sidebarMerge: true` (default): graphql-doc updates your configured sidebar target (`apiSidebar`
+  by default), so the left sidebar appears automatically.
+- `sidebarMerge: false`: graphql-doc writes a standalone sidebar file, but your host site must
+  import/register it. If you skip this step, GraphQL pages render with no left sidebar.
+
+```js
+// sidebars.js
+// Adjust this path to match your graphql-doc outputDir.
+const apiSidebar = require('./docs/graphql-api/sidebars.js');
+
+module.exports = {
+  docs: [
+    /* existing docs */
+  ],
+  apiSidebar: apiSidebar.apiSidebar,
+};
+```
+
 Intro docs are adapter-scoped:
 
 ```yaml

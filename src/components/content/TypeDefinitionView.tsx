@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ExpandedEnum, ExpandedType } from '../../core/transformer/types';
 import { slugify } from '../../core/utils/string-utils';
 import { FieldTable } from './FieldTable';
 import { EnumDefinitionView } from './EnumDefinitionView';
 import { ExpansionProvider } from '../context/ExpansionProvider';
 import { TypeRegistryProvider } from '../context/TypeRegistryProvider';
+import { useDocusaurusLayoutBridge } from '../utils/useDocusaurusLayoutBridge';
 
 interface TypeDefinitionViewProps {
   type: ExpandedType;
@@ -116,6 +117,9 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
   maxDepth = 5,
   children,
 }: TypeDefinitionViewProps) {
+  const rootRef = useRef<HTMLElement | null>(null);
+  useDocusaurusLayoutBridge(rootRef);
+
   if (!type) return null;
 
   const HeadingTag = `h${Math.min(6, Math.max(1, headingLevel))}` as keyof JSX.IntrinsicElements;
@@ -127,7 +131,7 @@ export const TypeDefinitionView = React.memo(function TypeDefinitionView({
   return (
     <TypeRegistryProvider typesByName={typesByName}>
       <ExpansionProvider>
-        <section className="gql-type-definition" data-type={typeName}>
+        <section className="gql-type-definition" data-type={typeName} ref={rootRef}>
           <header className="gql-type-definition-header">
             <div className="gql-type-definition-title-row">
               <HeadingTag id={slug} className="gql-type-definition-title">

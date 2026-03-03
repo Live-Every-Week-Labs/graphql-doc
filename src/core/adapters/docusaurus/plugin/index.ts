@@ -146,6 +146,10 @@ export default function graphqlDocDocusaurusPlugin(
       });
     },
     getPathsToWatch() {
+      if (!options.watch) {
+        return [];
+      }
+
       return buildPluginWatchTargets(context.siteDir, options);
     },
     extendCli(cli) {

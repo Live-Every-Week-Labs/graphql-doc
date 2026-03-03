@@ -115,6 +115,44 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
+/* ==========================================================================
+   Docusaurus Host Layout Bridge
+   ========================================================================== */
+
+.gql-docs-container {
+    max-width: 1800px !important;
+}
+
+@media (min-width: 997px) {
+    body.gql-docs-page main[class*='docMainContainer'] [class*='docItemCol'],
+    .gql-docs-page main[class*='docMainContainer'] [class*='docItemCol'],
+    .gql-docs-col {
+        --ifm-col-width: 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        flex-basis: 100% !important;
+    }
+}
+
+@supports selector(.container:has(.gql-operation)) {
+    @media (min-width: 997px) {
+        main[class*='docMainContainer'] .container:has(.gql-operation),
+        main[class*='docMainContainer'] .container:has(.gql-type-definition) {
+            max-width: 1800px !important;
+        }
+
+        main[class*='docMainContainer'] [class*='docItemCol']:has(.gql-operation),
+        main[class*='docMainContainer'] [class*='docItemCol']:has(.gql-type-definition) {
+            --ifm-col-width: 100% !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+            flex-basis: 100% !important;
+        }
+    }
+}
+
 .gql-type-viewer {
     font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
     font-size: 0.9em;
