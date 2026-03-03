@@ -122,11 +122,15 @@ const extractTypeName = (typeString?: string) => {
 
 type NormalizedSection = Section & { displayName: string; slug: string };
 
+interface LlmDocsGeneratorConfig extends LlmDocsConfig {
+  siteBasePath?: string;
+}
+
 export class LlmDocsGenerator {
-  private config: LlmDocsConfig;
+  private config: LlmDocsGeneratorConfig;
   private typesByName: Record<string, ExpandedType> = {};
 
-  constructor(config: LlmDocsConfig) {
+  constructor(config: LlmDocsGeneratorConfig) {
     this.config = config;
   }
 
@@ -852,13 +856,27 @@ export class LlmDocsGenerator {
   }
 
   private getOperationSiteHref(groupSlug: string, operationSlug: string): string {
-    const operationPath = `${DEFAULT_SITE_BASE_PATH}/${groupSlug}/${operationSlug}`;
+    const normalizedSiteBasePath = this.normalizeSiteBasePath(this.config.siteBasePath);
+    const operationPath = `${normalizedSiteBasePath}/${groupSlug}/${operationSlug}`;
     const baseUrl = normalizeBaseUrl(this.config.baseUrl);
     if (!baseUrl) {
       return operationPath;
     }
 
     return joinUrl(baseUrl, operationPath.replace(/^\/+/, ''));
+  }
+
+  private normalizeSiteBasePath(siteBasePath: string | undefined): string {
+    if (!siteBasePath) {
+      return DEFAULT_SITE_BASE_PATH;
+    }
+
+    const normalized = siteBasePath.trim().replace(/\/+$/g, '');
+    if (!normalized) {
+      return DEFAULT_SITE_BASE_PATH;
+    }
+
+    return normalized.startsWith('/') ? normalized : `/${normalized}`;
   }
 
   private renderSectionOperations(section: Section, baseHeadingLevel: number) {

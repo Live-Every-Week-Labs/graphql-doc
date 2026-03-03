@@ -50,6 +50,7 @@ interface RenderOptions {
   defaultExpandedLevels?: number;
   maxDepth?: number;
   llmDocsBasePath?: string;
+  siteBasePath?: string;
 }
 
 const SAFE_MDX_SANITIZE_OPTIONS: IOptions = {
@@ -126,6 +127,7 @@ export class MdxRenderer {
     const llmDocsBasePath = options.llmDocsBasePath
       ? JSON.stringify(options.llmDocsBasePath)
       : undefined;
+    const siteBasePath = options.siteBasePath ? JSON.stringify(options.siteBasePath) : undefined;
     const hasDefaultExpandedLevels = options.defaultExpandedLevels !== undefined;
     const hasMaxDepth = options.maxDepth !== undefined;
 
@@ -143,6 +145,7 @@ export class MdxRenderer {
       typeLinkBase,
       typeLinkMode,
       llmDocsBasePath,
+      siteBasePath,
       dataReference: options.dataReference,
     });
   }

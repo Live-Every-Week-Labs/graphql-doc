@@ -23,6 +23,19 @@ function hasMinimumDepth(resolvedPath: string): boolean {
   return segments.length >= 3;
 }
 
+function inferSiteBasePath(outputDir: string): string {
+  const normalized = outputDir.replace(/\\/g, '/').replace(/\/+$/g, '');
+  const marker = '/docs/';
+  const markerIndex = normalized.lastIndexOf(marker);
+
+  if (markerIndex !== -1) {
+    return `/${normalized.slice(markerIndex + 1).replace(/^\/+|\/+$/g, '')}`;
+  }
+
+  const basename = path.posix.basename(normalized);
+  return `/${basename.replace(/^\/+|\/+$/g, '')}`;
+}
+
 export interface GenerateRunOptions {
   dryRun?: boolean;
 }
@@ -232,7 +245,10 @@ export class Generator {
 
     if (this.config.llmDocs?.enabled) {
       this.logger.info('Generating LLM-optimized docs...');
-      const llmGenerator = new LlmDocsGenerator(this.config.llmDocs);
+      const llmGenerator = new LlmDocsGenerator({
+        ...this.config.llmDocs,
+        siteBasePath: inferSiteBasePath(this.config.outputDir),
+      });
       const llmResult = llmGenerator.generate(docModel);
       llmFiles = llmResult.files;
 

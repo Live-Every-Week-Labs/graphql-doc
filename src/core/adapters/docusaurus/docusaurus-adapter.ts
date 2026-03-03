@@ -32,6 +32,7 @@ interface OperationDocTarget {
 
 export type DocusaurusAdapterConfig = Partial<BaseDocusaurusAdapterConfig> & {
   outputDir?: string;
+  siteBasePath?: string;
   typeExpansion?: {
     maxDepth?: number;
     defaultLevels?: number;
@@ -62,7 +63,7 @@ export class DocusaurusAdapter {
    * from the LLM docs output directory.
    */
   static fromConfig(config: Config): DocusaurusAdapter {
-    const docusaurusConfig = {
+    const docusaurusConfig: DocusaurusAdapterConfig = {
       ...config.adapters?.docusaurus,
     };
 
@@ -71,6 +72,10 @@ export class DocusaurusAdapter {
       docusaurusConfig.llmDocsBasePath = DocusaurusAdapter.inferLlmDocsBasePath(
         config.llmDocs.outputDir
       );
+    }
+
+    if (!docusaurusConfig.siteBasePath) {
+      docusaurusConfig.siteBasePath = DocusaurusAdapter.inferSiteBasePath(config.outputDir);
     }
 
     return new DocusaurusAdapter({
@@ -95,6 +100,15 @@ export class DocusaurusAdapter {
       idx !== -1
         ? normalized.slice(idx + marker.length)
         : path.posix.basename(normalized.replace(/\/+$/g, ''));
+    return `/${segment.replace(/^\/+|\/+$/g, '')}`;
+  }
+
+  private static inferSiteBasePath(outputDir: string): string {
+    const normalized = toPosix(outputDir).replace(/\/+$/g, '');
+    const marker = '/docs/';
+    const idx = normalized.lastIndexOf(marker);
+    const segment =
+      idx !== -1 ? normalized.slice(idx + 1) : path.posix.basename(normalized.replace(/\/+$/g, ''));
     return `/${segment.replace(/^\/+|\/+$/g, '')}`;
   }
 
@@ -638,6 +652,7 @@ export class DocusaurusAdapter {
       unsafeDescriptionMdx: this.config.unsafeMdxDescriptions,
       typeLinkMode: this.getTypeLinkMode(),
       llmDocsBasePath: this.config.llmDocsBasePath,
+      siteBasePath: this.config.siteBasePath,
     });
   }
 
@@ -675,6 +690,7 @@ export class DocusaurusAdapter {
       unsafeDescriptionMdx: this.config.unsafeMdxDescriptions,
       typeLinkMode: this.getTypeLinkMode(),
       llmDocsBasePath: this.config.llmDocsBasePath,
+      siteBasePath: this.config.siteBasePath,
     });
     const parts = [
       frontMatter,

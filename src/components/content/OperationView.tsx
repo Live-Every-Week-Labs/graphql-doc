@@ -20,6 +20,7 @@ interface OperationViewProps {
   typesByName?: Record<string, ExpandedType>;
   typeLinkMode?: 'none' | 'deep' | 'all';
   llmDocsBasePath?: string;
+  siteBasePath?: string;
   llmDocsDownloadLabel?: string;
   children?: React.ReactNode;
 }
@@ -54,6 +55,7 @@ export const OperationView = React.memo(function OperationView({
   typesByName,
   typeLinkMode = 'none',
   llmDocsBasePath,
+  siteBasePath,
   llmDocsDownloadLabel = 'Download Markdown',
   children,
 }: OperationViewProps) {
@@ -203,7 +205,12 @@ export const OperationView = React.memo(function OperationView({
   return (
     <TypeRegistryProvider typesByName={typesByName}>
       <ExpansionProvider>
-        <section className="gql-operation" data-operation={operation.name} ref={rootRef}>
+        <section
+          className="gql-operation"
+          data-operation={operation.name}
+          data-site-base-path={siteBasePath}
+          ref={rootRef}
+        >
           <div className="gql-operation-layout">
             <div className="gql-operation-main">
               <header className="gql-operation-header">
