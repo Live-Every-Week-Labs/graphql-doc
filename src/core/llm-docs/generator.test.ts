@@ -116,6 +116,9 @@ describe('LlmDocsGenerator', () => {
     expect(chunkFile?.content).toContain(
       '[getUser](https://docs.example.com/docs/api/users/get-user)'
     );
+    expect(chunkFile?.content).toContain(
+      '[getUser](https://docs.example.com/llm-docs/users/get-user.md)'
+    );
     expect(chunkFile?.content).not.toContain('## Type Definitions');
     expect(operationFile?.content).toContain('# getUser');
     expect(manifest?.content).toContain('https://docs.example.com/llm-docs/index.md');
@@ -305,8 +308,10 @@ describe('LlmDocsGenerator', () => {
     expect(operationFile?.content).toContain('**Response:**');
     expect(operationFile?.content).toContain('## Type Definitions');
     expect(operationFile?.content).toContain('No description available.');
-    expect(operationFile?.content).toContain('*(see [Profile](#profile))*');
-    expect((operationFile?.content.match(/### Profile \{#profile\}/g) ?? []).length).toBe(1);
+    expect(operationFile?.content).toContain('See type definition: Profile.');
+    expect((operationFile?.content.match(/### Profile/g) ?? []).length).toBe(1);
+    expect(operationFile?.content).not.toContain('{#');
+    expect(operationFile?.content).not.toContain('](#');
   });
 
   it('collectReferencedTypes returns the expected deduplicated set', () => {

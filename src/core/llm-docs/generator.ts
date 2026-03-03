@@ -155,6 +155,12 @@ export class LlmDocsGenerator {
 
     const normalizedSections = this.normalizeSections(model.sections);
 
+    if (this.config.strategy === 'chunked' && !baseUrl) {
+      warnings.push(
+        'LLM docs chunked mode is missing llmDocs.baseUrl; generated group links will not be fully qualified.'
+      );
+    }
+
     if (this.config.strategy === 'single') {
       const singleContent = this.renderSingleFile(normalizedSections, apiName, apiDescription);
       files.push({
@@ -210,7 +216,7 @@ export class LlmDocsGenerator {
       const filename = `${section.slug}.md`;
       files.push({
         path: filename,
-        content: this.renderGroupSummary(section, apiName, operationSlugs),
+        content: this.renderGroupSummary(section, apiName, operationSlugs, absoluteRoot),
         type: 'md',
       });
 
@@ -388,13 +394,14 @@ export class LlmDocsGenerator {
   private renderGroupSummary(
     section: NormalizedSection,
     apiName: string,
-    operationSlugs: Map<Operation, string>
+    operationSlugs: Map<Operation, string>,
+    absoluteRoot?: string
   ) {
     const operations = collectOperations({ sections: [section] });
     const lines: string[] = [];
     lines.push(`# ${section.displayName}`);
     lines.push('');
-    lines.push(`> Part of [${apiName}](./index.md) GraphQL API`);
+    lines.push(`> Part of ${apiName} GraphQL API`);
     lines.push('');
     lines.push('---');
     lines.push('');
@@ -419,7 +426,12 @@ export class LlmDocsGenerator {
       lines.push('');
       for (const operation of operations) {
         const operationSlug = this.getOperationSlug(operation, operationSlugs);
-        lines.push(`- [${operation.name}](./${section.slug}/${operationSlug}.md)`);
+        const markdownHref = this.getOperationMarkdownHref(
+          section.slug,
+          operationSlug,
+          absoluteRoot
+        );
+        lines.push(`- [${operation.name}](${markdownHref})`);
       }
     }
 
@@ -429,7 +441,7 @@ export class LlmDocsGenerator {
   private renderOperationFile(
     operation: Operation,
     section: NormalizedSection,
-    apiName: string
+    _apiName: string
   ): string {
     const lines: string[] = [];
     const operationTypeLabel = operation.operationType.toUpperCase();
@@ -443,9 +455,6 @@ export class LlmDocsGenerator {
     lines.push('');
     lines.push(`> **Group:** ${section.displayName}`);
     lines.push(`> **Operation Type:** ${operationTypeLabel}`);
-    lines.push(
-      `> Part of [${apiName}](../index.md) and [${section.displayName}](../${section.slug}.md)`
-    );
     lines.push('');
 
     if (operation.isDeprecated) {
@@ -736,7 +745,7 @@ export class LlmDocsGenerator {
     }
 
     const lines: string[] = [];
-    lines.push(heading(headingLevel, `${typeName} {#${this.getTypeAnchor(typeName)}}`));
+    lines.push(heading(headingLevel, typeName));
     lines.push('');
 
     if ('description' in typeDef && typeDef.description) {
@@ -767,7 +776,7 @@ export class LlmDocsGenerator {
             ? cleanDescription(possibleName, possibleType.description)
             : undefined;
         return [
-          possibleName === 'Unknown' ? '`Unknown`' : this.renderTypeLink(possibleName),
+          possibleName === 'Unknown' ? '`Unknown`' : `\`${possibleName}\``,
           possibleDescription ?? NO_DESCRIPTION_AVAILABLE,
         ];
       });
@@ -803,23 +812,15 @@ export class LlmDocsGenerator {
     fieldTypeName: string | undefined
   ): string {
     const baseDescription = cleanDescription(fieldName, description) ?? NO_DESCRIPTION_AVAILABLE;
-    if (!fieldTypeName || !this.shouldLinkType(fieldTypeName)) {
+    if (!fieldTypeName || !this.hasRenderableType(fieldTypeName)) {
       return baseDescription;
     }
-    return `${baseDescription} *(see ${this.renderTypeLink(fieldTypeName)})*`;
+    return `${baseDescription} See type definition: ${fieldTypeName}.`;
   }
 
-  private shouldLinkType(typeName: string): boolean {
+  private hasRenderableType(typeName: string): boolean {
     const typeDef = this.typesByName[typeName];
     return Boolean(typeDef && typeDef.kind !== 'SCALAR');
-  }
-
-  private renderTypeLink(typeName: string): string {
-    return `[${typeName}](#${this.getTypeAnchor(typeName)})`;
-  }
-
-  private getTypeAnchor(typeName: string): string {
-    return slugify(typeName) || typeName.toLowerCase();
   }
 
   private resolveOperationSlugs(operations: Operation[]): Map<Operation, string> {
@@ -864,6 +865,19 @@ export class LlmDocsGenerator {
     }
 
     return joinUrl(baseUrl, operationPath.replace(/^\/+/, ''));
+  }
+
+  private getOperationMarkdownHref(
+    groupSlug: string,
+    operationSlug: string,
+    absoluteRoot?: string
+  ): string {
+    if (absoluteRoot) {
+      return joinUrl(absoluteRoot, `${groupSlug}/${operationSlug}.md`);
+    }
+
+    const publicPath = inferPublicPath(this.config.outputDir).replace(/^\/+|\/+$/g, '');
+    return `/${publicPath}/${groupSlug}/${operationSlug}.md`;
   }
 
   private normalizeSiteBasePath(siteBasePath: string | undefined): string {
