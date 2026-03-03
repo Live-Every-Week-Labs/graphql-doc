@@ -110,7 +110,11 @@ describe('LlmDocsGenerator', () => {
     const manifest = files.find((file) => file.path === 'llms.txt');
 
     expect(indexFile?.content).toContain('getUser(id: ID!): User');
-    expect(chunkFile?.content).toContain('**Profile fields:**');
+    expect(chunkFile?.content).toContain('## Operations');
+    expect(chunkFile?.content).toContain(
+      '[getUser](https://docs.example.com/docs/api/users/get-user)'
+    );
+    expect(chunkFile?.content).not.toContain('## Type Definitions');
     expect(manifest?.content).toContain('https://docs.example.com/llm-docs/index.md');
   });
 

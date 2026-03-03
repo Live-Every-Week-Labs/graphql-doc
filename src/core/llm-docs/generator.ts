@@ -19,6 +19,7 @@ export interface LlmDocsResult {
 const DEFAULT_API_NAME = 'GraphQL API';
 const GENERAL_GROUP_NAME = 'General';
 const NO_DESCRIPTION_AVAILABLE = 'No description available.';
+const DEFAULT_SITE_BASE_PATH = '/docs/api';
 
 const OPERATION_LABELS: Record<Operation['operationType'], string> = {
   query: 'Queries',
@@ -203,7 +204,7 @@ export class LlmDocsGenerator {
       const filename = `${section.slug}.md`;
       files.push({
         path: filename,
-        content: this.renderChunk(section, apiName),
+        content: this.renderGroupSummary(section, apiName),
         type: 'md',
       });
       manifestEntries.push({
@@ -360,7 +361,8 @@ export class LlmDocsGenerator {
     return lines.join('\n');
   }
 
-  private renderChunk(section: NormalizedSection, apiName: string) {
+  private renderGroupSummary(section: NormalizedSection, apiName: string) {
+    const operations = collectOperations({ sections: [section] });
     const lines: string[] = [];
     lines.push(`# ${section.displayName}`);
     lines.push('');
@@ -368,12 +370,31 @@ export class LlmDocsGenerator {
     lines.push('');
     lines.push('---');
     lines.push('');
-    lines.push(...this.renderSectionOperations(section, 2));
-    const typesReference = this.renderTypesReference(section, 2);
-    if (typesReference.length > 0) {
+    lines.push('## Operations');
+    lines.push('');
+
+    const operationRows = operations.map((operation) => {
+      const operationSlug = this.getOperationSlug(operation);
+      const operationType = this.getOperationTypeLabel(operation.operationType);
+      const siteOperationHref = this.getOperationSiteHref(section.slug, operationSlug);
+      const description = firstSentence(operation.description) || NO_DESCRIPTION_AVAILABLE;
+
+      return [`[${operation.name}](${siteOperationHref})`, operationType, description];
+    });
+    lines.push(renderTable(['Operation', 'Type', 'Description'], operationRows));
+
+    if (operations.length > 0) {
       lines.push('');
-      lines.push(...typesReference);
+      lines.push('## Detailed Documentation');
+      lines.push('');
+      lines.push('For full operation details including arguments, return types, and examples:');
+      lines.push('');
+      for (const operation of operations) {
+        const operationSlug = this.getOperationSlug(operation);
+        lines.push(`- [${operation.name}](./${section.slug}/${operationSlug}.md)`);
+      }
     }
+
     return lines.join('\n');
   }
 
@@ -771,6 +792,24 @@ export class LlmDocsGenerator {
 
   private getTypeAnchor(typeName: string): string {
     return slugify(typeName) || typeName.toLowerCase();
+  }
+
+  private getOperationSlug(operation: Operation): string {
+    return slugify(operation.name) || 'operation';
+  }
+
+  private getOperationTypeLabel(type: Operation['operationType']): string {
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  }
+
+  private getOperationSiteHref(groupSlug: string, operationSlug: string): string {
+    const operationPath = `${DEFAULT_SITE_BASE_PATH}/${groupSlug}/${operationSlug}`;
+    const baseUrl = normalizeBaseUrl(this.config.baseUrl);
+    if (!baseUrl) {
+      return operationPath;
+    }
+
+    return joinUrl(baseUrl, operationPath.replace(/^\/+/, ''));
   }
 
   private renderSectionOperations(section: Section, baseHeadingLevel: number) {
