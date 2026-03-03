@@ -39,8 +39,9 @@ function createMiddleware(context: {
 
 function buildStaticDir(siteDir: string): string {
   const staticDir = path.join(siteDir, 'static');
-  fs.mkdirSync(path.join(staticDir, 'llm-docs'), { recursive: true });
+  fs.mkdirSync(path.join(staticDir, 'llm-docs', 'users'), { recursive: true });
   fs.writeFileSync(path.join(staticDir, 'llm-docs', 'users.md'), '# Users\n');
+  fs.writeFileSync(path.join(staticDir, 'llm-docs', 'users', 'get-user.md'), '# Get User\n');
   fs.writeFileSync(path.join(staticDir, 'llm-docs', 'index.md'), '# Index\n');
   return staticDir;
 }
@@ -55,7 +56,7 @@ afterEach(() => {
 });
 
 describe('createMarkdownRedirectWebpackConfig', () => {
-  it('redirects markdown requests with the default root baseUrl', () => {
+  it('redirects markdown operation requests with the default root baseUrl', () => {
     const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
@@ -78,11 +79,11 @@ describe('createMarkdownRedirectWebpackConfig', () => {
       next
     );
 
-    expect(redirect).toHaveBeenCalledWith(302, '/llm-docs/users.md');
+    expect(redirect).toHaveBeenCalledWith(302, '/llm-docs/users/get-user.md');
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('redirects markdown requests when Docusaurus uses a custom baseUrl', () => {
+  it('redirects markdown operation requests when Docusaurus uses a custom baseUrl', () => {
     const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
@@ -106,7 +107,7 @@ describe('createMarkdownRedirectWebpackConfig', () => {
       next
     );
 
-    expect(redirect).toHaveBeenCalledWith(302, '/my-project/llm-docs/users.md');
+    expect(redirect).toHaveBeenCalledWith(302, '/my-project/llm-docs/users/get-user.md');
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -134,9 +135,36 @@ describe('createMarkdownRedirectWebpackConfig', () => {
         next
       );
 
-      expect(redirect).toHaveBeenCalledWith(302, '/docs-root/llm-docs/users.md');
+      expect(redirect).toHaveBeenCalledWith(302, '/docs-root/llm-docs/users/get-user.md');
       expect(next).not.toHaveBeenCalled();
     }
+  });
+
+  it('falls back to group summary markdown when an operation markdown file is missing', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const middleware = createMiddleware({
+      siteDir,
+      options: {
+        enabled: true,
+        docsBasePath: '/docs/api',
+        llmDocsPath: '/llm-docs',
+      },
+    });
+
+    const redirect = vi.fn();
+    const next = vi.fn();
+
+    middleware(
+      { path: '/docs/api/users/unknown-operation', headers: { accept: 'text/markdown' } },
+      { redirect },
+      next
+    );
+
+    expect(redirect).toHaveBeenCalledWith(302, '/llm-docs/users.md');
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('redirects docs base-path root requests to llm index markdown', () => {

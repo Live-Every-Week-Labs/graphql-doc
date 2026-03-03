@@ -82,13 +82,27 @@ function resolveTarget(
     return `${llmDocsPath}/index.md`;
   }
 
-  const groupSlug = relative.split('/')[0];
+  const segments = relative.split('/').filter(Boolean);
+  const groupSlug = segments[0];
   if (!groupSlug) {
     return `${llmDocsPath}/index.md`;
   }
 
-  const candidate = path.join(staticDir, stripLeadingSlash(llmDocsPath), `${groupSlug}.md`);
-  if (fs.existsSync(candidate)) {
+  if (segments.length > 1) {
+    const operationSlug = segments[segments.length - 1];
+    const operationCandidate = path.join(
+      staticDir,
+      stripLeadingSlash(llmDocsPath),
+      groupSlug,
+      `${operationSlug}.md`
+    );
+    if (fs.existsSync(operationCandidate)) {
+      return `${llmDocsPath}/${groupSlug}/${operationSlug}.md`;
+    }
+  }
+
+  const groupCandidate = path.join(staticDir, stripLeadingSlash(llmDocsPath), `${groupSlug}.md`);
+  if (fs.existsSync(groupCandidate)) {
     return `${llmDocsPath}/${groupSlug}.md`;
   }
 
