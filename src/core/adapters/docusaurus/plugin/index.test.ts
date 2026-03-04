@@ -524,9 +524,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
     const resolvedThemePath = plugin.getThemePath?.();
 
     expect(resolvedThemePath).toBeDefined();
-    expect(resolvedThemePath).toContain(
-      path.join('src', 'core', 'adapters', 'docusaurus', 'theme')
-    );
+    expect(resolvedThemePath).toContain(path.join('dist', 'theme'));
     expect(fs.existsSync(resolvedThemePath ?? '')).toBe(true);
   });
 
@@ -535,14 +533,12 @@ describe('graphqlDocDocusaurusPlugin', () => {
     const resolvedTypeScriptThemePath = plugin.getTypeScriptThemePath?.();
 
     expect(resolvedTypeScriptThemePath).toBeDefined();
-    expect(resolvedTypeScriptThemePath).toContain(
-      path.join('src', 'core', 'adapters', 'docusaurus', 'theme')
-    );
+    expect(resolvedTypeScriptThemePath).toContain(path.join('dist', 'theme'));
     expect(fs.existsSync(resolvedTypeScriptThemePath ?? '')).toBe(true);
   });
 
   it('exports a stable swizzle component allowlist', () => {
-    expect(getSwizzleComponentList()).toEqual(['DocItem/Layout', 'MDXComponents']);
+    expect(getSwizzleComponentList()).toEqual(['DocItem/Layout']);
   });
 
   it('injects an LLM discovery link tag when markdown artifacts are generated', () => {
@@ -602,9 +598,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
       const plugin = pluginFactory({ siteDir: tempSiteDir });
       const resolvedThemePath = plugin.getThemePath?.() ?? '';
 
-      expect(resolvedThemePath).toContain(
-        path.join('src', 'core', 'adapters', 'docusaurus', 'theme')
-      );
+      expect(resolvedThemePath).toContain(path.join('dist', 'theme'));
       expect(resolvedThemePath.startsWith(tempSiteDir)).toBe(false);
       expect(fs.existsSync(resolvedThemePath)).toBe(true);
     } finally {

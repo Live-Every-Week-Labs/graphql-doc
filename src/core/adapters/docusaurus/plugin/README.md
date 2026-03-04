@@ -23,7 +23,7 @@ isolation from framework-agnostic pipeline logic.
   - falls back to backing `.md`/`.mdx` source files for non-graphql docs routes
   - respects `baseUrl` and configurable markdown request aliases
 - `../theme/*`:
-  Default swizzlable theme components (`MDXComponents` and `DocItem/Layout`)
+  Default swizzlable theme components (`DocItem/Layout`)
   automatically exposed through the plugin.
 
 ## Ownership Boundary

@@ -48,7 +48,7 @@ function resolvePackageRoot(startDir: string): string {
   }
 }
 
-const themePath = path.join(resolvePackageRoot(runtimeDir), 'src/core/adapters/docusaurus/theme');
+const themePath = path.join(resolvePackageRoot(runtimeDir), 'dist/theme');
 
 function resolveLlmsHref(baseUrl: string | undefined): string {
   if (!baseUrl) {
@@ -169,15 +169,13 @@ export default function graphqlDocDocusaurusPlugin(
       ];
     },
     getThemePath() {
-      // Deliberately return TSX source instead of a compiled dist/theme bundle.
-      // Docusaurus compiles theme components from plugin packages during its own
-      // build, and this keeps swizzle source + runtime resolution aligned without
-      // introducing a second theme build pipeline.
+      // Consumer projects load plugin themes from node_modules; return compiled
+      // JS so hosts do not need to transpile plugin TS/TSX sources.
       return themePath;
     },
     getTypeScriptThemePath() {
-      // Keep this equal to getThemePath() until Docusaurus requires split
-      // compiled-vs-source paths for plugin-shipped themes.
+      // Keep runtime resolution aligned with getThemePath() to avoid parser
+      // mismatches in projects that do not transpile plugin TypeScript.
       return themePath;
     },
     injectHtmlTags({ content }) {
@@ -206,7 +204,7 @@ export default function graphqlDocDocusaurusPlugin(
  * Enumerates the stable theme component IDs that can be swizzled without --danger.
  */
 export function getSwizzleComponentList(): string[] {
-  return ['DocItem/Layout', 'MDXComponents'];
+  return ['DocItem/Layout'];
 }
 
 export { validateOptions, type GraphqlDocDocusaurusPluginOptions } from './options.js';
