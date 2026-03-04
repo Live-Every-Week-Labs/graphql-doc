@@ -233,4 +233,148 @@ describe('End-to-End Generator Test', () => {
     ).toBe(true);
     expect(fs.existsSync(path.join(pluginSiteDir, 'llms.txt'))).toBe(true);
   });
+
+  it('generates split prod and lab outputs with per-target sidebar destinations', async () => {
+    const pluginSiteDir = path.join(tempDir, 'plugin-multi-target-site');
+    const schemaDir = path.join(pluginSiteDir, 'schemas');
+    const rootSidebarPath = path.join(pluginSiteDir, 'sidebars.js');
+    const versionedSidebarPath = path.join(
+      pluginSiteDir,
+      'versioned_sidebars',
+      'version-lab-sidebars.json'
+    );
+
+    fs.mkdirSync(schemaDir, { recursive: true });
+    fs.mkdirSync(path.dirname(versionedSidebarPath), { recursive: true });
+
+    fs.writeFileSync(path.join(schemaDir, 'prod.graphql'), COMPLEX_SCHEMA_CONTENT, 'utf-8');
+    fs.writeFileSync(path.join(schemaDir, 'beta.graphql'), COMPLEX_SCHEMA_CONTENT, 'utf-8');
+    fs.writeFileSync(
+      rootSidebarPath,
+      `module.exports = { apiSidebar: [{ type: 'doc', id: 'existing/prod' }] };\n`,
+      'utf-8'
+    );
+    fs.writeFileSync(
+      versionedSidebarPath,
+      JSON.stringify(
+        {
+          apiSidebar: [{ type: 'doc', id: 'existing/lab' }],
+        },
+        null,
+        2
+      ),
+      'utf-8'
+    );
+    fs.writeFileSync(
+      path.join(pluginSiteDir, 'graphql-doc.config.json'),
+      JSON.stringify(
+        {
+          configVersion: 1,
+          outputDir: './docs/api',
+          framework: 'docusaurus',
+          metadataDir: './docs-metadata',
+          llmDocs: {
+            enabled: false,
+          },
+          targets: [
+            {
+              name: 'main',
+              schema: './schemas/prod.graphql',
+              outputDir: './docs/api',
+              adapters: {
+                docusaurus: {
+                  sidebarFile: rootSidebarPath,
+                  sidebarTarget: 'apiSidebar',
+                  sidebarMerge: true,
+                  sidebarInsertPosition: 'append',
+                },
+              },
+            },
+            {
+              name: 'lab',
+              schema: './schemas/beta.graphql',
+              outputDir: './versioned_docs/version-lab/api',
+              adapters: {
+                docusaurus: {
+                  sidebarFile: versionedSidebarPath,
+                  sidebarTarget: 'apiSidebar',
+                  sidebarMerge: true,
+                  sidebarInsertPosition: 'append',
+                },
+              },
+            },
+          ],
+        },
+        null,
+        2
+      ),
+      'utf-8'
+    );
+
+    const plugin = graphqlDocDocusaurusPlugin(
+      { siteDir: pluginSiteDir },
+      {
+        configPath: './graphql-doc.config.json',
+        llmDocs: false,
+        quiet: true,
+      }
+    );
+
+    const generationResult = (await plugin.loadContent?.()) as
+      | {
+          outputDir: string;
+          filesWritten: number;
+          llmFilesWritten: number;
+          targetResults: Array<{
+            targetName: string;
+            outputDir: string;
+          }>;
+        }
+      | undefined;
+
+    expect(generationResult).toBeDefined();
+    expect(generationResult?.targetResults).toHaveLength(2);
+    expect(generationResult?.targetResults.map((target) => target.targetName)).toEqual([
+      'main',
+      'lab',
+    ]);
+    expect(generationResult?.filesWritten).toBeGreaterThan(0);
+    expect(generationResult?.llmFilesWritten).toBe(0);
+
+    expect(
+      fs.existsSync(
+        path.join(pluginSiteDir, 'docs', 'api', 'user-management', 'profiles', 'get-user.mdx')
+      )
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(
+          pluginSiteDir,
+          'versioned_docs',
+          'version-lab',
+          'api',
+          'user-management',
+          'profiles',
+          'get-user.mdx'
+        )
+      )
+    ).toBe(true);
+    expect(fs.existsSync(rootSidebarPath)).toBe(true);
+    expect(fs.existsSync(versionedSidebarPath)).toBe(true);
+
+    const rootSidebarContent = fs.readFileSync(rootSidebarPath, 'utf-8');
+    expect(rootSidebarContent).toContain('existing/prod');
+    expect(rootSidebarContent).toContain('module.exports[__gqlDocsTargetKey] = __gqlDocsMerge(');
+    expect(rootSidebarContent).toContain('user-management');
+
+    const versionedSidebarContent = fs.readFileSync(versionedSidebarPath, 'utf-8');
+    const parsedVersionedSidebar = JSON.parse(versionedSidebarContent) as {
+      apiSidebar: Array<{ type: string; id: string }>;
+    };
+    expect(parsedVersionedSidebar.apiSidebar[0]).toEqual({
+      type: 'doc',
+      id: 'existing/lab',
+    });
+    expect(parsedVersionedSidebar.apiSidebar.length).toBeGreaterThan(1);
+  });
 });
