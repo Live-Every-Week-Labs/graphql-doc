@@ -114,6 +114,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
       outputDir: './docs/api',
       filesWritten: 0,
       llmFilesWritten: 0,
+      targetResults: [],
     });
     expect(errorSpy).toHaveBeenCalledWith(
       '[graphql-doc] Generation failed: schema endpoint is unreachable'
@@ -232,6 +233,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
       llmFilesWritten: 3,
       outputDir,
       schemaPointer: './schema.graphql',
+      targetResults: undefined,
     });
   });
 

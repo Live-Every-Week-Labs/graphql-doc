@@ -97,11 +97,17 @@ export default function graphqlDocDocusaurusPlugin(
           console.error(error);
         }
 
+        const fallbackSchemaPointer =
+          options.schema && typeof options.schema === 'object' && !Array.isArray(options.schema)
+            ? options.schema.primary
+            : (options.schema ?? '');
+
         return {
-          schemaPointer: options.schema ?? '',
+          schemaPointer: fallbackSchemaPointer,
           outputDir: options.outputDir ?? '',
           filesWritten: 0,
           llmFilesWritten: 0,
+          targetResults: [],
         };
       }
     },
@@ -123,6 +129,7 @@ export default function graphqlDocDocusaurusPlugin(
         llmFilesWritten: content.llmFilesWritten,
         outputDir: content.outputDir,
         schemaPointer: content.schemaPointer,
+        targetResults: content.targetResults,
       });
     },
     postBuild({ content }) {

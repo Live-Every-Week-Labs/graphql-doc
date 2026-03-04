@@ -1,4 +1,5 @@
 import type { OptionValidationContext } from '@docusaurus/types';
+import type { SchemaSourceConfig } from '../../../config/schema.js';
 
 /**
  * User-facing options accepted by the Docusaurus plugin entrypoint.
@@ -9,8 +10,10 @@ import type { OptionValidationContext } from '@docusaurus/types';
 export interface GraphqlDocDocusaurusPluginOptions {
   id?: string;
   configPath?: string;
-  schema?: string | string[];
+  schema?: SchemaSourceConfig;
   outputDir?: string;
+  target?: string;
+  allTargets?: boolean;
   /**
    * Enable Docusaurus watch-target registration for graphql-doc inputs.
    *
@@ -80,8 +83,10 @@ export interface NormalizedDocsSourceFallbackOptions {
 export interface NormalizedGraphqlDocDocusaurusPluginOptions {
   id?: string;
   configPath?: string;
-  schema?: string | string[];
+  schema?: SchemaSourceConfig;
   outputDir?: string;
+  target?: string;
+  allTargets: boolean;
   watch: boolean;
   cleanOutput?: boolean;
   llmDocs: boolean;
@@ -127,6 +132,8 @@ export function normalizePluginOptions(
     configPath: options.configPath,
     schema: options.schema,
     outputDir: options.outputDir,
+    target: options.target,
+    allTargets: options.allTargets ?? false,
     watch: options.watch ?? false,
     cleanOutput: options.cleanOutput,
     llmDocs: options.llmDocs ?? true,
@@ -176,6 +183,12 @@ export function normalizePluginOptions(
 export function validatePluginOptions(options: NormalizedGraphqlDocDocusaurusPluginOptions): void {
   if (options.verbose && options.quiet) {
     throw new Error('Invalid graphql-doc plugin options: verbose and quiet cannot both be true.');
+  }
+
+  if (options.target && options.allTargets) {
+    throw new Error(
+      'Invalid graphql-doc plugin options: target and allTargets cannot both be set.'
+    );
   }
 
   if (!options.markdownRedirect.docsBasePath.trim()) {

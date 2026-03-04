@@ -10,6 +10,8 @@ describe('docusaurus plugin options', () => {
       configPath: undefined,
       schema: undefined,
       outputDir: undefined,
+      target: undefined,
+      allTargets: false,
       watch: false,
       cleanOutput: undefined,
       llmDocs: true,
@@ -50,6 +52,8 @@ describe('docusaurus plugin options', () => {
       configPath: './graphql-doc.config.json',
       schema: ['./schema.graphql', './schema.extensions.graphql'],
       outputDir: './docs/generated-api',
+      target: 'labs',
+      allTargets: false,
       watch: true,
       cleanOutput: true,
       llmDocs: false,
@@ -80,6 +84,8 @@ describe('docusaurus plugin options', () => {
     expect(normalized.configPath).toBe('./graphql-doc.config.json');
     expect(normalized.schema).toEqual(['./schema.graphql', './schema.extensions.graphql']);
     expect(normalized.outputDir).toBe('./docs/generated-api');
+    expect(normalized.target).toBe('labs');
+    expect(normalized.allTargets).toBe(false);
     expect(normalized.watch).toBe(true);
     expect(normalized.cleanOutput).toBe(true);
     expect(normalized.llmDocs).toBe(false);
@@ -153,6 +159,13 @@ describe('docusaurus plugin options', () => {
     const normalized = normalizePluginOptions({ verbose: true, quiet: true });
     expect(() => validatePluginOptions(normalized)).toThrow(
       'verbose and quiet cannot both be true'
+    );
+  });
+
+  it('rejects target and allTargets when both are set', () => {
+    const normalized = normalizePluginOptions({ target: 'labs', allTargets: true });
+    expect(() => validatePluginOptions(normalized)).toThrow(
+      'target and allTargets cannot both be set'
     );
   });
 

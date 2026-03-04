@@ -3,14 +3,25 @@ import path from 'node:path';
 import { cosmiconfigSync } from 'cosmiconfig';
 import { loadGeneratorConfig, resolveConfigPaths } from '../../../config/loader.js';
 import type { Config } from '../../../config/schema.js';
-import { resolveSchemaPointer, resolveSchemaPointers } from '../../../config/schema-pointer.js';
+import { buildTargetExecutionPlan } from '../../../config/targets.js';
+import { resolveSchemaPointerCandidates } from '../../../config/schema-pointer.js';
 import { Generator } from '../../../generator.js';
 import type { Logger } from '../../../logger.js';
+import { getErrorMessage } from '../../../utils/index.js';
 import type { NormalizedGraphqlDocDocusaurusPluginOptions } from './options.js';
 
 export interface PluginGenerationContext {
   siteDir: string;
   options: NormalizedGraphqlDocDocusaurusPluginOptions;
+}
+
+export interface PluginTargetGenerationResult {
+  targetName: string;
+  schemaPointer: string | string[];
+  outputDir: string;
+  llmOutputDir?: string;
+  filesWritten: number;
+  llmFilesWritten: number;
 }
 
 export interface PluginGenerationResult {
@@ -19,6 +30,7 @@ export interface PluginGenerationResult {
   llmOutputDir?: string;
   filesWritten: number;
   llmFilesWritten: number;
+  targetResults: PluginTargetGenerationResult[];
 }
 
 const DEFAULT_CONFIG_CANDIDATES = [
@@ -47,6 +59,7 @@ function toArray<T>(value: T | T[]): T[] {
 
 interface WatchConfigSources {
   schema?: string | string[];
+  targetSchemas?: string[];
   examplesDir?: string;
   errorsDir?: string;
 }
@@ -81,6 +94,24 @@ function getNestedStringOrArray(
   return undefined;
 }
 
+function collectSchemaPointersFromUnknown(value: unknown): string[] {
+  if (typeof value === 'string') {
+    return [value];
+  }
+
+  if (Array.isArray(value) && value.every((entry) => typeof entry === 'string')) {
+    return value;
+  }
+
+  if (isRecord(value)) {
+    const primaryPointers = collectSchemaPointersFromUnknown(value.primary);
+    const fallbackPointers = collectSchemaPointersFromUnknown(value.fallback);
+    return [...primaryPointers, ...fallbackPointers];
+  }
+
+  return [];
+}
+
 function supportsSyncWatchConfig(configPath: string): boolean {
   const ext = path.extname(configPath).toLowerCase();
   return !UNSUPPORTED_SYNC_CONFIG_EXTENSIONS.has(ext);
@@ -100,11 +131,17 @@ function readWatchConfigSources(rawConfig: unknown): WatchConfigSources {
 
   const schema =
     getNestedStringOrArray(source, 'schema') ?? getNestedStringOrArray(rootConfig, 'schema');
+  const targetsRaw = source.targets;
+  const targetSchemas =
+    Array.isArray(targetsRaw) && targetsRaw.every((entry) => isRecord(entry))
+      ? targetsRaw.flatMap((target) => collectSchemaPointersFromUnknown(target.schema))
+      : [];
   const examplesDir = getNestedString(source, 'examplesDir') ?? getNestedString(examples, 'dir');
   const errorsDir = getNestedString(source, 'errorsDir') ?? getNestedString(errors, 'dir');
 
   return {
     schema,
+    targetSchemas,
     examplesDir,
     errorsDir,
   };
@@ -187,12 +224,15 @@ export function buildPluginWatchTargets(
   const sources: string[] = [...resolveConfigWatchSources(siteDir, options), 'docs-metadata'];
 
   if (options.schema) {
-    sources.push(...toArray(options.schema));
+    sources.push(...collectSchemaPointersFromUnknown(options.schema));
   }
 
   const configSources = loadGeneratorConfigSync(siteDir, options);
   if (configSources.schema) {
     sources.push(...toArray(configSources.schema));
+  }
+  if (configSources.targetSchemas && configSources.targetSchemas.length > 0) {
+    sources.push(...configSources.targetSchemas);
   }
   if (configSources.examplesDir) {
     sources.push(configSources.examplesDir);
@@ -259,6 +299,10 @@ function applyPluginOverrides(
   return updated;
 }
 
+function formatSchemaPointer(schemaPointer: string | string[]): string {
+  return Array.isArray(schemaPointer) ? schemaPointer.join(', ') : schemaPointer;
+}
+
 /**
  * Run a single graphql-doc generation pass from the Docusaurus plugin.
  *
@@ -271,24 +315,94 @@ export async function runPluginGeneration(
   const { siteDir, options } = context;
   const logger = createPluginLogger({ quiet: options.quiet, verbose: options.verbose });
 
-  let config = await loadGeneratorConfig(siteDir, options.configPath);
-  config = applyPluginOverrides(config, options);
-  config = resolveConfigPaths(config, siteDir);
+  let baseConfig = await loadGeneratorConfig(siteDir, options.configPath);
+  baseConfig = applyPluginOverrides(baseConfig, options);
+  baseConfig = resolveConfigPaths(baseConfig, siteDir);
 
-  const schemaPointer = await resolveSchemaPointer({ schema: options.schema }, siteDir, {
-    silent: !options.verbose,
-    log: (message) => logger.info(message),
+  const targetPlans = buildTargetExecutionPlan(baseConfig, {
+    target: options.target,
+    allTargets: options.allTargets,
   });
-  const resolvedSchemaPointer = resolveSchemaPointers(schemaPointer, siteDir);
 
-  const generator = new Generator(config, logger);
-  const result = await generator.generate(resolvedSchemaPointer, { dryRun: false });
+  const targetResults: PluginTargetGenerationResult[] = [];
+
+  for (const targetPlan of targetPlans) {
+    const planConfig = resolveConfigPaths(targetPlan.config, siteDir);
+    const schemaSource = options.schema ?? planConfig.schema;
+    const schemaCandidates = await resolveSchemaPointerCandidates(
+      { schema: schemaSource },
+      siteDir,
+      {
+        silent: !options.verbose,
+        log: (message) => logger.info(message),
+      }
+    );
+
+    if (options.verbose && !options.quiet) {
+      const targetLabel = targetPlan.isTargetedRun ? ` for ${targetPlan.targetName}` : '';
+      logger.info(
+        `Resolved primary schema pointer${targetLabel}: ${formatSchemaPointer(
+          schemaCandidates.primary
+        )}`
+      );
+      if (schemaCandidates.fallback) {
+        logger.info(
+          `Resolved fallback schema pointer${targetLabel}: ${formatSchemaPointer(
+            schemaCandidates.fallback
+          )}`
+        );
+      }
+    }
+
+    let generationResult: Awaited<ReturnType<Generator['generate']>>;
+    let usedSchemaPointer = schemaCandidates.primary;
+
+    try {
+      const generator = new Generator(planConfig, logger);
+      generationResult = await generator.generate(schemaCandidates.primary, { dryRun: false });
+    } catch (primaryError) {
+      if (!schemaCandidates.fallback) {
+        throw primaryError;
+      }
+
+      logger.warn(
+        `Primary schema failed for target "${targetPlan.targetName}". Retrying with fallback schema pointer.`
+      );
+      if (options.verbose && !options.quiet) {
+        logger.info(`Primary schema error: ${getErrorMessage(primaryError)}`);
+      }
+
+      const generator = new Generator(planConfig, logger);
+      generationResult = await generator.generate(schemaCandidates.fallback, { dryRun: false });
+      usedSchemaPointer = schemaCandidates.fallback;
+    }
+
+    targetResults.push({
+      targetName: targetPlan.targetName,
+      schemaPointer: usedSchemaPointer,
+      outputDir: planConfig.outputDir,
+      llmOutputDir: planConfig.llmDocs.enabled ? planConfig.llmDocs.outputDir : undefined,
+      filesWritten: generationResult.filesWritten,
+      llmFilesWritten: generationResult.llmFilesWritten,
+    });
+  }
+
+  const aggregateFilesWritten = targetResults.reduce(
+    (total, result) => total + result.filesWritten,
+    0
+  );
+  const aggregateLlmFilesWritten = targetResults.reduce(
+    (total, result) => total + result.llmFilesWritten,
+    0
+  );
+  const primaryTargetResult = targetResults[0];
 
   return {
-    schemaPointer: resolvedSchemaPointer,
-    outputDir: config.outputDir,
-    llmOutputDir: config.llmDocs.enabled ? config.llmDocs.outputDir : undefined,
-    filesWritten: result.filesWritten,
-    llmFilesWritten: result.llmFilesWritten,
+    schemaPointer: primaryTargetResult?.schemaPointer ?? options.schema ?? '',
+    outputDir: primaryTargetResult?.outputDir ?? options.outputDir ?? '',
+    llmOutputDir: primaryTargetResult?.llmOutputDir,
+    filesWritten: aggregateFilesWritten,
+    llmFilesWritten: aggregateLlmFilesWritten,
+    targetResults,
   };
 }
