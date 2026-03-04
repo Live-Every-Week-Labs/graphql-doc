@@ -18,8 +18,10 @@ isolation from framework-agnostic pipeline logic.
   Runtime generation orchestration (config load, schema resolution,
   generator invocation, and watch-target discovery used by plugin hooks.
 - `markdown-redirect.ts`:
-  Dev-server middleware for `Accept: text/markdown` redirects into generated
-  LLM markdown artifacts with `baseUrl` awareness.
+  Dev-server middleware for markdown-aware requests that:
+  - redirects graphql-doc API routes into generated LLM markdown artifacts
+  - falls back to backing `.md`/`.mdx` source files for non-graphql docs routes
+  - respects `baseUrl` and configurable markdown request aliases
 - `../theme/*`:
   Default swizzlable theme components (`MDXComponents` and `DocItem/Layout`)
   automatically exposed through the plugin.
@@ -44,3 +46,5 @@ isolation from framework-agnostic pipeline logic.
 - `postBuild` logs a build summary unless `quiet` mode is enabled.
 - Markdown redirect middleware remains enabled by default and can be disabled
   with plugin options.
+- Markdown redirect behavior relies on webpack dev-server middleware (`docusaurus start`).
+  Production static hosting requires host/server middleware for `Accept` negotiation.

@@ -195,7 +195,8 @@ plugins: [
 Migration from script/manual generation:
 
 1. Remove custom scripts that run `graphql-doc generate` before Docusaurus.
-2. Remove any local markdown redirect plugin in your Docusaurus site.
+2. Remove any local markdown redirect plugin in your Docusaurus site (the built-in middleware now
+   handles both graphql-doc API routes and non-graphql docs source fallback in development).
 3. Remove manual graphql-doc CSS imports from `src/css/custom.css`.
 4. Remove local `src/theme/MDXComponents.*` and `src/theme/DocItem/Layout/*` wrappers if they only re-export graphql-doc defaults.
 5. Keep your existing graphql-doc config (`.graphqlrc` or `graphql-doc.config.*`).
@@ -246,6 +247,23 @@ When the site is running, the raw files are available at:
 - `/llm-docs/index.md`
 - `/llm-docs/<group>.md`
 - `/llms.txt`
+
+## Accept Markdown Behavior
+
+With plugin defaults enabled, markdown-aware requests are resolved in this order:
+
+1. GraphQL API docs routes (`/docs/api/*` by default) redirect to generated LLM markdown artifacts.
+2. Other docs routes (`/docs/*` by default) return the backing `.md`/`.mdx` source file when
+   Docusaurus metadata provides a permalink-to-source mapping.
+
+Markdown-aware requests are detected from:
+
+- `Accept: text/markdown` and `Accept: text/x-markdown`
+- Alias headers like `x-doc-format: md` (configurable through `markdownRedirect.requestDetection`)
+
+This behavior is wired through webpack dev-server middleware, so it applies to
+`docusaurus start`. Production static hosting still requires host/server middleware if you need
+`Accept`-based markdown responses after deployment.
 
 ## Organizing Your Documentation
 
