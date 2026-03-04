@@ -70,13 +70,17 @@ export const OperationView = React.memo(function OperationView({
   const tags = operation.directives?.docTags?.tags ?? [];
   const typeLabel = operation.operationType.toUpperCase();
   const groupName = operation.directives?.docGroup?.name || 'General';
+  const capitalizedGroupName =
+    groupName.length > 0 ? `${groupName.charAt(0).toUpperCase()}${groupName.slice(1)}` : groupName;
   const groupSlug = slugify(groupName) || 'general';
   const llmDocsRoot = llmDocsBasePath ? llmDocsBasePath.replace(/\/$/, '') : undefined;
   const groupOverviewHref = llmDocsRoot ? `${llmDocsRoot}/${groupSlug}.md` : undefined;
   const operationDetailsHref = llmDocsRoot
     ? `${llmDocsRoot}/${groupSlug}/${operationSlug}.md`
     : undefined;
-  const llmDownloadAriaLabel = `${llmDocsDownloadLabel} for ${groupName}`;
+  const groupDownloadText = `Download ${capitalizedGroupName} Group`;
+  const operationDownloadText = `Download ${operation.name} ${operation.operationType}`;
+  const llmDownloadAriaLabel = `${llmDocsDownloadLabel} for ${capitalizedGroupName}`;
   const llmMenuId = `gql-llm-menu-${groupSlug}-${operationSlug}`;
 
   const focusMenuItem = useCallback((index: number) => {
@@ -253,7 +257,7 @@ export const OperationView = React.memo(function OperationView({
                             download={`${groupSlug}.md`}
                             onClick={closeDownloadMenu}
                           >
-                            Download {groupName} overview
+                            {groupDownloadText}
                           </a>
                           <a
                             ref={(node) => {
@@ -265,7 +269,7 @@ export const OperationView = React.memo(function OperationView({
                             download={`${operationSlug}.md`}
                             onClick={closeDownloadMenu}
                           >
-                            Download {operation.name} details
+                            {operationDownloadText}
                           </a>
                         </div>
                       )}

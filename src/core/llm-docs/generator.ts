@@ -398,10 +398,11 @@ export class LlmDocsGenerator {
     absoluteRoot?: string
   ) {
     const operations = collectOperations({ sections: [section] });
+    const apiDisplayName = this.getApiDisplayName(apiName);
     const lines: string[] = [];
     lines.push(`# ${section.displayName}`);
     lines.push('');
-    lines.push(`> Part of ${apiName} GraphQL API`);
+    lines.push(`> Part of ${apiDisplayName}`);
     lines.push('');
     lines.push('---');
     lines.push('');
@@ -854,6 +855,14 @@ export class LlmDocsGenerator {
 
   private getOperationTypeLabel(type: Operation['operationType']): string {
     return type.charAt(0).toUpperCase() + type.slice(1);
+  }
+
+  private getApiDisplayName(apiName: string): string {
+    const trimmed = apiName.trim();
+    if (!trimmed) {
+      return DEFAULT_API_NAME;
+    }
+    return /graphql\s*api/i.test(trimmed) ? trimmed : `${trimmed} GraphQL API`;
   }
 
   private getOperationSiteHref(groupSlug: string, operationSlug: string): string {

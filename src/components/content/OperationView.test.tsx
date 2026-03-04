@@ -34,8 +34,8 @@ describe('OperationView', () => {
     const button = screen.getByRole('button', { name: 'Download Markdown for General' });
     fireEvent.click(button);
 
-    const groupOverviewLink = screen.getByRole('menuitem', { name: 'Download General overview' });
-    const operationDetailsLink = screen.getByRole('menuitem', { name: 'Download getUser details' });
+    const groupOverviewLink = screen.getByRole('menuitem', { name: 'Download General Group' });
+    const operationDetailsLink = screen.getByRole('menuitem', { name: 'Download getUser query' });
 
     expect(groupOverviewLink).toHaveAttribute('href', '/llm-docs/general.md');
     expect(operationDetailsLink).toHaveAttribute('href', '/llm-docs/general/get-user.md');
@@ -47,10 +47,10 @@ describe('OperationView', () => {
 
     const button = screen.getByRole('button', { name: 'Download Markdown for General' });
     fireEvent.click(button);
-    expect(screen.getByRole('menuitem', { name: 'Download General overview' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Download General Group' })).toBeInTheDocument();
 
     fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.queryByRole('menuitem', { name: 'Download General overview' })).toBeNull();
+    expect(screen.queryByRole('menuitem', { name: 'Download General Group' })).toBeNull();
     expect(button).toHaveAttribute('aria-expanded', 'false');
   });
 
@@ -59,10 +59,10 @@ describe('OperationView', () => {
 
     const button = screen.getByRole('button', { name: 'Download Markdown for General' });
     fireEvent.click(button);
-    expect(screen.getByRole('menuitem', { name: 'Download General overview' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Download General Group' })).toBeInTheDocument();
 
     fireEvent.mouseDown(document.body);
-    expect(screen.queryByRole('menuitem', { name: 'Download General overview' })).toBeNull();
+    expect(screen.queryByRole('menuitem', { name: 'Download General Group' })).toBeNull();
   });
 
   it('sets markdown dropdown aria attributes', () => {
