@@ -46,6 +46,7 @@ extensions:
 
 Use these when needed:
 
+- `targets[]`: run multiple isolated generation targets (for example, prod and labs) from one config.
 - `schemaExtensions`: merge framework scalar/directive stubs into the schema.
 - `requireExamplesForDocumentedOperations`: fail generate/validate when documented operations have no examples.
 - `groupOrdering.*`: configure section ordering (`alphabetical`, `explicit`, `pinned`).
@@ -54,11 +55,56 @@ Use these when needed:
 - `agentSkill.*`: emit downloadable AI skill artifacts.
 - `adapters.docusaurus.*`: sidebar generation, intro docs, type link behavior, unsafe MDX toggle.
 
+## Multi-Target Generation (Prod + Lab)
+
+Use `targets[]` when you want separate docs trees and sidebars from separate schema inputs.
+
+```yaml
+extensions:
+  graphql-doc:
+    configVersion: 1
+    outputDir: ./docs/api
+    metadataDir: ./docs-metadata
+    targets:
+      - name: main
+        schema: ./graphql/api.graphql
+        outputDir: ./docs/api
+        adapters:
+          docusaurus:
+            # Relative paths are resolved from this target's outputDir.
+            sidebarFile: ../../sidebars.js
+            sidebarTarget: apiSidebar
+            sidebarMerge: true
+      - name: lab
+        schema:
+          primary: ./graphql/api-lab.graphql
+          fallback: ./graphql/api.graphql
+        outputDir: ./versioned_docs/version-lab/api
+        llmDocs:
+          enabled: false
+        adapters:
+          docusaurus:
+            docIdPrefix: api
+            sidebarFile: ../../../versioned_sidebars/version-lab-sidebars.json
+            sidebarTarget: apiSidebar
+            sidebarMerge: true
+            sidebarInsertPosition: append
+```
+
+Behavior notes:
+
+- `targets[].enabled` defaults to `true`.
+- When `targets[]` is configured and no explicit target is selected, all enabled targets run.
+- `targets[].schema` supports `string`, `string[]`, or `{ primary, fallback }`.
+- `fallback` is only used if generation fails with the `primary` schema pointer.
+
 ## Core Options
 
 | Option                                   | Type                 | Default                   |
 | :--------------------------------------- | :------------------- | :------------------------ |
 | `configVersion`                          | `1`                  | `1`                       |
+| `schema`                                 | `string \| string[]` | `schema.graphql`          |
+| `targets`                                | `TargetConfig[]`     |                           |
 | `outputDir`                              | `string`             | `./docs/api`              |
 | `cleanOutputDir`                         | `boolean`            | `false`                   |
 | `framework`                              | `string`             | `docusaurus`              |
@@ -157,6 +203,7 @@ All Docusaurus-specific config lives under `adapters.docusaurus`.
 | `adapters.docusaurus.llmDocsBasePath`        | auto/empty       |
 | `adapters.docusaurus.generateSidebar`        | `true`           |
 | `adapters.docusaurus.sidebarFile`            | auto             |
+| `adapters.docusaurus.sidebarFormat`          | `auto`           |
 | `adapters.docusaurus.sidebarMerge`           | `true`           |
 | `adapters.docusaurus.sidebarTarget`          | `apiSidebar`     |
 | `adapters.docusaurus.sidebarInsertPosition`  | `replace`        |
@@ -251,6 +298,8 @@ Runtime options available on the plugin itself:
 | `configPath`                                          |                                                                                             | Path to `.graphqlrc` or `graphql-doc.config.*`.                                                  |
 | `schema`                                              |                                                                                             | Overrides schema pointer(s) for plugin generation only.                                          |
 | `outputDir`                                           |                                                                                             | Overrides `outputDir` for plugin generation only.                                                |
+| `target`                                              |                                                                                             | Runs one configured target by name.                                                              |
+| `allTargets`                                          | `false`                                                                                     | Runs all enabled configured targets.                                                             |
 | `cleanOutput`                                         |                                                                                             | Overrides `cleanOutputDir` for plugin generation only.                                           |
 | `llmDocs`                                             | `true`                                                                                      | LLM markdown generation is enabled by default in plugin workflows.                               |
 | `llmDocsStrategy`                                     | config value                                                                                | Optional override (`single` or `chunked`).                                                       |

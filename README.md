@@ -29,6 +29,7 @@ A documentation generator for GraphQL APIs that organizes content by **operation
 - 📚 **Intro Docs**: Prepend MD/MDX docs to the API sidebar as a landing section.
 - 🤖 **AI Skill Artifacts**: Optionally generate `SKILL.md` + helper script and an intro page with download links.
 - 🧭 **Sidebar Controls**: Configurable category index pages and section header labels.
+- 🎯 **Multi-Target Builds**: Generate separate prod/lab outputs and sidebars from one config.
 - 🔗 **Type Link Modes**: Control when type names render as links (`none`, `deep`, `all`).
 - 🧩 **Single-Page Mode**: Generate a single MDX file with hash-based navigation.
 - ✅ **Validation**: Validate schema + metadata without generating docs.
@@ -118,6 +119,31 @@ extensions:
 ```
 
 `agentSkill.enabled` is opt-in and remains disabled unless you explicitly enable it.
+
+### Multi-Target Example (Prod + Lab)
+
+```yaml
+extensions:
+  graphql-doc:
+    configVersion: 1
+    targets:
+      - name: main
+        schema: ./graphql/api.graphql
+        outputDir: ./docs/api
+      - name: lab
+        schema:
+          primary: ./graphql/api-lab.graphql
+          fallback: ./graphql/api.graphql
+        outputDir: ./versioned_docs/version-lab/api
+```
+
+Then run:
+
+```bash
+npx graphql-doc generate -c graphql-doc.config.json
+```
+
+When `targets[]` is configured, the default `generate` run executes all enabled targets.
 
 ## Adapter Isolation
 

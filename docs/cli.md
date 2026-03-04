@@ -184,6 +184,8 @@ Generates documentation from a GraphQL schema.
 - `-o, --output <path>`: Directory where the generated documentation will be written.
 - `-c, --config <path>`: Path to a configuration file (e.g., `.graphqlrc`, `graphql-doc.config.js`).
 - `--clean-output`: Remove existing files in the output directory before generating.
+- `--target <name>`: Run generation for one configured target from `targets[]`.
+- `--all-targets`: Run generation for all enabled configured targets.
 - `--dry-run`: Preview generated files without writing to disk.
 - `--watch`: Regenerate when schema/example/config files change.
 - `--verbose`: Enable verbose progress logging.
@@ -203,6 +205,13 @@ The schema path is resolved in the following order:
 3. Default: `schema.graphql`
 
 This means if you have a `.graphqlrc` file with a `schema` field, you can run `graphql-doc generate` without any arguments.
+
+**Target Selection:**
+
+- If `targets[]` is not configured, generation runs once using the root config.
+- If `targets[]` is configured and no target flag is provided, all enabled targets run.
+- `--target <name>` runs one enabled target.
+- `--target` and `--all-targets` cannot be used together.
 
 **Examples:**
 
@@ -228,6 +237,18 @@ Use a specific config file:
 
 ```bash
 graphql-doc generate -c .graphqlrc.dev
+```
+
+Run only the lab target:
+
+```bash
+graphql-doc generate -c graphql-doc.config.json --target lab
+```
+
+Run all enabled targets explicitly:
+
+```bash
+graphql-doc generate -c graphql-doc.config.json --all-targets
 ```
 
 Preview generation without writing:
