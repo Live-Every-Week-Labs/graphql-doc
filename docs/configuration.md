@@ -9,6 +9,8 @@ The generator can be configured through:
 All Docusaurus-specific runtime plugin code is isolated under
 `src/core/adapters/docusaurus/**`.
 
+For an end-to-end setup flow, start with the [Usage Guide](./usage-guide.md).
+
 ## Starter Configuration
 
 Most projects only need these options:
@@ -295,11 +297,13 @@ Runtime options available on the plugin itself:
 
 | Option                                                | Default                                                                                     | Notes                                                                                            |
 | :---------------------------------------------------- | :------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------- |
+| `id`                                                  | `default`                                                                                   | Plugin instance ID for Docusaurus.                                                               |
 | `configPath`                                          |                                                                                             | Path to `.graphqlrc` or `graphql-doc.config.*`.                                                  |
 | `schema`                                              |                                                                                             | Overrides schema pointer(s) for plugin generation only.                                          |
 | `outputDir`                                           |                                                                                             | Overrides `outputDir` for plugin generation only.                                                |
 | `target`                                              |                                                                                             | Runs one configured target by name.                                                              |
 | `allTargets`                                          | `false`                                                                                     | Runs all enabled configured targets.                                                             |
+| `watch`                                               | `false`                                                                                     | Registers schema/config/metadata watch targets during `docusaurus start`.                        |
 | `cleanOutput`                                         |                                                                                             | Overrides `cleanOutputDir` for plugin generation only.                                           |
 | `llmDocs`                                             | `true`                                                                                      | LLM markdown generation is enabled by default in plugin workflows.                               |
 | `llmDocsStrategy`                                     | config value                                                                                | Optional override (`single` or `chunked`).                                                       |

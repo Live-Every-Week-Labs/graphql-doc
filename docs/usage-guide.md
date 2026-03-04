@@ -1,21 +1,18 @@
 # Usage Guide
 
+This package is an AI-forward GraphQL docs generator built for Docusaurus. It generates
+human-friendly operation docs and machine-friendly markdown artifacts from the same schema and
+metadata source.
+
 ## Installation
 
-You can install the generator globally or as a dev dependency in your project.
-
 ```bash
-# Global installation
-npm install -g @lewl/graphql-doc
-
-# Local installation
 npm install --save-dev @lewl/graphql-doc
 ```
 
-## Docusaurus Plugin Quick Start (Recommended)
+## Recommended Workflow (Docusaurus Plugin)
 
-Configure the package directly as a Docusaurus plugin so docs are generated during site startup and
-build, with zero manual theme/CSS wiring:
+Use the published plugin so docs generation runs during `docusaurus start` and `docusaurus build`.
 
 ```ts
 // docusaurus.config.ts
@@ -24,100 +21,33 @@ plugins: [
     require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
     {
       configPath: './graphql-doc.config.json',
-      schema: './schema.graphql',
-      outputDir: './docs/api',
+      // Optional runtime overrides:
+      // schema: './schema.graphql',
+      // outputDir: './docs/api',
+
+      // Enable file watching in dev (off by default)
+      watch: true,
+
+      // Enabled by default
+      llmDocs: true,
+      markdownRedirect: {
+        enabled: true,
+      },
     },
   ],
 ];
 ```
 
-When enabled, the plugin automatically:
+Plugin behavior:
 
-- injects graphql-doc component CSS (`styles.css` + `docusaurus.css`)
-- provides default `MDXComponents` and `DocItem/Layout` theme wrappers
-- watches schema/config/metadata paths during `docusaurus start`
-- publishes generation metadata via Docusaurus global plugin data
+- Generates GraphQL docs before docs content loading.
+- Injects graphql-doc UI styles and theme wrappers.
+- Optionally watches schema/config/metadata paths when `watch: true`.
+- Exposes generation metadata through plugin global data.
 
-The plugin runs during `docusaurus start` / `docusaurus build`, and in dev mode it re-runs when
-watched files change.
+## Core Generator Config
 
-## CLI Quick Start
-
-### 1. Initialize Your Project
-
-The easiest way to get started is with the `init` command:
-
-```bash
-# Interactive setup (prompts for configuration)
-npx graphql-doc init
-
-# Non-interactive with defaults
-npx graphql-doc init --yes
-```
-
-This creates:
-
-- `.graphqlrc` - Configuration file
-- `docs-metadata/examples/` - Directory for operation examples
-- Sample JSON files to get you started
-
-### 2. Generate Documentation
-
-```bash
-npx graphql-doc generate --schema ./schema.graphql --output ./docs/api
-```
-
-Or if you have a config file:
-
-```bash
-npx graphql-doc generate
-```
-
-## CLI Commands
-
-### `init`
-
-Initialize a new project with configuration and directory structure.
-
-```bash
-graphql-doc init [options]
-
-Options:
-  -f, --force   Overwrite existing files
-  -y, --yes     Skip prompts, use defaults
-```
-
-### `generate`
-
-Generate documentation from your GraphQL schema.
-
-```bash
-graphql-doc generate [options]
-
-Options:
-  -s, --schema <path>   Path to GraphQL schema file or URL
-  -o, --output <path>   Output directory
-  -c, --config <path>   Path to config file
-```
-
-### `validate`
-
-Validate your schema and metadata without generating docs (useful for CI).
-
-```bash
-graphql-doc validate [options]
-
-Options:
-  -s, --schema <path>   Path to local GraphQL schema file(s)
-  -c, --config <path>   Path to config file
-  --strict              Treat warnings as errors
-```
-
-`validate` currently supports local schema files only. Remote URL validation is not supported.
-
-## Using a Config File
-
-You can store your settings in a configuration file instead of passing CLI arguments.
+Minimal `.graphqlrc`:
 
 ```yaml
 # .graphqlrc
@@ -125,205 +55,129 @@ schema: ./schema.graphql
 
 extensions:
   graphql-doc:
+    configVersion: 1
     outputDir: ./docs/api
-    framework: docusaurus
     metadataDir: ./docs-metadata
-    adapters:
-      docusaurus: {}
-    schemaExtensions:
-      - ./schema/framework-stubs.graphql
+    llmDocs:
+      enabled: true
+      outputDir: ./static/llm-docs
+      strategy: chunked
+      baseUrl: https://docs.example.com
 ```
 
-Then simply run:
+For full option reference, see [Configuration Guide](./configuration.md).
+
+## AI-Forward Output Model
+
+### 1. Downloadable LLM Markdown
+
+With `llmDocs.enabled: true`, the generator emits markdown artifacts intended for agent ingestion
+and offline/downloaded use. In Docusaurus, `./static/llm-docs` is the recommended output location.
+
+See [LLM Docs Guide](./llm-docs.md) for strategy/output details.
+
+### 2. Accept Markdown Middleware (Development)
+
+With plugin `markdownRedirect.enabled: true` (default), markdown-aware requests can receive markdown
+instead of HTML during `docusaurus start`.
+
+Resolution order:
+
+1. GraphQL API routes (default `/docs/api/*`) -> generated LLM markdown.
+2. Other docs routes (default `/docs/*`) -> backing `.md`/`.mdx` source file when metadata maps the route.
+
+Detection supports:
+
+- `Accept: text/markdown`
+- `Accept: text/x-markdown`
+- Alias headers such as `x-doc-format: md`
+
+Production note: this middleware is dev-server behavior. For deployed static hosting, add
+server/edge middleware if you need `Accept`-based markdown negotiation in production.
+
+See [Configuration Guide](./configuration.md#docusaurus-plugin-runtime-options) for all middleware
+and request-detection options.
+
+### 3. Downloadable API Skill Artifact
+
+When `agentSkill.enabled: true`, graphql-doc generates a zipped skill package plus optional intro
+doc content with a download action.
+
+```yaml
+extensions:
+  graphql-doc:
+    agentSkill:
+      enabled: true
+      name: graphql-api-skill
+      introDoc:
+        enabled: true
+        outputPath: intro/ai-agent-skill.mdx
+        title: AI Agent Skill
+```
+
+See [Agent Skills Guide](./agent-skills.md) for artifact layout and platform-specific setup links.
+
+## CLI Workflow
+
+Use CLI when you want explicit local generation or CI control:
 
 ```bash
-graphql-doc generate
+# Initialize starter config + metadata structure
+npx graphql-doc init --yes
+
+# Validate schema/examples (recommended in CI)
+npx graphql-doc validate --strict
+
+# Generate docs
+npx graphql-doc generate --clean-output
 ```
 
-See the [Configuration Guide](./configuration.md) for all available options.
+See [CLI Reference](./cli.md) for full command/flag documentation.
 
-## Handling Errors in Docs
+## Multi-Target Generation (Prod + Labs)
 
-For MVP, error documentation is handled in two places:
-
-- **Universal errors** (authentication, rate limits, etc.) should live in your intro docs so they appear at the top of the sidebar.
-- **Operation-specific errors** should be shown inside examples using the GraphQL `errors` array with `response.type: "error"` in your example JSON.
-
-### Optional Enhancements
+Use `targets[]` to generate isolated docs trees from separate schema sources.
 
 ```yaml
 extensions:
   graphql-doc:
     configVersion: 1
-    # Opt-in only: AI skill files and intro insertion stay disabled unless enabled.
-    agentSkill:
-      enabled: true
-      introDoc:
-        enabled: true
-        outputPath: intro/ai-agent-skill.mdx
-    adapters:
-      docusaurus:
-        introDocs:
-          - ./docs/api-overview.mdx
-          - source: ./docs/authentication.mdx
-            outputPath: intro/authentication.mdx
-        singlePage: false
-        typeLinkMode: deep
-        sidebarSectionLabels:
-          operations: Operations
-          types: Types
-    excludeDocGroups:
-      - Internal
-      - Experimental
+    targets:
+      - name: main
+        schema: ./graphql/api.graphql
+        outputDir: ./docs/api
+      - name: lab
+        schema:
+          primary: ./graphql/api-lab.graphql
+          fallback: ./graphql/api.graphql
+        outputDir: ./versioned_docs/version-lab/api
+        llmDocs:
+          enabled: true
+          outputDir: ./static/llm-docs/lab
 ```
 
-## Integration with Docusaurus
+Rules:
 
-Use the published plugin entrypoint in `plugins`:
+- `targets[].enabled` defaults to `true`.
+- Default generate run executes all enabled targets.
+- Use `--target <name>` to run one target.
+- Set unique `llmDocs.outputDir` values per target.
 
-```ts
-plugins: [
-  [
-    require.resolve('@lewl/graphql-doc/docusaurus-plugin'),
-    {
-      configPath: './graphql-doc.config.json',
-    },
-  ],
-];
-```
+See [Configuration Guide](./configuration.md#multi-target-generation-prod--lab) and
+[CLI Reference](./cli.md#generate) for target selection and advanced behavior.
 
-Migration from script/manual generation:
+## Migration Notes (From Custom Scripts/Middleware)
 
-1. Remove custom scripts that run `graphql-doc generate` before Docusaurus.
-2. Remove any local markdown redirect plugin in your Docusaurus site (the built-in middleware now
-   handles both graphql-doc API routes and non-graphql docs source fallback in development).
-3. Remove manual graphql-doc CSS imports from `src/css/custom.css`.
-4. Remove local `src/theme/MDXComponents.*` and `src/theme/DocItem/Layout/*` wrappers if they only re-export graphql-doc defaults.
-5. Keep your existing graphql-doc config (`.graphqlrc` or `graphql-doc.config.*`).
-6. Add the exported plugin subpath: `@lewl/graphql-doc/docusaurus-plugin`.
+If you previously stitched generation together manually:
 
-The generator still merges into `apiSidebar` by default. If you need separate sidebars, keep using
-`adapters.docusaurus.sidebarMerge: false` and `sidebarFile`.
+1. Remove prebuild scripts that run `graphql-doc generate` separately.
+2. Remove local markdown redirect middleware for docs markdown negotiation.
+3. Remove manual graphql-doc CSS/theme wrapper re-exports if they only mirror package defaults.
+4. Keep your existing `.graphqlrc`/`graphql-doc.config.*`, then point plugin `configPath` to it.
 
-> Important: When `sidebarMerge: false` is set, graphql-doc does **not** automatically attach the
-> generated sidebar to your docs plugin. If you do not import/register the generated sidebar in your
-> host `sidebars.js`, pages render without a left sidebar.
->
-> Example:
->
-> ```js
-> // sidebars.js
-> // Adjust this path to match your graphql-doc outputDir.
-> const apiSidebar = require('./docs/graphql-api/sidebars.js');
->
-> module.exports = {
->   docs: [
->     /* existing docs */
->   ],
->   apiSidebar: apiSidebar.apiSidebar,
-> };
-> ```
+## Related Docs
 
-## LLM Docs Output
-
-To expose raw, LLM-optimized Markdown in Docusaurus, write the LLM docs into `static/llm-docs`.
-The generator will also emit `llms.txt` at `static/llms.txt`.
-
-```yaml
-# .graphqlrc
-extensions:
-  graphql-doc:
-    llmDocs:
-      outputDir: ./static/llm-docs
-      baseUrl: https://docs.example.com
-```
-
-For `llmDocs.strategy: chunked`, treat `llmDocs.baseUrl` as required. It ensures links embedded in
-group summary markdown are absolute and usable when files are downloaded or consumed outside the
-running site.
-
-When the site is running, the raw files are available at:
-
-- `/llm-docs/index.md`
-- `/llm-docs/<group>.md`
-- `/llms.txt`
-
-## Accept Markdown Behavior
-
-With plugin defaults enabled, markdown-aware requests are resolved in this order:
-
-1. GraphQL API docs routes (`/docs/api/*` by default) redirect to generated LLM markdown artifacts.
-2. Other docs routes (`/docs/*` by default) return the backing `.md`/`.mdx` source file when
-   Docusaurus metadata provides a permalink-to-source mapping.
-
-Markdown-aware requests are detected from:
-
-- `Accept: text/markdown` and `Accept: text/x-markdown`
-- Alias headers like `x-doc-format: md` (configurable through `markdownRedirect.requestDetection`)
-
-This behavior is wired through webpack dev-server middleware, so it applies to
-`docusaurus start`. Production static hosting still requires host/server middleware if you need
-`Accept`-based markdown responses after deployment.
-
-## Organizing Your Documentation
-
-Use custom directives in your schema to control how operations are grouped and ordered. See the [Directives Guide](./directives.md) for details.
-
-```graphql
-type Query {
-  getUser(id: ID!): User
-    @docGroup(name: "User Management")
-    @docPriority(level: 1)
-    @docTags(tags: ["users", "read"])
-}
-```
-
-## Adding Examples
-
-Place JSON files in your metadata directories to add examples to your operations.
-
-If you want to organize examples across multiple files/directories, configure `exampleFiles`:
-
-```yaml
-extensions:
-  graphql-doc:
-    exampleFiles:
-      - ./docs-metadata/examples/queries/*.json
-      - ./docs-metadata/examples/mutations/*.json
-```
-
-If you want to fail CI when a documented operation has no examples, enable:
-
-```yaml
-extensions:
-  graphql-doc:
-    requireExamplesForDocumentedOperations: true
-```
-
-### Example Files
-
-Create files in `docs-metadata/examples/`:
-
-```json
-{
-  "operation": "getUser",
-  "operationType": "query",
-  "examples": [
-    {
-      "name": "Get User by ID",
-      "description": "Retrieve a user's profile",
-      "query": "query { getUser(id: \"123\") { id name email } }",
-      "variables": { "id": "123" },
-      "response": {
-        "type": "success",
-        "httpStatus": 200,
-        "body": {
-          "data": {
-            "getUser": { "id": "123", "name": "John", "email": "john@example.com" }
-          }
-        }
-      }
-    }
-  ]
-}
-```
+- [Configuration Guide](./configuration.md)
+- [LLM Docs Guide](./llm-docs.md)
+- [Agent Skills Guide](./agent-skills.md)
+- [Directives Guide](./directives.md)

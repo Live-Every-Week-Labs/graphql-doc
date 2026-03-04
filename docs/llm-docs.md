@@ -1,15 +1,17 @@
 # LLM Docs Guide
 
-LLM docs are raw markdown artifacts optimized for model ingestion and retrieval.
+LLM docs are markdown outputs optimized for retrieval, downloading, and agent context injection.
 
-## Why Use It
+## What Gets Generated
 
-- Smaller, cleaner markdown payloads for agents/tools.
-- Optional single-file output for compact contexts.
-- Optional chunked output by `@docGroup`.
-- Optional `llms.txt` manifest for discoverability.
+When `llmDocs.enabled: true`, graphql-doc generates:
 
-## Enable LLM Docs
+- `index.md` (top-level API summary)
+- One file per group when `strategy: chunked` (default)
+- `api-reference.md` (or custom filename) when `strategy: single`
+- `llms.txt` manifest when `generateManifest: true`
+
+## Recommended Config
 
 ```yaml
 extensions:
@@ -21,50 +23,55 @@ extensions:
       includeExamples: true
       generateManifest: true
       baseUrl: https://docs.example.com
-      apiName: Payments API
-      apiDescription: Public GraphQL API for payment flows
+      apiName: Pay Theory GraphQL API
+      apiDescription: Public GraphQL API reference for payment and authorization flows.
 ```
 
-## `baseUrl` Requirement for Chunked Docs
+## Why `baseUrl` Matters
 
 If you use `strategy: chunked`, set `llmDocs.baseUrl` to your deployed docs domain.
 
-Why this matters:
-
-- Group summary markdown includes operation links to the human docs site and direct markdown files.
-- Downloaded markdown is often read out-of-band (local disk, agent context, copied artifact), so
-  relative paths like `/docs/api/...` are not portable.
-
-Use a fully-qualified URL:
-
-```yaml
-extensions:
-  graphql-doc:
-    llmDocs:
-      strategy: chunked
-      baseUrl: https://docs.example.com
-```
-
-## Strategy
-
-- `chunked` (default): one markdown file per doc group plus index.
-- `single`: one file (default filename: `api-reference.md`).
+Generated markdown is frequently consumed outside the running site (downloaded files, local agent
+context, copied snippets). Absolute URLs keep links valid in those workflows.
 
 ## Docusaurus Hosting Pattern
 
-For Docusaurus, write to `./static/llm-docs` so files are served as raw markdown:
+Use `outputDir: ./static/llm-docs` so raw markdown is directly accessible:
 
 - `/llm-docs/index.md`
 - `/llm-docs/<group>.md`
-- `/llms.txt` (if `generateManifest` is true)
+- `/llms.txt`
 
-## Recommended CI Check
+## Accept Markdown Middleware (Plugin)
 
-Use validation and generation together:
+When using `@lewl/graphql-doc/docusaurus-plugin` with `markdownRedirect.enabled: true` (default),
+markdown-aware requests can resolve to these generated markdown files during `docusaurus start`.
+
+For production deployments, static hosting still needs explicit server/edge middleware to do
+header-based markdown negotiation.
+
+## Multi-Target Guidance
+
+If you generate multiple targets (for example `main` and `lab`), set unique LLM output directories
+per target to avoid file collisions.
+
+```yaml
+targets:
+  - name: main
+    llmDocs:
+      enabled: true
+      outputDir: ./static/llm-docs/main
+  - name: lab
+    llmDocs:
+      enabled: true
+      outputDir: ./static/llm-docs/lab
+```
+
+## CI Recommendation
 
 ```bash
 graphql-doc validate --strict
 graphql-doc generate --clean-output
 ```
 
-This ensures generated LLM docs stay in sync with schema and examples.
+This keeps markdown artifacts aligned with schema and examples.
