@@ -33,6 +33,22 @@ export interface MarkdownRedirectOptions {
   docsBasePath?: string;
   llmDocsPath?: string;
   staticDir?: string;
+  requestDetection?: MarkdownRequestDetectionOptions;
+  docsSourceFallback?: DocsSourceFallbackOptions;
+}
+
+export interface MarkdownRequestDetectionOptions {
+  acceptTypes?: string[];
+  headerNames?: string[];
+  headerValues?: string[];
+}
+
+export interface DocsSourceFallbackOptions {
+  enabled?: boolean;
+  docsBasePaths?: string[];
+  metadataBaseDir?: string;
+  docsPluginIds?: string[];
+  cacheTtlMs?: number;
 }
 
 export interface NormalizedMarkdownRedirectOptions {
@@ -40,6 +56,22 @@ export interface NormalizedMarkdownRedirectOptions {
   docsBasePath: string;
   llmDocsPath: string;
   staticDir?: string;
+  requestDetection: NormalizedMarkdownRequestDetectionOptions;
+  docsSourceFallback: NormalizedDocsSourceFallbackOptions;
+}
+
+export interface NormalizedMarkdownRequestDetectionOptions {
+  acceptTypes: string[];
+  headerNames: string[];
+  headerValues: string[];
+}
+
+export interface NormalizedDocsSourceFallbackOptions {
+  enabled: boolean;
+  docsBasePaths: string[];
+  metadataBaseDir: string;
+  docsPluginIds: string[];
+  cacheTtlMs: number;
 }
 
 /**
@@ -59,6 +91,29 @@ export interface NormalizedGraphqlDocDocusaurusPluginOptions {
   markdownRedirect: NormalizedMarkdownRedirectOptions;
   verbose: boolean;
   quiet: boolean;
+}
+
+const DEFAULT_MARKDOWN_ACCEPT_TYPES = ['text/markdown', 'text/x-markdown'];
+const DEFAULT_MARKDOWN_HEADER_NAMES = [
+  'x-accept-markdown',
+  'x-doc-format',
+  'x-format',
+  'x-response-format',
+  'x-return-format',
+];
+const DEFAULT_MARKDOWN_HEADER_VALUES = ['1', 'true', 'markdown', 'md', 'text/markdown'];
+const DEFAULT_SOURCE_DOCS_BASE_PATHS = ['/docs'];
+const DEFAULT_DOCS_METADATA_BASE_DIR = '.docusaurus/docusaurus-plugin-content-docs';
+const DEFAULT_DOCS_PLUGIN_IDS = ['default'];
+const DEFAULT_DOCS_METADATA_CACHE_TTL_MS = 2000;
+
+function normalizeStringArray(values: string[] | undefined): string[] | undefined {
+  if (!Array.isArray(values)) {
+    return undefined;
+  }
+
+  const normalized = values.map((value) => value.trim()).filter(Boolean);
+  return normalized.length > 0 ? normalized : [];
 }
 
 /**
@@ -83,6 +138,32 @@ export function normalizePluginOptions(
       docsBasePath: options.markdownRedirect?.docsBasePath ?? '/docs/api',
       llmDocsPath: options.markdownRedirect?.llmDocsPath ?? '/llm-docs',
       staticDir: options.markdownRedirect?.staticDir,
+      requestDetection: {
+        acceptTypes:
+          normalizeStringArray(options.markdownRedirect?.requestDetection?.acceptTypes) ??
+          DEFAULT_MARKDOWN_ACCEPT_TYPES,
+        headerNames:
+          normalizeStringArray(options.markdownRedirect?.requestDetection?.headerNames) ??
+          DEFAULT_MARKDOWN_HEADER_NAMES,
+        headerValues:
+          normalizeStringArray(options.markdownRedirect?.requestDetection?.headerValues) ??
+          DEFAULT_MARKDOWN_HEADER_VALUES,
+      },
+      docsSourceFallback: {
+        enabled: options.markdownRedirect?.docsSourceFallback?.enabled ?? true,
+        docsBasePaths:
+          normalizeStringArray(options.markdownRedirect?.docsSourceFallback?.docsBasePaths) ??
+          DEFAULT_SOURCE_DOCS_BASE_PATHS,
+        metadataBaseDir:
+          options.markdownRedirect?.docsSourceFallback?.metadataBaseDir ??
+          DEFAULT_DOCS_METADATA_BASE_DIR,
+        docsPluginIds:
+          normalizeStringArray(options.markdownRedirect?.docsSourceFallback?.docsPluginIds) ??
+          DEFAULT_DOCS_PLUGIN_IDS,
+        cacheTtlMs:
+          options.markdownRedirect?.docsSourceFallback?.cacheTtlMs ??
+          DEFAULT_DOCS_METADATA_CACHE_TTL_MS,
+      },
     },
     verbose: options.verbose ?? false,
     quiet: options.quiet ?? false,
@@ -103,6 +184,51 @@ export function validatePluginOptions(options: NormalizedGraphqlDocDocusaurusPlu
 
   if (!options.markdownRedirect.llmDocsPath.trim()) {
     throw new Error('Invalid graphql-doc plugin options: markdownRedirect.llmDocsPath is empty.');
+  }
+
+  if (options.markdownRedirect.requestDetection.acceptTypes.length === 0) {
+    throw new Error(
+      'Invalid graphql-doc plugin options: markdownRedirect.requestDetection.acceptTypes must contain at least one value.'
+    );
+  }
+
+  if (options.markdownRedirect.requestDetection.headerNames.length === 0) {
+    throw new Error(
+      'Invalid graphql-doc plugin options: markdownRedirect.requestDetection.headerNames must contain at least one value.'
+    );
+  }
+
+  if (options.markdownRedirect.requestDetection.headerValues.length === 0) {
+    throw new Error(
+      'Invalid graphql-doc plugin options: markdownRedirect.requestDetection.headerValues must contain at least one value.'
+    );
+  }
+
+  const docsSourceFallback = options.markdownRedirect.docsSourceFallback;
+  if (!Number.isFinite(docsSourceFallback.cacheTtlMs) || docsSourceFallback.cacheTtlMs < 0) {
+    throw new Error(
+      'Invalid graphql-doc plugin options: markdownRedirect.docsSourceFallback.cacheTtlMs must be a non-negative number.'
+    );
+  }
+
+  if (docsSourceFallback.enabled) {
+    if (docsSourceFallback.docsBasePaths.length === 0) {
+      throw new Error(
+        'Invalid graphql-doc plugin options: markdownRedirect.docsSourceFallback.docsBasePaths must contain at least one value when enabled.'
+      );
+    }
+
+    if (!docsSourceFallback.metadataBaseDir.trim()) {
+      throw new Error(
+        'Invalid graphql-doc plugin options: markdownRedirect.docsSourceFallback.metadataBaseDir is empty.'
+      );
+    }
+
+    if (docsSourceFallback.docsPluginIds.length === 0) {
+      throw new Error(
+        'Invalid graphql-doc plugin options: markdownRedirect.docsSourceFallback.docsPluginIds must contain at least one value when enabled.'
+      );
+    }
   }
 }
 

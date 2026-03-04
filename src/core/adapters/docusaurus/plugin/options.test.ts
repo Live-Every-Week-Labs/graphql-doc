@@ -21,6 +21,24 @@ describe('docusaurus plugin options', () => {
         docsBasePath: '/docs/api',
         llmDocsPath: '/llm-docs',
         staticDir: undefined,
+        requestDetection: {
+          acceptTypes: ['text/markdown', 'text/x-markdown'],
+          headerNames: [
+            'x-accept-markdown',
+            'x-doc-format',
+            'x-format',
+            'x-response-format',
+            'x-return-format',
+          ],
+          headerValues: ['1', 'true', 'markdown', 'md', 'text/markdown'],
+        },
+        docsSourceFallback: {
+          enabled: true,
+          docsBasePaths: ['/docs'],
+          metadataBaseDir: '.docusaurus/docusaurus-plugin-content-docs',
+          docsPluginIds: ['default'],
+          cacheTtlMs: 2000,
+        },
       },
       verbose: false,
       quiet: false,
@@ -43,6 +61,18 @@ describe('docusaurus plugin options', () => {
         docsBasePath: '/docs/custom',
         llmDocsPath: '/raw-api',
         staticDir: './public-static',
+        requestDetection: {
+          acceptTypes: ['text/markdown'],
+          headerNames: ['x-doc-format'],
+          headerValues: ['markdown'],
+        },
+        docsSourceFallback: {
+          enabled: true,
+          docsBasePaths: ['/docs', '/guides'],
+          metadataBaseDir: './.docusaurus/docusaurus-plugin-content-docs',
+          docsPluginIds: ['default', 'api'],
+          cacheTtlMs: 5000,
+        },
       },
       verbose: true,
     });
@@ -61,6 +91,18 @@ describe('docusaurus plugin options', () => {
       docsBasePath: '/docs/custom',
       llmDocsPath: '/raw-api',
       staticDir: './public-static',
+      requestDetection: {
+        acceptTypes: ['text/markdown'],
+        headerNames: ['x-doc-format'],
+        headerValues: ['markdown'],
+      },
+      docsSourceFallback: {
+        enabled: true,
+        docsBasePaths: ['/docs', '/guides'],
+        metadataBaseDir: './.docusaurus/docusaurus-plugin-content-docs',
+        docsPluginIds: ['default', 'api'],
+        cacheTtlMs: 5000,
+      },
     });
     expect(normalized.verbose).toBe(true);
     expect(normalized.quiet).toBe(false);
@@ -78,6 +120,24 @@ describe('docusaurus plugin options', () => {
       docsBasePath: '/docs/api',
       llmDocsPath: '/llm-docs',
       staticDir: undefined,
+      requestDetection: {
+        acceptTypes: ['text/markdown', 'text/x-markdown'],
+        headerNames: [
+          'x-accept-markdown',
+          'x-doc-format',
+          'x-format',
+          'x-response-format',
+          'x-return-format',
+        ],
+        headerValues: ['1', 'true', 'markdown', 'md', 'text/markdown'],
+      },
+      docsSourceFallback: {
+        enabled: true,
+        docsBasePaths: ['/docs'],
+        metadataBaseDir: '.docusaurus/docusaurus-plugin-content-docs',
+        docsPluginIds: ['default'],
+        cacheTtlMs: 2000,
+      },
     });
   });
 
@@ -117,6 +177,49 @@ describe('docusaurus plugin options', () => {
 
     expect(() => validatePluginOptions(normalized)).toThrow(
       'markdownRedirect.llmDocsPath is empty'
+    );
+  });
+
+  it('rejects an empty markdown request-detection accept type list', () => {
+    const normalized = normalizePluginOptions({
+      markdownRedirect: {
+        requestDetection: {
+          acceptTypes: [],
+        },
+      },
+    });
+
+    expect(() => validatePluginOptions(normalized)).toThrow(
+      'markdownRedirect.requestDetection.acceptTypes must contain at least one value'
+    );
+  });
+
+  it('rejects empty docs fallback base paths when fallback is enabled', () => {
+    const normalized = normalizePluginOptions({
+      markdownRedirect: {
+        docsSourceFallback: {
+          enabled: true,
+          docsBasePaths: [],
+        },
+      },
+    });
+
+    expect(() => validatePluginOptions(normalized)).toThrow(
+      'markdownRedirect.docsSourceFallback.docsBasePaths must contain at least one value'
+    );
+  });
+
+  it('rejects negative docs fallback cache ttl values', () => {
+    const normalized = normalizePluginOptions({
+      markdownRedirect: {
+        docsSourceFallback: {
+          cacheTtlMs: -1,
+        },
+      },
+    });
+
+    expect(() => validatePluginOptions(normalized)).toThrow(
+      'markdownRedirect.docsSourceFallback.cacheTtlMs must be a non-negative number'
     );
   });
 

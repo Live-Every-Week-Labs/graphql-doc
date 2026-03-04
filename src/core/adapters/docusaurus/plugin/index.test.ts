@@ -391,6 +391,24 @@ describe('graphqlDocDocusaurusPlugin', () => {
         docsBasePath: '/docs/custom-api',
         llmDocsPath: '/llm-markdown',
         staticDir: './public-static',
+        requestDetection: {
+          acceptTypes: ['text/markdown', 'text/x-markdown'],
+          headerNames: [
+            'x-accept-markdown',
+            'x-doc-format',
+            'x-format',
+            'x-response-format',
+            'x-return-format',
+          ],
+          headerValues: ['1', 'true', 'markdown', 'md', 'text/markdown'],
+        },
+        docsSourceFallback: {
+          enabled: true,
+          docsBasePaths: ['/docs'],
+          metadataBaseDir: '.docusaurus/docusaurus-plugin-content-docs',
+          docsPluginIds: ['default'],
+          cacheTtlMs: 2000,
+        },
       },
     });
   });
@@ -412,6 +430,24 @@ describe('graphqlDocDocusaurusPlugin', () => {
         docsBasePath: '/docs/api',
         llmDocsPath: '/llm-docs',
         staticDir: undefined,
+        requestDetection: {
+          acceptTypes: ['text/markdown', 'text/x-markdown'],
+          headerNames: [
+            'x-accept-markdown',
+            'x-doc-format',
+            'x-format',
+            'x-response-format',
+            'x-return-format',
+          ],
+          headerValues: ['1', 'true', 'markdown', 'md', 'text/markdown'],
+        },
+        docsSourceFallback: {
+          enabled: true,
+          docsBasePaths: ['/docs'],
+          metadataBaseDir: '.docusaurus/docusaurus-plugin-content-docs',
+          docsPluginIds: ['default'],
+          cacheTtlMs: 2000,
+        },
       },
     });
   });
@@ -441,6 +477,24 @@ describe('graphqlDocDocusaurusPlugin', () => {
         docsBasePath: '/docs/api',
         llmDocsPath: '/llm-docs',
         staticDir: undefined,
+        requestDetection: {
+          acceptTypes: ['text/markdown', 'text/x-markdown'],
+          headerNames: [
+            'x-accept-markdown',
+            'x-doc-format',
+            'x-format',
+            'x-response-format',
+            'x-return-format',
+          ],
+          headerValues: ['1', 'true', 'markdown', 'md', 'text/markdown'],
+        },
+        docsSourceFallback: {
+          enabled: true,
+          docsBasePaths: ['/docs'],
+          metadataBaseDir: '.docusaurus/docusaurus-plugin-content-docs',
+          docsPluginIds: ['default'],
+          cacheTtlMs: 2000,
+        },
       },
     });
   });
