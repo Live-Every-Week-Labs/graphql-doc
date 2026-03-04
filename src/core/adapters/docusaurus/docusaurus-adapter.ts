@@ -156,6 +156,7 @@ export class DocusaurusAdapter {
   private generateSidebarFiles(sidebarItems: SidebarItem[]): GeneratedFile[] {
     return buildSidebarFiles(sidebarItems, {
       sidebarFile: this.config.sidebarFile,
+      sidebarFormat: this.config.sidebarFormat,
       sidebarTarget: this.config.sidebarTarget,
       sidebarInsertPosition: this.config.sidebarInsertPosition,
       sidebarInsertReference: this.config.sidebarInsertReference,

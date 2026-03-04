@@ -3,13 +3,66 @@ import * as path from 'path';
 import { GeneratedFile } from '../types.js';
 import { SidebarItem } from './sidebar-generator.js';
 
+type SidebarInsertPosition = 'replace' | 'append' | 'prepend' | 'before' | 'after';
+type SidebarFormat = 'auto' | 'js' | 'json';
+
 export interface SidebarFileBuilderConfig {
   sidebarFile?: string;
+  sidebarFormat?: SidebarFormat;
   sidebarTarget?: string;
-  sidebarInsertPosition?: 'replace' | 'append' | 'prepend' | 'before' | 'after';
+  sidebarInsertPosition?: SidebarInsertPosition;
   sidebarInsertReference?: string;
   sidebarMerge?: boolean;
   outputDir?: string;
+}
+
+function mergeSidebarItems(
+  items: unknown,
+  insert: SidebarItem[],
+  options: {
+    insertPosition: SidebarInsertPosition;
+    insertReference?: string;
+  }
+): SidebarItem[] {
+  const list = Array.isArray(items) ? (items as SidebarItem[]).slice() : [];
+  const mode = options.insertPosition;
+
+  if (mode === 'replace') {
+    return insert;
+  }
+
+  if (mode === 'append') {
+    return [...list, ...insert];
+  }
+
+  if (mode === 'prepend') {
+    return [...insert, ...list];
+  }
+
+  const reference = options.insertReference;
+  if (!reference) {
+    return [...list, ...insert];
+  }
+
+  const findIndex = (item: SidebarItem): boolean => {
+    if (typeof item === 'string') {
+      return item === reference;
+    }
+
+    if (item && typeof item === 'object') {
+      return item.label === reference || item.id === reference || item.value === reference;
+    }
+
+    return false;
+  };
+
+  const index = list.findIndex(findIndex);
+  if (index === -1) {
+    return [...list, ...insert];
+  }
+
+  const insertIndex = mode === 'before' ? index : index + 1;
+  return [...list.slice(0, insertIndex), ...insert, ...list.slice(insertIndex)];
 }
 
 function mergeSidebarContent(
@@ -17,7 +70,7 @@ function mergeSidebarContent(
   sidebarItems: SidebarItem[],
   options: {
     targetKey: string;
-    insertPosition: 'replace' | 'append' | 'prepend' | 'before' | 'after';
+    insertPosition: SidebarInsertPosition;
     insertReference?: string;
   }
 ): string | null {
@@ -87,29 +140,83 @@ function mergeSidebarContent(
   return `${mergedContent.replace(/\s*$/, '')}\n\n${mergeBlock}`;
 }
 
+function mergeJsonSidebarContent(
+  content: string,
+  sidebarItems: SidebarItem[],
+  options: {
+    targetKey: string;
+    insertPosition: SidebarInsertPosition;
+    insertReference?: string;
+  }
+): string | null {
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    return null;
+  }
+
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return null;
+  }
+
+  const next = {
+    ...(parsed as Record<string, unknown>),
+  };
+
+  next[options.targetKey] = mergeSidebarItems(next[options.targetKey], sidebarItems, {
+    insertPosition: options.insertPosition,
+    insertReference: options.insertReference,
+  });
+
+  return `${JSON.stringify(next, null, 2)}\n`;
+}
+
+function detectSidebarFormat(sidebarFilePath: string, sidebarFormat: SidebarFormat): 'js' | 'json' {
+  if (sidebarFormat === 'json') {
+    return 'json';
+  }
+
+  if (sidebarFormat === 'js') {
+    return 'js';
+  }
+
+  return sidebarFilePath.toLowerCase().endsWith('.json') ? 'json' : 'js';
+}
+
+function buildJsonSidebarContent(sidebarItems: SidebarItem[], targetKey: string): string {
+  return `${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)}\n`;
+}
+
 export function buildSidebarFiles(
   sidebarItems: SidebarItem[],
   config: SidebarFileBuilderConfig
 ): GeneratedFile[] {
   const files: GeneratedFile[] = [];
   const customSidebarFile = config.sidebarFile;
+  const sidebarFormat = config.sidebarFormat ?? 'auto';
   const targetKey = config.sidebarTarget ?? 'apiSidebar';
   const insertPosition = config.sidebarInsertPosition ?? 'replace';
   const insertReference = config.sidebarInsertReference;
   const shouldMerge = config.sidebarMerge !== false;
   const outputRoot = config.outputDir ?? process.cwd();
 
-  const pushSidebarFile = (filePath: string, content: string, absolutePath?: string) => {
+  const pushSidebarFile = (
+    filePath: string,
+    content: string,
+    absolutePath?: string,
+    type: string = 'js'
+  ) => {
     files.push({
       path: filePath,
       content,
-      type: 'js',
+      type,
       ...(absolutePath ? { absolutePath } : {}),
     });
   };
 
   if (customSidebarFile) {
-    const useArrayExport = customSidebarFile.endsWith('.api.js');
     const isAbsolute = path.isAbsolute(customSidebarFile);
     const resolvedSidebarPath = isAbsolute
       ? customSidebarFile
@@ -118,6 +225,33 @@ export function buildSidebarFiles(
       isAbsolute || resolvedSidebarPath !== path.join(outputRoot, customSidebarFile)
         ? resolvedSidebarPath
         : undefined;
+
+    const resolvedFormat = detectSidebarFormat(customSidebarFile, sidebarFormat);
+
+    if (resolvedFormat === 'json') {
+      if (shouldMerge && fs.existsSync(resolvedSidebarPath)) {
+        const existing = fs.readFileSync(resolvedSidebarPath, 'utf-8');
+        const merged = mergeJsonSidebarContent(existing, sidebarItems, {
+          targetKey,
+          insertPosition,
+          insertReference,
+        });
+        if (merged) {
+          pushSidebarFile(customSidebarFile, merged, absolutePathIfNeeded, 'json');
+          return files;
+        }
+      }
+
+      pushSidebarFile(
+        customSidebarFile,
+        buildJsonSidebarContent(sidebarItems, targetKey),
+        absolutePathIfNeeded,
+        'json'
+      );
+      return files;
+    }
+
+    const useArrayExport = customSidebarFile.endsWith('.api.js');
 
     if (shouldMerge && !useArrayExport && fs.existsSync(resolvedSidebarPath)) {
       const existing = fs.readFileSync(resolvedSidebarPath, 'utf-8');
@@ -137,7 +271,39 @@ export function buildSidebarFiles(
       : `module.exports = ${JSON.stringify({ [targetKey]: sidebarItems }, null, 2)};`;
     pushSidebarFile(customSidebarFile, content, absolutePathIfNeeded);
   } else {
-    const sidebarsPath = path.join(outputRoot, 'sidebars.js');
+    const defaultSidebarFile = sidebarFormat === 'json' ? 'sidebars.json' : 'sidebars.js';
+    const sidebarsPath = path.join(outputRoot, defaultSidebarFile);
+
+    if (sidebarFormat === 'json') {
+      if (shouldMerge && fs.existsSync(sidebarsPath)) {
+        const existing = fs.readFileSync(sidebarsPath, 'utf-8');
+        const merged = mergeJsonSidebarContent(existing, sidebarItems, {
+          targetKey,
+          insertPosition,
+          insertReference,
+        });
+        if (merged) {
+          pushSidebarFile(defaultSidebarFile, merged, undefined, 'json');
+        } else {
+          pushSidebarFile(
+            defaultSidebarFile,
+            buildJsonSidebarContent(sidebarItems, targetKey),
+            undefined,
+            'json'
+          );
+        }
+      } else {
+        pushSidebarFile(
+          defaultSidebarFile,
+          buildJsonSidebarContent(sidebarItems, targetKey),
+          undefined,
+          'json'
+        );
+      }
+
+      return files;
+    }
+
     if (shouldMerge && fs.existsSync(sidebarsPath)) {
       const existing = fs.readFileSync(sidebarsPath, 'utf-8');
       const merged = mergeSidebarContent(existing, sidebarItems, {

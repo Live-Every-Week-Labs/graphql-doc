@@ -18,6 +18,7 @@ const LEGACY_DOCUSAURUS_KEYS = [
   'typeLinkMode',
   'generateSidebar',
   'sidebarFile',
+  'sidebarFormat',
   'sidebarCategoryIndex',
   'sidebarMerge',
   'sidebarTarget',

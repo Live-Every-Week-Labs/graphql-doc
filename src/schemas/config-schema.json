@@ -344,6 +344,11 @@
                   "sidebarFile": {
                     "type": "string"
                   },
+                  "sidebarFormat": {
+                    "type": "string",
+                    "enum": ["auto", "js", "json"],
+                    "default": "auto"
+                  },
                   "sidebarCategoryIndex": {
                     "type": "boolean",
                     "default": false
@@ -709,6 +714,11 @@
             },
             "sidebarFile": {
               "type": "string"
+            },
+            "sidebarFormat": {
+              "type": "string",
+              "enum": ["auto", "js", "json"],
+              "default": "auto"
             },
             "sidebarCategoryIndex": {
               "type": "boolean",

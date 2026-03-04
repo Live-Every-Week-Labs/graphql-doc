@@ -171,6 +171,7 @@ const DocusaurusAdapterObjectSchema = z
     llmDocsBasePath: z.string().optional(),
     generateSidebar: z.boolean().default(true),
     sidebarFile: z.string().optional(),
+    sidebarFormat: z.enum(['auto', 'js', 'json']).default('auto'),
     sidebarCategoryIndex: z.boolean().default(false),
     sidebarMerge: z.boolean().default(true),
     sidebarTarget: z.string().default('apiSidebar'),
