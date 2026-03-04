@@ -7,7 +7,11 @@ vi.mock('graphql-config', () => ({
   loadConfig: loadConfigMock,
 }));
 
-import { resolveSchemaPointer, resolveSchemaPointers } from './schema-pointer.js';
+import {
+  resolveSchemaPointer,
+  resolveSchemaPointerCandidates,
+  resolveSchemaPointers,
+} from './schema-pointer.js';
 
 describe('resolveSchemaPointers', () => {
   it('resolves relative file pointers against target dir', () => {
@@ -50,6 +54,26 @@ describe('resolveSchemaPointer', () => {
     const schema = await resolveSchemaPointer({ schema: './schema.graphql' }, '/repo');
     expect(schema).toBe('./schema.graphql');
     expect(loadConfigMock).not.toHaveBeenCalled();
+  });
+
+  it('returns explicit schema primary when fallback schema is configured', async () => {
+    const log = vi.fn();
+    const schema = await resolveSchemaPointer(
+      {
+        schema: {
+          primary: './schema-beta.graphql',
+          fallback: './schema.graphql',
+        },
+      },
+      '/repo',
+      { log }
+    );
+
+    expect(schema).toBe('./schema-beta.graphql');
+    expect(loadConfigMock).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledWith(
+      'Using schema primary pointer from explicit config: ./schema-beta.graphql'
+    );
   });
 
   it('uses string schema from graphql-config default project', async () => {
@@ -96,5 +120,55 @@ describe('resolveSchemaPointer', () => {
 
     expect(schema).toBe('schema.graphql');
     expect(log).not.toHaveBeenCalled();
+  });
+});
+
+describe('resolveSchemaPointerCandidates', () => {
+  beforeEach(() => {
+    loadConfigMock.mockReset();
+  });
+
+  it('returns resolved primary and fallback pointers when configured explicitly', async () => {
+    const resolved = await resolveSchemaPointerCandidates(
+      {
+        schema: {
+          primary: ['./schema-beta.graphql', './schema-common.graphql'],
+          fallback: './schema.graphql',
+        },
+      },
+      '/repo'
+    );
+
+    expect(resolved.primary).toEqual([
+      path.resolve('/repo', './schema-beta.graphql'),
+      path.resolve('/repo', './schema-common.graphql'),
+    ]);
+    expect(resolved.fallback).toEqual(path.resolve('/repo', './schema.graphql'));
+  });
+
+  it('returns only primary when no fallback schema is configured', async () => {
+    const resolved = await resolveSchemaPointerCandidates(
+      {
+        schema: './schema.graphql',
+      },
+      '/repo'
+    );
+
+    expect(resolved).toEqual({
+      primary: path.resolve('/repo', './schema.graphql'),
+    });
+  });
+
+  it('returns graphql-config schema as primary when explicit schema is absent', async () => {
+    loadConfigMock.mockResolvedValue({
+      getDefault: () => ({
+        schema: './from-graphqlrc.graphql',
+      }),
+    });
+
+    const resolved = await resolveSchemaPointerCandidates({}, '/repo');
+    expect(resolved).toEqual({
+      primary: path.resolve('/repo', './from-graphqlrc.graphql'),
+    });
   });
 });

@@ -1,13 +1,36 @@
 import { loadConfig } from 'graphql-config';
 import path from 'path';
+import type { SchemaSourceConfig } from './schema.js';
+
+type SchemaPointer = string | string[];
+
+interface SchemaPointerWithFallback {
+  primary: SchemaPointer;
+  fallback: SchemaPointer;
+}
+
+function isSchemaPointerWithFallback(
+  value: SchemaSourceConfig | undefined
+): value is SchemaPointerWithFallback {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+
+  return 'primary' in value && 'fallback' in value;
+}
 
 export interface SchemaPointerResolverOptions {
-  schema?: string | string[];
+  schema?: SchemaSourceConfig;
 }
 
 export interface SchemaResolverRuntimeOptions {
   silent?: boolean;
   log?: (message: string) => void;
+}
+
+export interface ResolvedSchemaPointerCandidates {
+  primary: string | string[];
+  fallback?: string | string[];
 }
 
 export function resolveSchemaPointers(
@@ -24,19 +47,15 @@ export function resolveSchemaPointers(
     : resolvePointer(schemaPointer);
 }
 
-/**
- * Resolve schema pointer from explicit options or graphql-config.
- *
- * Resolution order:
- * 1. Explicit schema option
- * 2. graphql-config `.graphqlrc` schema value
- * 3. `schema.graphql` fallback
- */
-export async function resolveSchemaPointer(
+function formatSchemaPointerForLog(schemaPointer: string | string[]): string {
+  return Array.isArray(schemaPointer) ? schemaPointer.join(', ') : schemaPointer;
+}
+
+async function resolvePrimarySchemaPointer(
   options: SchemaPointerResolverOptions,
   targetDir: string,
-  runtimeOptions: SchemaResolverRuntimeOptions = {}
-): Promise<string | string[]> {
+  runtimeOptions: SchemaResolverRuntimeOptions
+): Promise<SchemaPointer> {
   const log = (message: string) => {
     if (runtimeOptions.silent) {
       return;
@@ -45,6 +64,15 @@ export async function resolveSchemaPointer(
   };
 
   if (options.schema) {
+    if (isSchemaPointerWithFallback(options.schema)) {
+      log(
+        `Using schema primary pointer from explicit config: ${formatSchemaPointerForLog(
+          options.schema.primary
+        )}`
+      );
+      return options.schema.primary;
+    }
+
     return options.schema;
   }
 
@@ -75,4 +103,52 @@ export async function resolveSchemaPointer(
 
   log('No schema provided, using default: schema.graphql');
   return 'schema.graphql';
+}
+
+/**
+ * Resolve schema pointer from explicit options or graphql-config.
+ *
+ * Resolution order:
+ * 1. Explicit schema option
+ * 2. graphql-config `.graphqlrc` schema value
+ * 3. `schema.graphql` fallback
+ */
+export async function resolveSchemaPointer(
+  options: SchemaPointerResolverOptions,
+  targetDir: string,
+  runtimeOptions: SchemaResolverRuntimeOptions = {}
+): Promise<string | string[]> {
+  return resolvePrimarySchemaPointer(options, targetDir, runtimeOptions);
+}
+
+/**
+ * Resolve primary + fallback schema pointers (when configured).
+ *
+ * The returned pointers are absolute for local paths and preserve remote URLs.
+ */
+export async function resolveSchemaPointerCandidates(
+  options: SchemaPointerResolverOptions,
+  targetDir: string,
+  runtimeOptions: SchemaResolverRuntimeOptions = {}
+): Promise<ResolvedSchemaPointerCandidates> {
+  const primary = await resolvePrimarySchemaPointer(options, targetDir, runtimeOptions);
+  const resolvedPrimary = resolveSchemaPointers(primary, targetDir);
+
+  if (!isSchemaPointerWithFallback(options.schema)) {
+    return { primary: resolvedPrimary };
+  }
+
+  const resolvedFallback = resolveSchemaPointers(options.schema.fallback, targetDir);
+  if (!runtimeOptions.silent) {
+    runtimeOptions.log?.(
+      `Using fallback schema pointer from explicit config: ${formatSchemaPointerForLog(
+        options.schema.fallback
+      )}`
+    );
+  }
+
+  return {
+    primary: resolvedPrimary,
+    fallback: resolvedFallback,
+  };
 }
