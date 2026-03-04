@@ -91,15 +91,21 @@ function buildStaticDir(siteDir: string): string {
   return staticDir;
 }
 
-function writeDocsMetadata(siteDir: string, payload: { permalink: string; source: string }): void {
+function writeDocsMetadata(
+  siteDir: string,
+  payload: { permalink: string; source: string },
+  options: { pluginId?: string; fileName?: string } = {}
+): string {
   const metadataDir = path.join(
     siteDir,
     '.docusaurus',
     'docusaurus-plugin-content-docs',
-    'default'
+    options.pluginId ?? 'default'
   );
   fs.mkdirSync(metadataDir, { recursive: true });
-  fs.writeFileSync(path.join(metadataDir, 'doc.json'), JSON.stringify(payload), 'utf8');
+  const metadataPath = path.join(metadataDir, options.fileName ?? 'doc.json');
+  fs.writeFileSync(metadataPath, JSON.stringify(payload), 'utf8');
+  return metadataPath;
 }
 
 const tempDirs: string[] = [];
@@ -303,6 +309,85 @@ describe('createMarkdownRedirectWebpackConfig', () => {
         },
       },
     });
+    const next = vi.fn();
+
+    middleware(
+      { path: '/docs/guides/overview', headers: { accept: 'text/markdown' } },
+      { redirect: vi.fn(), sendFile: vi.fn() },
+      next
+    );
+
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('refreshes docs metadata mappings when cache ttl allows reload', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const firstSourcePath = path.join(siteDir, 'docs', 'guides', 'cache-v1.mdx');
+    const secondSourcePath = path.join(siteDir, 'docs', 'guides', 'cache-v2.mdx');
+    fs.mkdirSync(path.dirname(firstSourcePath), { recursive: true });
+    fs.writeFileSync(firstSourcePath, '# Cache v1\n');
+    fs.writeFileSync(secondSourcePath, '# Cache v2\n');
+
+    const metadataPath = writeDocsMetadata(siteDir, {
+      permalink: '/docs/guides/cache',
+      source: '@site/docs/guides/cache-v1.mdx',
+    });
+
+    const middleware = createMiddleware({
+      siteDir,
+      options: {
+        docsSourceFallback: {
+          cacheTtlMs: 0,
+        },
+      },
+    });
+
+    const firstSendFile = vi.fn();
+    middleware(
+      { path: '/docs/guides/cache', headers: { accept: 'text/markdown' } },
+      { redirect: vi.fn(), sendFile: firstSendFile },
+      vi.fn()
+    );
+    expect(firstSendFile).toHaveBeenCalledWith(firstSourcePath);
+
+    fs.writeFileSync(
+      metadataPath,
+      JSON.stringify({
+        permalink: '/docs/guides/cache',
+        source: '@site/docs/guides/cache-v2.mdx',
+      }),
+      'utf8'
+    );
+    const nextStatsTime = new Date(Date.now() + 1000);
+    fs.utimesSync(metadataPath, nextStatsTime, nextStatsTime);
+
+    const secondSendFile = vi.fn();
+    middleware(
+      { path: '/docs/guides/cache', headers: { accept: 'text/markdown' } },
+      { redirect: vi.fn(), sendFile: secondSendFile },
+      vi.fn()
+    );
+    expect(secondSendFile).toHaveBeenCalledWith(secondSourcePath);
+  });
+
+  it('gracefully ignores invalid docs metadata files', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const metadataDir = path.join(
+      siteDir,
+      '.docusaurus',
+      'docusaurus-plugin-content-docs',
+      'default'
+    );
+    fs.mkdirSync(metadataDir, { recursive: true });
+    fs.writeFileSync(path.join(metadataDir, 'invalid.json'), '{ not valid json', 'utf8');
+
+    const middleware = createMiddleware({ siteDir });
     const next = vi.fn();
 
     middleware(

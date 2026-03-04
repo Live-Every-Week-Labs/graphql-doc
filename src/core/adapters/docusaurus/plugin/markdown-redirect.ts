@@ -36,6 +36,12 @@ const stripLeadingSlash = (value: string): string => value.replace(/^\/+/, '');
 const stripTrailingSlash = (value: string): string => value.replace(/\/+$/, '');
 const MARKDOWN_SOURCE_EXTENSIONS = new Set(['.md', '.mdx']);
 
+interface DocsRouteSourceCache {
+  loadedAt: number;
+  signature: string;
+  map: Map<string, string>;
+}
+
 function normalizeBaseUrlPrefix(baseUrl: string | undefined): string {
   if (!baseUrl || baseUrl === '/') {
     return '';
@@ -158,32 +164,52 @@ function resolveSourcePath(siteDir: string, sourceValue: string): string {
   return path.resolve(siteDir, sourceValue);
 }
 
-function resolveDocsSourceMarkdownPath(
+function resolveDocsMetadataDirs(
   siteDir: string,
-  requestPath: string,
   fallbackOptions: NormalizedMarkdownRedirectOptions['docsSourceFallback']
-): string | undefined {
-  if (
-    !fallbackOptions.enabled ||
-    !matchesAnyDocsBasePath(requestPath, fallbackOptions.docsBasePaths)
-  ) {
-    return undefined;
-  }
+): string[] {
+  return fallbackOptions.docsPluginIds.map((pluginId) =>
+    path.resolve(siteDir, fallbackOptions.metadataBaseDir, pluginId)
+  );
+}
 
-  const requestRouteKey = normalizeRouteKey(requestPath);
-  for (const pluginId of fallbackOptions.docsPluginIds) {
-    const docsMetadataDir = path.resolve(siteDir, fallbackOptions.metadataBaseDir, pluginId);
-    if (!fs.existsSync(docsMetadataDir)) {
+function computeDocsMetadataSignature(metadataDirs: string[]): string {
+  return metadataDirs
+    .map((metadataDir) => {
+      if (!fs.existsSync(metadataDir)) {
+        return `${metadataDir}:missing`;
+      }
+
+      const entries = fs
+        .readdirSync(metadataDir, { withFileTypes: true })
+        .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      return entries
+        .map((entry) => {
+          const metadataPath = path.join(metadataDir, entry.name);
+          const stats = fs.statSync(metadataPath);
+          return `${metadataDir}:${entry.name}:${stats.mtimeMs}`;
+        })
+        .join('|');
+    })
+    .join('||');
+}
+
+function buildDocsRouteSourceMap(siteDir: string, metadataDirs: string[]): Map<string, string> {
+  const routeSourceMap = new Map<string, string>();
+  for (const metadataDir of metadataDirs) {
+    if (!fs.existsSync(metadataDir)) {
       continue;
     }
 
-    const metadataEntries = fs.readdirSync(docsMetadataDir, { withFileTypes: true });
+    const metadataEntries = fs.readdirSync(metadataDir, { withFileTypes: true });
     for (const entry of metadataEntries) {
       if (!entry.isFile() || !entry.name.endsWith('.json')) {
         continue;
       }
 
-      const metadataPath = path.join(docsMetadataDir, entry.name);
+      const metadataPath = path.join(metadataDir, entry.name);
       try {
         const payload = JSON.parse(fs.readFileSync(metadataPath, 'utf8')) as {
           permalink?: unknown;
@@ -193,16 +219,12 @@ function resolveDocsSourceMarkdownPath(
           continue;
         }
 
-        if (normalizeRouteKey(payload.permalink) !== requestRouteKey) {
-          continue;
-        }
-
         const sourcePath = resolveSourcePath(siteDir, payload.source);
         if (
           fs.existsSync(sourcePath) &&
           MARKDOWN_SOURCE_EXTENSIONS.has(path.extname(sourcePath).toLowerCase())
         ) {
-          return sourcePath;
+          routeSourceMap.set(normalizeRouteKey(payload.permalink), sourcePath);
         }
       } catch {
         // Invalid metadata JSON should not break docs serving.
@@ -211,7 +233,55 @@ function resolveDocsSourceMarkdownPath(
     }
   }
 
-  return undefined;
+  return routeSourceMap;
+}
+
+function getDocsRouteSourceMap(
+  siteDir: string,
+  fallbackOptions: NormalizedMarkdownRedirectOptions['docsSourceFallback'],
+  cache: DocsRouteSourceCache
+): Map<string, string> {
+  if (!fallbackOptions.enabled) {
+    return cache.map;
+  }
+
+  const now = Date.now();
+  if (now - cache.loadedAt < fallbackOptions.cacheTtlMs && cache.map.size > 0) {
+    return cache.map;
+  }
+
+  const metadataDirs = resolveDocsMetadataDirs(siteDir, fallbackOptions);
+  try {
+    const signature = computeDocsMetadataSignature(metadataDirs);
+    if (signature === cache.signature && cache.map.size > 0) {
+      cache.loadedAt = now;
+      return cache.map;
+    }
+
+    cache.map = buildDocsRouteSourceMap(siteDir, metadataDirs);
+    cache.signature = signature;
+    cache.loadedAt = now;
+  } catch {
+    // Metadata read failures should not break docs serving.
+    cache.loadedAt = now;
+  }
+
+  return cache.map;
+}
+
+function resolveDocsSourceMarkdownPath(
+  requestPath: string,
+  fallbackOptions: NormalizedMarkdownRedirectOptions['docsSourceFallback'],
+  routeSourceMap: Map<string, string>
+): string | undefined {
+  if (
+    !fallbackOptions.enabled ||
+    !matchesAnyDocsBasePath(requestPath, fallbackOptions.docsBasePaths)
+  ) {
+    return undefined;
+  }
+
+  return routeSourceMap.get(normalizeRouteKey(requestPath));
 }
 
 function sendMarkdownSource(res: ResponseLike, markdownPath: string): boolean {
@@ -260,6 +330,11 @@ export function createMarkdownRedirectWebpackConfig(
       ? context.options.staticDir
       : path.resolve(context.siteDir, context.options.staticDir)
     : path.join(context.siteDir, 'static');
+  const docsRouteSourceCache: DocsRouteSourceCache = {
+    loadedAt: 0,
+    signature: '',
+    map: new Map(),
+  };
 
   return {
     devServer: {
@@ -294,10 +369,15 @@ export function createMarkdownRedirectWebpackConfig(
 
           const target = resolveTarget(scopedRequestPath, docsBasePath, llmDocsPath, staticDir);
           if (!target) {
-            const docsSourcePath = resolveDocsSourceMarkdownPath(
+            const routeSourceMap = getDocsRouteSourceMap(
               context.siteDir,
+              context.options.docsSourceFallback,
+              docsRouteSourceCache
+            );
+            const docsSourcePath = resolveDocsSourceMarkdownPath(
               scopedRequestPath,
-              context.options.docsSourceFallback
+              context.options.docsSourceFallback,
+              routeSourceMap
             );
 
             if (docsSourcePath && sendMarkdownSource(res, docsSourcePath)) {
