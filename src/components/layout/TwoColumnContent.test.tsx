@@ -102,9 +102,11 @@ describe('TwoColumnContent', () => {
   });
 
   it('skips body class when disabled', () => {
+    document.body.classList.remove('gql-docs-page');
+
     render(
       <TwoColumnContent bodyClassName={false}>
-        <OperationView operation={operationWithoutExamples} />
+        <div>Content</div>
       </TwoColumnContent>
     );
 
