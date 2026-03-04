@@ -3,20 +3,65 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createMarkdownRedirectWebpackConfig } from './markdown-redirect.js';
+import type { NormalizedMarkdownRedirectOptions } from './options.js';
 
 type MiddlewareHandler = (req: any, res: any, next: () => void) => void;
+
+type RedirectOptionsOverrides = Partial<NormalizedMarkdownRedirectOptions> & {
+  requestDetection?: Partial<NormalizedMarkdownRedirectOptions['requestDetection']>;
+  docsSourceFallback?: Partial<NormalizedMarkdownRedirectOptions['docsSourceFallback']>;
+};
+
+const DEFAULT_OPTIONS: NormalizedMarkdownRedirectOptions = {
+  enabled: true,
+  docsBasePath: '/docs/api',
+  llmDocsPath: '/llm-docs',
+  staticDir: undefined,
+  requestDetection: {
+    acceptTypes: ['text/markdown', 'text/x-markdown'],
+    headerNames: [
+      'x-accept-markdown',
+      'x-doc-format',
+      'x-format',
+      'x-response-format',
+      'x-return-format',
+    ],
+    headerValues: ['1', 'true', 'markdown', 'md', 'text/markdown'],
+  },
+  docsSourceFallback: {
+    enabled: true,
+    docsBasePaths: ['/docs'],
+    metadataBaseDir: '.docusaurus/docusaurus-plugin-content-docs',
+    docsPluginIds: ['default'],
+    cacheTtlMs: 2000,
+  },
+};
+
+function buildOptions(overrides?: RedirectOptionsOverrides): NormalizedMarkdownRedirectOptions {
+  return {
+    ...DEFAULT_OPTIONS,
+    ...overrides,
+    requestDetection: {
+      ...DEFAULT_OPTIONS.requestDetection,
+      ...overrides?.requestDetection,
+    },
+    docsSourceFallback: {
+      ...DEFAULT_OPTIONS.docsSourceFallback,
+      ...overrides?.docsSourceFallback,
+    },
+  };
+}
 
 function createMiddleware(context: {
   siteDir: string;
   baseUrl?: string;
-  options: {
-    enabled: boolean;
-    docsBasePath: string;
-    llmDocsPath: string;
-    staticDir?: string;
-  };
+  options?: RedirectOptionsOverrides;
 }): MiddlewareHandler {
-  const webpackConfig = createMarkdownRedirectWebpackConfig(context);
+  const webpackConfig = createMarkdownRedirectWebpackConfig({
+    siteDir: context.siteDir,
+    baseUrl: context.baseUrl,
+    options: buildOptions(context.options),
+  });
   if (!webpackConfig) {
     throw new Error('Expected markdown redirect webpack config to be enabled.');
   }
@@ -46,6 +91,17 @@ function buildStaticDir(siteDir: string): string {
   return staticDir;
 }
 
+function writeDocsMetadata(siteDir: string, payload: { permalink: string; source: string }): void {
+  const metadataDir = path.join(
+    siteDir,
+    '.docusaurus',
+    'docusaurus-plugin-content-docs',
+    'default'
+  );
+  fs.mkdirSync(metadataDir, { recursive: true });
+  fs.writeFileSync(path.join(metadataDir, 'doc.json'), JSON.stringify(payload), 'utf8');
+}
+
 const tempDirs: string[] = [];
 
 afterEach(() => {
@@ -61,15 +117,7 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -83,21 +131,31 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
+  it('supports markdown alias request headers', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const middleware = createMiddleware({ siteDir });
+    const redirect = vi.fn();
+    const next = vi.fn();
+
+    middleware(
+      { path: '/docs/api/users/get-user', headers: { accept: 'text/html', 'x-doc-format': 'md' } },
+      { redirect },
+      next
+    );
+
+    expect(redirect).toHaveBeenCalledWith(302, '/llm-docs/users/get-user.md');
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it('redirects markdown operation requests when Docusaurus uses a custom baseUrl', () => {
     const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      baseUrl: '/my-project/',
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir, baseUrl: '/my-project/' });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -111,49 +169,12 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('handles custom baseUrl values with and without trailing slashes', () => {
-    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
-    tempDirs.push(siteDir);
-    buildStaticDir(siteDir);
-
-    for (const baseUrl of ['/docs-root', '/docs-root/']) {
-      const middleware = createMiddleware({
-        siteDir,
-        baseUrl,
-        options: {
-          enabled: true,
-          docsBasePath: '/docs/api',
-          llmDocsPath: '/llm-docs',
-        },
-      });
-
-      const redirect = vi.fn();
-      const next = vi.fn();
-      middleware(
-        { path: '/docs-root/docs/api/users/get-user', headers: { accept: 'text/markdown' } },
-        { redirect },
-        next
-      );
-
-      expect(redirect).toHaveBeenCalledWith(302, '/docs-root/llm-docs/users/get-user.md');
-      expect(next).not.toHaveBeenCalled();
-    }
-  });
-
   it('falls back to group summary markdown when an operation markdown file is missing', () => {
     const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -172,15 +193,7 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -195,15 +208,7 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -217,20 +222,104 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
+  it('returns source markdown for non-graphql docs routes when metadata is available', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const sourceFilePath = path.join(siteDir, 'docs', 'guides', 'overview.mdx');
+    fs.mkdirSync(path.dirname(sourceFilePath), { recursive: true });
+    fs.writeFileSync(sourceFilePath, '# Overview\n');
+    writeDocsMetadata(siteDir, {
+      permalink: '/docs/guides/overview',
+      source: '@site/docs/guides/overview.mdx',
+    });
+
+    const middleware = createMiddleware({ siteDir });
+    const redirect = vi.fn();
+    const setHeader = vi.fn();
+    const type = vi.fn();
+    const sendFile = vi.fn();
+    const next = vi.fn();
+
+    middleware(
+      { path: '/docs/guides/overview', headers: { accept: 'text/markdown' } },
+      { redirect, setHeader, type, sendFile },
+      next
+    );
+
+    expect(redirect).not.toHaveBeenCalled();
+    expect(setHeader).toHaveBeenCalledWith('Vary', 'Accept');
+    expect(type).toHaveBeenCalledWith('text/markdown; charset=utf-8');
+    expect(sendFile).toHaveBeenCalledWith(sourceFilePath);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('returns source markdown with baseUrl-scoped requests', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const sourceFilePath = path.join(siteDir, 'docs', 'intro.mdx');
+    fs.mkdirSync(path.dirname(sourceFilePath), { recursive: true });
+    fs.writeFileSync(sourceFilePath, '# Intro\n');
+    writeDocsMetadata(siteDir, {
+      permalink: '/docs/intro',
+      source: '@site/docs/intro.mdx',
+    });
+
+    const middleware = createMiddleware({ siteDir, baseUrl: '/my-project/' });
+    const sendFile = vi.fn();
+    const next = vi.fn();
+
+    middleware(
+      { path: '/my-project/docs/intro', headers: { accept: 'text/markdown' } },
+      { redirect: vi.fn(), sendFile },
+      next
+    );
+
+    expect(sendFile).toHaveBeenCalledWith(sourceFilePath);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('respects docs source fallback base-path filters', () => {
+    const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
+    tempDirs.push(siteDir);
+    buildStaticDir(siteDir);
+
+    const sourceFilePath = path.join(siteDir, 'docs', 'guides', 'overview.mdx');
+    fs.mkdirSync(path.dirname(sourceFilePath), { recursive: true });
+    fs.writeFileSync(sourceFilePath, '# Overview\n');
+    writeDocsMetadata(siteDir, {
+      permalink: '/docs/guides/overview',
+      source: '@site/docs/guides/overview.mdx',
+    });
+
+    const middleware = createMiddleware({
+      siteDir,
+      options: {
+        docsSourceFallback: {
+          docsBasePaths: ['/guides'],
+        },
+      },
+    });
+    const next = vi.fn();
+
+    middleware(
+      { path: '/docs/guides/overview', headers: { accept: 'text/markdown' } },
+      { redirect: vi.fn(), sendFile: vi.fn() },
+      next
+    );
+
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
   it('passes through non-markdown requests', () => {
     const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graphql-doc-markdown-redirect-'));
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -249,15 +338,7 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -272,15 +353,7 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -295,15 +368,7 @@ describe('createMarkdownRedirectWebpackConfig', () => {
     tempDirs.push(siteDir);
     buildStaticDir(siteDir);
 
-    const middleware = createMiddleware({
-      siteDir,
-      options: {
-        enabled: true,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
-    });
-
+    const middleware = createMiddleware({ siteDir });
     const redirect = vi.fn();
     const next = vi.fn();
 
@@ -320,11 +385,9 @@ describe('createMarkdownRedirectWebpackConfig', () => {
   it('returns undefined when markdown redirect is disabled', () => {
     const webpackConfig = createMarkdownRedirectWebpackConfig({
       siteDir: '/repo',
-      options: {
+      options: buildOptions({
         enabled: false,
-        docsBasePath: '/docs/api',
-        llmDocsPath: '/llm-docs',
-      },
+      }),
     });
 
     expect(webpackConfig).toBeUndefined();

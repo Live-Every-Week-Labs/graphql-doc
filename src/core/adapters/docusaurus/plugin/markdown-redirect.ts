@@ -15,21 +15,26 @@ interface DevServerLike {
 }
 
 interface RequestLike {
+  method?: string;
   path?: string;
   url?: string;
-  headers?: {
-    accept?: string;
-  };
+  headers?: Record<string, string | string[] | undefined>;
 }
 
 interface ResponseLike {
   redirect: (status: number, target: string) => void;
+  setHeader?: (name: string, value: string) => void;
+  type?: (value: string) => void;
+  sendFile?: (filePath: string) => void;
+  send?: (body: string) => void;
+  end?: (body: string) => void;
 }
 
 const withLeadingSlash = (value: string): string => (value.startsWith('/') ? value : `/${value}`);
 const withoutTrailingSlash = (value: string): string => value.replace(/\/+$/, '');
 const stripLeadingSlash = (value: string): string => value.replace(/^\/+/, '');
 const stripTrailingSlash = (value: string): string => value.replace(/\/+$/, '');
+const MARKDOWN_SOURCE_EXTENSIONS = new Set(['.md', '.mdx']);
 
 function normalizeBaseUrlPrefix(baseUrl: string | undefined): string {
   if (!baseUrl || baseUrl === '/') {
@@ -59,8 +64,27 @@ function stripBaseUrlPrefix(requestPath: string, baseUrlPrefix: string): string 
   return undefined;
 }
 
-function acceptsMarkdown(acceptHeader: string | undefined): boolean {
-  return typeof acceptHeader === 'string' && acceptHeader.toLowerCase().includes('text/markdown');
+function toHeaderValueString(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) {
+    return value.join(',').toLowerCase().trim();
+  }
+
+  return `${value ?? ''}`.toLowerCase().trim();
+}
+
+function requestWantsMarkdown(
+  headers: RequestLike['headers'],
+  options: NormalizedMarkdownRedirectOptions['requestDetection']
+): boolean {
+  const acceptHeader = toHeaderValueString(headers?.accept);
+  if (options.acceptTypes.some((acceptType) => acceptHeader.includes(acceptType.toLowerCase()))) {
+    return true;
+  }
+
+  const markdownHeaderValues = new Set(options.headerValues.map((value) => value.toLowerCase()));
+  return options.headerNames.some((headerName) =>
+    markdownHeaderValues.has(toHeaderValueString(headers?.[headerName.toLowerCase()]))
+  );
 }
 
 function matchesDocsBasePath(requestPath: string, docsBasePath: string): boolean {
@@ -109,6 +133,114 @@ function resolveTarget(
   return `${llmDocsPath}/index.md`;
 }
 
+function normalizeRouteKey(pathname: string): string {
+  return stripTrailingSlash(pathname) || '/';
+}
+
+function matchesAnyDocsBasePath(requestPath: string, docsBasePaths: string[]): boolean {
+  return docsBasePaths.some((docsBasePath) => {
+    const normalizedDocsBasePath = withoutTrailingSlash(withLeadingSlash(docsBasePath));
+    return (
+      requestPath === normalizedDocsBasePath || requestPath.startsWith(`${normalizedDocsBasePath}/`)
+    );
+  });
+}
+
+function resolveSourcePath(siteDir: string, sourceValue: string): string {
+  if (sourceValue.startsWith('@site/')) {
+    return path.join(siteDir, sourceValue.slice('@site/'.length));
+  }
+
+  if (path.isAbsolute(sourceValue)) {
+    return sourceValue;
+  }
+
+  return path.resolve(siteDir, sourceValue);
+}
+
+function resolveDocsSourceMarkdownPath(
+  siteDir: string,
+  requestPath: string,
+  fallbackOptions: NormalizedMarkdownRedirectOptions['docsSourceFallback']
+): string | undefined {
+  if (
+    !fallbackOptions.enabled ||
+    !matchesAnyDocsBasePath(requestPath, fallbackOptions.docsBasePaths)
+  ) {
+    return undefined;
+  }
+
+  const requestRouteKey = normalizeRouteKey(requestPath);
+  for (const pluginId of fallbackOptions.docsPluginIds) {
+    const docsMetadataDir = path.resolve(siteDir, fallbackOptions.metadataBaseDir, pluginId);
+    if (!fs.existsSync(docsMetadataDir)) {
+      continue;
+    }
+
+    const metadataEntries = fs.readdirSync(docsMetadataDir, { withFileTypes: true });
+    for (const entry of metadataEntries) {
+      if (!entry.isFile() || !entry.name.endsWith('.json')) {
+        continue;
+      }
+
+      const metadataPath = path.join(docsMetadataDir, entry.name);
+      try {
+        const payload = JSON.parse(fs.readFileSync(metadataPath, 'utf8')) as {
+          permalink?: unknown;
+          source?: unknown;
+        };
+        if (typeof payload.permalink !== 'string' || typeof payload.source !== 'string') {
+          continue;
+        }
+
+        if (normalizeRouteKey(payload.permalink) !== requestRouteKey) {
+          continue;
+        }
+
+        const sourcePath = resolveSourcePath(siteDir, payload.source);
+        if (
+          fs.existsSync(sourcePath) &&
+          MARKDOWN_SOURCE_EXTENSIONS.has(path.extname(sourcePath).toLowerCase())
+        ) {
+          return sourcePath;
+        }
+      } catch {
+        // Invalid metadata JSON should not break docs serving.
+        continue;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function sendMarkdownSource(res: ResponseLike, markdownPath: string): boolean {
+  if (!fs.existsSync(markdownPath)) {
+    return false;
+  }
+
+  res.setHeader?.('Vary', 'Accept');
+  res.type?.('text/markdown; charset=utf-8');
+
+  if (typeof res.sendFile === 'function') {
+    res.sendFile(markdownPath);
+    return true;
+  }
+
+  const content = fs.readFileSync(markdownPath, 'utf8');
+  if (typeof res.send === 'function') {
+    res.send(content);
+    return true;
+  }
+
+  if (typeof res.end === 'function') {
+    res.end(content);
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * Create Docusaurus webpack dev-server middleware config that redirects
  * markdown-aware requests for API docs pages to raw LLM markdown artifacts.
@@ -137,9 +269,13 @@ export function createMarkdownRedirectWebpackConfig(
         }
 
         devServer.app.use((req: RequestLike, res: ResponseLike, next: () => void) => {
+          if (req.method && req.method !== 'GET' && req.method !== 'HEAD') {
+            return next();
+          }
+
           const requestPath =
             stripTrailingSlash((req.path || req.url || '').split('?')[0] || '/') || '/';
-          if (!acceptsMarkdown(req.headers?.accept)) {
+          if (!requestWantsMarkdown(req.headers, context.options.requestDetection)) {
             return next();
           }
 
@@ -158,6 +294,16 @@ export function createMarkdownRedirectWebpackConfig(
 
           const target = resolveTarget(scopedRequestPath, docsBasePath, llmDocsPath, staticDir);
           if (!target) {
+            const docsSourcePath = resolveDocsSourceMarkdownPath(
+              context.siteDir,
+              scopedRequestPath,
+              context.options.docsSourceFallback
+            );
+
+            if (docsSourcePath && sendMarkdownSource(res, docsSourcePath)) {
+              return;
+            }
+
             return next();
           }
 
