@@ -174,6 +174,76 @@ describe('loadGeneratorConfig', () => {
       expect(config.requireExamplesForDocumentedOperations).toBe(true);
     });
 
+    it('parses top-level schema and targets without stripping them', async () => {
+      const targetsPath = path.join(tempDir, 'targets-config.json');
+      fs.writeFileSync(
+        targetsPath,
+        JSON.stringify({
+          configVersion: 1,
+          schema: './schema/root.graphql',
+          outputDir: './docs/api',
+          framework: 'docusaurus',
+          targets: [
+            {
+              name: 'main',
+              schema: './schema/prod.graphql',
+              outputDir: './docs/api',
+            },
+            {
+              name: 'lab',
+              enabled: false,
+              schema: {
+                primary: './schema/beta.graphql',
+                fallback: './schema/prod.graphql',
+              },
+              outputDir: './versioned_docs/version-lab/api',
+              llmDocs: {
+                enabled: false,
+              },
+            },
+          ],
+        })
+      );
+
+      const config = await loadGeneratorConfig(process.cwd(), targetsPath);
+      expect(config.schema).toBe('./schema/root.graphql');
+      expect(config.targets).toHaveLength(2);
+      expect(config.targets?.[0].name).toBe('main');
+      expect(config.targets?.[0].enabled).toBe(true);
+      expect(config.targets?.[1].enabled).toBe(false);
+      expect(config.targets?.[1].schema).toEqual({
+        primary: './schema/beta.graphql',
+        fallback: './schema/prod.graphql',
+      });
+      expect(config.targets?.[1].llmDocs?.enabled).toBe(false);
+    });
+
+    it('throws when target names are duplicated case-insensitively', async () => {
+      const duplicateTargetsPath = path.join(tempDir, 'duplicate-targets-config.json');
+      fs.writeFileSync(
+        duplicateTargetsPath,
+        JSON.stringify({
+          configVersion: 1,
+          outputDir: './docs/api',
+          framework: 'docusaurus',
+          targets: [
+            {
+              name: 'main',
+              outputDir: './docs/api',
+            },
+            {
+              name: 'Main',
+              outputDir: './docs/api-lab',
+            },
+          ],
+        })
+      );
+
+      await expect(loadGeneratorConfig(process.cwd(), duplicateTargetsPath)).rejects.toThrow(
+        'Duplicate target name'
+      );
+    });
+
     it('normalizes single exampleFiles value to an array', async () => {
       const singleSourcePath = path.join(tempDir, 'example-files-single.json');
       fs.writeFileSync(

@@ -4,6 +4,27 @@ export const CURRENT_CONFIG_VERSION = 1 as const;
 
 const GroupOrderingEntrySchema = z.string().trim().min(1);
 
+const toStringArray = (value: unknown): unknown => {
+  if (typeof value === 'string') {
+    return [value];
+  }
+
+  return value;
+};
+
+const StringArraySchema = z.preprocess(toStringArray, z.array(z.string()));
+
+const SchemaPointerSchema = z.union([z.string(), z.array(z.string())]);
+
+const SchemaSourceWithFallbackSchema = z
+  .object({
+    primary: SchemaPointerSchema,
+    fallback: SchemaPointerSchema,
+  })
+  .strict();
+
+const SchemaSourceSchema = z.union([SchemaPointerSchema, SchemaSourceWithFallbackSchema]);
+
 /**
  * Normalize group names for matching across config and schema annotations.
  * This intentionally mirrors product rules:
@@ -35,7 +56,7 @@ const GroupOrderingPinnedSchema = z
   })
   .strict();
 
-const GroupOrderingSchema = z
+const GroupOrderingConfigSchema = z
   .discriminatedUnion('mode', [
     GroupOrderingAlphabeticalSchema,
     GroupOrderingExplicitSchema,
@@ -59,8 +80,21 @@ const GroupOrderingSchema = z
         return;
       }
     }
+  });
+
+const GroupOrderingSchema = GroupOrderingConfigSchema.default({ mode: 'alphabetical' });
+
+const TypeExpansionObjectSchema = z
+  .object({
+    maxDepth: z.number().min(1).max(10).default(5),
+    defaultLevels: z.number().min(0).max(10).default(0),
+    showCircularReferences: z.boolean().default(true),
   })
-  .default({ mode: 'alphabetical' });
+  .strict();
+
+const TypeExpansionSchema = TypeExpansionObjectSchema.default({});
+
+const TypeExpansionOverrideSchema = TypeExpansionObjectSchema.partial().strict();
 
 const IntroDocObjectSchema = z
   .object({
@@ -77,7 +111,7 @@ const IntroDocObjectSchema = z
 
 const IntroDocSchema = z.union([z.string(), IntroDocObjectSchema]);
 
-const AgentSkillIntroDocSchema = z
+const AgentSkillIntroDocObjectSchema = z
   .object({
     enabled: z.boolean().default(true),
     outputPath: z.string().default('intro/ai-agent-skill.mdx'),
@@ -88,9 +122,13 @@ const AgentSkillIntroDocSchema = z
     downloadUrl: z.string().optional(),
     downloadLabel: z.string().optional(),
   })
-  .default({});
+  .strict();
 
-const AgentSkillSchema = z
+const AgentSkillIntroDocSchema = AgentSkillIntroDocObjectSchema.default({});
+
+const AgentSkillIntroDocOverrideSchema = AgentSkillIntroDocObjectSchema.partial().strict();
+
+const AgentSkillObjectSchema = z
   .object({
     enabled: z.boolean().default(false),
     name: z
@@ -113,9 +151,17 @@ const AgentSkillSchema = z
       .default('graphql_docs_skill.py'),
     introDoc: AgentSkillIntroDocSchema,
   })
-  .default({});
+  .strict();
 
-const DocusaurusAdapterSchema = z
+const AgentSkillSchema = AgentSkillObjectSchema.default({});
+
+const AgentSkillOverrideSchema = AgentSkillObjectSchema.partial()
+  .extend({
+    introDoc: AgentSkillIntroDocOverrideSchema.optional(),
+  })
+  .strict();
+
+const DocusaurusAdapterObjectSchema = z
   .object({
     singlePage: z.boolean().default(false),
     docsRoot: z.string().default('./docs'),
@@ -143,16 +189,27 @@ const DocusaurusAdapterSchema = z
       }),
     introDocs: z.array(IntroDocSchema).default([]),
   })
-  .default({});
+  .strict();
 
-const AdaptersSchema = z
+const DocusaurusAdapterSchema = DocusaurusAdapterObjectSchema.default({});
+
+const DocusaurusAdapterOverrideSchema = DocusaurusAdapterObjectSchema.partial().strict();
+
+const AdaptersObjectSchema = z
   .object({
     docusaurus: DocusaurusAdapterSchema.default({}),
   })
-  .strip()
-  .default({ docusaurus: {} });
+  .strip();
 
-const LlmDocsSchema = z
+const AdaptersSchema = AdaptersObjectSchema.default({ docusaurus: {} });
+
+const AdaptersOverrideSchema = z
+  .object({
+    docusaurus: DocusaurusAdapterOverrideSchema.optional(),
+  })
+  .strip();
+
+const LlmDocsObjectSchema = z
   .object({
     enabled: z.boolean().default(true),
     outputDir: z.string().default('llm-docs'),
@@ -165,55 +222,80 @@ const LlmDocsSchema = z
     apiName: z.string().optional(),
     apiDescription: z.string().optional(),
   })
-  .default({});
+  .strict();
 
-export const ConfigSchema = z
+const LlmDocsSchema = LlmDocsObjectSchema.default({});
+
+const LlmDocsOverrideSchema = LlmDocsObjectSchema.partial().strict();
+
+const TargetConfigSchema = z
+  .object({
+    name: z.string().trim().min(1),
+    enabled: z.boolean().default(true),
+    schema: SchemaSourceSchema.optional(),
+    outputDir: z.string().optional(),
+    cleanOutputDir: z.boolean().optional(),
+    framework: z.enum(['docusaurus']).optional(),
+    metadataDir: z.string().optional(),
+    examplesDir: z.string().optional(),
+    exampleFiles: StringArraySchema.optional(),
+    schemaExtensions: StringArraySchema.optional(),
+    allowRemoteSchema: z.boolean().optional(),
+    requireExamplesForDocumentedOperations: z.boolean().optional(),
+    excludeDocGroups: StringArraySchema.optional(),
+    groupOrdering: GroupOrderingConfigSchema.optional(),
+    typeExpansion: TypeExpansionOverrideSchema.optional(),
+    agentSkill: AgentSkillOverrideSchema.optional(),
+    adapters: AdaptersOverrideSchema.optional(),
+    llmDocs: LlmDocsOverrideSchema.optional(),
+  })
+  .strict();
+
+export const ConfigObjectSchema = z
   .object({
     configVersion: z.literal(CURRENT_CONFIG_VERSION).default(CURRENT_CONFIG_VERSION),
+    schema: SchemaSourceSchema.optional(),
+    targets: z.array(TargetConfigSchema).optional(),
     outputDir: z.string().default('./docs/api'),
     cleanOutputDir: z.boolean().default(false),
     framework: z.enum(['docusaurus']).default('docusaurus'),
     metadataDir: z.string().default('./docs-metadata'),
     examplesDir: z.string().optional(),
-    exampleFiles: z
-      .preprocess((value) => {
-        if (typeof value === 'string') {
-          return [value];
-        }
-        return value;
-      }, z.array(z.string()))
-      .optional(),
-    schemaExtensions: z
-      .preprocess((value) => {
-        if (typeof value === 'string') {
-          return [value];
-        }
-        return value;
-      }, z.array(z.string()))
-      .default([]),
+    exampleFiles: StringArraySchema.optional(),
+    schemaExtensions: StringArraySchema.default([]),
     allowRemoteSchema: z.boolean().default(false),
     requireExamplesForDocumentedOperations: z.boolean().default(false),
-    excludeDocGroups: z
-      .preprocess((value) => {
-        if (typeof value === 'string') {
-          return [value];
-        }
-        return value;
-      }, z.array(z.string()))
-      .default([]),
+    excludeDocGroups: StringArraySchema.default([]),
     groupOrdering: GroupOrderingSchema,
-    typeExpansion: z
-      .object({
-        maxDepth: z.number().min(1).max(10).default(5),
-        defaultLevels: z.number().min(0).max(10).default(0),
-        showCircularReferences: z.boolean().default(true),
-      })
-      .default({}),
+    typeExpansion: TypeExpansionSchema,
     agentSkill: AgentSkillSchema,
     adapters: AdaptersSchema,
     llmDocs: LlmDocsSchema,
   })
   .strip();
+
+export const ConfigSchema = ConfigObjectSchema.superRefine((value, ctx) => {
+  if (!value.targets || value.targets.length === 0) {
+    return;
+  }
+
+  // Target names are treated as case-insensitive identifiers in CLI/plugin
+  // selection paths; enforce uniqueness at config-parse time.
+  const seen = new Set<string>();
+  value.targets.forEach((target, index) => {
+    const normalized = target.name.trim().toLowerCase();
+    if (seen.has(normalized)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['targets', index, 'name'],
+        message: `Duplicate target name "${target.name}". Target names must be unique.`,
+      });
+      return;
+    }
+
+    seen.add(normalized);
+  });
+});
 
 export type Config = z.infer<typeof ConfigSchema>;
 export type IntroDocConfig = z.infer<typeof IntroDocSchema>;
@@ -222,3 +304,5 @@ export type AgentSkillConfig = z.infer<typeof AgentSkillSchema>;
 export type DocusaurusAdapterConfig = z.infer<typeof DocusaurusAdapterSchema>;
 export type LlmDocsConfig = z.infer<typeof LlmDocsSchema>;
 export type GroupOrderingConfig = z.infer<typeof GroupOrderingSchema>;
+export type SchemaSourceConfig = z.infer<typeof SchemaSourceSchema>;
+export type TargetConfig = z.infer<typeof TargetConfigSchema>;

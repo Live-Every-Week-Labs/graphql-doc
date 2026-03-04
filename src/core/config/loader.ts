@@ -2,11 +2,13 @@ import { cosmiconfig } from 'cosmiconfig';
 import { loadConfig } from 'graphql-config';
 import path from 'path';
 import fs from 'fs';
-import { Config, ConfigSchema, CURRENT_CONFIG_VERSION } from './schema.js';
+import { Config, ConfigObjectSchema, ConfigSchema, CURRENT_CONFIG_VERSION } from './schema.js';
 import { formatPathForMessage } from '../utils/index.js';
 
 const MODULE_NAME = 'graphql-doc';
-const CONFIG_SCHEMA_KEYS: Set<string> = new Set(ConfigSchema.keyof().options as readonly string[]);
+const CONFIG_SCHEMA_KEYS: Set<string> = new Set(
+  ConfigObjectSchema.keyof().options as readonly string[]
+);
 
 const LEGACY_DOCUSAURUS_KEYS = [
   'singlePage',

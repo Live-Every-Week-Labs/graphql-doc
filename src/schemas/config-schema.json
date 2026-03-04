@@ -7,6 +7,471 @@
       "const": 1,
       "default": 1
     },
+    "schema": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "primary": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "fallback": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "required": ["primary", "fallback"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "schema": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "primary": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "fallback": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": ["primary", "fallback"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "outputDir": {
+            "type": "string"
+          },
+          "cleanOutputDir": {
+            "type": "boolean"
+          },
+          "framework": {
+            "type": "string",
+            "enum": ["docusaurus"]
+          },
+          "metadataDir": {
+            "type": "string"
+          },
+          "examplesDir": {
+            "type": "string"
+          },
+          "exampleFiles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "schemaExtensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allowRemoteSchema": {
+            "type": "boolean"
+          },
+          "requireExamplesForDocumentedOperations": {
+            "type": "boolean"
+          },
+          "excludeDocGroups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "groupOrdering": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "alphabetical"
+                  }
+                },
+                "required": ["mode"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "explicit"
+                  },
+                  "explicitOrder": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": ["mode", "explicitOrder"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "const": "pinned"
+                  },
+                  "pinToStart": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "default": []
+                  },
+                  "pinToEnd": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "default": []
+                  }
+                },
+                "required": ["mode"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "typeExpansion": {
+            "type": "object",
+            "properties": {
+              "maxDepth": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 10,
+                "default": 5
+              },
+              "defaultLevels": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10,
+                "default": 0
+              },
+              "showCircularReferences": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            "additionalProperties": false
+          },
+          "agentSkill": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": false
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-zA-Z0-9_-]+$",
+                "default": "graphql-api-skill"
+              },
+              "description": {
+                "type": "string"
+              },
+              "outputDir": {
+                "type": "string"
+              },
+              "includeExamples": {
+                "type": "boolean",
+                "default": true
+              },
+              "pythonScriptName": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9_-]+\\.py$",
+                "default": "graphql_docs_skill.py"
+              },
+              "introDoc": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "outputPath": {
+                    "type": "string",
+                    "default": "intro/ai-agent-skill.mdx"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string",
+                    "default": "AI Agent Skill"
+                  },
+                  "title": {
+                    "type": "string",
+                    "default": "AI Agent Skill"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "downloadUrl": {
+                    "type": "string"
+                  },
+                  "downloadLabel": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "adapters": {
+            "type": "object",
+            "properties": {
+              "docusaurus": {
+                "type": "object",
+                "properties": {
+                  "singlePage": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "docsRoot": {
+                    "type": "string",
+                    "default": "./docs"
+                  },
+                  "docIdPrefix": {
+                    "type": "string"
+                  },
+                  "unsafeMdxDescriptions": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "typeLinkMode": {
+                    "type": "string",
+                    "enum": ["none", "deep", "all"],
+                    "default": "none"
+                  },
+                  "llmDocsBasePath": {
+                    "type": "string"
+                  },
+                  "generateSidebar": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "sidebarFile": {
+                    "type": "string"
+                  },
+                  "sidebarCategoryIndex": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "sidebarMerge": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "sidebarTarget": {
+                    "type": "string",
+                    "default": "apiSidebar"
+                  },
+                  "sidebarInsertPosition": {
+                    "type": "string",
+                    "enum": ["replace", "append", "prepend", "before", "after"],
+                    "default": "replace"
+                  },
+                  "sidebarInsertReference": {
+                    "type": "string"
+                  },
+                  "sidebarSectionLabels": {
+                    "type": "object",
+                    "properties": {
+                      "operations": {
+                        "type": "string"
+                      },
+                      "types": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "default": {
+                      "operations": "Operations",
+                      "types": "Types"
+                    }
+                  },
+                  "introDocs": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string"
+                            },
+                            "content": {
+                              "type": "string"
+                            },
+                            "outputPath": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "default": []
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "llmDocs": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              },
+              "outputDir": {
+                "type": "string",
+                "default": "llm-docs"
+              },
+              "strategy": {
+                "type": "string",
+                "enum": ["single", "chunked"],
+                "default": "chunked"
+              },
+              "includeExamples": {
+                "type": "boolean",
+                "default": true
+              },
+              "generateManifest": {
+                "type": "boolean",
+                "default": true
+              },
+              "singleFileName": {
+                "type": "string",
+                "default": "api-reference.md"
+              },
+              "maxTypeDepth": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 5,
+                "default": 3
+              },
+              "baseUrl": {
+                "type": "string"
+              },
+              "apiName": {
+                "type": "string"
+              },
+              "apiDescription": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      }
+    },
     "outputDir": {
       "type": "string",
       "default": "./docs/api"
