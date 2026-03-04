@@ -2,19 +2,22 @@ import fs from 'node:fs';
 import path from 'path';
 import chalk from 'chalk';
 import { loadGeneratorConfig, resolveConfigPaths } from '../../core/config/loader.js';
+import { buildTargetExecutionPlan } from '../../core/config/targets.js';
 import { Generator } from '../../core/generator.js';
 import { getExamplePatterns } from '../../core/metadata/example-sources.js';
 import { getErrorMessage } from '../../core/utils/index.js';
-import { resolveSchemaPointer, resolveSchemaPointers } from '../schema-resolver.js';
+import { resolveSchemaPointerCandidates } from '../schema-resolver.js';
 import { createSpinner, spinnerSucceed, spinnerFail } from '../utils.js';
 import type { Logger } from '../../core/logger.js';
 import type { Config } from '../../core/config/schema.js';
 
 export interface GenerateOptions {
-  schema?: string;
+  schema?: string | string[];
   output?: string;
   config?: string;
   cleanOutput?: boolean;
+  target?: string;
+  allTargets?: boolean;
   targetDir?: string; // For testing - defaults to process.cwd()
   llmDocs?: boolean;
   llmDocsStrategy?: 'single' | 'chunked';
@@ -27,8 +30,6 @@ export interface GenerateOptions {
 }
 
 interface GenerateExecutionContext {
-  config: Config;
-  resolvedSchemaPath: string | string[];
   watchSources: string[];
 }
 
@@ -87,8 +88,7 @@ function normalizeWatchPath(input: string, targetDir: string): string | null {
 }
 
 function buildWatchTargets(context: GenerateExecutionContext, options: GenerateOptions): string[] {
-  const schemaPointers = toArray(context.resolvedSchemaPath);
-  const sources = [...context.watchSources, ...schemaPointers];
+  const sources = [...context.watchSources];
 
   if (options.config) {
     sources.push(options.config);
@@ -138,6 +138,70 @@ function printDryRunPreview(
   console.log();
 }
 
+function applyRuntimeOptionOverrides(config: Config, options: GenerateOptions): Config {
+  const updated: Config = {
+    ...config,
+    llmDocs: {
+      ...config.llmDocs,
+    },
+  };
+
+  if (options.output) {
+    updated.outputDir = options.output;
+  }
+
+  if (options.cleanOutput !== undefined) {
+    updated.cleanOutputDir = options.cleanOutput;
+  }
+
+  if (options.llmDocs !== undefined) {
+    updated.llmDocs.enabled = options.llmDocs;
+  }
+
+  if (options.llmDocsStrategy) {
+    if (options.llmDocsStrategy !== 'single' && options.llmDocsStrategy !== 'chunked') {
+      throw new Error('llm-docs-strategy must be "single" or "chunked"');
+    }
+    updated.llmDocs.strategy = options.llmDocsStrategy;
+  }
+
+  if (options.llmDocsDepth) {
+    const depth = Number(options.llmDocsDepth);
+    if (Number.isNaN(depth) || depth < 1 || depth > 5) {
+      throw new Error('llm-docs-depth must be a number between 1 and 5');
+    }
+    updated.llmDocs.maxTypeDepth = depth as 1 | 2 | 3 | 4 | 5;
+  }
+
+  if (options.llmExamples === false) {
+    updated.llmDocs.includeExamples = false;
+  }
+
+  return updated;
+}
+
+function collectWatchSources(
+  config: Config,
+  primarySchemaPointer: string | string[],
+  fallbackSchemaPointer?: string | string[]
+): string[] {
+  const sources = [
+    ...getExamplePatterns(config),
+    ...(config.schemaExtensions ?? []),
+    ...toArray(primarySchemaPointer),
+  ];
+
+  if (fallbackSchemaPointer) {
+    sources.push(...toArray(fallbackSchemaPointer));
+  }
+
+  return sources;
+}
+
+function formatSchemaPointer(schemaPointer: string | string[]): string {
+  return Array.isArray(schemaPointer) ? schemaPointer.join(', ') : schemaPointer;
+}
+
 async function executeGenerateOnce(
   options: GenerateOptions,
   output: ReturnType<typeof createUserLogger>
@@ -157,89 +221,120 @@ async function executeGenerateOnce(
     throw new Error(`Failed to load configuration: ${getErrorMessage(error)}`);
   }
 
-  if (options.output) {
-    config.outputDir = options.output;
-  }
-
-  if (options.cleanOutput !== undefined) {
-    config.cleanOutputDir = options.cleanOutput;
-  }
-
-  if (options.llmDocs !== undefined) {
-    config.llmDocs.enabled = options.llmDocs;
-  }
-
-  if (options.llmDocsStrategy) {
-    if (options.llmDocsStrategy !== 'single' && options.llmDocsStrategy !== 'chunked') {
-      throw new Error('llm-docs-strategy must be "single" or "chunked"');
-    }
-    config.llmDocs.strategy = options.llmDocsStrategy;
-  }
-
-  if (options.llmDocsDepth) {
-    const depth = Number(options.llmDocsDepth);
-    if (Number.isNaN(depth) || depth < 1 || depth > 5) {
-      throw new Error('llm-docs-depth must be a number between 1 and 5');
-    }
-    config.llmDocs.maxTypeDepth = depth as 1 | 2 | 3 | 4 | 5;
-  }
-
-  if (options.llmExamples === false) {
-    config.llmDocs.includeExamples = false;
-  }
-
-  config = resolveConfigPaths(config, targetDir);
-
-  const schemaPointer = await resolveSchemaPointer(options, targetDir, {
-    silent: quiet,
-    log: verbose ? (message) => console.log(chalk.dim(message)) : undefined,
+  const runtimeConfig = resolveConfigPaths(applyRuntimeOptionOverrides(config, options), targetDir);
+  const targetPlans = buildTargetExecutionPlan(runtimeConfig, {
+    target: options.target,
+    allTargets: options.allTargets,
   });
-  const resolvedSchemaPath = resolveSchemaPointers(schemaPointer, targetDir);
-  const watchSources = [...getExamplePatterns(config), ...(config.schemaExtensions ?? [])];
 
-  if (verbose && !quiet) {
-    const schemaList = Array.isArray(resolvedSchemaPath)
-      ? resolvedSchemaPath.join(', ')
-      : resolvedSchemaPath;
-    console.log(chalk.dim(`Resolved schema pointer(s): ${schemaList}`));
-  }
+  const watchSources: string[] = [];
 
-  const generateSpinner = createSpinner('Generating documentation...', quiet);
-  const generationWarnings: string[] = [];
-  const generatorLogger: Logger = {
-    info: (message) => {
-      if (generateSpinner) {
-        generateSpinner.text = message;
+  for (const targetPlan of targetPlans) {
+    const planConfig = resolveConfigPaths(targetPlan.config, targetDir);
+    const schemaSource = options.schema ?? planConfig.schema;
+    const schemaCandidates = await resolveSchemaPointerCandidates(
+      {
+        schema: schemaSource,
+      },
+      targetDir,
+      {
+        silent: quiet,
+        log: verbose ? (message) => console.log(chalk.dim(message)) : undefined,
       }
+    );
+
+    if (verbose && !quiet) {
+      console.log(
+        chalk.dim(
+          `Resolved primary schema pointer${targetPlan.isTargetedRun ? ` for ${targetPlan.targetName}` : ''}: ${formatSchemaPointer(
+            schemaCandidates.primary
+          )}`
+        )
+      );
+      if (schemaCandidates.fallback) {
+        console.log(
+          chalk.dim(
+            `Resolved fallback schema pointer${targetPlan.isTargetedRun ? ` for ${targetPlan.targetName}` : ''}: ${formatSchemaPointer(
+              schemaCandidates.fallback
+            )}`
+          )
+        );
+      }
+    }
+
+    const targetLabel = targetPlan.isTargetedRun
+      ? `target "${targetPlan.targetName}"`
+      : 'default run';
+    const generateSpinner = createSpinner(`Generating documentation for ${targetLabel}...`, quiet);
+    const generationWarnings: string[] = [];
+    const generatorLogger: Logger = {
+      info: (message) => {
+        if (generateSpinner) {
+          generateSpinner.text = message;
+        }
+        if (verbose && !quiet) {
+          console.log(chalk.dim(message));
+        }
+      },
+      warn: (message) => {
+        generationWarnings.push(message);
+      },
+    };
+
+    let result: Awaited<ReturnType<Generator['generate']>>;
+    let resolvedSchemaPath = schemaCandidates.primary;
+
+    try {
+      const generator = new Generator(planConfig, generatorLogger);
+      result = await generator.generate(schemaCandidates.primary, { dryRun });
+    } catch (primaryError) {
+      if (!schemaCandidates.fallback) {
+        spinnerFail(generateSpinner, `Failed to generate documentation for ${targetLabel}`, quiet);
+        throw wrapGenerateFailure(primaryError);
+      }
+
+      output.warn(
+        `Primary schema failed for ${targetLabel}. Retrying with fallback schema pointer.`
+      );
       if (verbose && !quiet) {
-        console.log(chalk.dim(message));
+        console.log(chalk.dim(`Primary schema error: ${getErrorMessage(primaryError)}`));
       }
-    },
-    warn: (message) => {
-      generationWarnings.push(message);
-    },
-  };
 
-  try {
-    const generator = new Generator(config, generatorLogger);
-    const result = await generator.generate(resolvedSchemaPath, { dryRun });
-    spinnerSucceed(generateSpinner, 'Documentation generated successfully!', quiet);
+      try {
+        const generator = new Generator(planConfig, generatorLogger);
+        result = await generator.generate(schemaCandidates.fallback, { dryRun });
+        resolvedSchemaPath = schemaCandidates.fallback;
+      } catch (fallbackError) {
+        spinnerFail(generateSpinner, `Failed to generate documentation for ${targetLabel}`, quiet);
+        throw wrapGenerateFailure(
+          new Error(
+            `Primary schema failed (${getErrorMessage(
+              primaryError
+            )}) and fallback schema failed (${getErrorMessage(fallbackError)}).`
+          )
+        );
+      }
+    }
+
+    spinnerSucceed(generateSpinner, `Documentation generated for ${targetLabel}!`, quiet);
 
     for (const warning of generationWarnings) {
       output.warn(warning);
     }
 
     if (dryRun) {
-      printDryRunPreview(config, result, { quiet, verbose });
+      printDryRunPreview(planConfig, result, { quiet, verbose });
     } else if (!quiet) {
-      console.log(chalk.green(`\nOutput: ${config.outputDir}\n`));
+      console.log(chalk.green(`\nOutput (${targetLabel}): ${planConfig.outputDir}\n`));
     }
 
-    return { config, resolvedSchemaPath, watchSources };
-  } catch (error) {
-    spinnerFail(generateSpinner, 'Failed to generate documentation', quiet);
-    throw wrapGenerateFailure(error);
+    watchSources.push(
+      ...collectWatchSources(planConfig, schemaCandidates.primary, schemaCandidates.fallback),
+      ...toArray(resolvedSchemaPath)
+    );
   }
+
+  return { watchSources };
 }
 
 /**

@@ -236,6 +236,120 @@ describe('generate command', () => {
       expect(await fs.pathExists(customOutput)).toBe(true);
       expect(await fs.pathExists(path.join(customOutput, 'sidebars.js'))).toBe(true);
     });
+
+    it('runs only the selected target when --target is provided', async () => {
+      const targetsConfigPath = path.join(testDir, 'targets-config.json');
+
+      await fs.writeJson(targetsConfigPath, {
+        configVersion: 1,
+        outputDir: './docs/api',
+        framework: 'docusaurus',
+        metadataDir: './docs-metadata',
+        targets: [
+          {
+            name: 'prod',
+            outputDir: './docs/api',
+          },
+          {
+            name: 'labs',
+            outputDir: './versioned_docs/version-labs/api',
+          },
+        ],
+      });
+
+      await runGenerate({
+        config: 'targets-config.json',
+        target: 'labs',
+        targetDir: testDir,
+      });
+
+      expect(await fs.pathExists(path.join(testDir, 'versioned_docs', 'version-labs', 'api'))).toBe(
+        true
+      );
+      expect(await fs.pathExists(path.join(testDir, 'docs', 'api'))).toBe(false);
+    });
+
+    it('runs enabled targets by default when targets are configured', async () => {
+      const targetsConfigPath = path.join(testDir, 'targets-defaults-config.json');
+
+      await fs.writeJson(targetsConfigPath, {
+        configVersion: 1,
+        outputDir: './docs/api',
+        framework: 'docusaurus',
+        metadataDir: './docs-metadata',
+        targets: [
+          {
+            name: 'prod',
+            outputDir: './docs/api',
+          },
+          {
+            name: 'labs',
+            enabled: false,
+            outputDir: './versioned_docs/version-labs/api',
+          },
+        ],
+      });
+
+      await runGenerate({
+        config: 'targets-defaults-config.json',
+        targetDir: testDir,
+      });
+
+      expect(await fs.pathExists(path.join(testDir, 'docs', 'api'))).toBe(true);
+      expect(await fs.pathExists(path.join(testDir, 'versioned_docs', 'version-labs', 'api'))).toBe(
+        false
+      );
+    });
+
+    it('falls back to secondary schema pointer when target primary fails', async () => {
+      const fallbackConfigPath = path.join(testDir, 'targets-fallback-config.json');
+      await fs.writeJson(fallbackConfigPath, {
+        configVersion: 1,
+        outputDir: './docs/api',
+        framework: 'docusaurus',
+        metadataDir: './docs-metadata',
+        targets: [
+          {
+            name: 'labs',
+            schema: {
+              primary: './schema-beta.graphql',
+              fallback: './schema.graphql',
+            },
+            outputDir: './versioned_docs/version-labs/api',
+          },
+        ],
+      });
+
+      const SchemaLoaderModule = await import('../../core/parser/schema-loader.js');
+      const originalLoad = SchemaLoaderModule.SchemaLoader.prototype.load;
+
+      SchemaLoaderModule.SchemaLoader.prototype.load = async ({
+        schemaPointer,
+      }: {
+        schemaPointer: string | string[];
+      }) => {
+        const pointers = Array.isArray(schemaPointer) ? schemaPointer : [schemaPointer];
+        if (pointers.some((pointer) => pointer.includes('schema-beta.graphql'))) {
+          throw new Error('Primary schema is unavailable');
+        }
+
+        return buildSchema(TEST_SCHEMA);
+      };
+
+      try {
+        await runGenerate({
+          config: 'targets-fallback-config.json',
+          target: 'labs',
+          targetDir: testDir,
+        });
+      } finally {
+        SchemaLoaderModule.SchemaLoader.prototype.load = originalLoad;
+      }
+
+      expect(await fs.pathExists(path.join(testDir, 'versioned_docs', 'version-labs', 'api'))).toBe(
+        true
+      );
+    });
   });
 
   describe('schema from graphql-config', () => {
@@ -334,6 +448,17 @@ describe('generate command', () => {
           quiet: true,
         })
       ).rejects.toThrow('--verbose and --quiet cannot be used together');
+    });
+
+    it('throws when --target and --all-targets are combined', async () => {
+      await expect(
+        runGenerate({
+          schema: 'schema.graphql',
+          targetDir: testDir,
+          target: 'prod',
+          allTargets: true,
+        })
+      ).rejects.toThrow('Cannot combine target selection with all-targets mode');
     });
   });
 });

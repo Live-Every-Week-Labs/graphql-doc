@@ -23,6 +23,8 @@ program
   .option('-o, --output <path>', 'Output directory')
   .option('-c, --config <path>', 'Path to config file')
   .option('--clean-output', 'Remove existing files in output directory before generating')
+  .option('--target <name>', 'Run generation for a specific configured target')
+  .option('--all-targets', 'Run generation for all enabled configured targets')
   .option('--dry-run', 'Preview generated files without writing them to disk')
   .option('--watch', 'Watch schema/example/config files and regenerate on change')
   .option('--verbose', 'Enable verbose logging')
