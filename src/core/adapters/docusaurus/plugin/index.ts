@@ -49,6 +49,10 @@ function resolvePackageRoot(startDir: string): string {
 }
 
 const themePath = path.join(resolvePackageRoot(runtimeDir), 'dist/theme');
+const DATA_TYPES_CHUNK_NAME = 'graphql-doc-types-data';
+const DATA_OPERATIONS_CHUNK_NAME = 'graphql-doc-operations-data';
+const DATA_TYPES_PATH_PATTERN = /[\\/]_data[\\/]types\.json$/;
+const DATA_OPERATIONS_PATH_PATTERN = /[\\/]_data[\\/]operations\.json$/;
 
 function resolveLlmsHref(baseUrl: string | undefined): string {
   if (!baseUrl) {
@@ -57,6 +61,49 @@ function resolveLlmsHref(baseUrl: string | undefined): string {
 
   const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   return `${normalizedBaseUrl}llms.txt`;
+}
+
+interface WebpackModuleLike {
+  resource?: unknown;
+}
+
+function matchesDataPath(module: WebpackModuleLike, pattern: RegExp): boolean {
+  return typeof module.resource === 'string' && pattern.test(module.resource);
+}
+
+/**
+ * Force shared chunks for generated GraphQL data files.
+ *
+ * Docusaurus emits one async chunk per docs page; without explicit cache groups,
+ * large `_data/*.json` modules can be duplicated across many route chunks and
+ * inflate both build memory and final asset size.
+ */
+function createGraphqlDocDataChunkConfig(): Record<string, unknown> {
+  return {
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          graphqlDocTypesData: {
+            name: DATA_TYPES_CHUNK_NAME,
+            test: (module: WebpackModuleLike) => matchesDataPath(module, DATA_TYPES_PATH_PATTERN),
+            chunks: 'all',
+            enforce: true,
+            priority: 50,
+            reuseExistingChunk: true,
+          },
+          graphqlDocOperationsData: {
+            name: DATA_OPERATIONS_CHUNK_NAME,
+            test: (module: WebpackModuleLike) =>
+              matchesDataPath(module, DATA_OPERATIONS_PATH_PATTERN),
+            chunks: 'all',
+            enforce: true,
+            priority: 40,
+            reuseExistingChunk: true,
+          },
+        },
+      },
+    },
+  };
 }
 
 /**
@@ -146,11 +193,16 @@ export default function graphqlDocDocusaurusPlugin(
         return {};
       }
 
-      return createMarkdownRedirectWebpackConfig({
+      const markdownRedirectConfig = createMarkdownRedirectWebpackConfig({
         siteDir: context.siteDir,
         baseUrl: context.baseUrl ?? '/',
         options: options.markdownRedirect,
       });
+
+      return {
+        ...createGraphqlDocDataChunkConfig(),
+        ...(markdownRedirectConfig ?? {}),
+      };
     },
     getPathsToWatch() {
       if (!options.watch) {

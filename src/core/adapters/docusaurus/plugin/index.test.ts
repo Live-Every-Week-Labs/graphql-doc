@@ -26,6 +26,49 @@ import graphqlDocDocusaurusPlugin, { getSwizzleComponentList } from './index.js'
 
 const require = createRequire(import.meta.url);
 
+function expectGraphqlDocDataChunkConfig(configured: any) {
+  expect(configured).toEqual(
+    expect.objectContaining({
+      optimization: expect.objectContaining({
+        splitChunks: expect.objectContaining({
+          cacheGroups: expect.objectContaining({
+            graphqlDocTypesData: expect.objectContaining({
+              name: 'graphql-doc-types-data',
+              chunks: 'all',
+              enforce: true,
+              priority: 50,
+              reuseExistingChunk: true,
+              test: expect.any(Function),
+            }),
+            graphqlDocOperationsData: expect.objectContaining({
+              name: 'graphql-doc-operations-data',
+              chunks: 'all',
+              enforce: true,
+              priority: 40,
+              reuseExistingChunk: true,
+              test: expect.any(Function),
+            }),
+          }),
+        }),
+      }),
+    })
+  );
+
+  const cacheGroups = configured.optimization.splitChunks.cacheGroups;
+  expect(
+    cacheGroups.graphqlDocTypesData.test({ resource: '/repo/docs/api/_data/types.json' })
+  ).toBe(true);
+  expect(
+    cacheGroups.graphqlDocTypesData.test({ resource: '/repo/docs/api/_data/operations.json' })
+  ).toBe(false);
+  expect(
+    cacheGroups.graphqlDocOperationsData.test({ resource: '/repo/docs/api/_data/operations.json' })
+  ).toBe(true);
+  expect(
+    cacheGroups.graphqlDocOperationsData.test({ resource: '/repo/docs/api/_data/types.json' })
+  ).toBe(false);
+}
+
 describe('graphqlDocDocusaurusPlugin', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -384,7 +427,8 @@ describe('graphqlDocDocusaurusPlugin', () => {
 
     const configured = plugin.configureWebpack?.({}, false);
 
-    expect(configured).toEqual(webpackConfig);
+    expect(configured).toEqual(expect.objectContaining(webpackConfig));
+    expectGraphqlDocDataChunkConfig(configured);
     expect(createMarkdownRedirectWebpackConfigMock).toHaveBeenCalledWith({
       siteDir: '/repo',
       baseUrl: '/',
@@ -423,7 +467,8 @@ describe('graphqlDocDocusaurusPlugin', () => {
 
     const configured = plugin.configureWebpack?.();
 
-    expect(configured).toEqual(webpackConfig);
+    expect(configured).toEqual(expect.objectContaining(webpackConfig));
+    expectGraphqlDocDataChunkConfig(configured);
     expect(createMarkdownRedirectWebpackConfigMock).toHaveBeenCalledWith({
       siteDir: '/repo',
       baseUrl: '/',
@@ -454,7 +499,7 @@ describe('graphqlDocDocusaurusPlugin', () => {
     });
   });
 
-  it('returns undefined webpack config when markdown redirect is disabled', () => {
+  it('returns only data chunk optimization config when markdown redirect is disabled', () => {
     createMarkdownRedirectWebpackConfigMock.mockImplementation((context) =>
       context.options.enabled ? { devServer: { setupMiddlewares: vi.fn() } } : undefined
     );
@@ -470,7 +515,9 @@ describe('graphqlDocDocusaurusPlugin', () => {
 
     const configured = plugin.configureWebpack?.({}, false);
 
-    expect(configured).toBeUndefined();
+    expect(configured).toBeDefined();
+    expect(configured).toEqual(expect.not.objectContaining({ devServer: expect.anything() }));
+    expectGraphqlDocDataChunkConfig(configured);
     expect(createMarkdownRedirectWebpackConfigMock).toHaveBeenCalledWith({
       siteDir: '/repo',
       baseUrl: '/',
